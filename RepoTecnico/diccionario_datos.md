@@ -68,13 +68,13 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 | Campo | Tipo | Descripción | Valores iniciales |
 |---|---|---|---|
-| — | `ChainIdHex` | Red activa. | `"0x7a69"` (Anvil/Hardhat 31337) por defecto; `"0xaa36a7"` (Sepolia) opcional. |
+| — | `ChainIdHex` | Red activa. | `"0x7a69"` (Anvil 31337). **Única red incluida por defecto (P-02: sin Sepolia).** |
 
 ---
 
 ### 2.6 `codecrypto_networks`
 
-> **Nuevo (RF-23).**
+> **Nuevo (RF-23).** Por decisión P-02 el sistema arranca con **una sola red** (Anvil local); las demás se añaden en tiempo de ejecución con `wallet_addEthereumChain` o desde la UI.
 
 | Campo | Tipo | Obligatorio | Descripción |
 |---|---|---|---|
@@ -88,18 +88,13 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 | `isTestnet` | `boolean` | Sí | Marca visual de red de pruebas. |
 | `isDefault` | `boolean` | Sí | Red usada al primer arranque. |
 
-*Valor por defecto:*
+*Valor por defecto (único registro inicial):*
 ```json
 {
   "0x7a69": {
     "chainId": "0x7a69", "chainIdDecimal": 31337, "name": "Anvil Local",
     "rpcUrl": "http://127.0.0.1:8545", "symbol": "ETH", "decimals": 18,
     "isTestnet": true, "isDefault": true
-  },
-  "0xaa36a7": {
-    "chainId": "0xaa36a7", "chainIdDecimal": 11155111, "name": "Sepolia",
-    "rpcUrl": "https://rpc.sepolia.org", "symbol": "ETH", "decimals": 18,
-    "explorerUrl": "https://sepolia.etherscan.io", "isTestnet": true, "isDefault": false
   }
 }
 ```

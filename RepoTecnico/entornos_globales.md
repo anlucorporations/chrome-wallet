@@ -1,11 +1,11 @@
 # 🌐 Entornos Globales — CodeCrypto Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.0
+> **Fase:** 1 — Concepto · **Versión:** 1.1
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 
 ---
 
-## 1. Entorno de desarrollo verificado (2026-02, máquina local)
+## 1. Entorno de desarrollo verificado (máquina local)
 
 | Elemento | Valor detectado | Notas |
 |---|---|---|
@@ -14,8 +14,9 @@
 | Node.js | `v24.16.0` | Compatible con Vite 7. |
 | npm | `11.13.0` | Gestor de paquetes elegido. |
 | Foundry | `anvil` / `forge` / `cast` **1.7.2-dev** | Binarios en `C:\Users\lucci\.cargo\bin\`. |
-| Git | Repositorio **no inicializado** todavía | `git rev-parse` → `fatal: not a git repository`. |
-| Remotos GitLab/GitHub | **Pendientes** (P-01) | Se registrarán aquí al confirmarse. |
+| Git | **Inicializado** — ramas `main` y `chrome-wallet-DSH` | `chrome-wallet-DSH` es la rama de trabajo activa. |
+| Remotos | `origin` (GitHub), `gitlab` (GitLab.com), `codecrypto` (GitLab ANLU) | Ver §5. GitHub y GitLab.com **aún no existen**. |
+| `gh` / `glab` CLI | **No instalados**; sin `GITHUB_TOKEN`/`GITLAB_TOKEN` | La creación de repos remotos debe hacerse por la web o aportando un token. |
 | RPC local en `127.0.0.1:8545` | **No está escuchando** al inicio del proyecto | Se levanta con Anvil cuando se pruebe. |
 | Chrome/Edge | No se detectó `chrome` en el `PATH` | Instalación estándar; se carga la extensión manualmente desde `chrome://extensions`. |
 | GCP | Sin credenciales configuradas | Pendiente de P-08. |
@@ -27,9 +28,9 @@
 | Documentación técnica | `RepoTecnico/` |
 | Enunciado fuente | `RepoTecnico/requisitos.md`, `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` |
 | Guía de pruebas rápida | `RepoTecnico/GUIA_RAPIDA_TESTING.md` |
-| Código fuente (a crear) | `src/` |
-| Build de la extensión (a crear) | `dist/` — **es la carpeta que se carga en Chrome** |
-| dApp de pruebas (a crear) | `test.html` (raíz y copia servida en `http://localhost:5174/test.html`) |
+| Código fuente | `src/` — **existe una versión completa en el remoto `codecrypto`** (§5), pendiente de adoptar (P-10) |
+| Build de la extensión | `dist/` — **es la carpeta que se carga en Chrome** |
+| dApp de pruebas | `test.html` (raíz y copia servida en `http://localhost:5174/test.html`) |
 | Binarios Foundry | `C:\Users\lucci\.cargo\bin\{anvil,forge,cast}.exe` |
 
 ---
@@ -42,7 +43,7 @@
 # Anvil por defecto: puerto 8545, chainId 31337, mnemonic "test ... junk", 10 000 ETH por cuenta
 anvil
 
-# Con CORS/host abiertos para que la extensión pueda llamar al RPC (RE-04)
+# Con CORS abierto para que la extensión pueda llamar al RPC (RE-04)
 anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"
 
 # Verificar que responde
@@ -50,9 +51,11 @@ cast block-number --rpc-url http://127.0.0.1:8545
 cast chain-id     --rpc-url http://127.0.0.1:8545     # -> 31337
 cast balance 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://127.0.0.1:8545
 
-# Alternativa Hardhat (compatible: mismo puerto, chainId y mnemonic)
-npx hardhat node
+# Ver una transacción enviada desde la wallet
+cast tx <hash> --rpc-url http://127.0.0.1:8545
 ```
+
+> **Decisión P-02:** Anvil es la **única** red. No se incluye Sepolia. El cambio de red (RF-22/RF-23) se prueba añadiendo una segunda red local con `wallet_addEthereumChain` (por ejemplo `anvil --port 8546 --chain-id 31338`).
 
 ### 2.2 Proyecto (a partir de la Fase 3)
 
@@ -77,8 +80,8 @@ npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
 ```javascript
 // En la consola del Service Worker
 chrome.storage.local.get('codecrypto_connected_sites', console.log);
-chrome.storage.local.get(null, console.log);                 // Todo el storage
-chrome.storage.local.set({ codecrypto_connected_sites: {} }); // Desconectar todos los sitios
+chrome.storage.local.get(null, console.log);                    // Todo el storage
+chrome.storage.local.set({ codecrypto_connected_sites: {} });   // Desconectar todos los sitios
 ```
 
 ```javascript
@@ -87,6 +90,18 @@ await window.codecrypto.request({ method: 'eth_requestAccounts' });
 await window.codecrypto.request({ method: 'eth_accounts' });
 await window.codecrypto.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] });
 ```
+
+### 2.5 Comandos git del proyecto
+
+```powershell
+git status                                   # Rama activa: chrome-wallet-DSH
+git checkout main                            # Cambiar a main
+git remote -v                                # Ver los 3 remotos
+git ls-remote --heads codecrypto             # Comprobar ramas del remoto ANLU
+git fetch codecrypto --prune                 # Traer las ramas del remoto
+```
+
+> Regla **RE-03:** no se hace `push` sin orden explícita del usuario (`/push`).
 
 ---
 
@@ -127,8 +142,7 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
   "permissions": ["storage", "tabs", "activeTab", "notifications", "scripting"],
   "host_permissions": [
     "http://127.0.0.1:8545/*",
-    "http://localhost:8545/*",
-    "https://rpc.sepolia.org/*"
+    "http://localhost:8545/*"
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
@@ -141,16 +155,33 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 }
 ```
 
+> Se retiró `https://rpc.sepolia.org/*` por la decisión **P-02**. Si algún día se añade una red con `wallet_addEthereumChain`, habrá que solicitar permiso de host en tiempo de ejecución (`chrome.permissions.request`) o declararlo aquí.
+
 ---
 
 ## 5. Repositorios remotos
 
-| Remoto | URL | Rama | Estado |
+| Remoto | URL | Ramas requeridas | Estado |
 |---|---|---|---|
-| GitLab | — | — | ⏳ Pendiente (P-01) |
-| GitHub | — | — | ⏳ Pendiente (P-01) |
+| `origin` | `https://github.com/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ⚠️ **No existe** (verificado: "Repository not found"). Pendiente de crear por el usuario. |
+| `gitlab` | `https://gitlab.com/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ⚠️ **No existe** (verificado: "project could not be found"). Pendiente de crear por el usuario. |
+| `codecrypto` | `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ✅ **Existe.** Ramas en el remoto: `main`, `chrome-wallet-DSH`, `cromeWalltet-qwen` (todas apuntan al commit `632d890` "Initial commit" con la implementación previa). |
 
-Regla: **no se hace `push` sin orden explícita del usuario** (`/push`).
+> El remoto `codecrypto` es accesible de forma anónima para lectura (`git ls-remote` funcionó). Se asume que el `push` requiere credenciales del usuario.
+
+### Cómo crear los repositorios que faltan (acción del usuario)
+
+```powershell
+# Opción A — con GitHub CLI (requiere instalar gh y hacer `gh auth login`)
+gh repo create anlucorporations/chrome-wallet --private --source . --remote origin
+
+# Opción B — con GitLab CLI (requiere instalar glab y `glab auth login`)
+glab repo create chrome-wallet --private
+```
+
+**Opción C — por la web (recomendada si no se quieren instalar CLIs):** crear el proyecto vacío en GitHub y en GitLab.com con el nombre `chrome-wallet` en la organización `anlucorporations`, sin README ni .gitignore (para poder hacer push de la historia local sin conflictos). Después avisarme para ejecutar `/push`.
+
+> Nota: la historia local arranca con un commit raíz propio (docs de Fase 1) que **no** comparte ancestro con el commit `632d890` del remoto `codecrypto`. Antes de publicar hay que decidir la estrategia (ver P-10): adoptar el código del remoto y reescribir la historia local, o empujar la rama local con `--force`/`--allow-unrelated-histories`.
 
 ---
 
@@ -163,4 +194,13 @@ Regla: **no se hace `push` sin orden explícita del usuario** (`/push`).
 | Archivo de credenciales | — | — |
 | Tipo de servicio | — | — |
 
-> Nota: una extensión de navegador no se "despliega" en GCP; si se usa GCP será para servir la dApp de pruebas y/o el nodo RPC de preview (p. ej. Cloud Run + un nodo de pruebas).
+> Nota: una extensión de navegador no se "despliega" en GCP; si se usa GCP será para servir la dApp de pruebas (`test.html`) y/o el nodo RPC de preview (p. ej. Cloud Run + un nodo de pruebas).
+
+---
+
+## 7. Historial de cambios de este documento
+
+| Versión | Cambio |
+|---|---|
+| 1.0 | Entorno verificado inicial; comandos Anvil; permisos MV3; remotos y GCP pendientes. |
+| 1.1 | P-01/P-02/P-03 aplicados: git inicializado, 3 remotos registrados, Sepolia retirada, verificación de existencia de remotos y descubrimiento de la implementación previa en `codecrypto`. |

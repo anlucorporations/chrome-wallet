@@ -1,30 +1,50 @@
 # 📑 Requerimientos — CodeCrypto Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.0 · **Estado:** En entrevista (preguntas abiertas al final)
-> **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original de la tarea) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
+> **Fase:** 1 — Concepto · **Versión:** 1.1 · **Estado:** En entrevista (Bloque 1 resuelto; pendiente P-10 y Bloques 2-3)
+> **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 
 ---
 
 ## 0. Resumen ejecutivo
 
-Construir una **extensión de navegador Chrome/Edge (Manifest V3)** que funcione como **wallet Ethereum no custodial**, con las mismas capacidades básicas que MetaMask: creación/importación de cartera, gestión de múltiples cuentas, firma y envío de transacciones, firma de datos tipados (EIP-712) y un **provider inyectado (`window.codecrypto`)** que permita conectarse a una **dApp de pruebas** y operar contra una **red local de pruebas (Foundry Anvil / Hardhat)**, con posibilidad de añadir/cambiar redes.
+Construir una **extensión de navegador Chrome/Edge (Manifest V3)** que funcione como **wallet Ethereum no custodial**, con las mismas capacidades básicas que MetaMask: creación/importación de cartera, gestión de múltiples cuentas, firma y envío de transacciones, firma de datos tipados (EIP-712) y un **provider inyectado (`window.codecrypto`)** que permita conectarse a una **dApp de pruebas** y operar contra una **red local de Foundry (Anvil)**, con posibilidad de añadir/cambiar redes.
 
 | Aspecto | Definición |
 |---|---|
 | Tipo de sistema | Extensión de navegador (MV3) + dApp de pruebas (HTML/JS) |
-| Blockchain objetivo | Ethereum (EVM), red local de pruebas por defecto |
-| Red por defecto | `http://127.0.0.1:8545`, chainId `31337` (`0x7a69`) |
+| Blockchain objetivo | Ethereum (EVM), red local de pruebas |
+| Red por defecto | `http://127.0.0.1:8545`, chainId `31337` (`0x7a69`) — **Anvil, sin Sepolia** (P-02) |
 | Moneda nativa mostrada | ETH |
 | Custodia | No custodial — las claves se derivan en el Service Worker |
+| Cifrado de la semilla | **No** (modo desarrollo, sin contraseña) — P-03 |
 | Usuarios | Usuario final (dueño de la wallet) y dApps de terceros |
 | Duración estimada | ~40 h |
+
+### 0.1 Antecedente: línea base existente (hallazgo de Fase 1)
+
+El remoto `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git` **ya contiene una implementación previa completa** en las ramas `main` y `chrome-wallet-DSH` (mismo commit `632d890`, "Initial commit"):
+
+| Artefacto en el remoto | Tamaño | Observación |
+|---|---|---|
+| `src/App.tsx` | 23 KB | Popup de gestión de la wallet. |
+| `src/background.ts` | 27 KB | Service Worker con derivación, firma y RPC. |
+| `src/inject.ts` | 5 KB | Provider EIP-1193 + EIP-6963. |
+| `src/content-script.ts` | 3 KB | Relay página ↔ extensión. |
+| `src/Connect.tsx` / `src/Notification.tsx` | 9 KB / 7 KB | Páginas de conexión y confirmación. |
+| `src/manifest.ts` | 2 KB | Manifest generado desde TypeScript. |
+| `test.html` | 36 KB | dApp de pruebas. |
+| `package.json`, `vite.config.ts`, `tsconfig*.json` | — | Build Vite 7 + React 19 + ethers 6.15. |
+| `README.md`, `CHANGELOG.md`, `EIP1559_IMPLEMENTACION.md`, `FIX_DESCONEXION_SITIOS.md`, `RESUMEN_*.md` | — | Documentación del intento anterior. |
+| `exportchatia.txt` (8,2 MB) y `user_messages.txt` | — | Exportaciones de conversación; **no deben versionarse** (ver DEC-07). |
+
+**Implicación:** el proyecto **no es greenfield**. La Fase 1 debe decidir si esta línea base se adopta, se audita y se completa (opción recomendada), o si se reconstruye desde cero. Decisión registrada como **P-10**.
 
 ---
 
 ## 1. Requerimientos funcionales (RF)
 
-Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número del enunciado original (`E-n`) o `NUEVO` si proviene de la petición explícita del usuario en la entrevista.
+Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número del enunciado original (`E-n`) o `NUEVO` si proviene de la petición explícita del usuario en la entrevista. **Total: 47 RF.**
 
 ### 1.1 Core Wallet
 
@@ -41,7 +61,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-09 | **Auto-carga**: al abrir el popup, si existe wallet en storage se restaura sin pedir la frase. | E-27 | Must |
 | RF-10 | **Restaurar estado**: al reabrir, se restaura cuenta activa, red, cuentas importadas y sesiones de dApp. | E-28 | Must |
 | RF-11 | **Reset wallet**: botón que limpia la cartera (mnemonic, cuentas, sesiones) y vuelve al formulario inicial. | E-21 | Must |
-| RF-12 | **Hint interactivo**: la frase semilla de prueba de Anvil/Hardhat es clickeable y rellena el formulario. | E-22 | Should |
+| RF-12 | **Hint interactivo**: la frase semilla de prueba de Anvil es clickeable y rellena el formulario. | E-22 | Should |
 
 ### 1.2 Provider inyectado y operaciones blockchain
 
@@ -135,14 +155,14 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 |---|---|---|
 | RT-01 | Stack UI | React 19 + TypeScript 5.9 + Vite 7. |
 | RT-02 | Librería criptográfica | **Únicamente** `ethers.js v6` para mnemonic, HD, firma, provider y serialización. |
-| RT-03 | Prohibiciones | No usar `viem`, `@scure/bip39`, `@metamask/*`, `axios` ni `fetch` directo en el código propio (sí lo usa ethers internamente). |
+| RT-03 | Prohibiciones | No usar `viem`, `@scure/bip39`, `@metamask/*`, `axios` ni `fetch` directo en el código propio (lo usa ethers internamente). |
 | RT-04 | Plataforma | Chrome Extension Manifest V3: Service Worker (`type: module`), Content Script, Inject Script, `chrome.storage.local`, `chrome.windows`, `chrome.tabs`, `chrome.notifications`. |
 | RT-05 | Build | El `manifest.json` se **genera** desde `src/manifest.ts` y el bundle de ethers se incluye localmente (sin CDN). |
-| RT-06 | Red de pruebas | Foundry **Anvil** (preferente) o Hardhat Node en `127.0.0.1:8545`, chainId `31337`. |
+| RT-06 | Red de pruebas | **Foundry Anvil** en `127.0.0.1:8545`, chainId `31337` (sin Sepolia — P-02). |
 | RT-07 | Pruebas | Unitarias/integración: **Vitest** (jsdom) sobre módulos del Service Worker. E2E: **Playwright** con Chrome persistente y la extensión cargada. Contratos auxiliares (si aplica): **Forge**. |
 | RT-08 | Tipos | `@types/chrome` para las APIs del navegador y `@types/node` para el script de build. |
 | RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. |
-| RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (ver Riesgos). |
+| RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (P-03). |
 | RE-03 | Restricción | No se hace `push` a repositorios remotos sin orden explícita del usuario (`/push`). |
 | RE-04 | Restricción | El RPC debe permitir CORS desde el origen de la extensión (`--http.corsdomain` en Anvil). |
 
@@ -155,7 +175,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | **Usuario (dueño de la wallet)** | Persona que instala la extensión. | Crear/importar cartera, gestionar cuentas, enviar/recibir ETH, aprobar o rechazar solicitudes. |
 | **dApp** (ej. `test.html`) | Aplicación web de terceros que consume `window.codecrypto`. | Conectar, leer saldo, enviar transacciones, firmar datos, escuchar eventos. |
 | **Service Worker (background)** | Actor de sistema. | Custodiar material criptográfico, ejecutar RPC, orquestar aprobaciones y eventos. |
-| **Nodo RPC local (Anvil/Hardhat)** | Actor de sistema externo. | Ejecutar y validar transacciones, entregar feeData y saldos. |
+| **Nodo RPC local (Anvil)** | Actor de sistema externo. | Ejecutar y validar transacciones, entregar feeData y saldos. |
 | **Navegador (Chrome/Edge)** | Plataforma. | Ciclo de vida del Service Worker, permisos, ventanas, notificaciones. |
 | **Docente/evaluador** | Stakeholder de negocio. | Verificar el cumplimiento de los 36 puntos del enunciado y los EIP. |
 
@@ -163,46 +183,51 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 
 ## 5. Desviaciones y ambigüedades detectadas en el enunciado fuente
 
-Estas se resolverán en Fase 2 (auditoría) y se listan aquí para trazabilidad:
-
 | # | Hallazgo | Impacto | Propuesta |
 |---|---|---|---|
-| D-01 | El enunciado dice 36 RF pero la numeración se **repite**: el 20 aparece como "Gestion de Redes" y como "Modal de Confirmación"; el 26 y el 29 también colisionan. El conteo real de viñetas es 37. | Trazabilidad confusa | Se renumeró a `RF-XX` (42 RF) con este documento como fuente única. |
-| D-02 | El enunciado indica **Hardhat** (`npx hardhat node`) pero el usuario pidió una **red de Foundry en local**. Ambos usan puerto 8545, chainId 31337 y la misma frase `test … junk`, por lo que son intercambiables. | Bajo | Adoptar **Anvil** como red por defecto y documentar la compatibilidad con Hardhat. |
+| D-01 | El enunciado dice 36 RF pero la numeración se **repite**: el 20 aparece como "Gestion de Redes" y como "Modal de Confirmación"; el 26 y el 29 también colisionan. El conteo real de viñetas es 37. | Trazabilidad confusa | Renumerado a `RF-01..RF-47` con este documento como fuente única. |
+| D-02 | El enunciado indica **Hardhat** (`npx hardhat node`) pero el usuario pidió una **red de Foundry en local**. Ambos usan puerto 8545, chainId 31337 y la misma frase `test … junk`. | Bajo | **Resuelto (P-02):** Anvil como única red y **se retira Sepolia**. El cambio de red (RF-22/RF-23) se prueba entre redes locales vía `wallet_addEthereumChain`. |
 | D-03 | No está en el enunciado la **importación por clave privada**, que el usuario sí pidió. | Medio | Añadido como RF-05/RF-06. |
 | D-04 | "Enviar y recibir transferencias entre cuentas" puede leerse como transferencias internas (RF-08) o como mostrar la dirección para recibir (RF-07). | Bajo | Se cubren ambos explícitamente. |
-| D-05 | RF-04 prohíbe `fetch`/`axios`, pero `ethers.JsonRpcProvider` usa `fetch` internamente. | Bajo | La restricción aplica al código propio; se documenta la excepción. |
+| D-05 | E-04 prohíbe `fetch`/`axios`, pero `ethers.JsonRpcProvider` usa `fetch` internamente. | Bajo | La restricción aplica al código propio; se documenta la excepción. |
 | D-06 | El enunciado no define el comportamiento ante **varias solicitudes simultáneas** ni el **timeout**. | Medio | Se añaden RF-37 y RF-40. |
-| D-07 | El enunciado no menciona cifrado del mnemonic ni bloqueo por contraseña (RF-03 lo excluye). | Alto (seguridad) | Decisión pendiente de la entrevista (ver P-03). |
+| D-07 | El enunciado no menciona cifrado del mnemonic ni bloqueo por contraseña (E-02 lo excluye). | Alto (seguridad) | **Resuelto (P-03):** se mantiene la **carga sin contraseña**; el riesgo se acepta y se documenta como modo desarrollo. |
 | D-08 | La ruta del proyecto en el enunciado es `71_wallet_chrome_extension/`, pero el workspace es la raíz `chrome-wallet/`. | Bajo | El proyecto se desarrolla en la raíz del workspace. |
+| D-09 | Existe una **implementación previa completa** en el remoto `codecrypto` (§0.1) que no está en el workspace local. | Alto (alcance) | Decisión de adopción pendiente (**P-10**). |
 
 ---
 
-## 6. Preguntas abiertas de la entrevista (Fase 1)
+## 6. Entrevista de la Fase 1
 
-### Bloque 1 — Entorno, repositorios y seguridad
+### Bloque 1 — Entorno, repositorios y seguridad ✅ RESUELTO
+
+| ID | Pregunta | Respuesta | Acción tomada |
+|---|---|---|---|
+| P-01 | Repositorios remotos | Crear en **GitHub** `chrome-wallet` con ramas `main` y `chrome-wallet-DSH`; crear en **GitLab** `chrome-wallet` con las mismas ramas; agregar `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git`. | Repo local inicializado con `main` + `chrome-wallet-DSH` y los 3 remotos configurados. El repo de `codecrypto` **ya existía y trae la implementación previa**; GitHub y GitLab.com **aún no existen** y no hay `gh`/`glab` ni tokens → creación pendiente por el usuario (`entornos_globales.md` §5). |
+| P-02 | Red por defecto | **Solo Anvil local, sin Sepolia.** | `DEFAULT_RPC_URL=http://127.0.0.1:8545`, chainId `0x7a69`; se elimina `0xaa36a7` del diccionario y de `host_permissions`. |
+| P-03 | Seguridad del mnemonic | **Sin contraseña** (modo desarrollo). | RF-03 confirmado; `settings.encryptionEnabled=false`, `requirePasswordOnOpen=false`. Riesgo aceptado (§8). |
+
+### Bloque 1-bis — Línea base existente ⏳ PENDIENTE (bloqueante)
 
 | ID | Pregunta | Estado |
 |---|---|---|
-| P-01 | ¿Repositorios remotos GitLab/GitHub? ¿Se crean nuevos o se usa uno existente? ¿Rama de trabajo? | ⏳ Pendiente |
-| P-02 | ¿Se confirma **Anvil (Foundry)** como red por defecto en `127.0.0.1:8545` y se mantiene Sepolia como red secundaria? | ⏳ Pendiente |
-| P-03 | ¿Se mantiene la carga **sin contraseña** (riesgo aceptado) o se añade contraseña opcional con cifrado del mnemonic (AES-GCM vía WebCrypto)? | ⏳ Pendiente |
+| P-10 | El remoto `codecrypto` ya contiene la implementación completa (§0.1). ¿Se **adopta como línea base** (auditar, completar y corregir), se **reconstruye desde cero**, o se adopta parcialmente? | ⏳ Pendiente |
 
-### Bloque 2 — Alcance funcional (a lanzar tras el Bloque 1)
+### Bloque 2 — Alcance funcional ⏳ Pendiente de lanzar
 
 | ID | Pregunta | Estado |
 |---|---|---|
 | P-04 | ¿Número de cuentas derivadas por defecto (5) y posibilidad de añadir más desde la UI? | ⏳ Pendiente |
 | P-05 | ¿Se incluye `personal_sign` (RF-21) y la vista QR de recepción (RF-07)? | ⏳ Pendiente |
-| P-06 | ¿Se incluye revocación de permisos por origen (RF-26) y etiquetado de cuentas? | ⏳ Pendiente |
+| P-06 | ¿Se incluye revocación de permisos por origen (RF-26) y etiquetado/renombrado de cuentas? | ⏳ Pendiente |
 
-### Bloque 3 — Calidad, pruebas y entrega
+### Bloque 3 — Calidad, pruebas y entrega ⏳ Pendiente de lanzar
 
 | ID | Pregunta | Estado |
 |---|---|---|
-| P-07 | ¿Se aprueba **Vitest + Playwright** como frameworks de prueba (con `forge` solo si se añade un contrato verificador EIP-712)? | ⏳ Pendiente |
-| P-08 | ¿Se desplegará en **GCP** o el alcance es 100 % local (extensión + Anvil)? | ⏳ Pendiente |
-| P-09 | ¿Idioma de la UI (español) y del código/documentación (español técnico + identificadores en inglés)? | ⏳ Pendiente |
+| P-07 | ¿Se aprueba **Vitest + Playwright** (con `forge` solo si se añade un contrato verificador EIP-712)? | ⏳ Pendiente |
+| P-08 | ¿Se desplegará algo en **GCP** o el alcance es 100 % local? | ⏳ Pendiente |
+| P-09 | ¿Idioma de la UI (español) y de código/documentación (español técnico + identificadores en inglés)? | ⏳ Pendiente |
 
 ---
 
@@ -211,9 +236,10 @@ Estas se resolverán en Fase 2 (auditoría) y se listan aquí para trazabilidad:
 - [x] Extracción de RF / RNF / RT / RE del enunciado fuente.
 - [x] `requerimientos.md`, `diccionario_datos.md` y `entornos_globales.md` creados en `RepoTecnico/`.
 - [x] `estado_proyecto.md` con el resumen de fase.
-- [ ] Bloque 1 de la entrevista respondido (P-01, P-02, P-03).
+- [x] Bloque 1 de la entrevista respondido (P-01, P-02, P-03).
+- [ ] Decisión sobre la línea base existente (P-10).
 - [ ] Bloques 2 y 3 respondidos.
-- [ ] URLs de repositorios y decisión sobre GCP registradas.
+- [ ] URLs de repositorios registradas y repos de GitHub/GitLab.com creados por el usuario.
 
 ---
 
@@ -221,9 +247,10 @@ Estas se resolverán en Fase 2 (auditoría) y se listan aquí para trazabilidad:
 
 | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|---|---|
-| Mnemonic en claro en `chrome.storage.local` (RF-03) | Alta | Alto | Documentar como modo desarrollo; ofrecer cifrado opcional (P-03). |
+| Mnemonic en claro en `chrome.storage.local` (RF-03) | Alta | Alto | **Riesgo aceptado (P-03)**; documentado como modo desarrollo exclusivo. |
 | Ciclo de vida del Service Worker MV3 (se duerme y pierde estado en memoria) | Alta | Alto | Persistir toda la cola de aprobaciones en `chrome.storage.local` y reconstruir al arrancar (RNF-08). |
 | CORS/`host_permissions` bloquean el RPC local | Media | Medio | `host_permissions` para `http://127.0.0.1:8545/*` y `--http.corsdomain` en Anvil (RE-04). |
 | Inyección en `document_start` compite con la carga de la dApp | Media | Medio | Inyectar `inject.js` de forma síncrona y anunciar EIP-6963 al `DOMContentLoaded`. |
 | Colisión de numeración del enunciado (D-01) | Alta | Bajo | Renumeración `RF-XX` como fuente única en este documento. |
 | Fuga de la clave privada hacia la página vía `postMessage` | Baja | Crítico | RNF-09/RNF-10: nunca se envían claves; solo firmas y hashes. |
+| **La línea base previa está desactualizada o no compila en Node 24** | Media | Medio | Verificar `npm install && npm run build` antes de adoptarla (paso de Fase 2/3). |
