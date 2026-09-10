@@ -1,6 +1,6 @@
 # 🗂️ Diccionario de Datos — CodeCrypto Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.0
+> **Fase:** 1 — Concepto · **Versión:** 1.2
 > Se actualiza de forma incremental durante el desarrollo. Fuente de verdad de claves de `chrome.storage.local`, `localStorage`, mensajes y entidades en memoria.
 
 ---
@@ -159,11 +159,11 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 | Campo | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `derivedAccountCount` | `number` | `5` | Cuentas derivadas por defecto (RF-04, P-04). |
+| `derivedAccountCount` | `number` | `5` | Cuentas a derivar al cargar la wallet; el botón "Añadir cuenta" lo incrementa y extiende `codecrypto_accounts` (RF-04, P-04). |
 | `balancePollMs` | `number` | `5000` | Intervalo de polling de saldos (RF-27). |
 | `logLimit` | `number` | `500` | Máximo de entradas de log retenidas (RF-32). |
 | `language` | `'es' \| 'en'` | `'es'` | Idioma de la UI (P-09). |
-| `encryptionEnabled` | `boolean` | `false` | Cifrado del mnemonic (P-03). |
+| `encryptionEnabled` | `boolean` | `false` | Cifrado del mnemonic — **descartado en P-03**; el flag se conserva por compatibilidad. |
 | `requirePasswordOnOpen` | `boolean` | `false` | Bloqueo del popup (P-03). |
 
 ---
@@ -314,11 +314,12 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-## 6. Cambios pendientes de confirmar en la entrevista
+## 6. Decisiones de la entrevista aplicadas a este diccionario
 
-| Tema | Impacto en este diccionario |
+| Tema | Estado |
 |---|---|
-| P-03 (contraseña/cifrado) | Añadiría `codecrypto_vault` (`{ ciphertext, iv, salt, kdf }`) y el flag `encryptionEnabled`. |
-| P-04 (nº de cuentas) | Afecta `settings.derivedAccountCount` y el tamaño de `codecrypto_accounts`. |
-| P-05 (personal_sign / QR) | Confirma RF-21 y añade el estado de UI para el QR (no persiste). |
-| P-08 (GCP) | Añadiría credenciales y el endpoint de preview a `entornos_globales.md`. |
+| P-03 (contraseña/cifrado) | ✅ **Sin contraseña.** No se crea `codecrypto_vault`; `encryptionEnabled=false` y `requirePasswordOnOpen=false`. |
+| P-04 (nº de cuentas) | ✅ **5 por defecto + botón "Añadir cuenta"**; `derivedAccountCount` se incrementa y `codecrypto_accounts` crece en orden BIP-44. |
+| P-05 (personal_sign / QR) | ✅ Confirmado: `personal_sign` usa `codecrypto_pending_request`; el QR es estado de UI y **no** se persiste. |
+| P-06 (permisos/etiquetas) | ✅ Confirmado: al revocar se elimina la entrada de `codecrypto_connected_sites`; `codecrypto_imported_accounts[].label` es renombrable. |
+| P-08 (GCP) | ✅ **No aplica**: alcance 100 % local. |

@@ -1,6 +1,6 @@
 # 🌐 Entornos Globales — CodeCrypto Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.1
+> **Fase:** 1 — Concepto · **Versión:** 1.2
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 
 ---
@@ -19,7 +19,7 @@
 | `gh` / `glab` CLI | **No instalados**; sin `GITHUB_TOKEN`/`GITLAB_TOKEN` | La creación de repos remotos debe hacerse por la web o aportando un token. |
 | RPC local en `127.0.0.1:8545` | **No está escuchando** al inicio del proyecto | Se levanta con Anvil cuando se pruebe. |
 | Chrome/Edge | No se detectó `chrome` en el `PATH` | Instalación estándar; se carga la extensión manualmente desde `chrome://extensions`. |
-| GCP | Sin credenciales configuradas | Pendiente de P-08. |
+| GCP | **No aplica** | Decisión P-08: el alcance es **100 % local**, sin GCP. |
 
 ### Rutas de referencia
 
@@ -115,7 +115,7 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `DEFAULT_RPC_URL` | `http://127.0.0.1:8545` | `src/shared/constants.ts` |
 | `DEFAULT_CHAIN_NAME` | `Anvil Local` | `src/shared/constants.ts` |
 | `DEFAULT_MNEMONIC` | `test test test test test test test test test test test junk` | `src/shared/constants.ts` (solo hint de desarrollo, RF-12) |
-| `DERIVED_ACCOUNTS` | `5` | `src/shared/constants.ts` (RF-04 / P-04) |
+| `DERIVED_ACCOUNTS` | `5` (+ botón "Añadir cuenta") | `src/shared/constants.ts` (RF-04 / P-04) |
 | `BALANCE_POLL_MS` | `5000` | `src/shared/constants.ts` (RF-27) |
 | `SIGN_TIMEOUT_MS` | `120000` | `src/background/approvals.ts` (RF-40) |
 | `CONNECT_TIMEOUT_MS` | `60000` | `src/background/approvals.ts` (RF-40) |
@@ -131,7 +131,7 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `ANVIL_CHAIN_ID` | `31337` | Pendiente de crear |
 | `E2E_HEADLESS` | `true/false` para Playwright | Pendiente de crear |
 
-> Si se confirma GCP (P-08) se añadirán `GCP_PROJECT_ID`, `GCP_CREDENTIALS_PATH` y la URL de preview.
+> **GCP está fuera de alcance (P-08).** No se requieren `GCP_PROJECT_ID` ni credenciales; el tooling se limita a variables locales.
 
 ---
 
@@ -189,10 +189,10 @@ glab repo create chrome-wallet --private
 
 | Elemento | Valor | Estado |
 |---|---|---|
-| ¿Se despliega en GCP? | — | ⏳ Pendiente (P-08) |
-| `project_id` | — | — |
-| Archivo de credenciales | — | — |
-| Tipo de servicio | — | — |
+| ¿Se despliega en GCP? | **No** | ✅ Resuelto (P-08): alcance 100 % local. |
+| `project_id` | No aplica | — |
+| Archivo de credenciales | No aplica | — |
+| Tipo de servicio | No aplica (la extensión se carga desde `dist/` y Anvil corre local) | — |
 
 > Nota: una extensión de navegador no se "despliega" en GCP; si se usa GCP será para servir la dApp de pruebas (`test.html`) y/o el nodo RPC de preview (p. ej. Cloud Run + un nodo de pruebas).
 
@@ -204,3 +204,25 @@ glab repo create chrome-wallet --private
 |---|---|
 | 1.0 | Entorno verificado inicial; comandos Anvil; permisos MV3; remotos y GCP pendientes. |
 | 1.1 | P-01/P-02/P-03 aplicados: git inicializado, 3 remotos registrados, Sepolia retirada, verificación de existencia de remotos y descubrimiento de la implementación previa en `codecrypto`. |
+| 1.2 | Fase 1 cerrada: P-04..P-10 aplicados. Reconstrucción desde cero (P-10), alcance 100 % local sin GCP (P-08), herramientas de prueba definidas (P-07) y convención de idioma (P-09). |
+
+---
+
+## 8. Herramientas de prueba y calidad (P-07)
+
+| Herramienta | Ámbito | Comando | Requisitos |
+|---|---|---|---|
+| **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/clave privada, formateo, cola de aprobaciones, mapeo de errores EIP-1193. | `npm run test` | Ninguno (no necesita navegador). |
+| **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar eventos `accountsChanged`/`chainChanged`. | `npm run test:e2e` | Chromium vía Playwright + **Anvil corriendo** en `127.0.0.1:8545`. |
+| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test` | Foundry 1.7.2-dev (instalado). |
+
+### Estructura prevista del proyecto Foundry auxiliar
+
+```
+contracts/
+├── src/EIP712Verifier.sol      # verify(address, bytes32 digest, bytes signature)
+├── test/EIP712Verifier.t.sol   # 3-4 tests (firma válida, firmante incorrecto, dominio distinto, firma malformada)
+└── foundry.toml
+```
+
+> El contrato verificador **no forma parte del producto**: es un instrumento de prueba para demostrar que el firmado EIP-712 de la wallet es correcto y verificable en la EVM.

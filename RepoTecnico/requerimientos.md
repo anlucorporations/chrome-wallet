@@ -1,6 +1,6 @@
 # 📑 Requerimientos — CodeCrypto Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.1 · **Estado:** En entrevista (Bloque 1 resuelto; pendiente P-10 y Bloques 2-3)
+> **Fase:** 1 — Concepto · **Versión:** 1.2 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 
@@ -38,7 +38,7 @@ El remoto `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git`
 | `README.md`, `CHANGELOG.md`, `EIP1559_IMPLEMENTACION.md`, `FIX_DESCONEXION_SITIOS.md`, `RESUMEN_*.md` | — | Documentación del intento anterior. |
 | `exportchatia.txt` (8,2 MB) y `user_messages.txt` | — | Exportaciones de conversación; **no deben versionarse** (ver DEC-07). |
 
-**Implicación:** el proyecto **no es greenfield**. La Fase 1 debe decidir si esta línea base se adopta, se audita y se completa (opción recomendada), o si se reconstruye desde cero. Decisión registrada como **P-10**.
+**Implicación y decisión (P-10):** aunque existe esta línea base, el usuario decidió **reconstruir el proyecto desde cero**. El código del remoto se conserva **únicamente como referencia** de consulta y **no se reutiliza**; la nueva implementación se desarrolla desde cero en las Fases 3 y 4 a partir de estos requerimientos.
 
 ---
 
@@ -53,10 +53,10 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-01 | **Generar** una frase semilla BIP-39 de 12 palabras usando exclusivamente `ethers.js v6`. | E-01 | Must |
 | RF-02 | **Importar** una wallet a partir de una frase de recuperación de 12 palabras, validando checksum BIP-39 y normalizando espacios/mayúsculas. | E-01 | Must |
 | RF-03 | **Carga sin contraseña**: al cargar/importar la frase, la wallet queda operativa de inmediato (modo desarrollo). | E-02 | Must |
-| RF-04 | **Derivar cuentas HD** BIP-32/BIP-44 con ruta `m/44'/60'/0'/0/i` (5 cuentas por defecto, configurable). | E-01 | Must |
-| RF-05 | **Importar cuenta por clave privada** (0x + 64 hex). La cuenta se añade a la lista, marcada como "importada" y con etiqueta editable. | **NUEVO** (usuario) | Must |
+| RF-04 | **Derivar cuentas HD** BIP-32/BIP-44 con ruta `m/44'/60'/0'/0/i`: **5 cuentas por defecto** y botón **"Añadir cuenta"** para derivar la siguiente (P-04). | E-01 | Must |
+| RF-05 | **Importar cuenta por clave privada** (0x + 64 hex). La cuenta se añade marcada como "importada" y con **etiqueta renombrable** (P-06). | **NUEVO** (usuario) | Must |
 | RF-06 | **Eliminar cuenta importada** (las derivadas del mnemonic no se eliminan, solo se ocultan). | **NUEVO** (propuesto) | Should |
-| RF-07 | **Recibir transferencias**: mostrar la dirección en formato completo + copiada al portapapeles + QR, y el saldo actualizado. | **NUEVO** (usuario) | Must |
+| RF-07 | **Recibir transferencias**: dirección completa + copiar al portapapeles + **QR**, y saldo actualizado. **Confirmado en P-05.** | **NUEVO** (usuario) | Must |
 | RF-08 | **Enviar transferencias** desde cualquiera de las cuentas de la wallet (interna o a direcciones externas) con estimación de gas y confirmación del usuario. | E-24 | Must |
 | RF-09 | **Auto-carga**: al abrir el popup, si existe wallet en storage se restaura sin pedir la frase. | E-27 | Must |
 | RF-10 | **Restaurar estado**: al reabrir, se restaura cuenta activa, red, cuentas importadas y sesiones de dApp. | E-28 | Must |
@@ -75,12 +75,12 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-18 | `eth_chainId`, `eth_getBalance`, `eth_blockNumber` como métodos de lectura soportados. | E-06, E-11 | Must |
 | RF-19 | `eth_sendTransaction`: solicitar aprobación al usuario y luego **firmar y enviar** la transacción. | E-07 | Must |
 | RF-20 | `eth_signTypedData_v4`: firmar datos estructurados EIP-712 mostrando `domain`, `types` y `message` en la confirmación. | E-08 | Must |
-| RF-21 | `personal_sign` / `eth_sign`: firma de mensajes de texto plano (con prefijo `\x19Ethereum Signed Message`). | **NUEVO** (propuesto) | Should |
+| RF-21 | `personal_sign`: firma de mensajes de texto plano (con prefijo `\x19Ethereum Signed Message`). **Confirmado en P-05.** | **NUEVO** (usuario) | Must |
 | RF-22 | `wallet_switchEthereumChain`: cambiar de red y notificar `chainChanged` a todas las pestañas. | E-19 | Must |
 | RF-23 | `wallet_addEthereumChain`: dar de alta redes nuevas (nombre, chainId, RPC, símbolo, explorer) desde la dApp o desde la UI. | E-20 | Must |
 | RF-24 | **Propagación de eventos**: `accountsChanged` y `chainChanged` se envían a **todas las pestañas** cuando cambian desde el popup o desde la dApp. | E-10, E-34, E-35 | Must |
 | RF-25 | **Persistencia de conexión por origen**: cada dApp recuerda la cuenta autorizada entre recargas y reinicios del Service Worker. | **NUEVO** (guía de testing) | Must |
-| RF-26 | **Revocar permiso** de un origen (desconectar dApp) desde el popup. | **NUEVO** (propuesto) | Should |
+| RF-26 | **Revocar permiso** de un origen (desconectar dApp) desde el popup. **Confirmado en P-06.** | **NUEVO** (usuario) | Must |
 
 ### 1.3 UX, logging y observabilidad
 
@@ -159,8 +159,11 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RT-04 | Plataforma | Chrome Extension Manifest V3: Service Worker (`type: module`), Content Script, Inject Script, `chrome.storage.local`, `chrome.windows`, `chrome.tabs`, `chrome.notifications`. |
 | RT-05 | Build | El `manifest.json` se **genera** desde `src/manifest.ts` y el bundle de ethers se incluye localmente (sin CDN). |
 | RT-06 | Red de pruebas | **Foundry Anvil** en `127.0.0.1:8545`, chainId `31337` (sin Sepolia — P-02). |
-| RT-07 | Pruebas | Unitarias/integración: **Vitest** (jsdom) sobre módulos del Service Worker. E2E: **Playwright** con Chrome persistente y la extensión cargada. Contratos auxiliares (si aplica): **Forge**. |
+| RT-07 | Pruebas | Unitarias/integración: **Vitest** (jsdom) sobre módulos del Service Worker. E2E: **Playwright** con Chromium persistente, la extensión cargada desde `dist/` y Anvil en marcha. Contratos: **Forge** sobre un contrato verificador de firmas **EIP-712** (P-07). |
 | RT-08 | Tipos | `@types/chrome` para las APIs del navegador y `@types/node` para el script de build. |
+| RT-09 | Despliegue | **100 % local** (P-08): sin GCP. La extensión se distribuye como carpeta `dist/` y la dApp de pruebas se sirve en local. |
+| RT-10 | Idioma | UI, mensajes de error y documentación en **español**; identificadores de código en **inglés** (P-09). |
+| RT-11 | Contrato auxiliar | Proyecto Foundry mínimo con un contrato verificador de firmas EIP-712 (`EIP712Verifier.sol`) y sus tests, usado como prueba de extremo a extremo del firmado (P-07). |
 | RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. |
 | RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (P-03). |
 | RE-03 | Restricción | No se hace `push` a repositorios remotos sin orden explícita del usuario (`/push`). |
@@ -193,7 +196,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | D-06 | El enunciado no define el comportamiento ante **varias solicitudes simultáneas** ni el **timeout**. | Medio | Se añaden RF-37 y RF-40. |
 | D-07 | El enunciado no menciona cifrado del mnemonic ni bloqueo por contraseña (E-02 lo excluye). | Alto (seguridad) | **Resuelto (P-03):** se mantiene la **carga sin contraseña**; el riesgo se acepta y se documenta como modo desarrollo. |
 | D-08 | La ruta del proyecto en el enunciado es `71_wallet_chrome_extension/`, pero el workspace es la raíz `chrome-wallet/`. | Bajo | El proyecto se desarrolla en la raíz del workspace. |
-| D-09 | Existe una **implementación previa completa** en el remoto `codecrypto` (§0.1) que no está en el workspace local. | Alto (alcance) | Decisión de adopción pendiente (**P-10**). |
+| D-09 | Existe una **implementación previa completa** en el remoto `codecrypto` (§0.1) que no está en el workspace local. | Alto (alcance) | **Resuelto (P-10):** se **reconstruye desde cero**; el remoto queda solo como referencia. |
 
 ---
 
@@ -207,43 +210,45 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | P-02 | Red por defecto | **Solo Anvil local, sin Sepolia.** | `DEFAULT_RPC_URL=http://127.0.0.1:8545`, chainId `0x7a69`; se elimina `0xaa36a7` del diccionario y de `host_permissions`. |
 | P-03 | Seguridad del mnemonic | **Sin contraseña** (modo desarrollo). | RF-03 confirmado; `settings.encryptionEnabled=false`, `requirePasswordOnOpen=false`. Riesgo aceptado (§8). |
 
-### Bloque 1-bis — Línea base existente ⏳ PENDIENTE (bloqueante)
+### Bloque 1-bis — Línea base existente ✅ RESUELTO
 
-| ID | Pregunta | Estado |
+| ID | Pregunta | Respuesta |
 |---|---|---|
-| P-10 | El remoto `codecrypto` ya contiene la implementación completa (§0.1). ¿Se **adopta como línea base** (auditar, completar y corregir), se **reconstruye desde cero**, o se adopta parcialmente? | ⏳ Pendiente |
+| P-10 | ¿Adoptar la implementación previa del remoto `codecrypto`? | **Reconstruir desde cero.** El código del remoto queda **únicamente como referencia**; no se reutiliza. La nueva implementación se escribe desde cero en las Fases 3 y 4. |
 
-### Bloque 2 — Alcance funcional ⏳ Pendiente de lanzar
+### Bloque 2 — Alcance funcional ✅ RESUELTO
 
-| ID | Pregunta | Estado |
-|---|---|---|
-| P-04 | ¿Número de cuentas derivadas por defecto (5) y posibilidad de añadir más desde la UI? | ⏳ Pendiente |
-| P-05 | ¿Se incluye `personal_sign` (RF-21) y la vista QR de recepción (RF-07)? | ⏳ Pendiente |
-| P-06 | ¿Se incluye revocación de permisos por origen (RF-26) y etiquetado/renombrado de cuentas? | ⏳ Pendiente |
+| ID | Pregunta | Respuesta | Impacto |
+|---|---|---|---|
+| P-04 | Nº de cuentas derivadas | **5 por defecto + botón "Añadir cuenta"** para derivar la siguiente. | RF-04 ampliado; `settings.derivedAccountCount` inicial = 5. |
+| P-05 | `personal_sign` y QR | **Sí a ambos**: `personal_sign` + vista de recepción con **QR y copiar**. | RF-21 y RF-07 pasan a **Must** (confirmados). |
+| P-06 | Permisos y etiquetas | **Sí a ambos**: revocar permiso por origen + renombrar cuentas. | RF-26 y RF-05 confirmados (**Must**). |
 
-### Bloque 3 — Calidad, pruebas y entrega ⏳ Pendiente de lanzar
+### Bloque 3 — Calidad, pruebas y entrega ✅ RESUELTO
 
-| ID | Pregunta | Estado |
-|---|---|---|
-| P-07 | ¿Se aprueba **Vitest + Playwright** (con `forge` solo si se añade un contrato verificador EIP-712)? | ⏳ Pendiente |
-| P-08 | ¿Se desplegará algo en **GCP** o el alcance es 100 % local? | ⏳ Pendiente |
-| P-09 | ¿Idioma de la UI (español) y de código/documentación (español técnico + identificadores en inglés)? | ⏳ Pendiente |
+| ID | Pregunta | Respuesta | Impacto |
+|---|---|---|---|
+| P-07 | Frameworks de prueba | **Vitest + Playwright + contrato verificador EIP-712 probado con Forge.** | RT-07 y RT-11 añadidos; se crea un proyecto Foundry mínimo con el contrato verificador y sus tests. |
+| P-08 | Despliegue | **100 % local, sin GCP.** | GCP sale del alcance (`entornos_globales.md` §6 cerrado). |
+| P-09 | Idioma | **UI y documentación en español; identificadores de código en inglés.** | RT-10 añadido; RF-34 confirmado. |
 
 ---
 
-## 7. Criterios de aceptación de la Fase 1
+## 7. Criterios de aceptación de la Fase 1 ✅ COMPLETADA
 
 - [x] Extracción de RF / RNF / RT / RE del enunciado fuente.
 - [x] `requerimientos.md`, `diccionario_datos.md` y `entornos_globales.md` creados en `RepoTecnico/`.
 - [x] `estado_proyecto.md` con el resumen de fase.
-- [x] Bloque 1 de la entrevista respondido (P-01, P-02, P-03).
-- [ ] Decisión sobre la línea base existente (P-10).
-- [ ] Bloques 2 y 3 respondidos.
-- [ ] URLs de repositorios registradas y repos de GitHub/GitLab.com creados por el usuario.
+- [x] Bloque 1 respondido (P-01, P-02, P-03).
+- [x] Decisión sobre la línea base existente (**P-10**: reconstruir desde cero).
+- [x] Bloques 2 y 3 respondidos (P-04 .. P-09).
+- [x] Repositorio local inicializado con `main` y `chrome-wallet-DSH` y los 3 remotos configurados.
+- [ ] Repositorios de GitHub y GitLab.com creados por el usuario (acción externa; no bloquea la Fase 2).
+- [ ] Confirmación del usuario para pasar a la Fase 2.
 
 ---
 
-## 8. Riesgos identificados (preliminar)
+## 8. Riesgos identificados
 
 | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|---|---|
@@ -253,4 +258,5 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | Inyección en `document_start` compite con la carga de la dApp | Media | Medio | Inyectar `inject.js` de forma síncrona y anunciar EIP-6963 al `DOMContentLoaded`. |
 | Colisión de numeración del enunciado (D-01) | Alta | Bajo | Renumeración `RF-XX` como fuente única en este documento. |
 | Fuga de la clave privada hacia la página vía `postMessage` | Baja | Crítico | RNF-09/RNF-10: nunca se envían claves; solo firmas y hashes. |
-| **La línea base previa está desactualizada o no compila en Node 24** | Media | Medio | Verificar `npm install && npm run build` antes de adoptarla (paso de Fase 2/3). |
+| Reconstruir desde cero consume el presupuesto de ~40 h | Media | Medio | Plan de desarrollo vertical por hitos (Fase 3) con entregables funcionales y pruebas por ciclo. |
+| Volumen de trabajo de Playwright + Forge + Vitest en solitario | Media | Medio | Los tests se construyen por ciclo, no al final; el contrato EIP-712 es mínimo (una función `verify`). |
