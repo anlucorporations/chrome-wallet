@@ -1,10 +1,10 @@
 # 📑 Requerimientos — TrueKeate Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.4 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
+> **Fase:** 1 — Concepto · **Versión:** 1.5 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 > **Anexo vinculante de diseño:** `RepoTecnico/identidad_visual.md` (marca TrueKeate: paleta, tipografía, degradados, iconos y tokens CSS).
-> **Historial de cambios:** v1.0 borrador de extracción · v1.1 renumeración `RF-01..RF-47` · v1.2 identidad visual (RF-48/RF-49) y RNF-18..RNF-20 · v1.3 decisiones P-13..P-15 y RE-04 · **v1.4 (esta versión) — remedia el informe `INFORME_OPTIMIZACION_V1.md`:** H-01 criterio de aceptación + evidencia en los 49 RF y 13 RT y nuevo **Anexo A (§9)** con `CA-RF-xx`/`CA-RT-xx` en Gherkin/EARS · H-02/H-07/H-08 ciclo de aprobación MV3 (puerto de larga vida, `chrome.alarms`, cola `Record<approvalId, PendingRequest>`, reconciliación al arrancar, cierre de ventana y `4001`) · H-11a retirada de `eth_sign` · H-11b vista previa con decodificación y avisos · H-15 alias `window.codecrypto` · H-03/H-05/H-06/H-30/H-38 conteos, desambiguación de Fuente y trazabilidad de NUEVO · H-12/H-13/H-17/H-19/H-20/H-22/H-25/H-26/H-29/H-40/H-42 RNF operacionalizados y categorías nuevas (Accesibilidad, Recuperación, Cumplimiento, Mantenimiento) · H-14/H-16/H-24/H-27/H-28/H-34/H-35/H-36/H-37 rúbrica, entregables, stakeholders, MVP y licencias.
+> **Historial de cambios:** v1.0 borrador de extracción · v1.1 renumeración `RF-01..RF-47` · v1.2 identidad visual (RF-48/RF-49) y RNF-18..RNF-20 · v1.3 decisiones P-13..P-15 y RE-04 · v1.4 — remedia el informe `INFORME_OPTIMIZACION_V1.md` (49 RF vigentes entonces): H-01 criterio de aceptación + evidencia en los 49 RF y 13 RT y nuevo **Anexo A (§9)** con `CA-RF-xx`/`CA-RT-xx` en Gherkin/EARS · H-02/H-07/H-08 ciclo de aprobación MV3 (puerto de larga vida, `chrome.alarms`, cola `Record<approvalId, PendingRequest>`, reconciliación al arrancar, cierre de ventana y `4001`) · H-11a retirada de `eth_sign` · H-11b vista previa con decodificación y avisos · H-15 alias `window.codecrypto` · H-03/H-05/H-06/H-30/H-38 conteos, desambiguación de Fuente y trazabilidad de NUEVO · H-12/H-13/H-17/H-19/H-20/H-22/H-25/H-26/H-29/H-40/H-42 RNF operacionalizados y categorías nuevas (Accesibilidad, Recuperación, Cumplimiento, Mantenimiento) · H-14/H-16/H-24/H-27/H-28/H-34/H-35/H-36/H-37 rúbrica, entregables, stakeholders, MVP y licencias · **v1.5 (esta versión) — remedia `casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30, decisiones D-A..D-G y P-17/P-18/P-19):** conteos a **50 RF (40 Must / 10 Should)** · **RF-50 (Must)** revelar y exportar la frase semilla (BIP-39) y las claves privadas con confirmación explícita y su **`CA-RF-50`** en Gherkin y EARS · desviación **D-13** (aportación de diseño, H-25/RNF-22) · **P-17** el MVP no depende del badge y RF-38/RF-39 siguen en el ciclo posterior · **P-19** `wallet_switchEthereumChain` exige aprobación cuando la red destino no es la activa (RF-22 y `CA-RF-22`) · **D-B** caducidad de sesión de dApp de 24 h renovables en RF-25 y `CA-RF-25` · **D-C** build limpio `npm ci && npm run build` (RNF-15) · **D-A** RT-13 como fuente de verdad de EIP-6963 · **D-D** campo `event` en `truekeate_logs` · **D-E** varios mensajes por código EIP-1193 · **D-F** `accountLabels` · **D-G** permiso de host en runtime siempre · rúbrica de Documentación (§4.1) apuntada a la evidencia existente.
 
 ---
 
@@ -24,7 +24,7 @@ Construir una **extensión de navegador Chrome/Edge (Manifest V3)** que funcione
 | Cifrado de la semilla | **No** (modo desarrollo, sin contraseña) — P-03 |
 | Usuarios | Dos perfiles de usuario final (§4.3): el estudiante/autor que opera Anvil y el evaluador que carga `dist/` |
 | Duración estimada | **Sin cifra única**: se retira el «~40 h» y se sustituye por la estimación por hitos del `plan_desarrollo.md` (Fase 3), con el recorte declarado en §4.5 — H-34 |
-| Alcance del MVP | **39 RF Must**; los **10 RF Should** se planifican en un ciclo posterior (§4.5) |
+| Alcance del MVP | **40 RF Must** (incluye RF-50); los **10 RF Should** se planifican en un ciclo posterior (§4.5). El MVP **no depende del badge**: RF-38 y RF-39 quedan fuera del alcance comprometido (P-17) |
 | Referencia de aceptación | **Rúbrica de 100 puntos** del enunciado (`TAREA_PARA_ESTUDIANTE.md:2408-2448`), transcrita y mapeada en §4.1 |
 
 ### 0.1 Antecedente: línea base existente (hallazgo de Fase 1)
@@ -50,7 +50,7 @@ El remoto `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git`
 
 ## 1. Requerimientos funcionales (RF)
 
-Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número del enunciado original (`E-n`) o `NUEVO` si proviene de la petición explícita del usuario en la entrevista. **Total: 49 RF** (39 Must / 10 Should; el MVP son los 39 Must — §4.5).
+Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número del enunciado original (`E-n`) o `NUEVO` si proviene de la petición explícita del usuario en la entrevista. **Total: 50 RF** (40 Must / 10 Should; el MVP son los 40 Must — §4.5).
 
 **Regla de desambiguación de la columna Fuente (H-06):** el enunciado **repite números** (el 20 aparece como «Gestión de Redes» y como «Modal de Confirmación»). Por tanto todo número repetido se cita con sufijo: **`E-20a` = «Gestión de Redes: Add nuevas redes»** y **`E-20b` = «Modal de Confirmación»**. Los valores admitidos en la columna Fuente son `E-n`, `E-20a`/`E-20b`, `NUEVO`, `DERIVADO` y `OBJETIVO`; ningún otro valor es válido. Cada fila declara además su **criterio de aceptación abreviado** (≤ 120 caracteres, medible) y su **evidencia**; el criterio completo en Gherkin/EARS de cada RF está en el **Anexo A (§9)** con la etiqueta `CA-RF-xx`.
 
@@ -66,7 +66,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 
 > Nota (H-05): `identidad_visual.md:237` atribuye E-12 a «RF-45»; RF-45 es EIP-1193 (fuente E-03) y la compatibilidad Chrome/Edge corresponde a RNF-04/RT-04. La corrección de ese anexo queda **fuera del alcance de este documento**.
 
-**Trazabilidad de los requisitos `NUEVO` (H-30)** — 11 filas con origen, justificación y prioridad resultante:
+**Trazabilidad de los requisitos `NUEVO` (H-30)** — 12 filas con origen, justificación y prioridad resultante:
 
 | RF | Origen | Justificación | Prioridad resultante |
 |---|---|---|---|
@@ -81,6 +81,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-40 | D-06 | El enunciado no define timeout de aprobación. | Should |
 | RF-48 | Identidad visual | Aportación de marca sin correspondencia en el enunciado (H-03). | Should |
 | RF-49 | Identidad visual | Aplicación de la identidad visual en las tres ventanas y en la dApp (H-03). | Must |
+| RF-50 | **D-13 (nueva fila)** · RNF-22 · H-25 | **Aportación de diseño por requisito de recuperación:** el enunciado no pide revelar ni exportar la semilla o las claves privadas, pero sin ello las cuentas importadas por clave privada son irrecuperables (RNF-22, H-25). | Must |
 
 **Requisitos con fuente distinta de `E-n`/`NUEVO` (H-06, H-38):**
 
@@ -90,9 +91,9 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-18 | E-06, E-11 + **DERIVADO** | `eth_blockNumber` no aparece en el enunciado (0 coincidencias en `TAREA_PARA_ESTUDIANTE.md`); se declara derivado del catálogo de lectura de E-06/E-11. |
 | RF-43 | **OBJETIVO — `requisitos.md:30`** | «EIP-155: Replay Protection for Transactions» (objetivo de aprendizaje de «Estándares Web3 (EIPs)», sin numeración E-xx). |
 
-> **RF-48 y RF-49** quedan **dentro del rango oficial** `RF-01..RF-49`: son aportaciones de identidad visual sin correspondencia en el enunciado, declaradas en D-01 y en la tabla anterior (H-03).
+> **RF-48, RF-49 y RF-50** quedan **dentro del rango oficial** `RF-01..RF-50`: RF-48 y RF-49 son aportaciones de identidad visual sin correspondencia en el enunciado (H-03) y RF-50 es una aportación de diseño por requisito de recuperación (H-25), declaradas en **D-01** y **D-13** y en la tabla anterior.
 
-### 1.1 Core Wallet — **Total: 12 RF (10 Must / 2 Should)**
+### 1.1 Core Wallet — **Total: 13 RF (11 Must / 2 Should)**
 
 | ID | Requerimiento | Fuente | Prioridad | Criterio de aceptación | Evidencia |
 |---|---|---|---|---|---|
@@ -108,6 +109,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-10 | **Restaurar estado**: al reabrir, se restaura cuenta activa, red, cuentas importadas y sesiones de dApp. | E-28 | Must | Tras reabrir el popup se restauran cuenta activa, red, importadas y sesiones con los mismos valores. | `E2E: 05-persistencia.spec.ts` · `Vitest: state.spec.ts` |
 | RF-11 | **Reset wallet**: botón que limpia la cartera (mnemonic, cuentas, sesiones) y vuelve al formulario inicial. | E-21 | Must | Al confirmar «Reset wallet», storage queda sin mnemonic/cuentas/sesiones y el popup vuelve al inicio. | `E2E: 06-reset.spec.ts` · `Vitest: reset.spec.ts` |
 | RF-12 | **Hint interactivo**: la frase semilla de prueba de Anvil es clickeable y rellena el formulario. | E-22 | Should | Al pulsar el hint, el campo queda relleno con las 12 palabras de Anvil y «Importar» pasa a habilitado. | `E2E: 01-onboarding.spec.ts — hint Anvil` |
+| RF-50 | **Revelar y exportar** la **frase semilla (BIP-39)** y las **claves privadas** de las cuentas **bajo confirmación explícita del usuario**: advertencia de riesgo, valores ocultos por defecto, revelado temporal de 30 s y prohibición de exponerlos por `window.postMessage` (**aportación de diseño D-13**, H-25). | **NUEVO** (diseño, D-13) | Must | Con confirmación explícita, el valor oculto por defecto se revela 30 s y nunca viaja por `window.postMessage`. | `Vitest: secretsExport.spec.ts — confirmación, 30 s y no postMessage` · `E2E: 25-recuperacion.spec.ts — revelado temporal` |
 
 ### 1.2 Provider inyectado y operaciones blockchain — **Total: 14 RF (14 Must / 0 Should)**
 
@@ -122,10 +124,10 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-19 | `eth_sendTransaction`: solicitar aprobación al usuario y luego **firmar y enviar** la transacción. La vista previa **decodifica el calldata** (selector, función y parámetros legibles) y etiqueta el destino (H-11b). | E-07 | Must | Al aprobar, la dApp recibe el hash y la vista previa mostró selector, nombre de función y parámetros decodificados. | `E2E: 10-aprobar-tx.spec.ts` · `Vitest: calldata.spec.ts` |
 | RF-20 | `eth_signTypedData_v4`: firmar datos estructurados EIP-712 mostrando `domain`, `types` y `message` en la confirmación, con `name` y `verifyingContract` y aviso si `domainChainMismatch` (H-11b, H-40). | E-08 | Must | La confirmación EIP-712 muestra `name`/`verifyingContract`; si `domain.chainId ≠` red activa, muestra aviso destacado. | `E2E: 11-firmar-eip712.spec.ts` · `Vitest: typedData.spec.ts` |
 | RF-21 | `personal_sign`: firma de mensajes de texto plano (con prefijo `\x19Ethereum Signed Message`). **Confirmado en P-05.** | **NUEVO** (usuario) | Must | `personal_sign` muestra el texto UTF-8 y avisa si el payload es hex ilegible; `eth_sign` responde `code 4200`. | `Vitest: personalSign.spec.ts` · `E2E: 11-firmar-mensaje.spec.ts` |
-| RF-22 | `wallet_switchEthereumChain`: cambiar de red y notificar `chainChanged` a todas las pestañas. | E-19 | Must | Tras cambiar a otra red local, `eth_chainId` devuelve su id y todas las pestañas reciben `chainChanged` con ese id. | `E2E: 12-redes.spec.ts` |
+| RF-22 | `wallet_switchEthereumChain`: si la red destino **ya es la activa**, responde sin cambios y sin abrir ninguna ventana; si **no lo es**, exige **aprobación del usuario** creando una solicitud en `truekeate_pending_requests` que se resuelve en `notification.html` (P-19) y, al aprobarse, cambia de red y notifica `chainChanged` a todas las pestañas. | E-19 | Must | Con la red destino ya activa responde sin abrir ventana; hacia otra red crea 1 entrada `pending` y solo tras aprobarla `eth_chainId` devuelve su id y todas las pestañas reciben `chainChanged`. | `E2E: 12-redes.spec.ts — aprobación del cambio de red` · `Vitest: networks.spec.ts — red ya activa` |
 | RF-23 | `wallet_addEthereumChain`: dar de alta redes nuevas (nombre, chainId, RPC, símbolo, explorer) desde la dApp o desde la UI. | E-20a | Must | `wallet_addEthereumChain` exige aprobación; al aprobar, la red aparece en la lista con el `chainId` declarado. | `E2E: 12-redes.spec.ts` · `Vitest: networks.spec.ts` |
 | RF-24 | **Propagación de eventos**: `accountsChanged` y `chainChanged` se envían a **todas las pestañas** cuando cambian desde el popup o desde la dApp. | E-10, E-34, E-35 | Must | Cambiar de cuenta en el popup emite `accountsChanged` con la nueva cuenta en todas las pestañas conectadas. | `E2E: 08-eventos.spec.ts — 2 pestañas` |
-| RF-25 | **Persistencia de conexión por origen**: cada dApp recuerda la cuenta autorizada entre recargas y reinicios del Service Worker. | **NUEVO** (diseño, D-12) | Must | Tras recargar `test.html` y reiniciar el Service Worker, `eth_accounts` devuelve la cuenta autorizada sin nuevo prompt. | `E2E: 05-persistencia.spec.ts — sesión por origen` |
+| RF-25 | **Persistencia de conexión por origen con caducidad**: cada dApp recuerda la cuenta autorizada entre recargas y reinicios del Service Worker, y la sesión vence por inactividad con `expiresAt = lastUsedAt + 86400000` (24 h **renovables en cada uso**, D-B). | **NUEVO** (diseño, D-12) | Must | Tras recargar `test.html` y reiniciar el Service Worker, `eth_accounts` devuelve la cuenta autorizada sin nuevo prompt; con `lastUsedAt` a más de 24 h, la sesión está vencida (`eth_accounts` → `[]`) y cualquier uso renueva `expiresAt`. | `E2E: 05-persistencia.spec.ts — sesión por origen y TTL 24 h` · `Vitest: sessions.spec.ts — renovación de expiresAt` |
 | RF-26 | **Revocar permiso** de un origen (desconectar dApp) desde el popup. **Confirmado en P-06.** | **NUEVO** (usuario) | Must | Al revocar un origen desde el popup, ese origen recibe `accountsChanged []` y `eth_accounts` posterior devuelve `[]`. | `E2E: 13-revocar.spec.ts` |
 
 ### 1.3 UX, logging y observabilidad — **Total: 8 RF (6 Must / 2 Should)**
@@ -134,7 +136,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 |---|---|---|---|---|---|
 | RF-27 | **Polling de saldos** cada 5 s de la cuenta activa (y de la lista de cuentas en la página de conexión). El ciclo arranca al abrir la vista, se detiene al cerrarla o al cambiar de cuenta y se suspende si el RPC no responde (RNF-07). | E-11 | Must | Con el popup abierto se ejecuta 1 `eth_getBalance` por cuenta visible cada 5 s; al cerrarlo, el polling se detiene. | `Vitest: polling.spec.ts — contador RPC` · `E2E: 14-polling.spec.ts` |
 | RF-28 | **Log de llamadas**: registrar cada llamada al provider (método, params, origen, timestamp). | E-13 | Must | Con el popup cerrado, un `eth_blockNumber` desde la dApp deja ≥ 1 entrada de log con método, origen y timestamp. | `E2E: 15-logs.spec.ts` · `Vitest: logger.spec.ts` |
-| RF-29 | **Log de eventos**: registrar cada evento emitido (`accountsChanged`, `chainChanged`, …). | E-14 | Must | Emitir un evento desde la extensión genera una entrada con `category: event`, nombre del evento y origen. | `Vitest: logger.spec.ts — eventos` |
+| RF-29 | **Log de eventos**: registrar cada evento emitido (`accountsChanged`, `chainChanged`, …). | E-14 | Must | Emitir un evento desde la extensión genera una entrada con `category: event`, el campo `event` con el nombre del evento y el origen (D-D). | `Vitest: logger.spec.ts — eventos` |
 | RF-30 | **Log de errores** resaltados en rojo con código y mensaje. | E-15 | Must | El log de un error EIP-1193 se pinta en rojo y muestra el `code` numérico y el `message` en español. | `E2E: 15-logs.spec.ts — rojo` |
 | RF-31 | **Log de operaciones**: transacciones y firmas en tiempo real, con hash/firma resultante. | E-16 | Must | Cada transacción o firma aprobada produce una entrada con estado final y el hash o la firma en `0x`+hex. | `E2E: 15-logs.spec.ts — operaciones` |
 | RF-32 | **Historial de logs persistente** que sobrevive a `resetWallet` (fuente de verdad: `chrome.storage.local` gestionado por el Service Worker, con `settings.logLimit = 500`; H-09). | E-23 | Should | Tras `resetWallet`, el panel conserva al menos las 5 últimas entradas previas y el máximo almacenado es 500. | `Vitest: logger.spec.ts — reset` |
@@ -171,7 +173,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-48 | **Pantalla de bienvenida / "Acerca de"** con el logotipo horizontal de TrueKeate y la tagline `PRODUCTOS \| SERVICIOS \| CRIPTOACTIVOS TOKENIZADOS`. | **NUEVO** (identidad visual) | Should | «Acerca de» muestra el logotipo horizontal y la tagline `PRODUCTOS \| SERVICIOS \| CRIPTOACTIVOS TOKENIZADOS`. | `E2E: 23-marca.spec.ts` |
 | RF-49 | **Aplicación de la identidad visual**: encabezados con el degradado de marca, isologo, tipografías y estados de color definidos en `identidad_visual.md` en las tres ventanas (popup, connect, notification) y en la dApp. | **NUEVO** (identidad visual) | Must | Popup, connect, notification y dApp usan el degradado de marca y 0 colores literales fuera de `tokens.css`. | `Revisión: grep de colores (RNF-18)` · `E2E: 23-marca.spec.ts` |
 
-> **Totales por tabla (H-03):** 1.1 = 12 RF (10 Must / 2 Should) · 1.2 = 14 RF (14 Must / 0 Should) · 1.3 = 8 RF (6 Must / 2 Should) · 1.4 = 7 RF (4 Must / 3 Should) · 1.5 = 4 RF (3 Must / 1 Should) · 1.6 = 4 RF (2 Must / 2 Should). **Suma: 49 RF = 39 Must + 10 Should.**
+> **Totales por tabla (H-03):** 1.1 = 13 RF (11 Must / 2 Should) · 1.2 = 14 RF (14 Must / 0 Should) · 1.3 = 8 RF (6 Must / 2 Should) · 1.4 = 7 RF (4 Must / 3 Should) · 1.5 = 4 RF (3 Must / 1 Should) · 1.6 = 4 RF (2 Must / 2 Should). **Suma: 50 RF = 40 Must + 10 Should.**
 
 ---
 
@@ -195,7 +197,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RNF-12 | Seguridad | Toda transacción/firma requiere aprobación explícita del usuario; ningún método sensible firma en silencio. | Revisión de `handleRPCRequest` |
 | RNF-13 | Mantenibilidad | Código 100 % TypeScript con `strict: true`; el build falla ante errores de tipos. | `tsc -b` sin `any` implícitos |
 | RNF-14 | Mantenibilidad | Separación estricta: React = UI sin criptografía; el Service Worker = criptografía y RPC. | Revisión de imports (ethers solo en background) |
-| RNF-15 | Portabilidad | **«Build limpio» = `npm install && npm run build` con exit 0, cero errores de tipos (`tsc -b`) y solo los warnings permitidos en §2.6**, en Windows y en **Linux (WSL2 o CI `ubuntu-latest`)** (H-20). | `Comando: npm run build` en Windows y en WSL2/CI; salida adjunta como evidencia |
+| RNF-15 | Portabilidad | **«Build limpio» = `npm ci && npm run build` con exit 0, cero errores de tipos (`tsc -b`) y solo los warnings permitidos en §2.6**, en Windows y en **Linux (WSL2 o CI `ubuntu-latest`)** (H-20, D-C). | `Comando: npm ci && npm run build` en Windows y en WSL2/CI; salida adjunta como evidencia |
 | RNF-16 | Observabilidad | **Catálogo cerrado de eventos instrumentados (§2.2)**: exactamente una entrada de log por evento, con timestamp, nivel y origen; el log vive en `chrome.storage.local` (gestionado por el SW) y se exporta en JSON; **ninguna entrada contiene claves, mnemonic ni payloads firmados completos** (H-09, H-12, H-42). | `Vitest: logger.spec.ts` (una entrada por evento del catálogo) + **aserción posterior a la suite E2E completa** + exportación del histórico en JSON |
 | RNF-17 | Testabilidad | Cobertura de **ramas** con `@vitest/coverage-v8`: **70 % global** y **≥ 80 %** en `src/background/crypto/`, `src/background/approvals/` y `src/shared/validation/`; con exclusiones declaradas (H-19). | `Comando: npm run test -- --coverage`; el hito no se cierra por debajo del umbral |
 | RNF-18 | Usabilidad / Mantenibilidad | **Consistencia visual:** todo el CSS y TSX bajo `src/` **salvo `src/styles/tokens.css`** consume tokens de `identidad_visual.md`; 0 literales de color (`#…`, `rgb(`, `hsl(`), 0 familias tipográficas literales y 0 degradados fuera de tokens (H-12). | `Comando: grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\(\|hsl\(\|font-family:" src` → 0 coincidencias fuera de `tokens.css` |
@@ -348,9 +350,9 @@ Transcripción de la **rúbrica de 100 puntos** (`TAREA_PARA_ESTUDIANTE.md:2408-
 | Estándares (15) | EIP-712 implementado correctamente (4) | RF-20, RT-11 | `E2E: 11-firmar-eip712.spec.ts` · `Forge` |
 | Estándares (15) | EIP-1559 gas management (4) | RF-42 | `Vitest: eip1559.spec.ts` · recibo `type: 2` |
 | Estándares (15) | EIP-6963 provider discovery (3) | RF-44 | `E2E: 21-eip6963.spec.ts` |
-| Documentación (10) | README completo (4) | Entregable de la fase de manuales (§4.2) | `Revisión: README.md` |
-| Documentación (10) | Comentarios en código (3) | RNF-13, RNF-14 + regla de JSDoc de esta sección | `Revisión: JSDoc` |
-| Documentación (10) | Instrucciones de instalación (3) | Entregable de la fase de manuales (§4.2) | `Revisión: INSTRUCCIONES.md` |
+| Documentación (10) | README completo (4) | Entregable `README.md` de §4.2 (**criterio en CU-36**) | `Inspección: README.md` (descripción, instalación, uso, decisiones y evidencias) |
+| Documentación (10) | Comentarios en código (3) | RNF-13, RNF-14 + regla de JSDoc de esta sección (**criterio en CU-36**) | `Inspección: JSDoc de contrato en src/background/crypto/**, src/background/approvals/** y src/shared/**` |
+| Documentación (10) | Instrucciones de instalación (3) | Entregable `INSTRUCCIONES.md` de §4.2 (**criterio en CU-36**) | `Inspección: INSTRUCCIONES.md` (extensión + dApp paso a paso) |
 
 **Ítems de rúbrica cerrados por esta versión** (no tenían requisito equivalente en v1.3): «Código limpio y comentado», «Popup funcional e intuitivo» y «`notification.html` clara y profesional». **Todos los 100 puntos quedan mapeados** a un requisito y a una evidencia.
 
@@ -385,12 +387,15 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 - **Decisión sobre auditoría externa: NO prevista en este alcance** (proyecto individual, formativo y en modo desarrollo). Queda registrada aquí para que no se interprete como omisión.
 - **Compensación con evidencia reproducible:** inspección de los mensajes del content script, test de inyección desde un iframe hostil (RNF-10), `logRedaction.spec.ts` (RNF-09 + H-42) y validación de integridad BIP-39/EIP-55 (RNF-22). Las recomendaciones de producción del enunciado (`TAREA_PARA_ESTUDIANTE.md:2625-2628`) se declaran fuera de alcance en §2.5.
 
-### 4.5 MVP (39 RF Must) vs ciclo posterior (10 RF Should) (H-34)
+### 4.5 MVP (40 RF Must) vs ciclo posterior (10 RF Should) (H-34 · P-17)
 
 | Grupo | RF | Consecuencia |
 |---|---|---|
-| **MVP — 39 Must** | RF-01..RF-05, RF-07..RF-11, RF-13..RF-31, RF-33, RF-35..RF-37, RF-41..RF-43, RF-45, RF-46, RF-49 | Es el alcance que se compromete en la entrega; los 39 tienen `CA-RF-xx` y evidencia (§9). |
-| **Ciclo posterior — 10 Should** | RF-06 (borrar importada), RF-12 (hint Anvil), RF-32 (historial persistente), RF-34 (i18n/formato), RF-38 (badge), RF-39 (notificaciones Chrome), RF-40 (timeout), RF-44 (EIP-6963), RF-47 (historial de la dApp), RF-48 («Acerca de») | Se planifican en un ciclo posterior y **deben quedar listados como tales**; si el presupuesto se agota, es el primer recorte. |
+| **MVP — 40 Must** | RF-01..RF-05, RF-07..RF-11, RF-13..RF-31, RF-33, RF-35..RF-37, RF-41..RF-43, RF-45, RF-46, RF-49 y **RF-50** | Es el alcance que se compromete en la entrega; los 40 tienen `CA-RF-xx` y evidencia (§9). **El MVP no depende del badge:** RF-38 y RF-39 quedan fuera. |
+| **Ciclo posterior — 10 Should** | RF-06 (borrar importada), RF-12 (hint Anvil), RF-32 (historial persistente), RF-34 (i18n/formato), **RF-38 (badge)**, **RF-39 (notificaciones Chrome)**, RF-40 (timeout), RF-44 (EIP-6963), RF-47 (historial de la dApp), RF-48 («Acerca de») | Se planifican en un ciclo posterior y **deben quedar listados como tales**; si el presupuesto se agota, es el primer recorte. |
+
+> **P-17 — El MVP no depende del badge (ACU-07):** RF-38 (badge) y RF-39 (notificaciones) **permanecen en el ciclo posterior y no se promociona ninguno**. El oráculo del caso central de la cola de aprobaciones (CU-16) pasa a ser **«2 entradas `pending` en `truekeate_pending_requests` + 1 transacción en vuelo por cuenta»**, verificable con RF-37/RF-41 y `CA-RF-37`/`CA-RF-41` sin depender de `CA-RF-38` ni de las notificaciones de Chrome.
+> **P-18 — RF-50 entra en el MVP (Must):** el revelado y la exportación de la semilla y de las claves privadas es un requisito de **capacidad de recuperación** (RNF-22, H-25), documentado como desviación **D-13**; sin él, las cuentas importadas por clave privada serían irrecuperables.
 
 **Estimación:** se **retira el «~40 h»** del resumen ejecutivo (contradecía las 51-68 h del material fuente) y la duración se expresa **por hitos** en el `plan_desarrollo.md` de la Fase 3, con este orden mínimo: (H1) onboarding y persistencia, (H2) provider y lectura, (H3) firma, aprobación y tiempo límite, (H4) redes, logs y UI, (H5) identidad visual y suite E2E/Forge.
 
@@ -404,7 +409,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 
 | # | Hallazgo | Impacto | Propuesta |
 |---|---|---|---|
-| D-01 | El enunciado dice 36 RF pero la numeración se **repite**: el 20 aparece como "Gestion de Redes" y como "Modal de Confirmación"; el 26 y el 29 también colisionan. El conteo real de viñetas es 37. | Trazabilidad confusa | Renumerado a **`RF-01..RF-49`** (49 RF = 39 Must + 10 Should) con este documento como fuente única. **RF-48 y RF-49 son aportaciones de identidad visual sin correspondencia en el enunciado** y quedan dentro del rango oficial (H-03). Los números repetidos se citan con sufijo `E-20a`/`E-20b` (§1). |
+| D-01 | El enunciado dice 36 RF pero la numeración se **repite**: el 20 aparece como "Gestion de Redes" y como "Modal de Confirmación"; el 26 y el 29 también colisionan. El conteo real de viñetas es 37. | Trazabilidad confusa | Renumerado a **`RF-01..RF-50`** (50 RF = 40 Must + 10 Should) con este documento como fuente única. **RF-48 y RF-49 son aportaciones de identidad visual** y **RF-50 una aportación de diseño por recuperación (D-13)**, todas sin correspondencia en el enunciado y dentro del rango oficial (H-03, H-25). Los números repetidos se citan con sufijo `E-20a`/`E-20b` (§1). |
 | D-02 | El enunciado indica **Hardhat** (`npx hardhat node`) pero el usuario pidió una **red de Foundry en local**. Ambos usan puerto 8545, chainId 31337 y la misma frase `test … junk`. | Bajo | **Resuelto (P-02):** Anvil como única red y **se retira Sepolia**. El cambio de red (RF-22/RF-23) se prueba entre redes locales vía `wallet_addEthereumChain`. |
 | D-03 | No está en el enunciado la **importación por clave privada**, que el usuario sí pidió. | Medio | Añadido como RF-05/RF-06. |
 | D-04 | "Enviar y recibir transferencias entre cuentas" puede leerse como transferencias internas (RF-08) o como mostrar la dirección para recibir (RF-07). | Bajo | Se cubren ambos explícitamente. |
@@ -416,6 +421,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 | D-10 | El enunciado exige el provider **`window.codecrypto`** y el nombre «CodeCrypto», pero la identidad visual entregada es la marca **TrueKeate**. La rúbrica puntúa literalmente «Provider `window.codecrypto` inyectado en páginas (5 pts)». | Alto (nomenclatura) | **DECISIÓN FIRME (P-13 + P-16, sin condiciones):** el producto se llama **TrueKeate Wallet**; el provider inyectado expone **`window.truekeate`** y **además el alias `window.codecrypto = window.truekeate`** (el **mismo objeto**). El alias se implementa desde la Fase 3 en `inject.js` y es un criterio de aceptación (RF-13, `CA-RF-13`), con un test que verifica **ambos nombres** (`window.truekeate === window.codecrypto`). No queda ninguna condición diferida ni pendiente de decisión futura en este documento: la compatibilidad es obligatoria y verificable. |
 | D-11 | La **vista de recepción con QR y copiar** (RF-07) es un requisito `NUEVO` Must que **no tenía fila D-xx**: D-04 solo registraba la ambigüedad de lectura de «enviar y recibir transferencias». | Medio | **Añadida esta fila (H-30).** Autorizado por P-05 («sí a ambos: `personal_sign` + vista de recepción con QR y copiar»), que además elevó RF-07 a Must. Justificación completa en la tabla de requisitos `NUEVO` de §1.0. |
 | D-12 | La **persistencia de conexión por origen** (RF-25) es un requisito `NUEVO` Must que **no tenía fila D-xx** ni respuesta de entrevista, y se atribuía a `GUIA_RAPIDA_TESTING.md` (documento descartado por P-10). | Medio | **Añadida esta fila (H-30).** RF-25 se reclasifica como **`NUEVO` (diseño)** derivado de **RNF-11** (una dApp no autorizada recibe `[]`), y su fuente deja de ser la guía descartada (ver §1.0 y §4.6). |
+| D-13 | El **revelado y exportación de la frase semilla (BIP-39) y de las claves privadas** (RF-50) **no proviene del enunciado**: es una **aportación de diseño por requisito de recuperación** (hallazgo **H-25** del `INFORME_OPTIMIZACION_V1.md`), ligada a la categoría RNF **Capacidad de recuperación** (RNF-22). | Medio (alcance) | **Añadida esta fila (P-18, ACU-14).** Entra en el MVP como **RF-50 (Must)** con `CA-RF-50` en §9 (Gherkin **y** EARS): confirmación explícita del usuario, advertencia de riesgo, valores ocultos por defecto, revelado temporal de 30 s y prohibición de exponerlos por `window.postMessage`. |
 
 ---
 
@@ -472,6 +478,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 - [x] Bloques 2 y 3 respondidos (P-04 .. P-09).
 - [x] Repositorio local inicializado con `main` y `chrome-wallet-DSH` y los 3 remotos configurados.
 - [x] **v1.4 — remediación de `INFORME_OPTIMIZACION_V1.md`:** criterios de aceptación y evidencia en los 49 RF y 13 RT + Anexo A (§9); trazabilidad, conteos y desambiguación (H-03, H-05, H-06, H-30, H-38); ciclo de aprobación MV3, `eth_sign` retirado, vista previa decodificada y alias del provider (H-02, H-07, H-08, H-11a, H-11b, H-15); RNF operacionalizados y categorías nuevas (H-12, H-13, H-17, H-19, H-20, H-22, H-25, H-26, H-29, H-40, H-42); rúbrica, entregables, stakeholders, MVP y licencias (H-14, H-16, H-24, H-27, H-28, H-34, H-35, H-36, H-37).
+- [x] **v1.5 — remediación de `casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30, D-A..D-G):** conteos a **50 RF (40 Must / 10 Should)**; **RF-50 (Must)** con `CA-RF-50` en Gherkin y EARS y desviación **D-13**; **P-17** (el MVP no depende del badge; RF-38/RF-39 siguen en el ciclo posterior), **P-18** y **P-19** (`wallet_switchEthereumChain` exige aprobación si la red destino no es la activa) aplicadas; caducidad de sesión de dApp de 24 h renovables en RF-25 y `CA-RF-25` (**D-B**); literal de build `npm ci && npm run build` (**D-C**, RNF-15); RT-13 como fuente de verdad de EIP-6963 (**D-A**); campo `event` en `truekeate_logs` (**D-D**); varios mensajes por código EIP-1193 (**D-E**); `accountLabels` (**D-F**); permiso de host en runtime siempre (**D-G**); rúbrica de Documentación (§4.1) apuntada a la evidencia existente.
 - [ ] Repositorios de GitHub y GitLab.com creados por el usuario (acción externa; no bloquea la Fase 2).
 - [ ] Confirmación del usuario para pasar a la Fase 2.
 
@@ -488,7 +495,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 | Colisión de numeración del enunciado (D-01) | Alta | Bajo | Renumeración `RF-XX` como fuente única en este documento, con sufijos `E-20a`/`E-20b` (§1). |
 | Fuga de la clave privada hacia la página vía `postMessage` | Baja | Crítico | RNF-09/RNF-10: nunca se envían claves; solo firmas y hashes, con redacción de `params` en los logs (H-42). |
 | **Pérdida irrecuperable de cuentas importadas por clave privada** (RF-05; no re-derivables del mnemonic) | Media | Alto | **Nuevo (H-25):** exportación/revelado con confirmación explícita, reset destructivo que enumera lo que se pierde e integridad BIP-39/EIP-55 al arrancar (RNF-22). |
-| Reconstruir desde cero dentro del presupuesto | Media | Medio | **Se retira el «~40 h»**: estimación **por hitos** en `plan_desarrollo.md` y tabla del recorte MVP (39 Must) vs ciclo posterior (10 Should) en §4.5 (H-34). |
+| Reconstruir desde cero dentro del presupuesto | Media | Medio | **Se retira el «~40 h»**: estimación **por hitos** en `plan_desarrollo.md` y tabla del recorte MVP (**40 Must**) vs ciclo posterior (10 Should) en §4.5 (H-34). |
 | Volumen de trabajo de Playwright + Forge + Vitest en solitario | Media | Medio | Los tests se construyen por ciclo, no al final; el contrato EIP-712 es mínimo (una función `verify`). |
 
 ---
@@ -505,7 +512,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 | **RF-08** | hash `0x`+64 hex y recibo `status 1` | `expect(hash).toMatch(/^0x[0-9a-f]{64}$/)` y `expect(recibo.status).toBe(1)` | No difundir (devolver `null`) o enviar a otra dirección |
 | **RF-40** | A los 120 s → cierre de ventana + `code 4001` | fake timers avanzan 120 s: `expect(err.code).toBe(4001)` | Usar `setTimeout` (no dispara con el SW dormido) o rechazar con un `Error` sin `code` |
 
-**Resultado de la validación:** los tres pilotos producen aserciones **observables y falsables** (una de generación, una de contrato con la red y una de temporización con relojes falsos). El formato **no requiere rediseño** y se replica a los 49 RF y a los 13 RT.
+**Resultado de la validación:** los tres pilotos producen aserciones **observables y falsables** (una de generación, una de contrato con la red y una de temporización con relojes falsos). El formato **no requiere rediseño** y se replica a los 50 RF y a los 13 RT.
 
 ### 9.2 Criterios de aceptación de los RF
 
@@ -718,14 +725,19 @@ Y eth_sign responde code 4200 sin abrir ninguna ventana
 ```
 **Evidencia:** `Vitest: personalSign.spec.ts` · `E2E: 11-firmar-mensaje.spec.ts`. **Cierra H-11a y H-11b (personal_sign).**
 
-#### CA-RF-22 · `wallet_switchEthereumChain`
+#### CA-RF-22 · `wallet_switchEthereumChain` con aprobación (P-19)
 ```gherkin
 Dado la red activa 31337 y una segunda red local (31338) dada de alta
-Cuando la dApp llama wallet_switchEthereumChain con 31338
-Entonces eth_chainId devuelve 0x7a6a
-Y todas las pestañas con provider reciben chainChanged con 0x7a6a
+Cuando la dApp llama wallet_switchEthereumChain con 31337 (la red ya activa)
+Entonces la promesa resuelve sin cambiar nada y sin abrir ninguna ventana
+Y no se crea ninguna entrada en truekeate_pending_requests
+Cuando la dApp llama wallet_switchEthereumChain con 31338 (distinta de la activa)
+Entonces se crea exactamente 1 entrada pending en truekeate_pending_requests y se abre notification.html
+Y solo tras la aprobación eth_chainId devuelve 0x7a6a y todas las pestañas con provider reciben chainChanged con 0x7a6a
+Pero si el usuario rechaza, la promesa rechaza con code 4001 y la red activa sigue siendo 31337
 ```
-**Evidencia:** `E2E: 12-redes.spec.ts`.
+**Evidencia:** `E2E: 12-redes.spec.ts — aprobación del cambio de red` · `Vitest: networks.spec.ts — red ya activa`.
+**EARS:** *Si* la red solicitada es la activa, *el sistema deberá* responder sin cambios y sin abrir ventana; *si* es distinta de la activa, *el sistema deberá* crear una solicitud `pending` en `truekeate_pending_requests` y esperar la aprobación del usuario en `notification.html` antes de cambiarla y emitir `chainChanged` (P-19).
 
 #### CA-RF-23 · `wallet_addEthereumChain` y política de RPC
 ```gherkin
@@ -747,13 +759,18 @@ Y si el cambio se origina en la dApp de A, B también lo recibe
 ```
 **Evidencia:** `E2E: 08-eventos.spec.ts — 2 pestañas`.
 
-#### CA-RF-25 · Persistencia de conexión por origen
+#### CA-RF-25 · Persistencia de conexión por origen con caducidad (D-B)
 ```gherkin
 Dado el origen http://localhost:5174 conectado con la cuenta 2
 Cuando se recarga test.html y se detiene el Service Worker
 Entonces eth_accounts devuelve ['0x…cuenta2'] sin abrir connect.html
+Y la sesión declara expiresAt = lastUsedAt + 86400000
+Cuando el origen vuelve a usarse antes de las 24 h
+Entonces lastUsedAt y expiresAt se renuevan (expiresAt = lastUsedAt + 86400000)
+Pero si lastUsedAt tiene más de 24 h, eth_accounts devuelve [] y exige eth_requestAccounts
 ```
-**Evidencia:** `E2E: 05-persistencia.spec.ts — sesión por origen`.
+**Evidencia:** `E2E: 05-persistencia.spec.ts — sesión por origen y TTL 24 h` · `Vitest: sessions.spec.ts — renovación y vencimiento`.
+**EARS:** *Cuando* una dApp autorizada use su sesión, *el sistema deberá* renovar `expiresAt = lastUsedAt + 86400000`; *si* transcurren 24 h sin uso, *entonces* la sesión se considerará vencida y `eth_accounts` devolverá `[]` (D-B, cierra ACU-17).
 
 #### CA-RF-26 · Revocar permiso por origen
 ```gherkin
@@ -978,6 +995,20 @@ Y el número de colores literales fuera de tokens.css es 0
 ```
 **Evidencia:** `Revisión: grep de colores (RNF-18)` · `E2E: 23-marca.spec.ts`.
 
+#### CA-RF-50 · Revelar y exportar la semilla y las claves privadas (D-13)
+```gherkin
+Dado el popup con cartera y sin ningún valor sensible visible
+Cuando el usuario abre «Revelar frase semilla» o «Exportar clave privada» de una cuenta
+Entonces el sistema muestra una advertencia de riesgo y exige una confirmación explícita
+Y mientras no confirme, el valor permanece oculto (ofuscado)
+Cuando el usuario confirma
+Entonces el valor se revela durante 30 s y se vuelve a ocultar automáticamente
+Y el valor nunca se envía a ninguna página por window.postMessage ni queda registrado en truekeate_logs
+Pero si el usuario cancela la confirmación, no se revela ni se exporta nada
+```
+**Evidencia:** `Vitest: secretsExport.spec.ts — confirmación, ocultación por defecto, 30 s y no postMessage` · `E2E: 25-recuperacion.spec.ts — revelado temporal`.
+**EARS:** *El sistema deberá* exigir **confirmación explícita** del usuario antes de revelar o exportar la frase semilla BIP-39 o una clave privada; *el sistema no deberá* exponer nunca esos valores por `window.postMessage`; *cuando* el usuario confirme, *el sistema deberá* advertir del riesgo y mostrar el valor solo de forma temporal (**30 s**), permaneciendo **oculto por defecto**. **Cierra D-13 (P-18) y RNF-22 (H-25).**
+
 ### 9.3 Criterios de aceptación de los RT (notación EARS)
 
 #### CA-RT-01 · Stack UI (EARS)
@@ -1029,14 +1060,14 @@ Y el número de colores literales fuera de tokens.css es 0
 **Evidencia:** `Revisión: árbol public/ + LICENSE/NOTICE`.
 
 #### CA-RT-13 · Nomenclatura (EARS)
-*El sistema deberá* exponer `window.truekeate` con el alias `window.codecrypto` (el mismo objeto), usar el prefijo `truekeate_` y los tipos `TRUEKEATE_*`, y publicar el `rdns` `academy.codecrypto.truekeate`. *Si* alguna cadena de código conserva el prefijo heredado `codecrypto_`, *entonces* el `grep` de nomenclatura fallará.
+*El sistema deberá* exponer `window.truekeate` con el alias `window.codecrypto` (el mismo objeto), usar el prefijo `truekeate_` y los tipos `TRUEKEATE_*`, y publicar en EIP-6963 el `name` `TrueKeate` y el `rdns` `academy.codecrypto.truekeate` (**fuente de verdad de EIP-6963: RT-13, D-A**). *Si* alguna cadena de código conserva el prefijo heredado `codecrypto_`, *entonces* el `grep` de nomenclatura fallará.
 **Evidencia:** `Vitest: naming.spec.ts` · `Revisión: grep de codecrypto_ en src/`.
 
 ### 9.4 Cobertura del anexo (H-01 · RNF-01)
 
 | Familia | Criterios | Must | Should | Con evidencia declarada |
 |---|---|---|---|---|
-| RF | **49** (`CA-RF-01`..`CA-RF-49`) | 39 | 10 | 49 / 49 |
+| RF | **50** (`CA-RF-01`..`CA-RF-50`) | 40 | 10 | 50 / 50 |
 | RT | **13** (`CA-RT-01`..`CA-RT-13`) | — | — | 13 / 13 |
 | RNF | **25** (criterio en la tabla de §2 y en §2.1..§2.6) | — | — | 25 / 25 |
 

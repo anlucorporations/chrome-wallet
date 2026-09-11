@@ -1,7 +1,8 @@
 # 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.5
+> **Fase:** 1 — Concepto · **Versión:** 1.6
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
+> **v1.6:** cierra los hallazgos **ACU-03, ACU-17, ACU-25 y ACU-27** de `casos_uso/AUDITORIA_CASOS_USO_V1.md` con las decisiones **D-A, D-B, D-C y D-G**: constantes `PROVIDER_NAME`/`PROVIDER_RDNS`/`SESSION_TTL_MS` en §3 con la distinción entre el `name` de EIP-6963 y `manifest.name`; literal único de build limpio `npm ci && npm run build` (§2.2); permiso de host en runtime y por red —también desde el popup— con el manifest en mínimos privilegios (§4); claves canónicas con prefijo completo. Detalle en §7.
 
 ---
 
@@ -80,7 +81,7 @@ npm run test         # Vitest (unitarias / integración)
 npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
 ```
 
-**«Build limpio» — definición (H-20).** `npm ci && npm run build` termina con **código de salida 0**, **cero errores de tipos** (`tsc -b` con `strict: true`, RNF-13) y **cero avisos de tipos**; los avisos permitidos (si los hay) se listan expresamente en `plan_desarrollo.md` y ninguno puede provenir de `tsc`. `package-lock.json` se versiona y la build es reproducible.
+**«Build limpio» — definición (H-20, D-C).** El **literal único** de build limpio en todo el corpus (este documento, `requerimientos.md` y los casos de uso) es **`npm ci && npm run build`**; **`npm install` no es el literal de build limpio** y allí donde aparezca debe leerse como `npm ci` (ACU-26 / D-C). El comando termina con **código de salida 0**, **cero errores de tipos** (`tsc -b` con `strict: true`, RNF-13) y **cero avisos de tipos**; los avisos permitidos (si los hay) se listan expresamente en `plan_desarrollo.md` y ninguno puede provenir de `tsc`. `package-lock.json` se versiona y la build es reproducible.
 
 **Verificación en Linux (H-20).** Se ejecuta en **WSL2** (`wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"`) o, en su defecto, en un workflow de CI `ubuntu-latest` con los mismos tres pasos. Sin ese medio, RNF-15 se marca como **«verificado solo en Windows; pendiente en Linux»** y no como cumplido.
 
@@ -159,8 +160,14 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `BALANCE_POLL_MS` | `5000` | `src/shared/constants.ts` (RF-27) |
 | `SIGN_TIMEOUT_MS` | `120000` | `src/background/approvals.ts` (RF-40) |
 | `CONNECT_TIMEOUT_MS` | `60000` | `src/background/approvals.ts` (RF-40) |
-| `PROVIDER_RDNS` | `academy.codecrypto.truekeate` | `src/inject/provider.ts` (RF-44) |
+| `SESSION_TTL_MS` | `86400000` | `src/shared/constants.ts` — **caducidad de la sesión de dApp** (24 h renovables desde `lastUsedAt`, `expiresAt = lastUsedAt + SESSION_TTL_MS`) **respaldada por RF-25** (ACU-17 / D-B) |
+| `PROVIDER_NAME` | `TrueKeate` | `src/inject/provider.ts` (EIP-6963, RF-44 / RT-13) — **nombre corto de marca, vinculante** (ACU-03 / D-A) |
+| `PROVIDER_RDNS` | `academy.codecrypto.truekeate` | `src/inject/provider.ts` (EIP-6963, RF-44 / RT-13) — **vinculante** (ACU-03 / D-A) |
 | `PROVIDER_UUID` | UUID fijo de la extensión | `src/inject/provider.ts` (RF-44) |
+
+> **Identidad del provider (ACU-03 / D-A, RT-13).** `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` son los valores **vinculantes** del anuncio EIP-6963 (`truekeate:announceProvider`), y son la misma historia que `diccionario_datos.md` §4.1.1. **Atención: el `name` de EIP-6963 no es `manifest.name`.** El manifest declara `TrueKeate Wallet` (§10) y el provider se anuncia con el nombre corto de marca `TrueKeate`; se trata de dos campos distintos que no deben confundirse ni igualarse. `PROVIDER_UUID` es la constante fija de la extensión (nunca se regenera por carga) y el `icon` es un data-URI PNG del isologo de 96 px.
+
+> **Caducidad de la sesión de dApp (ACU-17 / D-B, RF-25).** `SESSION_TTL_MS = 86400000` (**24 h renovables**): `expiresAt = lastUsedAt + SESSION_TTL_MS` en `truekeate_connected_sites`, y `lastUsedAt` se refresca en cada `eth_accounts`/`eth_requestAccounts` atendido. Al vencer, la sesión se elimina del mapa, `eth_accounts` devuelve `[]` y el origen debe volver a pasar por `eth_requestAccounts`; no se emite error. El mismo valor vive como `truekeate_settings.sessionTtlMs` (`diccionario_datos.md` §2.7 y §2.10).
 
 > **Dueño único del plazo de aprobación (H-07).** El **Service Worker es el único dueño del reloj**: `expiresAt = createdAt + SIGN_TIMEOUT_MS` (120 000 ms) para firmas/aprobaciones y `createdAt + CONNECT_TIMEOUT_MS` (60 000 ms) para conexión, **anclados a `createdAt`** (no al instante en que el usuario abre la ventana). El vencimiento se dispara con **`chrome.alarms`**, de modo que ocurre aunque el SW esté dormido. La capa inject/content **no tiene reloj propio**: es solo **red de seguridad con margen superior** (`SIGN_TIMEOUT_MS + 5000` ms) y delega siempre en el `approvalId`; si su temporizador vence, la solicitud ya fue resuelta por el SW. Al expirar, el SW **cierra la ventana** de `notification.html`, marca la solicitud como `expired` y **purga el badge** (RF-38); el error que llega a la página es un objeto **EIP-1193** con `code: 4001` y mensaje en español (RNF-06), nunca un `Error('Request timeout')` sin `code`.
 
@@ -210,11 +217,13 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
 | `alarms` | **Vencimiento del plazo de aprobación aunque el SW esté dormido** (H-02): `setTimeout` no sobrevive a la suspensión del Service Worker, así que `expiresAt` se dispara con `chrome.alarms` (§3). |
 | `notifications` | Aviso al usuario de cada solicitud pendiente (RF-39). Es el único permiso de UI de sistema que el diseño necesita. |
 | `host_permissions` (RPC local) | Llamar al JSON-RPC de Anvil en `127.0.0.1:8545` / `localhost:8545` (RT-04). No se declara ningún host remoto. |
-| `optional_host_permissions` | Permiso de host **en runtime** para las redes dadas de alta con `wallet_addEthereumChain` (RF-23): se solicita con `chrome.permissions.request` al añadir la red y la concesión se registra por red en `truekeate_networks`. Validación previa obligatoria: esquema `https` preferente (`http` solo para `127.0.0.1`/`localhost`) y host que no sea privado ni de enlace local. |
+| `optional_host_permissions` | Permiso de host **en runtime y por red** para las redes dadas de alta con `wallet_addEthereumChain` (RF-23, **ACU-27 / D-G**): se solicita con `chrome.permissions.request` sobre el `rpcUrl` **siempre que se da de alta una red, también cuando el alta la inicia el popup** —el clic del usuario es el gesto válido que exige la API y no hay excepción por contexto—, y la concesión se registra por red en `truekeate_networks`. Si el usuario **deniega** el permiso, la red **no se persiste** y la llamada devuelve `4001`. Validación previa obligatoria: esquema `https` preferente (`http` solo para `127.0.0.1`/`localhost`) y host que no sea privado ni de enlace local. |
 
 > **Permisos retirados respecto del borrador anterior (H-36).** `tabs`: no se leen `url`/`title`/`favIconUrl`, y la pestaña destino se identifica con el `sender.tab.id` del propio mensaje, de modo que `chrome.tabs.query`/`sendMessage` no lo necesitan. `activeTab`: solo aplica a la pestaña tras una acción del usuario y no aporta nada al flujo por mensaje. `scripting`: la inyección se hace con `content_scripts` declarativos + `web_accessible_resources`, no con `chrome.scripting`. Si en Fase 3 alguna funcionalidad exige uno de ellos, se documenta aquí el uso exacto antes de volver a declararlo.
 
 > Se retiró `https://rpc.sepolia.org/*` por la decisión **P-02**. Cualquier red nueva se da de alta con `chrome.permissions.request` sobre `optional_host_permissions` (nunca ampliando `host_permissions` con comodines).
+
+> **Mínimos privilegios + runtime (ACU-27 / D-G).** El conjunto **declarado** en el manifest se mantiene en **mínimos privilegios**: `host_permissions` solo cubre el RPC local y **no crece** cuando se dan de alta redes nuevas. Todo permiso de host adicional se pide **en runtime y por red** sobre `optional_host_permissions`, tanto si el alta nace en la dApp como si nace en el **popup**; la concesión queda registrada por red en `truekeate_networks` (`diccionario_datos.md` §2.6) y la denegación impide persistir la red (`4001`).
 
 ---
 
@@ -267,6 +276,7 @@ glab repo create chrome-wallet --private
 | 1.3 | Incorporada la identidad visual TrueKeate (§9): activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
 | 1.4 | Renombrado global a TrueKeate (P-13): provider `window.truekeate`, prefijo `truekeate_` y nomenclatura congelada en §10. |
 | 1.5 | Remediación de la auditoría (Fase 2): sin rastro de reutilización del código del remoto (H-04), permiso `alarms` y mínimos privilegios (H-02/H-36), dueño único del plazo (H-07), «build limpio» + verificación Linux + política de versiones (H-20), puerto 5174 con `strictPort` y clave de sesión normalizada (H-33), CORS con allowlist (H-41), guía heredada no vinculante y verificación previa de E2E (H-24/H-29), alias del provider (H-15). |
+| **1.6** | Cierre de la auditoría de casos de uso (decisiones D-A, D-B, D-C y D-G): `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` en §3 con la nota de que el `name` de EIP-6963 **no** es `manifest.name` (ACU-03); `SESSION_TTL_MS = 86400000` respaldado por RF-25 (ACU-17); literal único de build limpio `npm ci && npm run build` —`npm install` deja de ser válido como literal— (ACU-26 / D-C); permiso de host en runtime y por red, también desde el popup, con el manifest en mínimos privilegios (§4, ACU-27 / D-G); claves canónicas con prefijo completo (ACU-25). |
 
 ---
 
