@@ -1,6 +1,6 @@
 # 🎨 Identidad Visual — TrueKeate
 
-> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.4 · **Estado:** ✅ aprobado (P-14)
+> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.5 · **Estado:** ✅ aprobado (P-14)
 > Fuente: carpeta `TrueKeate/` del workspace (6 activos originales). Esta es la **guía vinculante** de diseño para la wallet y la dApp de pruebas.
 > Los valores marcados como **(medido)** se extrajeron por análisis de píxeles de los activos originales; los marcados como **(derivado)** son extensiones necesarias para UI/estados que no aparecen en los activos.
 > **v1.3:** cierra el hallazgo **ADT-32** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (el botón fantasma queda con **una sola** especificación: fondo transparente, borde `--tk-gold-500` y **texto `--tk-navy-800`**) y las decisiones **P-20** (portapapeles del revelado: aviso de borrado, progreso de 30 s y ocultado inmediato) y **P-21** (contador de solicitudes pendientes y **una única ventana de confirmación global**). Verificación cruzada de tokens y medidas contra `documento_tecnico.md` §5.2.
@@ -175,7 +175,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | Cuenta atrás del temporizador de revelado | **JetBrains Mono** | 400 | 12 px | `--tk-navy-800` en claro, `--tk-cyan-200` en oscuro (§5.2). |
 | Tagline | Poppins 600 | — | 11–12 px | **MAYÚSCULAS** con `letter-spacing: 0.14em`, color `--tk-navy-800`. |
 
-> Las fuentes se **auto-hospedan** o se declaran con fallback del sistema: una extensión MV3 no debe depender de Google Fonts en tiempo de ejecución (CSP y privacidad). Si se auto-hospeda, usar solo los subconjuntos `latin` en `woff2` dentro de `public/fonts/`.
+> Las fuentes se **auto-hospedan** o se declaran con fallback del sistema: una extensión MV3 no debe depender de Google Fonts en tiempo de ejecución (CSP y privacidad). Si se auto-hospeda, usar solo los subconjuntos `latin` en `woff2` dentro de `public/fonts/` (H1/DEC-50: `poppins-latin-400/600/700.woff2` —**Poppins no es variable**—, `inter-latin.woff2`, `jetbrains-mono-latin.woff2` y las licencias `LICENSE-*.txt` OFL-1.1).
 
 ---
 
@@ -190,6 +190,8 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | Confirmación (`notification.html`) | 420 × 640 px | Igual + badge del tipo de solicitud (tx / firma / red) y **contador de solicitudes pendientes**. Es la **única ventana de confirmación global** (P-21): las demás solicitudes **esperan** en la cola persistida |
 | dApp de pruebas (`test.html`) | Responsive | El logotipo horizontal `truekeate-titulo.png` centrado, fondo `--tk-gray-050` |
 
+> **Tamaño explícito del `body` (H1 / DEC-49).** Chrome dimensiona el popup y las ventanas por el tamaño **intrínseco** del contenido: si el `body` no declara altura, abre el popup con la altura por defecto del navegador (medido en H1: **720 px** en lugar de 600). Por eso `body.tk-popup`, `body.tk-connect` y `body.tk-notification` declaran `width`/`height` con los tokens `--tk-*-width/height` y el contenedor interno hereda `height: 100%`. `test.html` **no** lleva esas clases: allí el layout es fluido y responsive.
+>
 > **Verificación cruzada (v1.3).** Estas medidas y los tokens citados coinciden con `documento_tecnico.md` §5.2 —popup **380 × 600**, `connect.html` **420 × 650**, `notification.html` **420 × 640**, encabezado común `--tk-grad-brand` de **72 px**— y con los componentes vinculantes de esa sección, donde el botón fantasma ya se define con **borde `--tk-gold-500` y texto `--tk-navy-800`** (ADT-32). Las constantes de tiempo citadas en §5.2 provienen de `entornos_globales.md` §3 (`REVEAL_HIDE_MS = 30000`) y del diccionario §2.8 (cardinalidad de la cola).
 
 ### 5.2 Componentes

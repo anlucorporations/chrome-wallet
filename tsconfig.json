@@ -1,0 +1,34 @@
+{
+  // Proyecto de la aplicacion: extension MV3 (src/) + arneses de prueba (test/, e2e/).
+  // Fuente normativa: documento_tecnico.md §2.4, §7.5 y plan_desarrollo.md §3.1.5 (tarea 1.2).
+  // El proyecto de la configuracion de build vive en tsconfig.node.json (referenciado abajo).
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true,
+    // Tipos de plataforma exigidos por la tarea 1.2: "chrome" (MV3) y "node" (tooling).
+    // Se anaden "vite/client" porque M57 (src/shared/constants.ts) lee import.meta.env.VITE_*
+    // (§7.4.1.d) y "vitest/globals" porque el bloque `test` de vite.config.ts activa globals.
+    "types": ["chrome", "node", "vite/client", "vitest/globals"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    // El proyecto de la aplicacion no emite: Vite es el unico empaquetador (RNF-13, RT-08).
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo"
+  },
+  "include": ["src", "test", "e2e"],
+  "exclude": ["node_modules", "dist", "coverage", "contracts", "RepoTecnico"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

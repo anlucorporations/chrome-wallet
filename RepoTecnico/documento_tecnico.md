@@ -1,6 +1,7 @@
 # Documento Técnico — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.4 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Fase:** 3 — Desarrollo (especificación de Fase 2, corregida al implementar H1) · **Versión:** 1.5 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada y **correcciones de H1** incorporadas — ver §10.4 «Historial de cambios»
+> **Cambios de la v1.5 (resumen).** Correcciones descubiertas **al implementar H1** (2026-09-11; desviaciones **DEC-47..DEC-51**, `plan_desarrollo.md` §3.1.10): **(1)** §7.3 elimina `chrome-extension://*/*` de `exclude_matches` —**no es un patrón válido**: Chrome rechaza el manifest completo y la extensión no carga; `<all_urls>` no cubre ese esquema— y fija la **regla vinculante de prohibición**; **(2)** §7.5.2/§7.5.3 documentan los **3 builds encadenados** con la API programática `build()` desde `closeBundle` (ES + IIFE de `content-script` + IIFE de `inject`) porque **Vite 7 no admite exportar un array de builds** y el IIFE exige **una entrada por build**; **(3)** §5.2 fija el **tamaño explícito del `body`** de las tres ventanas con los tokens `--tk-popup/connect/notification-width/height` (con `min-height: 100vh` el popup medía **720 px**); **(4)** §7.4 y §7.2 fijan el literal **`forge test --root contracts --match-contract EIP712VerifierTest`** y advierten del **falso verde** del literal sin `--root contracts` (0 pruebas, exit 0); **(5)** §7.4.1.f pasa a **`H1..H6`** (cierre de la brecha **G-01**) y las fuentes se sincronizan con las versiones vigentes.
 > **Cambios de la v1.4 (resumen).** Cierre de los **10 defectos residuales `VR-01..VR-10`** de la última pasada de consistencia: **conjunto de permisos unificado** con el diccionario (`favicon`, `clipboardRead` y `clipboardWrite`, cada uno justificado, en §7.3 y en su fragmento de manifest); **catálogo de eventos a 24** (§2.5.2 y el `erDiagram` de §4.2); **tabla de errores de §5.1 sustituida por un índice código → causa** que remite a `diccionario_datos.md` §4.3 **sin repetir literales**; **retirada definitiva** de `windowsByApprovalId` y del campo `windowId` por solicitud (§2.3, §2.5.2 y riesgo R18), sustituidos por la entidad persistida `truekeate_approval_window` (§2.14 del diccionario); **conteo de diagramas Mermaid corregido a 15** en el texto y en la comprobación de CI (ADT-02); y bloques de «Fuentes»/«Documentos del corpus» sincronizados con las versiones vigentes.
 > **Cambios de la v1.3 (resumen).** Se añaden la **guarda de sesión de dApp activa** en el revelado/exportación y en el borrado de una cuenta importada (§3.8, regla 9; **R-09a/DEC-45**) y la **nueva §3.9** con las guardas y el **orden de comprobación del reset** (§3.9; **R-09b/DEC-46**): ambas se emiten como error tipado `-32000` y **citan `diccionario_datos.md` §4.3 como fuente única de los literales**. Se sincronizan las fuentes vinculantes a las versiones vigentes del corpus.
 > **Cambios de la v1.1 (resumen).** Se especifican el **build/empaquetado MV3** (§7.5) y el **arnés de pruebas E2E** (§7.4), que eran los dos bloqueantes del hito H1; se añade el flujo de **revelado y exportación (RF-50)** con su política de portapapeles (§3.8); se corrigen los **3 diagramas Mermaid** que no parseaban y se añade su comprobación de CI (§7.5); se resuelven las decisiones del usuario **P-20** (portapapeles), **P-21** (una sola ventana de confirmación global) y **P-22** (`wallet_addEthereumChain` no activa la red); y se cierran las decisiones de consolidación **D-H..D-U**.
@@ -12,9 +13,10 @@
 > `RepoTecnico/casos_uso/casos_uso.md` **v1.5** (36 CU, Gherkin/EARS y matriz de trazabilidad; guardas de estado en CU-06, CU-07 y CU-30) ·
 > `RepoTecnico/casos_uso/diagramas.md` **v1.2** (figuras UML de los 36 CU) ·
 > `RepoTecnico/diccionario_datos.md` **v1.8** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 como fuente única de los literales de error**, guarda del revelado/borrado en §3.10 y guardas del reset en §3.11) ·
-> `RepoTecnico/entornos_globales.md` **v1.9** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
-> `RepoTecnico/identidad_visual.md` **v1.4** (tokens, tipografía, medidas, componentes, matriz de contraste) ·
-> `RepoTecnico/estado_proyecto.md` **v1.9** (decisiones **DEC-01..DEC-46**) ·
+> `RepoTecnico/entornos_globales.md` **v2.0** (entorno verificado, comandos, constantes, permisos, nomenclatura y correcciones de H1) ·
+> `RepoTecnico/identidad_visual.md` **v1.5** (tokens, tipografía con los ficheros reales, medidas, componentes, matriz de contraste) ·
+> `RepoTecnico/estado_proyecto.md` **v2.0** (decisiones **DEC-01..DEC-51**; H1 ✅ completado) ·
+> `RepoTecnico/plan_desarrollo.md` **v1.1** (H1 ✅ COMPLETADO y **§3.1.10** con las 5 desviaciones aceptadas) ·
 > `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos **H-01..H-42**, remediados) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos **ACU-01..ACU-30**, remediados).
 > **Regla de no regresión:** ningún defecto ya corregido por `H-01..H-42` ni por `ACU-01..ACU-30` se reintroduce en este documento; los invariantes que los cierran están recogidos en §2.3, §2.5, §3.7, §4.3 y §7.3.
 > **Convenciones:** todo en español; identificadores de código, métodos RPC, nombres de archivo y claves de storage en su **forma original**; las claves de `chrome.storage.local` se citan **siempre con el prefijo completo** `truekeate_` (ACU-25).
@@ -1420,6 +1422,13 @@ export type InternalWalletResult<M extends InternalMethod> = InternalWalletResul
 | Alta de red (contenido especifico, P-22) | — | La ventana de `wallet_addEthereumChain` muestra los datos de la red **y el aviso explicito de que la red se anadira sin activarse**, indicando cual sigue siendo la red activa. La ventana de `wallet_switchEthereumChain` muestra el cambio de red y su `chainId` destino | RF-22, RF-23, ADR-16 |
 | Encabezado común | Franja `--tk-grad-brand` de **72 px** con `truekeate-mark-96.png` al 18 % de opacidad y «TrueKeate» en blanco | connect añade el origen; notification añade la insignia del tipo de solicitud | RF-49, RT-12, RNF-18 |
 
+**Tamaño explícito de la ventana (obligatorio — H1/DEC-49).** Las medidas de la tabla **no** se consiguen con `min-height: 100vh`: con esa regla el `body` medía **720 px** de alto en lugar de 600 y Chrome abría el popup con la **altura por defecto del navegador**. La implementación **obligatoria** es:
+
+1. Cada página declara su clase en el `body`: `tk-popup` (`index.html`), `tk-connect` (`connect.html`) y `tk-notification` (`notification.html`).
+2. `body.tk-popup` / `body.tk-connect` / `body.tk-notification` declaran **`width` y `height` explícitos** con los tokens de `identidad_visual.md` §6: `--tk-popup-width/--tk-popup-height` (380/600 px), `--tk-connect-width/--tk-connect-height` (420/650 px) y `--tk-notification-width/--tk-notification-height` (420/640 px); `min-height` queda a `0`.
+3. El contenedor interno (`.tk-window`) hereda `height: 100%` para que el contenido ocupe exactamente la ventana y el desplazamiento ocurra **dentro** de ella.
+4. `test.html` **no** lleva ninguna de esas clases: la dApp de pruebas es fluida y no fija alto.
+
 **Componentes vinculantes** (`identidad_visual.md`): botón primario (fondo `--tk-grad-mark`), secundario, peligro (`--tk-grad-danger`), fantasma (borde `--tk-gold-500` con texto `--tk-navy-800`), tarjeta de cuenta (seleccionada con borde 2 px `--tk-teal-500`), dirección truncada `0x1234…abcd` en JetBrains Mono, saldo, badge de red (`--tk-grad-gold`), badge del icono (`--tk-danger`), panel de logs (fondo `--tk-night-900`), spinner con `--tk-grad-mark` y estado vacío. **Accesibilidad**: área táctil ≥ 44 × 44 px con separación ≥ 8 px, foco visible de 2 px `--tk-teal-500` con offset 2 px, contraste según la matriz cerrada, navegación completa por teclado, `axe-core` con 0 violaciones A/AA, `prefers-reduced-motion` respetado y sin pérdida de contenido al 200 % de zoom (RNF-19, RNF-21).
 
 ### 5.3 dApp de pruebas (`test.html`)
@@ -1448,7 +1457,7 @@ export type InternalWalletResult<M extends InternalMethod> = InternalWalletResul
 | Casos de prueba obligatorios | 1) firma valida devuelve `true`; 2) firmante incorrecto devuelve `false`; 3) dominio distinto (`chainId` o `verifyingContract` alterados) devuelve `false`; 4) firma malformada (longitud distinta de 65 o `v` fuera de 27/28) devuelve `false` sin revert; 5) byte alterado en el mensaje devuelve `false` |
 | Uso | Comprobar **on-chain** que la firma EIP-712 producida por la wallet es valida: `true` con la firma correcta y `false` si se altera un byte del mensaje (RT-11, `CA-RT-11`) |
 | Naturaleza | **Instrumento de prueba**: no forma parte del producto ni se despliega como funcionalidad de la wallet (P-07) |
-| Comando | `forge test --match-contract EIP712VerifierTest` |
+| Comando | `forge test --root contracts --match-contract EIP712VerifierTest` |
 
 > **Correspondencia wallet y contrato (ADT-17).** La wallet firma con `signer.signTypedData(domain, types, message)` de `ethers.js v6`; el test del contrato recalcula el `digest` con `TypedDataEncoder.hash(domain, types, message)` sobre el **mismo** fixture y comprueba que `verify(signer, digest, signature)` devuelve `true`. El dominio de pruebas es el de la dApp (`TrueKeate Test App`, seccion 5.3) con `chainId 31337`.
 
@@ -1660,7 +1669,7 @@ npm run test                   # Vitest (jsdom) sobre módulos del Service Worke
 npm run test -- --coverage     # @vitest/coverage-v8 (RNF-17)
 npm run test:e2e               # Playwright con la extensión cargada desde dist/
 npm run lint:prohibited        # viem / @scure/bip39 / @metamask/* / axios / fetch propio (RT-03)
-forge test --match-contract EIP712VerifierTest
+forge test --root contracts --match-contract EIP712VerifierTest
 
 # Verificación en Linux (WSL2 o CI ubuntu-latest)
 wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
@@ -1695,7 +1704,6 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
   "content_scripts": [{
     "matches": ["<all_urls>"],
     "exclude_matches": [
-      "chrome-extension://*/*",
       "https://metamask.io/*",
       "https://*.metamask.io/*"
     ],
@@ -1721,14 +1729,14 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
 | `clipboardWrite` | **Borrado del portapapeles al ocultar y borrado incondicional de respaldo**: permite escribir (`writeText('')`) **sin gesto del usuario** en el instante del `blur`/cierre y cuando la lectura falla; es la única vía de que la semilla o la clave no sobrevivan en el portapapeles | RF-50, RNF-09, **P-20/ADT-09** |
 | `notifications` (**`optional_permissions`**) | Avisar de cada solicitud pendiente. Es el unico permiso de UI de sistema que el diseno usaria, pero **pertenece a RF-39, que esta en el ciclo posterior**: se declara como **opcional** y solo se solicita con `chrome.permissions.request` al implementar RF-39 (D-P/ADT-30). El MVP **no** lo necesita y no debe pedirlo | RF-39 (ciclo posterior) |
 | `key` (no es un permiso, es identidad) | Congela el **ID de la extension** entre equipos: sin ella el ID cambia en cada instalacion y la allowlist CORS de Anvil (RE-04) y la suite E2E dejan de ser reproducibles (D-N/ADT-19) | RE-04, RT-04, RNF-24 |
-| `exclude_matches` | Excluye `chrome-extension://*` (nunca se inyecta en otra extension, incluida la propia) y los origenes de **otras wallets** conocidas, donde el provider no aporta nada y solo genera ruido o colisiones de alias | RNF-10, **ADT-20/D-O** |
+| `exclude_matches` | Excluye los origenes de **otras wallets** conocidas (`https://metamask.io/*` y `https://*.metamask.io/*`, lista cerrada en `src/manifest.ts`), donde el provider no aporta nada y solo genera ruido o colisiones de alias. **Regla vinculante (H1/DEC-47):** **prohibido** usar el esquema **`chrome-extension://`** en `matches` o `exclude_matches`; no es un patrón válido —Chrome **rechaza el manifest completo** («Invalid value for 'content_scripts[0].exclude_matches[0]'») y la extensión **no carga**, el Service Worker nunca aparece— y es **innecesario**: `<all_urls>` **no** cubre el esquema `chrome-extension://` | RNF-10, **ADT-20/D-O**, **DEC-47** |
 | `use_dynamic_url: true` | El recurso web-accesible (`inject.js`) se sirve con una **URL dinamica por sesion**, de modo que una pagina no puede fijar ni cachear la ruta del recurso para detectar o suplantar la extension | RNF-10, **ADT-20/D-O** |
 | `host_permissions` (RPC local) | Llamar al JSON-RPC de Anvil. **No** se declara ningún host remoto | RT-04, RE-04 |
 | `optional_host_permissions` | Permiso de host **en runtime y por red** al dar de alta redes con `wallet_addEthereumChain`, **también desde el popup**; la concesión se registra por red y la denegación impide persistir la red (`4001`) | RF-23, DEC-36, H-36 |
 
 **Permisos retirados (H-36, D-P) y por qué:** `tabs` (la pestaña destino se identifica con `sender.tab.id`; no se leen `url`/`title`/`favIconUrl`) · `activeTab` (solo aplica tras una acción del usuario y no aporta al flujo por mensaje) · `scripting` (la inyección es declarativa con `content_scripts` y `web_accessible_resources`) · `notifications` en `permissions` (pasa a `optional_permissions`, D-P/ADT-30) · `https://rpc.sepolia.org/*` (P-02/DEC-07). Si en Fase 3 alguna funcionalidad exigiera uno de ellos, se documenta aquí el uso exacto **antes** de volver a declararlo. **`host_permissions` no crece** con las redes nuevas: ningún comodín nuevo.
 
-**Justificación de la superficie amplia (ADT-20/D-O).** `<all_urls>`, `all_frames: true` y `web_accessible_resources` sobre `<all_urls>` se mantienen **porque una wallet debe estar disponible en cualquier dApp** (RF-13 exige inyección «en todas las páginas y frames»), y esa decisión queda ahora **justificada por escrito** en la tabla anterior. Riesgos declarados que la acompañan: (a) **RNF-10 se corrige** —el texto anterior afirmaba que `inject.js` «solo se expone a páginas autorizadas», lo que es **falso** con `<all_urls>`—: el provider se expone a **cualquier** página, y lo que se protege no es la inyección sino **la sesión**, la **cuenta compartida** y el **material de clave**; (b) la inyección en cada frame abre la amenaza de **iframe hostil**, mitigada por D-J/ADT-07; (c) `manifest.spec.ts` debe comprobar que **una página arbitraria no obtiene nada útil de `inject.js`** más allá del provider público (no hay claves, no hay storage, no hay mensajes privilegiados) y que otra extensión queda excluida por `exclude_matches`.
+**Justificación de la superficie amplia (ADT-20/D-O).** `<all_urls>`, `all_frames: true` y `web_accessible_resources` sobre `<all_urls>` se mantienen **porque una wallet debe estar disponible en cualquier dApp** (RF-13 exige inyección «en todas las páginas y frames»), y esa decisión queda ahora **justificada por escrito** en la tabla anterior. Riesgos declarados que la acompañan: (a) **RNF-10 se corrige** —el texto anterior afirmaba que `inject.js` «solo se expone a páginas autorizadas», lo que es **falso** con `<all_urls>`—: el provider se expone a **cualquier** página, y lo que se protege no es la inyección sino **la sesión**, la **cuenta compartida** y el **material de clave**; (b) la inyección en cada frame abre la amenaza de **iframe hostil**, mitigada por D-J/ADT-07; (c) `manifest.spec.ts` debe comprobar que **una página arbitraria no obtiene nada útil de `inject.js`** más allá del provider público (no hay claves, no hay storage, no hay mensajes privilegiados) y que el manifest **no contiene ningún patrón con el esquema `chrome-extension://`** (DEC-47); las páginas de otras extensiones quedan fuera por el **propio esquema** (`<all_urls>` no lo cubre), no por una exclusión explícita.
 
 ### 7.4 Estrategia de pruebas (Vitest, Playwright, Forge) y artefactos de evidencia
 
@@ -1736,13 +1744,15 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
 |---|---|---|---|
 | **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/EIP-55 y de clave privada, formateo, cola de aprobaciones, vencimiento con relojes falsos y `chrome.alarms`, reconciliación, mapeo de errores EIP-1193, redacción de logs, polling con contador RPC | `npm run test` | Ninguno (no necesita navegador) |
 | **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar `accountsChanged`/`chainChanged` en 2 pestañas, accesibilidad con `axe-core`, avisos de RNF-23 | `npm run test:e2e` (`--load-extension=dist`) | Chromium de Playwright + **Anvil en marcha** (verificación previa de §7.2) |
-| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol`: comprobar que las firmas EIP-712 de la wallet verifican on-chain | `forge test --match-contract EIP712VerifierTest` | Foundry dentro del rango soportado |
+| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol`: comprobar que las firmas EIP-712 de la wallet verifican on-chain | `forge test --root contracts --match-contract EIP712VerifierTest` (`npm run forge:test`) | Foundry dentro del rango soportado |
+
+> **Regla vinculante (H1/DEC-51): el literal `forge test` es un falso verde.** Ejecutado desde la **raíz del repositorio** y **sin `--root contracts`**, Foundry responde «Nothing to compile», ejecuta **0 pruebas** y termina con **exit 0**. Por eso el comando normativo del corpus es **`forge test --root contracts --match-contract EIP712VerifierTest`** (el que expone `npm run forge:test`, que en H1 ejecutó **7 passed, 0 failed, 0 skipped**) y **queda prohibido** citar la variante sin `--root contracts` como verificación. `ACTA_H1.md` §4.5 recoge la medición original.
 
 **Convención de nombres de las pruebas (ADT-33, promovida desde P-3.9).** Queda **fijada aquí**, no diferida a la Fase 3: **Vitest** usa `src/<modulo>/<modulo>.spec.ts` (un fichero por módulo, en minúsculas, sin prefijo numérico) —p. ej. `src/background/approvals/queue.spec.ts`, `src/background/approvals/calldata.spec.ts`—; **Playwright** usa `e2e/NN-flujo.spec.ts` con **dos dígitos** y verbo en infinitivo —`01-onboarding`, `10-aprobar-tx`, `25-recuperacion`—; **Forge** usa `contracts/test/<Contrato>.t.sol` con `contract <Contrato>Test`. El patrón de los artefactos de evidencia derivado de esa convención es el de la sección 7.4.1.f: `RepoTecnico/evidencia/<fase>/<NN-flujo>-<YYYY-MM-DD>.{json,png,log}`.
 
 **Objetivos numéricos de calidad:** cobertura de **ramas** ≥ **70 %** global y ≥ **80 %** en `src/background/crypto/`, `src/background/approvals/` y `src/shared/validation/` (RNF-17) · popup en frío **< 800 ms p95** (≥ 10 ejecuciones) y `eth_getBalance` **< 1,5 s**; `notification.html`/`connect.html` **< 500 ms en caliente** (mediana de 10); reconstrucción de la cola **< 1 s** con 50 pendientes; **1 `eth_getBalance` por cuenta visible y ciclo**; 4 llamadas RPC (1 + 3) con backoff 1/2/4 s y timeout de 5 s por intento (RNF-02/RNF-03/RNF-07/RNF-08, procedimiento de §2.3 de `requerimientos.md`).
 
-**Artefactos de evidencia**: `RepoTecnico/perf/popup-<fecha>.json` (marcas `performance.mark('popup-mount')` / `('balance-rendered')`); exportación JSON de `truekeate_logs`; salida de `npm ci && npm run build` en Windows **y** en WSL2/CI; salida de `npm run test -- --coverage`; capturas/logs de la suite E2E; salida de `forge test`; `grep` de colores fuera de `tokens.css` y de `codecrypto_` en `src/`; `dist/manifest.json`. Sin el medio Linux, **RNF-15 se marca «verificado solo en Windows; pendiente en Linux»**, nunca como cumplido.
+**Artefactos de evidencia**: `RepoTecnico/perf/popup-<fecha>.json` (marcas `performance.mark('popup-mount')` / `('balance-rendered')`); exportación JSON de `truekeate_logs`; salida de `npm ci && npm run build` en Windows **y** en WSL2/CI; salida de `npm run test -- --coverage`; capturas/logs de la suite E2E; salida de `forge test --root contracts --match-contract EIP712VerifierTest`; `grep` de colores fuera de `tokens.css` y de `codecrypto_` en `src/`; `dist/manifest.json`. Sin el medio Linux, **RNF-15 se marca «verificado solo en Windows; pendiente en Linux»**, nunca como cumplido.
 
 
 #### 7.4.1 Arnés E2E de Playwright (ADT-05): cómo se carga, se aísla y se suspende
@@ -1818,7 +1828,7 @@ El `globalSetup` de Playwright **reconstruye `dist/`** con `VITE_SIGN_TIMEOUT_MS
 
 **e) Stub de `chrome.*` para Vitest.** Vitest corre en jsdom, donde `chrome` **no existe**. El stub global (`test/setup/chrome-stub.ts`, declarado en `vitest.config.ts` vía `setupFiles`) implementa en memoria `chrome.storage.local` (`get/set/remove/clear`, `setAccessLevel`), `chrome.alarms` (`create/clear/onAlarm` con reloj inyectable), `chrome.runtime` (`id`, `sendMessage`, `connect`, `onMessage`, `onConnect`), `chrome.windows`, `chrome.tabs`, `chrome.permissions.request` y `chrome.action.setBadgeText`. Cada prueba lo **reinicia** en `beforeEach`, y las de tiempo avanzan el reloj del stub con `vi.useFakeTimers()` más un `advanceAlarms(ms)` propio.
 
-**f) Convención de artefactos de evidencia.** Todo artefacto producido por una prueba se guarda **siempre** en `RepoTecnico/evidencia/<fase>/<test>-<fecha>.{json,png,log}`, donde `<fase>` es el hito (`H1`..`H5`), `<test>` el nombre del fichero de prueba **sin extensión** (p. ej. `25-recuperacion`) y `<fecha>` es `YYYY-MM-DD`. El tipo se elige por contenido: `.json` para aserciones y métricas, `.png` para capturas y trazas visuales, `.log` para la salida de consola y del Service Worker. Ejemplo: `RepoTecnico/evidencia/H5/25-recuperacion-2026-03-14.json`. El **patrón de nombres de test** queda fijado en la sección 7.4, lo que cierra el pendiente **P-3.9**. Los artefactos de `RepoTecnico/evidencia/` se versionan; los perfiles temporales de Playwright, no.
+**f) Convención de artefactos de evidencia.** Todo artefacto producido por una prueba se guarda **siempre** en `RepoTecnico/evidencia/<fase>/<test>-<fecha>.{json,png,log}`, donde `<fase>` es el hito (**`H1`..`H6`**, conforme a los **6 hitos** de `plan_desarrollo.md`; brecha **G-01** cerrada), `<test>` el nombre del fichero de prueba **sin extensión** (p. ej. `25-recuperacion`) y `<fecha>` es `YYYY-MM-DD`. El tipo se elige por contenido: `.json` para aserciones y métricas, `.png` para capturas y trazas visuales, `.log` para la salida de consola y del Service Worker. Ejemplo: `RepoTecnico/evidencia/H5/25-recuperacion-2026-03-14.json`. El **patrón de nombres de test** queda fijado en la sección 7.4, lo que cierra el pendiente **P-3.9**. Los artefactos de `RepoTecnico/evidencia/` se versionan; los perfiles temporales de Playwright, no.
 
 **g) Lo que la suite E2E debe cubrir por obligación (nuevos casos de la v1.1).** (1) **portapapeles tras el ocultado** del revelado, por temporizador **y** por pérdida de foco (P-20, sección 3.8); (2) **iframe cross-origin** que no hereda la sesión del top (ADT-07); (3) **una sola ventana** de `notification.html` con dos solicitudes pendientes simultáneas y contador visible (P-21); (4) **alta de red que no activa** y activación posterior con aprobación independiente (P-22); (5) `manifest.spec.ts` sin `notifications` en `permissions` y sin `storage.sync` (ADT-30/ADT-26); (6) **página arbitraria** que no obtiene nada útil de `inject.js` (ADT-20); (7) 100 lecturas seguidas de una misma dApp que disparan el *token bucket* (ADT-24).
 
@@ -1862,42 +1872,57 @@ El `globalSetup` de Playwright **reconstruye `dist/`** con `VITE_SIGN_TIMEOUT_MS
 #### 7.5.2 Configuración de Vite: las 6 entradas
 
 ```ts
-// vite.config.ts
-import { defineConfig } from 'vite';
+// vite.config.ts — el fichero de configuracion exporta UN SOLO objeto: el build 1
+import { build as viteBuild, defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
+import { manifest } from './src/manifest';
+
+const rootDir = __dirname;
 
 export default defineConfig({
-  plugins: [react()],
-  server: { port: 5174, strictPort: true },          // A7/H-33: origen estable
+  root: rootDir,                                    // test.html se sirve en 5174 (H-33/CA-RT-09)
+  plugins: [react(), htmlRootOutputPlugin(), contentAndInjectBuildsPlugin()],
+  server: { port: 5174, strictPort: true },         // A7/H-33: origen estable
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    target: 'chrome114',                              // RNF-04/A2
+    target: 'chrome114',                            // RNF-04/A2
     sourcemap: true,
     rollupOptions: {
-      // Las 6 entradas obligatorias del empaquetado MV3 (ADT-01)
+      // Build 1 (formato `es`): las 3 paginas + el Service Worker
       input: {
-        index:        resolve(__dirname, 'src/index.html'),            // 1 popup (action.default_popup)
-        connect:      resolve(__dirname, 'src/connect.html'),          // 2 ventana de conexion
-        notification: resolve(__dirname, 'src/notification.html'),     // 3 ventana de decision
-        background:   resolve(__dirname, 'src/background.ts'),         // 4 Service Worker
-        'content-script': resolve(__dirname, 'src/content-script.ts'),  // 5 content script
-        inject:       resolve(__dirname, 'src/inject/index.ts'),        // 6 provider inyectado
+        index:        resolve(rootDir, 'src/index.html'),            // 1 popup (action.default_popup)
+        connect:      resolve(rootDir, 'src/connect.html'),          // 2 ventana de conexion
+        notification: resolve(rootDir, 'src/notification.html'),     // 3 ventana de decision
+        background:   resolve(rootDir, 'src/background.ts'),         // 4 Service Worker
       },
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        format: 'es',                                  // el SW y las paginas; ver 7.5.3
+        format: 'es',                               // el SW y las paginas; ver 7.5.3
       },
     },
   },
   test: { environment: 'jsdom', setupFiles: ['./test/setup/chrome-stub.ts'], include: ['src/**/*.spec.ts'] },
 });
+
+// Builds 2 y 3 (formato `iife`), lanzados desde el hook `closeBundle` del build 1.
+// `format: 'iife'` + `inlineDynamicImports: true` exigen UNA entrada por build (7.5.3).
+function contentAndInjectBuildsPlugin(): Plugin {
+  return {
+    name: 'truekeate-content-and-inject-builds',
+    apply: 'build',
+    async closeBundle() {
+      await viteBuild(iifeConfig({ 'content-script': resolve(rootDir, 'src/content-script.ts') }, []));            // 5
+      await viteBuild(iifeConfig({ inject: resolve(rootDir, 'src/inject/index.ts') }, [manifestPlugin()]));        // 6 + manifest
+    },
+  };
+}
 ```
 
-`build.rollupOptions.input` declara las **6** entradas con **nombre estable** (`entryFileNames: '[name].js'`) para que la salida sea exactamente `dist/index.html`, `dist/connect.html`, `dist/notification.html`, `dist/background.js`, `dist/content-script.js` y `dist/inject.js`. Las tres páginas HTML se referencian desde las secciones 2.4 y 5.2.
+**Desviación aceptada (H1/DEC-48): el fichero de configuración NO exporta un array de builds.** **Vite 7 no admite** que `vite.config.ts` exporte (ni devuelva) un **array** de configuraciones: la cadena se implementa con la **API programática `build()`** invocada desde el hook **`closeBundle`** del build 1 —el mismo hook que el documento ya usaba para generar el manifest— y con **una entrada por build** en los pasos IIFE. El efecto observable exigido **no cambia**: **un solo** `npm run build` produce las **6 entradas** (`dist/index.html`, `dist/connect.html`, `dist/notification.html`, `dist/background.js`, `dist/content-script.js`, `dist/inject.js`) y `dist/manifest.json`. Los nombres de salida siguen siendo **estables** (`entryFileNames: '[name].js'`). Las tres páginas HTML se referencian desde las secciones 2.4 y 5.2, y el plugin `htmlRootOutputPlugin` reubica `dist/src/*.html` a la raíz de `dist/` (Vite las emite relativas a `root`, que es la raíz del repositorio para servir `test.html`).
 
 #### 7.5.3 Formatos de salida obligatorios: ESM en el SW, IIFE en content e inject
 
@@ -1908,7 +1933,7 @@ export default defineConfig({
 | `inject.js` | **IIFE** (`format: 'iife'`) | Igual que el anterior: se inyecta como `<script>` en el mundo de la página y debe ejecutarse de forma **síncrona** en `document_start`, sin cargador de módulos |
 | `index`, `connect`, `notification` | ESM (HTML) | Páginas normales: Vite emite el HTML y sus `<script type="module">` |
 
-Como Rollup aplica **un solo** `output.format` por configuración, la configuración se implementa como **array de dos builds**: el primero con `format: 'es'` para `background` y las tres páginas, y el segundo con `format: 'iife'` y `inlineDynamicImports: true` para `content-script` y `inject`. Ambos escriben en el mismo `outDir`; el segundo lleva `emptyOutDir: false` para no borrar la salida del primero. **Queda prohibido** emitir `content-script.js` o `inject.js` como ESM: romperían el arranque con `Cannot use import statement outside a module`.
+Como Rollup aplica **un solo** `output.format` por configuración, la configuración se implementa como **3 builds encadenados** (H1/DEC-48), no como un array: el primero con `format: 'es'` para `background` y las tres páginas, y el segundo con `format: 'iife'` y `inlineDynamicImports: true` para `content-script` y `inject`. Los builds 2 y 3 se lanzan con la API programática `build()` desde el hook `closeBundle` del build 1 y llevan `emptyOutDir: false` y `publicDir: false` para no borrar ni recopiar lo ya emitido. **Queda prohibido** emitir `content-script.js` o `inject.js` como ESM: romperían el arranque con `Cannot use import statement outside a module`.
 
 #### 7.5.4 Generación del manifest: script propio desde `src/manifest.ts`
 
@@ -2024,7 +2049,7 @@ Ninguna de estas decisiones está resuelta en el corpus; se declaran aquí **en 
 |---|---|---|---|---|
 | **H1 — Onboarding y persistencia** | Cartera operativa en frío, sin contraseña, con 5 cuentas derivadas y estado restaurable | M1, M8, M9, M10, M13, M28, M29, M33, M34, M57, M58..M61, M62, M64, M39, M40, M41 | RF-01, RF-02, RF-03, RF-04, RF-05, RF-07, RF-09, RF-10, RF-11, RF-33, RF-49, **RF-50** (+ RNF-13, RNF-18, RNF-22, RNF-23) | `Vitest: mnemonic/derivation/importPrivateKey/secretsExport/validation` + `E2E: 01-onboarding, 02-cuentas, 03-recibir, 05-persistencia, 06-reset` |
 | **H2 — Provider y lectura** | Provider inyectado con alias, eventos y lecturas contra Anvil | M35, M36, M37, M38, M2, M3, M4, M5, M6, M55, M56, M47 | RF-13, RF-14, RF-15, RF-18, RF-24, RF-27, RF-45 (+ RF-44 Should) | `Vitest: inject/naming/errors/eip1193/polling` + `E2E: 07-provider, 08-eventos, 14-polling` |
-| **H3 — Firma, aprobación y tiempo límite** | Toda operación sensible pasa por la cola persistida con vista previa decodificada y plazo con dueño único | M14, M15, M16, M17, M18, M19, M11, M7, M50..M54 | RF-08, RF-19, RF-20, RF-21, RF-35, RF-37, RF-41, RF-42, RF-43 (+ RF-40 Should, **mecanismo estructural**) | `Vitest: approvalQueue/approvalTimeout/approvalReconcile/calldata/typedData/personalSign/eip1559/eip155` + `E2E: 10-aprobar-tx, 11-firmar-eip712, 11-firmar-mensaje, 18-concurrencia` + `Comando: forge test --match-contract EIP712VerifierTest` |
+| **H3 — Firma, aprobación y tiempo límite** | Toda operación sensible pasa por la cola persistida con vista previa decodificada y plazo con dueño único | M14, M15, M16, M17, M18, M19, M11, M7, M50..M54 | RF-08, RF-19, RF-20, RF-21, RF-35, RF-37, RF-41, RF-42, RF-43 (+ RF-40 Should, **mecanismo estructural**) | `Vitest: approvalQueue/approvalTimeout/approvalReconcile/calldata/typedData/personalSign/eip1559/eip155` + `E2E: 10-aprobar-tx, 11-firmar-eip712, 11-firmar-mensaje, 18-concurrencia` + `Comando: forge test --root contracts --match-contract EIP712VerifierTest` |
 | **H4 — Redes, logs y UI** | Conexión de dApps, sesiones con TTL, cambio y alta de redes, observabilidad y dApp de pruebas completa | M26, M23, M24, M25, M30, M31, M32, M22, M20, M21, M42, M43, M44, M45, M46, M48, M49, `test.html` | RF-16, RF-17, RF-22, RF-23, RF-25, RF-26, RF-28, RF-29, RF-30, RF-31, RF-46 (+ RF-32, RF-47 Should) | `Vitest: accounts/sessions/networks/logger/logRedaction/manifest` + `E2E: 09-conectar, 12-redes, 13-revocar, 15-logs, 22-dapp` |
 | **H5 — Identidad visual, accesibilidad y suite completa** | Identidad aplicada en las tres ventanas y la dApp, accesibilidad verificada, build limpio en ambas plataformas y ensayo de entrega | M64, M65, M39..M46, `contracts/`, `vite.config.ts`, `README.md`, `INSTRUCCIONES.md`, `LICENSE`, `NOTICE`, `public/fonts/LICENSE-*.txt` | RF-49, RF-11 (=cierre), RNF-15, RNF-17, RNF-19, RNF-21, RNF-23, RNF-24, RT-01..RT-13, RE-01..RE-04 (+ RF-06, RF-12, RF-34, RF-38, RF-39, RF-48 Should) | `E2E: 23-marca, 24-accesibilidad, 25-recuperacion, 26-avisos, 17-i18n` + `npm ci && npm run build` en Windows y WSL2/CI + `npm run test -- --coverage` + `forge test` + `npm run check:mermaid` + `Comando: git ls-files` con LICENSE, NOTICE y `public/fonts/LICENSE-*.txt` (artefactos de la sección 9.2) |
 

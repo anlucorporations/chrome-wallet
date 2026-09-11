@@ -1,0 +1,15 @@
+# Configuración de Foundry para el instrumento de prueba RT-11 (contrato verificador EIP-712).
+# No forma parte del producto: solo sirve para comprobar on-chain las firmas que produce la cartera.
+
+[profile.default]
+# `solc` FIJADO (no rango) para cerrar la reproducibilidad del artefacto (RNF-24, §5.4).
+solc = "0.8.24"
+evm_version = "cancun"
+optimizer = false
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+# El fixture versionado se lee con `vm.readFile`, que exige permisos explícitos de lectura.
+fs_permissions = [{ access = "read", path = "./test/fixtures" }]
+verbosity = 2

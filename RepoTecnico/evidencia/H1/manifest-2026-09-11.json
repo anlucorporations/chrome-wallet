@@ -1,0 +1,73 @@
+{
+  "manifest_version": 3,
+  "name": "TrueKeate Wallet",
+  "version": "1.0.0",
+  "description": "Monedero Ethereum no custodial para red local Anvil (entorno de desarrollo, sin fondos reales).",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApjOjpSaILyR/me+NWImCa5NdRLa0g8dnxBya/1Tcesx5Qur1jdHlifhi9TvB32i5ZxK6q3uXrxinTUPCGuPEZMX1Edl4gcXkN/gRyAiiuBI5SryXEPgd7dOiJDDpl9M9vCxGvj0O39NAPf8iWdwh4Ciy2ijqZuZuBljXZu3L3PPbuf1u6IWCMn+G099e9y/mWX4rfIYKfVIGCBmBqNacV8dZPToSzpzfKjzNjTPzYy68dAWOTtZWQX6QrdOW5N2OEfCRGxICcXQfeXOvZKGmtbE1Eia67ubd4hR3B77QuyM/lIdyC4fXjrBFjD7MBvLpfMf2bGt1QUwJOoM5eGs5BQIDAQAB",
+  "minimum_chrome_version": "114",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "favicon",
+    "clipboardRead",
+    "clipboardWrite"
+  ],
+  "optional_permissions": [
+    "notifications"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8545/*",
+    "http://localhost:8545/*"
+  ],
+  "optional_host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "exclude_matches": [
+        "https://metamask.io/*",
+        "https://*.metamask.io/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inject.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "use_dynamic_url": true
+    }
+  ]
+}

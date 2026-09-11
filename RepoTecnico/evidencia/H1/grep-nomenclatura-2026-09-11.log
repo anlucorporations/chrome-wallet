@@ -1,0 +1,7 @@
+﻿Grep de comprobaciones de nomenclatura y dependencias — 2026-09-11
+grep -rn "codecrypto_" src/            -> 0 coincidencias (CA-RT-13 exige 0)
+grep -rn "from 'ethers'" src/popup     -> 0 coincidencias (RNF-14 exige 0)
+grep -rn "chrome.storage.sync" src/    -> 0 coincidencias (ADT-26 exige 0)
+
+Nota: 'dist/' no contiene manifest.json; el grep de URLs de CDN sobre el paquete completo (CA-RT-05)
+no es concluyente mientras el build siga bloqueado (scripts/lint-prohibited.mjs sí revisó los 2 ficheros presentes).

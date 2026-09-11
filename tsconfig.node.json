@@ -1,0 +1,39 @@
+{
+  // Proyecto de la CONFIGURACION de build y del tooling (seccion 7.5 del documento tecnico).
+  // Lo referencia tsconfig.json, de modo que `tsc -b` comprueba tambien vite.config.ts,
+  // vitest.config.ts, playwright.config.ts y src/manifest.ts (tarea 1.2 / CA-RT-08).
+  //
+  // Nota (desviacion obligada): un proyecto referenciado por `tsc -b` debe ser `composite` y NO
+  // puede desactivar la emision (TypeScript 5.9 -> TS6310), asi que aqui se emiten SOLO
+  // declaraciones a un directorio temporal bajo node_modules (ignorado por git).
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./node_modules/.tmp/types",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "types": ["chrome", "node", "vite/client"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  // src/manifest.ts y package.json estan incluidos porque vite.config.ts importa el manifest
+  // (fuente unica, RT-05) y un proyecto `composite` exige listar todos los ficheros del programa.
+  "include": [
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "src/manifest.ts",
+    "package.json"
+  ]
+}

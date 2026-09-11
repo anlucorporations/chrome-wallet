@@ -1,0 +1,105 @@
+/**
+ * M64 — `src/styles/tokens.css`
+ * ÚNICA fuente de color, tipografía y degradados del proyecto (RNF-18).
+ *
+ * Copia literal del bloque de tokens de `RepoTecnico/identidad_visual.md` §6 (valores
+ * MEDIDOS sobre los activos originales). Fuera de este fichero no puede existir ningún
+ * literal de color: lo verifica `scripts/lint-prohibited.mjs` (`CA-RT-12`).
+ */
+
+:root {
+  /* Marca (medidos) */
+  --tk-navy-800: #1D2B57;
+  --tk-navy-700: #243A6B;
+  --tk-blue-600: #2E4A7D;
+  --tk-steel-500: #3A6A85;
+  --tk-teal-500: #3E93A6;
+  --tk-teal-400: #5293A4;
+  --tk-cyan-300: #88BFC4;
+  --tk-cyan-200: #ACC9D1;
+  --tk-gold-500: #C9A97F;
+  --tk-gold-400: #E3C797;
+  --tk-gold-600: #9F846F;
+
+  /* Neutros (derivados) */
+  --tk-white: #FFFFFF;
+  --tk-gray-050: #F7F9FB;
+  --tk-gray-100: #EEF2F6;
+  --tk-gray-300: #D3DBE4;
+  --tk-gray-600: #5B6B7C;
+  --tk-gray-900: #121A2B;
+  --tk-night-900: #0E1526;
+  --tk-night-800: #1B2540;
+
+  /* Estados (derivados) */
+  --tk-success: #1F8A70;
+  --tk-info: #3E93A6;
+  --tk-warning: #C9A97F;
+  --tk-danger: #D64545;
+  --tk-danger-dark: #A62F2F;
+
+  /* Degradados */
+  --tk-grad-brand: linear-gradient(
+    100deg,
+    #1D2B57 0%,
+    #2E4A7D 22%,
+    #3E93A6 52%,
+    #88BFC4 72%,
+    #C9A97F 92%,
+    #E3C797 100%
+  );
+  --tk-grad-mark: linear-gradient(135deg, #1D2B57 0%, #3E93A6 48%, #88BFC4 68%, #C9A97F 100%);
+  --tk-grad-gold: linear-gradient(135deg, #C9A97F 0%, #E3C797 100%);
+  --tk-grad-success: linear-gradient(135deg, #1F8A70 0%, #3E93A6 100%);
+  --tk-grad-danger: linear-gradient(135deg, #A62F2F 0%, #D64545 100%);
+
+  /* Tipografía */
+  --tk-font-display: 'Poppins', 'Montserrat', system-ui, sans-serif;
+  --tk-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --tk-font-mono: 'JetBrains Mono', ui-monospace, 'Roboto Mono', monospace;
+
+  /* Formas */
+  --tk-radius-sm: 8px;
+  --tk-radius: 12px;
+  --tk-radius-pill: 999px;
+  --tk-shadow-card: 0 2px 8px rgba(29, 43, 87, .10);
+  --tk-shadow-pop: 0 6px 20px rgba(29, 43, 87, .18);
+
+  /* Medidas de las superficies (identidad_visual.md §5.1, documento_tecnico.md §5.2) */
+  --tk-header-height: 72px;
+  --tk-popup-width: 380px;
+  --tk-popup-height: 600px;
+  --tk-connect-width: 420px;
+  --tk-connect-height: 650px;
+  --tk-notification-width: 420px;
+  --tk-notification-height: 640px;
+
+  /* Accesibilidad: área táctil mínima y foco visible (H-17, WCAG 2.5.5 / 1.4.11) */
+  --tk-touch-target: 44px;
+  --tk-focus-width: 2px;
+  --tk-focus-offset: 2px;
+
+  /* Superficies semánticas del tema claro (se reasignan en modo oscuro) */
+  --tk-surface-app: var(--tk-gray-050);
+  --tk-surface-card: var(--tk-gray-100);
+  --tk-surface-raised: var(--tk-white);
+  --tk-border: var(--tk-gray-300);
+  --tk-text-primary: var(--tk-gray-900);
+  --tk-text-secondary: var(--tk-gray-600);
+  --tk-text-on-brand: var(--tk-white);
+  --tk-accent: var(--tk-teal-500);
+}
+
+/* Modo oscuro: mismos tokens de marca; cambian las superficies y el texto secundario
+   (identidad_visual.md §5.3, regla 5). El texto secundario NUNCA es --tk-gray-600. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tk-surface-app: var(--tk-night-900);
+    --tk-surface-card: var(--tk-night-800);
+    --tk-surface-raised: var(--tk-night-800);
+    --tk-border: var(--tk-night-800);
+    --tk-text-primary: var(--tk-gray-100);
+    --tk-text-secondary: var(--tk-cyan-200);
+    --tk-accent: var(--tk-teal-400);
+  }
+}

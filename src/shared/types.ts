@@ -1,0 +1,429 @@
+/**
+ * M55 — `src/shared/types.ts`
+ * Tipos de dominio compartidos por el Service Worker, el content script, el provider
+ * inyectado y las tres ventanas de la extensión.
+ *
+ * Fuente normativa: `documento_tecnico.md` §2.5.2 (tipos TypeScript clave) y
+ * `diccionario_datos.md` §2 (claves de `chrome.storage.local`) y §3 (entidades compuestas).
+ *
+ * Reglas:
+ * - Sin `any`: los escenarios que la especificación tipa como `any` (firmas de listener)
+ *   se modelan aquí como `unknown`, que es más estricto y compatible.
+ * - Los tipos se declaran con `interface`/`type` puros: este módulo NO importa nada.
+ */
+
+// ---------------------------------------------------------------------------
+// Alias base (diccionario de datos §1)
+// ---------------------------------------------------------------------------
+
+/** Dirección Ethereum: `0x` + 40 hex (checksum EIP-55 al persistir). */
+export type Address = `0x${string}`;
+
+/** Cadena hexadecimal `0x…`. */
+export type Hex = `0x${string}`;
+
+/** BigInt serializado en decimal (nunca `bigint` en storage ni en mensajes). */
+export type WeiString = string;
+
+/** `chainId` en hexadecimal (`0x7a69` con Anvil). */
+export type ChainIdHex = `0x${string}`;
+
+/** Referencia a una cuenta: derivada por índice BIP-44 o importada por dirección. */
+export type AccountRef = `idx:${number}` | `imp:${Address}`;
+
+/** Identificador UUID v4 (claves de la cola y de la conexión). */
+export type Uuid = string;
+
+// ---------------------------------------------------------------------------
+// Uniones CERRADAS de métodos (regla de frontera ADT-16)
+// ---------------------------------------------------------------------------
+
+/** Estado del ciclo de vida de una solicitud de la cola. */
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'expired';
+
+/**
+ * Los 6 métodos aprobables. `eth_sign` NO figura (responde `4200` antes de crear entrada
+ * en la cola): DEC-22 / H-11a.
+ */
+export type ApprovalMethod =
+  | 'eth_sendTransaction'
+  | 'eth_signTypedData_v4'
+  | 'personal_sign'
+  | 'wallet_switchEthereumChain'
+  | 'wallet_addEthereumChain'
+  | 'wallet_revokePermissions';
+
+/**
+ * Los 7 métodos internos `wallet_*` (contrato de `documento_tecnico.md` §5.1.1).
+ * Solo se aceptan desde páginas de la extensión; desde un content script → `4200`.
+ *
+ * Nota de discrepancia anotada: la tabla de `diccionario_datos.md` §4.3 enumera 6 de
+ * ellos (omite `wallet_importMnemonic`, que sí existe en §5.1.1 y en la tabla de
+ * métodos internos de §5.1); se sigue el documento técnico, que es la fuente del contrato.
+ */
+export type InternalMethod =
+  | 'wallet_generateMnemonic'
+  | 'wallet_importMnemonic'
+  | 'wallet_deriveAccounts'
+  | 'wallet_importPrivateKey'
+  | 'wallet_getNetworks'
+  | 'wallet_getLogs'
+  | 'wallet_revealSecret';
+
+/** Métodos de lectura del catálogo que NO requieren aprobación. */
+export type PageReadMethod =
+  | 'eth_requestAccounts'
+  | 'eth_accounts'
+  | 'eth_chainId'
+  | 'eth_blockNumber'
+  | 'eth_getBalance'
+  | 'eth_estimateGas'
+  | 'eth_gasPrice'
+  | 'eth_feeHistory'
+  | 'eth_getTransactionByHash'
+  | 'eth_getTransactionReceipt';
+
+/**
+ * Métodos que una PÁGINA puede invocar: las lecturas más los 6 aprobables.
+ *
+ * `eth_sign` queda FUERA de la unión a propósito: está retirado del catálogo y se
+ * responde `4200 Unsupported method` por no pertenecer a ningún grupo conocido.
+ */
+export type PageMethod = PageReadMethod | ApprovalMethod;
+
+/** Cualquier método que puede cruzar la frontera popup ↔ Service Worker. */
+export type WalletMethod = PageMethod | InternalMethod;
+
+/** Nombre de los 5 eventos del provider EIP-1193. */
+export type ProviderEventName =
+  | 'accountsChanged'
+  | 'chainChanged'
+  | 'connect'
+  | 'disconnect'
+  | 'message';
+
+/** Escucha de un evento del provider. */
+export type ProviderListener = (...args: unknown[]) => void;
+
+// ---------------------------------------------------------------------------
+// Interfaz EIP-1193 / EIP-6963 (documento_tecnico.md §2.5.3)
+// ---------------------------------------------------------------------------
+
+/** Argumentos de `provider.request`. */
+export interface RequestArguments {
+  method: string;
+  params?: unknown[] | Record<string, unknown>;
+}
+
+/** Error EIP-1193: `code` numérico obligatorio en TODO error que ve el usuario. */
+export interface Eip1193Error {
+  code: number;
+  message: string;
+  data?: unknown;
+}
+
+/** Superficie mínima EIP-1193 del provider. */
+export interface Eip1193Provider {
+  request(args: RequestArguments): Promise<unknown>;
+  on(eventName: ProviderEventName, listener: ProviderListener): this;
+  removeListener(eventName: ProviderEventName, listener: ProviderListener): this;
+}
+
+/** Superficie real publicada por `inject.js` (M35). */
+export interface TruekeateProvider extends Eip1193Provider {
+  isTrueKeate: true;
+  chainId: ChainIdHex | null;
+  selectedAddress: Address | null;
+}
+
+/** `info` del anuncio EIP-6963 (valores vinculantes, RT-13). */
+export interface Eip6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns: string;
+}
+
+/** `detail` del evento `eip6963:announceProvider`. */
+export interface Eip6963ProviderDetail {
+  info: Eip6963ProviderInfo;
+  provider: TruekeateProvider;
+}
+
+// ---------------------------------------------------------------------------
+// Cola de aprobaciones y sus previews (documento_tecnico.md §2.5.2)
+// ---------------------------------------------------------------------------
+
+/** Resumen de una transacción para la ventana de confirmación. */
+export interface TxPreview {
+  from: Address;
+  /** `null` = despliegue de contrato. */
+  to: Address | null;
+  /** Nombre del contrato o «desconocido». */
+  toLabel: string;
+  valueWei: WeiString;
+  valueEth: string;
+  data: Hex;
+  dataLength: number;
+  isContractCall: boolean;
+  /** Primeros 4 bytes de `data`. */
+  selector: Hex | null;
+  /** Firma decodificada con la tabla local cerrada; `null` si no está en la tabla. */
+  functionName: string | null;
+  decodedArgs: Record<string, unknown> | null;
+  isUnrecognizedContractCall: boolean;
+  /** Avisos en español (allowance ilimitada, contrato no reconocido…). */
+  riskWarnings: string[];
+  gasLimit: WeiString;
+  estimationFailed: { reason: string } | null;
+  maxFeePerGas: WeiString;
+  maxPriorityFeePerGas: WeiString;
+  estimatedFeeEth: string;
+  /** Solo informativo: el nonce definitivo se recalcula al aprobar (H-10). */
+  nonceInformativo: number;
+  txType: 2;
+  chainId: ChainIdHex;
+  insufficientFunds: boolean;
+}
+
+/** Dominio EIP-712 tal y como llega en `eth_signTypedData_v4`. */
+export interface TypedDataDomain {
+  name?: string;
+  version?: string;
+  chainId?: number | string;
+  verifyingContract?: Address;
+  salt?: Hex;
+}
+
+/** Resumen de una firma EIP-712. */
+export interface TypedDataPreview {
+  domain: TypedDataDomain;
+  domainName: string | null;
+  verifyingContract: Address | null;
+  /** SIN `EIP712Domain`. */
+  types: Record<string, Array<{ name: string; type: string }>>;
+  message: Record<string, unknown>;
+  primaryType: string;
+  /** `domain.chainId` ≠ `chainId` activo → aviso destacado. */
+  domainChainMismatch: boolean;
+  verifyingContractMismatch: boolean;
+}
+
+/** Resumen de una firma de texto plano (`personal_sign`). */
+export interface PersonalSignPreview {
+  /** Payload decodificado como UTF-8; `null` si no es legible. */
+  text: string | null;
+  isHexPayload: boolean;
+  byteLength: number;
+  /** Solo para la UI: NUNCA se copia a `truekeate_logs`. */
+  bytesHex: Hex;
+}
+
+/**
+ * Entrada de la cola `truekeate_pending_requests` (`Record<approvalId, PendingRequest>`).
+ * SIN `windowId`: la ventana única se persiste en `truekeate_approval_window` (P-21).
+ */
+export interface PendingRequest {
+  approvalId: Uuid;
+  method: ApprovalMethod;
+  /** Persistidos REDACTADOS (H-42). */
+  params: unknown[];
+  /** Origen normalizado: minúsculas, sin barra final, con puerto. */
+  origin: string;
+  /** `null` si la solicitud nace en el popup. */
+  tabId: number | null;
+  /** `0` = top frame; distinto de 0 exige responder SOLO a ese frame (D-J/ADT-07). */
+  frameId: number | null;
+  account: Address;
+  chainId: ChainIdHex;
+  /** Solo `eth_sendTransaction`. */
+  txPreview?: TxPreview;
+  /** Solo `eth_signTypedData_v4`. */
+  typedDataPreview?: TypedDataPreview;
+  /** Solo `personal_sign`. */
+  signMessagePreview?: PersonalSignPreview;
+  createdAt: number;
+  /** `createdAt + SIGN_TIMEOUT_MS`, anclado a `createdAt`. */
+  expiresAt: number;
+  status: ApprovalStatus;
+  resolvedAt?: number;
+  /** Código EIP-1193 emitido al resolver. */
+  errorCode?: number;
+}
+
+/** Solicitud de conexión `truekeate_connect_request` (§2.9). */
+export interface ConnectRequest {
+  requestId: Uuid;
+  origin: string;
+  favicon?: string;
+  accounts: Address[];
+  currentAccountIndex: number;
+  chainId: ChainIdHex;
+  tabId: number;
+  frameId: number;
+  createdAt: number;
+  /** `createdAt + CONNECT_TIMEOUT_MS` (60 000 ms). */
+  expiresAt: number;
+  status: ApprovalStatus;
+}
+
+/** Ventana única de confirmación `truekeate_approval_window` (§2.14). */
+export interface ApprovalWindow {
+  windowId: number | null;
+  shownApprovalId: Uuid | null;
+  openedAt: number | null;
+  updatedAt: number;
+}
+
+// ---------------------------------------------------------------------------
+// Observabilidad (documento_tecnico.md §2.5.2, diccionario_datos.md §2.11)
+// ---------------------------------------------------------------------------
+
+/** Taxonomía de la entrada: independiente de `event`. */
+export type LogCategory = 'call' | 'event' | 'tx' | 'sign' | 'system';
+
+/** Nivel de la entrada. */
+export type LogLevel = 'info' | 'success' | 'warn' | 'error';
+
+/** Catálogo CERRADO de 24 eventos instrumentados. */
+export type LogEventName =
+  | 'rpc_call'
+  | 'rpc_error'
+  | 'event_emit'
+  | 'tx_sent'
+  | 'tx_confirmed'
+  | 'tx_failed'
+  | 'tx_reverted'
+  | 'sign_personal'
+  | 'sign_typed_data'
+  | 'approval_created'
+  | 'approval_resolved'
+  | 'approval_expired'
+  | 'chain_changed'
+  | 'accounts_changed'
+  | 'wallet_created'
+  | 'wallet_imported'
+  | 'account_imported'
+  | 'account_removed'
+  | 'reset_wallet'
+  | 'network_added'
+  | 'permission_revoked'
+  | 'sw_started'
+  | 'sw_reconcile'
+  | 'storage_quota_exceeded';
+
+/** Entrada de `truekeate_logs`. La escribe SIEMPRE el Service Worker. */
+export interface LogEntry {
+  id: Uuid;
+  ts: number;
+  level: LogLevel;
+  category: LogCategory;
+  event: LogEventName;
+  message: string;
+  /** Origen normalizado o `extension`. */
+  origin: string;
+  method: string;
+  /** Payload REDACTADO (M22): nunca íntegro. */
+  data: unknown;
+  txHash?: Hex;
+  txStatus?: 'pending' | 'confirmed' | 'failed';
+}
+
+// ---------------------------------------------------------------------------
+// Ajustes y entidades persistidas
+// ---------------------------------------------------------------------------
+
+/** Ajustes de `truekeate_settings` (§2.10). */
+export interface TruekeateSettings {
+  derivedAccountCount: number;
+  /** Etiquetas de las cuentas DERIVADAS, por índice BIP-44. */
+  accountLabels: Record<number, string>;
+  balancePollMs: number;
+  balancePollMaxAccounts: number;
+  logLimit: number;
+  logMaxPerOrigin: number;
+  sessionTtlMs: number;
+  pendingRequestsMax: number;
+  pendingRequestsMaxPerOrigin: number;
+  pendingRequestsPerMinute: number;
+  language: 'es' | 'en';
+  /** Cifrado descartado en P-03; el flag se conserva por compatibilidad. */
+  encryptionEnabled: false;
+  requirePasswordOnOpen: false;
+  devNoticeAcceptedAt?: number;
+}
+
+/** Cuenta importada por clave privada (`truekeate_imported_accounts[]`). */
+export interface ImportedAccount {
+  address: Address;
+  privateKey: Hex;
+  /** Máximo 32 caracteres. */
+  label: string;
+  importedAt: number;
+  visible: boolean;
+}
+
+/** Red dada de alta (`truekeate_networks`). */
+export interface StoredNetwork {
+  chainId: ChainIdHex;
+  chainIdDecimal: number;
+  name: string;
+  rpcUrl: string;
+  symbol: string;
+  decimals: number;
+  isTestnet: boolean;
+  isDefault: boolean;
+}
+
+/** Sesión de dApp por origen (`truekeate_connected_sites`). */
+export interface DappSession {
+  origin: string;
+  account: Address;
+  chainId: ChainIdHex;
+  tabIds: number[];
+  connectedAt: number;
+  lastUsedAt: number;
+  /** `lastUsedAt + sessionTtlMs`; `null` = sin caducidad. */
+  expiresAt: number | null;
+  connected: boolean;
+}
+
+/** Marca persistida de «transacción en vuelo» por cuenta (§2.12). */
+export interface InflightTx {
+  account: Address;
+  approvalId: Uuid;
+  /** `signing` bloquea la cuenta; `broadcast` no la bloquea. */
+  phase: 'signing' | 'broadcast';
+  nonce?: number;
+  txHash: Hex | null;
+  startedAt: number;
+  expiresAt: number;
+}
+
+/** Ventana de tasa persistida por origen (§2.13). */
+export interface RateWindow {
+  tokens: number;
+  lastRefillAt: number;
+  approvalWindowStart: number;
+  approvalsInWindow: number;
+  deniedCount: number;
+  updatedAt: number;
+}
+
+/** Mapa completo de `truekeate_rate_windows`. */
+export type RateWindowsByOrigin = Record<string, RateWindow>;
+
+/** Mapa completo de `truekeate_pending_requests`. */
+export type PendingRequestsMap = Record<Uuid, PendingRequest>;
+
+/** Mapa completo de `truekeate_inflight_tx`. */
+export type InflightTxByAccount = Record<Address, InflightTx>;
+
+/** Mapa completo de `truekeate_connected_sites`. */
+export type DappSessionsByOrigin = Record<string, DappSession>;
+
+/** Wallet almacenada (fragmento tipado de las claves persistentes). */
+export interface StoredWallet {
+  truekeate_mnemonic?: string;
+  truekeate_current_account: AccountRef;
+}

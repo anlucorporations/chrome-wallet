@@ -21,7 +21,15 @@ pnpm-debug.log*
 .vite/
 coverage/
 playwright-report/
+playwright/.cache/
+blob-report/
 test-results/
+
+# Evidencia de pruebas: SÍ se versiona (documento_tecnico.md §7.4.1.f)
+# (excepción a `*.log`, que de otro modo excluiría los .log de evidencia)
+!RepoTecnico/evidencia/**/*.log
+!RepoTecnico/evidencia/**/*.json
+!RepoTecnico/evidencia/**/*.png
 
 # Editores
 .vscode/*
@@ -38,7 +46,10 @@ test-results/
 Thumbs.db
 desktop.ini
 
-# Foundry (solo si se añaden contratos auxiliares)
+# Foundry (proyecto auxiliar contracts/: artefactos y cachés, nunca versionados)
+contracts/cache/
+contracts/out/
+contracts/broadcast/
 cache/
 out/
 broadcast/

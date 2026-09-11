@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>TrueKeate Wallet — dApp de pruebas</title>
+    <link rel="icon" href="brand/truekeate-logo.ico" />
+    <style>
+      /* ÚNICA fuente de color: los tokens de marca (RNF-18). Este bloque NO define
+         literales de color propios. */
+      :root {
+        --tk-navy-800: #1d2b57;
+        --tk-blue-600: #2e4a7d;
+        --tk-teal-500: #3e93a6;
+        --tk-gray-050: #f7f9fb;
+        --tk-gray-100: #eef2f6;
+        --tk-gray-300: #d3dbe4;
+        --tk-gray-600: #5b6b7c;
+        --tk-gray-900: #121a2b;
+        --tk-white: #ffffff;
+        --tk-gold-500: #c9a97f;
+        --tk-success: #1f8a70;
+        --tk-danger-dark: #a62f2f;
+        --tk-grad-brand: linear-gradient(
+          100deg,
+          #1d2b57 0%,
+          #2e4a7d 22%,
+          #3e93a6 52%,
+          #88bfc4 72%,
+          #c9a97f 92%,
+          #e3c797 100%
+        );
+        --tk-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        --tk-font-mono: 'JetBrains Mono', ui-monospace, 'Roboto Mono', monospace;
+        --tk-radius: 12px;
+        --tk-shadow-card: 0 2px 8px rgba(29, 43, 87, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--tk-gray-050);
+        color: var(--tk-gray-900);
+        font-family: var(--tk-font-body);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      h1,
+      h2 {
+        font-weight: 700;
+      }
+
+      .logo {
+        display: block;
+        width: min(360px, 80vw);
+        margin: 0 auto 20px;
+      }
+
+      .panel {
+        max-width: 720px;
+        margin: 0 auto 16px;
+        padding: 16px 18px;
+        background: var(--tk-white);
+        border: 1px solid var(--tk-gray-300);
+        border-radius: var(--tk-radius);
+        box-shadow: var(--tk-shadow-card);
+      }
+
+      .estado {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .estado__punto {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: var(--tk-danger-dark);
+      }
+
+      .estado--ok .estado__punto {
+        background: var(--tk-success);
+      }
+
+      .detalle {
+        margin: 8px 0 0;
+        font-family: var(--tk-font-mono);
+        font-size: 13px;
+        color: var(--tk-gray-600);
+        white-space: pre-wrap;
+      }
+
+      .acciones {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      button {
+        min-height: 44px;
+        padding: 10px 14px;
+        border: 1.5px solid var(--tk-gold-500);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--tk-navy-800);
+        font: 600 14px var(--tk-font-body);
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--tk-teal-500);
+        outline-offset: 2px;
+      }
+
+      .encabezado {
+        max-width: 720px;
+        margin: 0 auto 16px;
+        padding: 0 4px;
+      }
+
+      .encabezado h1 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--tk-navy-800);
+      }
+
+      .encabezado p {
+        margin: 4px 0 0;
+        color: var(--tk-gray-600);
+        font-size: 14px;
+      }
+
+      .barra-marca {
+        height: 6px;
+        border-radius: 999px;
+        background: var(--tk-grad-brand);
+        max-width: 720px;
+        margin: 0 auto 20px;
+      }
+
+      .log {
+        margin: 10px 0 0;
+        padding: 10px 12px;
+        min-height: 64px;
+        background: var(--tk-gray-100);
+        border-radius: 8px;
+        font-family: var(--tk-font-mono);
+        font-size: 12px;
+        color: var(--tk-gray-900);
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- dApp de pruebas autocontenida: se sirve en http://localhost:5174/test.html -->
+    <img class="logo" src="brand/truekeate-titulo.png" alt="TrueKeate" />
+    <div class="barra-marca" aria-hidden="true"></div>
+
+    <div class="encabezado">
+      <h1>dApp de pruebas de TrueKeate Wallet</h1>
+      <p>
+        Página de humo del hito H1: detecta el provider inyectado y lista los flujos que se
+        implementan en los hitos H3, H4 y H5.
+      </p>
+    </div>
+
+    <section class="panel" aria-labelledby="titulo-deteccion">
+      <h2 id="titulo-deteccion">Detección del provider</h2>
+      <p class="estado" id="estado">
+        <span class="estado__punto" aria-hidden="true"></span>
+        <span id="estado-texto">Comprobando…</span>
+      </p>
+      <p class="detalle" id="detalle">—</p>
+    </section>
+
+    <section class="panel" aria-labelledby="titulo-flujos">
+      <h2 id="titulo-flujos">Flujos pendientes de implementar</h2>
+      <div class="acciones">
+        <button type="button" disabled>Conectar (eth_requestAccounts)</button>
+        <button type="button" disabled>Consultar saldo (eth_getBalance)</button>
+        <button type="button" disabled>Enviar transacción (eth_sendTransaction)</button>
+        <button type="button" disabled>Firmar EIP-712 (eth_signTypedData_v4)</button>
+        <button type="button" disabled>Firmar texto (personal_sign)</button>
+        <button type="button" disabled>Cambiar de red (wallet_switchEthereumChain)</button>
+        <button type="button" disabled>Escuchar eventos (accountsChanged, chainChanged)</button>
+      </div>
+      <p class="detalle">
+        Todos los botones están deshabilitados: el catálogo RPC de H1 está cerrado y vacío,
+        así que cualquier método responde 4200 «El método solicitado no está soportado por
+        TrueKeate Wallet.».
+      </p>
+    </section>
+
+    <section class="panel" aria-labelledby="titulo-registro">
+      <h2 id="titulo-registro">Registro de la página</h2>
+      <pre class="log" id="registro" role="status">—</pre>
+    </section>
+
+    <script>
+      // Comprobación de la publicación del provider: los DOS nombres y su identidad.
+      (function () {
+        'use strict';
+
+        var lineas = [];
+
+        function anotar(texto) {
+          lineas.push(texto);
+          var registro = document.getElementById('registro');
+          if (registro) {
+            registro.textContent = lineas.join('\n');
+          }
+        }
+
+        function textoEstado(mensaje, esOk) {
+          var estado = document.getElementById('estado');
+          var texto = document.getElementById('estado-texto');
+          if (texto) {
+            texto.textContent = mensaje;
+          }
+          if (estado) {
+            estado.className = esOk ? 'estado estado--ok' : 'estado';
+          }
+        }
+
+        function mostrarDetalle(mensaje) {
+          var detalle = document.getElementById('detalle');
+          if (detalle) {
+            detalle.textContent = mensaje;
+          }
+        }
+
+        function describirProvider(provider) {
+          if (!provider) {
+            return 'ausente';
+          }
+          var metodos = ['request', 'on', 'removeListener'].filter(function (nombre) {
+            return typeof provider[nombre] === 'function';
+          });
+          return 'métodos presentes: ' + (metodos.join(', ') || 'ninguno');
+        }
+
+        var truekeate = window.truekeate;
+        var codecrypto = window.codecrypto;
+        var mismoObjeto = truekeate !== undefined && truekeate === codecrypto;
+
+        anotar('window.truekeate: ' + (truekeate === undefined ? 'ausente' : 'presente'));
+        anotar('window.codecrypto: ' + (codecrypto === undefined ? 'ausente' : 'presente'));
+        anotar('window.truekeate === window.codecrypto: ' + String(mismoObjeto));
+
+        if (truekeate !== undefined) {
+          var descriptor = Object.getOwnPropertyDescriptor(window, 'truekeate');
+          var noConfigurable = descriptor ? descriptor.configurable === false : false;
+          anotar('configurable de window.truekeate: ' + String(descriptor && descriptor.configurable));
+          anotar('isTrueKeate: ' + String(truekeate.isTrueKeate === true));
+          anotar(describirProvider(truekeate));
+
+          if (mismoObjeto && noConfigurable) {
+            textoEstado('provider detectado: TrueKeate', true);
+            mostrarDetalle(
+              'window.truekeate y window.codecrypto son el MISMO objeto, definido con ' +
+                'Object.defineProperty no configurable.\n' +
+                describirProvider(truekeate),
+            );
+          } else if (mismoObjeto) {
+            textoEstado('provider detectado, pero el alias no está congelado', false);
+            mostrarDetalle(describirProvider(truekeate));
+          } else {
+            textoEstado('el alias window.codecrypto no apunta al mismo objeto', false);
+            mostrarDetalle(describirProvider(truekeate));
+          }
+        } else {
+          textoEstado('no se ha detectado el provider (¿está cargada la extensión?)', false);
+          mostrarDetalle(
+            'Carga dist/ en chrome://extensions, recarga esta página y vuelve a intentarlo.',
+          );
+        }
+
+        // Comprobación EIP-6963: listener SÍNCRONO y re-anuncio del provider.
+        window.addEventListener('eip6963:announceProvider', function (evento) {
+          var detail = evento && evento.detail ? evento.detail : null;
+          if (!detail || !detail.info) {
+            return;
+          }
+          anotar(
+            'EIP-6963: name=' +
+              detail.info.name +
+              ' rdns=' +
+              detail.info.rdns +
+              ' uuid=' +
+              detail.info.uuid,
+          );
+        });
+        window.dispatchEvent(new Event('eip6963:requestProvider'));
+      })();
+    </script>
+  </body>
+</html>

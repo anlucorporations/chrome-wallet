@@ -1,0 +1,237 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\playwright.config.ts",
+    "rootDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-extension",
+        "name": "chromium-extension",
+        "testDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "RepoTecnico/evidencia/H1/e2e-2026-09-11.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "01-onboarding.spec.ts",
+      "file": "01-onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "01 · Onboarding: carga de dist/ y popup en estado vacío",
+          "file": "01-onboarding.spec.ts",
+          "line": 42,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la extensión carga desde dist/ y el ID se descubre del Service Worker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1252,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T12:41:25.478Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-2eba15d7df659200b20b",
+              "file": "01-onboarding.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1755,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T12:41:26.810Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-20651e6bbe346f6d9a7a",
+              "file": "01-onboarding.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1398,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T12:41:28.590Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-b8854f827a86f020a399",
+              "file": "01-onboarding.spec.ts",
+              "line": 112,
+              "column": 3
+            },
+            {
+              "title": "el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2089,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T12:41:30.007Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-d6e9c4783705fee77ae9",
+              "file": "01-onboarding.spec.ts",
+              "line": 145,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-11T12:41:18.244Z",
+    "duration": 13937.452000000001,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

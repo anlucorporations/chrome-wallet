@@ -1,6 +1,6 @@
 # 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.9
+> **Fase:** 1 — Concepto · **Versión:** 2.0
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 > **v1.9 (esta versión):** cierra los residuales de la última pasada de consistencia **`VR-01`** (permisos del manifest: `favicon`, `clipboardRead` y `clipboardWrite` declarados y justificados en §4, y el favicon deja de ser condicional) y **`VR-03`** (las constantes `PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS` y `EXTENSION_ID` se declaran en la tabla de §3, cerrando las referencias colgantes de `diccionario_datos.md` §2.12/§2.13/§3.9/§4.1.1 y §5). Detalle en §7.
 > **v1.7:** cierra los hallazgos **ADT-01, ADT-14, ADT-19, ADT-20, ADT-21, ADT-28, ADT-29 y ADT-30** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` con las decisiones **D-L, D-M, D-N, D-O, D-P y D-U**: pipeline MV3 real con los 7 scripts npm y las 3 páginas HTML (§1, §2.2); ruta vigente de las constantes del plazo en `src/background/approvals/timeout.ts` (ADT-28); los **8 tipos de mensaje** en §10 (ADT-29); `notifications` como permiso **opcional** ligado a RF-39 (ADT-30); `key` fija del manifest y UUID literal de EIP-6963 (ADT-19); alcance real de la inyección con `exclude_matches` y `use_dynamic_url` (ADT-20); cota de payload de **64 KiB**, cuota de **10 MB** sin `unlimitedStorage` y `REVEAL_HIDE_MS` (ADT-14, ADT-21). Detalle en §7.
@@ -42,7 +42,7 @@
 | Iconos de la extensión | `public/icons/icon-{16,32,48,128}.png` (generados desde `TrueKeate/TrueKeate_logo.png`) |
 | Guía de identidad visual | `RepoTecnico/identidad_visual.md` |
 | Tokens de diseño (a crear) | `src/styles/tokens.css` |
-| Fuentes auto-hospedadas (a crear) | `public/fonts/` (Poppins, Inter, JetBrains Mono en woff2) |
+| Fuentes auto-hospedadas | `public/fonts/`: `poppins-latin-{400,600,700}.woff2` (**Poppins no es variable**: un fichero por peso), `inter-latin.woff2` y `jetbrains-mono-latin.woff2` (variables), más `LICENSE-{poppins,inter,jetbrains-mono}.txt` (OFL-1.1) |
 
 ---
 
@@ -234,9 +234,9 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    // ADT-20 / D-O: no inyectar en páginas de extensiones (incluidas otras wallets);
-    // la lista de orígenes de otras wallets se cierra en src/manifest.ts (M1).
-    "exclude_matches": ["chrome-extension://*/*"],
+    // ADT-20 / D-O + DEC-47 (H1): PROHIBIDO el esquema «chrome-extension://» en matches/exclude_matches;
+    // Chrome rechaza el manifest COMPLETO si aparece: «Invalid value for content_scripts[0].exclude_matches[0]».
+    "exclude_matches": ["https://metamask.io/*", "https://*.metamask.io/*"],
     "js": ["content-script.js"],
     "run_at": "document_start",
     "all_frames": true
@@ -339,7 +339,7 @@ glab repo create chrome-wallet --private
 |---|---|---|---|
 | **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/clave privada, formateo, cola de aprobaciones, mapeo de errores EIP-1193. | `npm run test` (cobertura: `npm run coverage`) | Ninguno (no necesita navegador). |
 | **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar eventos `accountsChanged`/`chainChanged`. | `npm run test:e2e` | Chromium vía Playwright + **Anvil corriendo** en `127.0.0.1:8545` (verificación previa en §2.4). |
-| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test` | Foundry dentro del rango soportado (ver «Política de versiones»). |
+| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test --root contracts --match-contract EIP712VerifierTest` | Foundry dentro del rango soportado. **Aviso (DEC-51 / H1):** el literal `forge test` sin `--root contracts` da un **falso verde** («Nothing to compile», 0 pruebas, exit 0). |
 
 ### Política de versiones (H-20/H-29)
 

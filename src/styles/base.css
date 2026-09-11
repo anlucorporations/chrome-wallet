@@ -1,0 +1,482 @@
+/**
+ * M65 — `src/styles/base.css`
+ * Estilos base de las tres ventanas de la extensión (popup 380×600, connect 420×650 y
+ * notification 420×640) y de la dApp de pruebas (`test.html`).
+ *
+ * Reglas:
+ * - CERO literales de color: todo el color sale de `tokens.css` (M64) vía `var(--tk-*)`.
+ * - Las fuentes se AUTO-HOSPEDAN si los `.woff2` existen en `public/fonts/`; mientras no
+ *   existan, se declara el `@font-face` con `src: local(...)` y la cascada cae al
+ *   `fallback` del sistema que ya declaran los tokens (`identidad_visual.md` §4).
+ * - Accesibilidad (H-17): foco visible de 2 px, área táctil ≥ 44 px, sin `outline: none`.
+ */
+
+/* --------------------------------------------------------------------------
+   Tipografía auto-hospedada con reserva del sistema
+   -------------------------------------------------------------------------- */
+
+/* Poppins — títulos e interfaz. Es una familia de pesos DISCRETOS (no variable), así que se
+   declara un @font-face por peso; si el .woff2 no está, cae a la copia local y, en su defecto,
+   al fallback de --tk-font-display. */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('/fonts/poppins-latin-400.woff2') format('woff2'),
+    local('Poppins'),
+    local('Poppins Regular');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src:
+    url('/fonts/poppins-latin-600.woff2') format('woff2'),
+    local('Poppins SemiBold'),
+    local('Poppins Semi Bold');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url('/fonts/poppins-latin-700.woff2') format('woff2'),
+    local('Poppins Bold');
+}
+
+/* Inter — cuerpo, etiquetas y textos secundarios. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src:
+    url('/fonts/inter-latin.woff2') format('woff2'),
+    local('Inter'),
+    local('Inter Regular');
+}
+
+/* JetBrains Mono — direcciones, hashes y montos (no confundir 0/O ni 1/l/I). */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src:
+    url('/fonts/jetbrains-mono-latin.woff2') format('woff2'),
+    local('JetBrains Mono'),
+    local('JetBrains Mono Regular');
+}
+
+/* --------------------------------------------------------------------------
+   Reset
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--tk-surface-app);
+  color: var(--tk-text-primary);
+  font-family: var(--tk-font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Tipografía
+   -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--tk-font-display);
+  font-weight: 600;
+  color: var(--tk-text-primary);
+}
+
+h1 {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 16px;
+}
+
+p {
+  font-size: 14px;
+  color: var(--tk-text-secondary);
+}
+
+code,
+kbd,
+samp,
+.tk-mono {
+  font-family: var(--tk-font-mono);
+  font-size: 13px;
+}
+
+/* Tagline de marca: solo en bienvenida / «Acerca de» (identidad_visual.md §5.3, regla 6). */
+.tk-tagline {
+  font-family: var(--tk-font-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tk-navy-800);
+}
+
+/* --------------------------------------------------------------------------
+   Foco visible obligatorio
+   -------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: var(--tk-focus-width) solid var(--tk-accent);
+  outline-offset: var(--tk-focus-offset);
+}
+
+/* Nunca se elimina el foco sin sustituto equivalente. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   Controles y área táctil
+   -------------------------------------------------------------------------- */
+
+button,
+[role='button'],
+a,
+input,
+select,
+textarea {
+  min-height: var(--tk-touch-target);
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--tk-radius-sm);
+  cursor: pointer;
+  font-family: var(--tk-font-display);
+  font-weight: 600;
+  font-size: 14px;
+  transition: filter 160ms ease, background-color 160ms ease;
+}
+
+button:disabled,
+button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Botón primario: fondo --tk-grad-mark, texto blanco. */
+.tk-btn-primary {
+  background: var(--tk-grad-mark);
+  color: var(--tk-white);
+  border-radius: var(--tk-radius-sm);
+  box-shadow: var(--tk-shadow-card);
+}
+
+.tk-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+/* Botón secundario: transparente, borde y texto --tk-navy-800. */
+.tk-btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--tk-navy-800);
+  color: var(--tk-navy-800);
+}
+
+/* Botón peligro: --tk-grad-danger con texto blanco. */
+.tk-btn-danger {
+  background: var(--tk-grad-danger);
+  color: var(--tk-white);
+}
+
+/* Botón fantasma: borde dorado y texto --tk-navy-800 (ADT-32: especificación única). */
+.tk-btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--tk-gold-500);
+  color: var(--tk-navy-800);
+}
+
+/* --------------------------------------------------------------------------
+   Estructura de las ventanas
+   -------------------------------------------------------------------------- */
+
+.tk-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--tk-surface-app);
+}
+
+/* --------------------------------------------------------------------------
+   Tamaño EXACTO de cada ventana de la extensión (identidad_visual.md §5.1)
+
+   Chrome dimensiona el popup y las ventanas por el tamaño INTRÍNSECO del contenido: si el
+   `body` no declara altura, abre el popup con la altura por defecto del navegador. Por eso la
+   altura se fija aquí de forma explícita (nunca `100vh` en estas tres páginas), y el contenedor
+   interno la hereda al 100 % en lugar de estirarse a la altura de la pestaña.
+
+   `test.html` NO lleva ninguna de estas clases: allí el layout sí es fluido y responsive.
+   -------------------------------------------------------------------------- */
+
+body.tk-popup {
+  width: var(--tk-popup-width);
+  height: var(--tk-popup-height);
+}
+
+body.tk-connect {
+  width: var(--tk-connect-width);
+  height: var(--tk-connect-height);
+}
+
+body.tk-notification {
+  width: var(--tk-notification-width);
+  height: var(--tk-notification-height);
+}
+
+body.tk-popup,
+body.tk-connect,
+body.tk-notification {
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.tk-popup > .tk-window,
+body.tk-connect > .tk-window,
+body.tk-notification > .tk-window {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Encabezado de marca: franja --tk-grad-brand de 72 px con marca de agua del isologo.
+   El texto blanco solo se admite sobre el tramo oscuro del degradado (regla 1 de §2.4). */
+.tk-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--tk-header-height);
+  min-height: var(--tk-header-height);
+  padding: 0 16px;
+  background: var(--tk-grad-brand);
+  color: var(--tk-text-on-brand);
+  overflow: hidden;
+}
+
+.tk-header__mark {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 96px;
+  height: 96px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.tk-header__title {
+  position: relative;
+  margin: 0;
+  color: var(--tk-text-on-brand);
+  font-family: var(--tk-font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tk-header__subtitle {
+  position: relative;
+  margin: 0;
+  color: var(--tk-text-on-brand);
+  font-family: var(--tk-font-mono);
+  font-size: 12px;
+}
+
+.tk-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px;
+}
+
+/* Estado vacío: isologo al 30 % y texto secundario. */
+.tk-empty {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.tk-empty__mark {
+  width: 96px;
+  height: 96px;
+  opacity: 0.3;
+}
+
+.tk-empty__title {
+  font-family: var(--tk-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tk-text-primary);
+}
+
+.tk-empty__text {
+  max-width: 30ch;
+  font-size: 14px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-card {
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+  box-shadow: var(--tk-shadow-card);
+  padding: 12px 14px;
+}
+
+.tk-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--tk-radius-pill);
+  background: var(--tk-grad-gold);
+  color: var(--tk-navy-800);
+  font-family: var(--tk-font-display);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tk-notice {
+  border-left: 3px solid var(--tk-warning);
+  background: var(--tk-surface-card);
+  padding: 10px 12px;
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-text-secondary);
+  font-size: 13px;
+}
+
+.tk-pending {
+  color: var(--tk-text-secondary);
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Medidas exactas de las tres superficies
+   -------------------------------------------------------------------------- */
+
+body.tk-popup {
+  width: var(--tk-popup-width);
+  height: var(--tk-popup-height);
+  overflow: hidden;
+}
+
+body.tk-connect {
+  width: var(--tk-connect-width);
+  height: var(--tk-connect-height);
+  overflow: hidden;
+}
+
+body.tk-notification {
+  width: var(--tk-notification-width);
+  height: var(--tk-notification-height);
+  overflow: hidden;
+}
+
+/* dApp de pruebas: responsive, con el logotipo horizontal centrado. */
+body.tk-dapp {
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--tk-gray-050);
+}
+
+.tk-dapp__logo {
+  width: min(360px, 80vw);
+  margin: 0 auto 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Movimiento reducido
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

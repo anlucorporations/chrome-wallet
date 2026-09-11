@@ -1,0 +1,51 @@
+{
+    "# Esquema":  "Fixture EIP-712 versionado de RT-11 / CA-RT-11 (tarea 1.17). Generado una sola vez con cast; los tests NO dependen de red ni de claves aleatorias.",
+    "# Clave de prueba":  "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 (cuenta #1 de Anvil). SOLO PRUEBAS: nunca usar con fondos reales.",
+    "domain":  {
+                   "name":  "TrueKeate Test App",
+                   "version":  "1",
+                   "chainId":  31337,
+                   "verifyingContract":  "0x8464135c8F25Da09e49BC8782676a84730C318bC"
+               },
+    "types":  {
+                  "SignMessage":  [
+                                      {
+                                          "name":  "content",
+                                          "type":  "string"
+                                      },
+                                      {
+                                          "name":  "nonce",
+                                          "type":  "uint256"
+                                      },
+                                      {
+                                          "name":  "deadline",
+                                          "type":  "uint256"
+                                      }
+                                  ]
+              },
+    "primaryType":  "SignMessage",
+    "message":  {
+                    "content":  "EIP-712 demo de TrueKeate: la cartera firma datos tipados y el contrato verificador los valida on-chain.",
+                    "nonce":  "0",
+                    "deadline":  "1000000000"
+                },
+    "typesFromContract":  {
+                              "EIP712Domain":  "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)",
+                              "SignMessage":  "SignMessage(string content,uint256 nonce,uint256 deadline)"
+                          },
+    "typeHashes":  {
+                       "EIP712Domain":  "0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f",
+                       "SignMessage":  "0xdd8b5ee9ab5c3b42d5b49a80aae19e0f09d737f491b947ab136e78386f3af6dc"
+                   },
+    "hashes":  {
+                   "domainSeparator":  "0x9b6b5bdb23be9845267bc613db394852637c66a6ad6fa47ccbb9e985798fd6ae",
+                   "structHash":  "0x0d3bad810ac8ca752ea947f7525fc00b8fb55d42d24afa39a729d84a9faade42",
+                   "contentHash":  "0x2241a69c284c4f61ca3cb5ed5961fe7fcf40fa54399506f3da8e4fbb3703746c"
+               },
+    "digest":  "0xc39ddf1d66417c1a9ab929a18e122e9f5fff57a60c44c7565c75bd92a8d8b84b",
+    "expectedDigest":  "0xc39ddf1d66417c1a9ab929a18e122e9f5fff57a60c44c7565c75bd92a8d8b84b",
+    "signer":  "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "signature":  "0x73dd4d78f69ff584889e45ab429dc93939dfd37e27367e2b17d760e8329153b86e1417ec1acfd8c5cc897e5375829da1f601cb7c14ed88e15a363b422cd2ec391c",
+    "signatureFormat":  "r || s || v (65 bytes, v = 28 en el rango EIP-155)",
+    "generatedWith":  "cast 1.7.2-dev: cast keccak + cast abi-encode + cast wallet sign --data --from-file"
+}
