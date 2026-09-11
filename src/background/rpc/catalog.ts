@@ -822,18 +822,27 @@ const handleDeleteImportedAccount: InternalHandler = async (params, _context, de
 
 /**
  * `wallet_resetWallet` (RF-11 / §3.9): reset con confirmación destructiva explícita.
- * Parámetros: `[{ confirm: true }]`. Sin `confirm: true` responde `4001` (cancelado) y **no**
- * toca el almacén; con las guardas activas (cola `pending` o transacción en vuelo) responde
- * `-32000 resetBlocked` con el literal de §4.3. La limpieza conserva `truekeate_logs` (RF-32).
+ * Parámetros: `[{ confirm: true }]`.
+ *
+ * ORDEN DE COMPROBACIÓN (CU-30 pasos 2 y 3, §3.9 pasos 1→4): las guardas de estado las aplica
+ * **M33** (`resetWallet`), que comprueba PRIMERO la cola `pending` y la transacción en vuelo y
+ * solo después la confirmación. Por eso este manejador NO cortocircuita cuando falta `confirm`:
+ * una invocación con `{ confirm: false }` es la **consulta de guardas** que hace el popup al
+ * pulsar «Reset wallet», y debe responder `-32000 resetBlocked` (con el literal de §4.3 y el
+ * número de pendientes) si alguna guarda bloquea —sin abrir el diálogo destructivo y **sin
+ * tocar el almacén**— o `4001` (cancelado) si las guardas están en verde, que es la señal de
+ * que el diálogo puede abrirse. Con `{ confirm: true }` ejecuta la limpieza, que conserva
+ * `truekeate_logs` (RF-32).
  */
 const handleResetWallet: InternalHandler = async (params, _context, deps) => {
   const payload = asPayload(params[0]);
-  if (payload.confirm !== true) {
-    throw userRejectedError({ reason: 'reset-not-confirmed' });
-  }
-  const outcome = await deps.state.resetWallet({ confirm: true });
+  const outcome = await deps.state.resetWallet({ confirm: payload.confirm === true });
   if (outcome.status === 'blocked') {
     throw outcome.error ?? resetBlockedError(outcome.pendingCount);
+  }
+  if (outcome.status === 'cancelled') {
+    // §5.1.1: sin `confirm: true` la operación queda cancelada y NO se toca el almacén.
+    throw userRejectedError({ reason: 'reset-not-confirmed' });
   }
   if (outcome.status !== 'done') {
     throw outcome.error ?? internalError({ reason: 'reset-failed', status: outcome.status });

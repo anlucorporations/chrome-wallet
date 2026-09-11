@@ -61,6 +61,12 @@ export function App(): JSX.Element {
   const [tab, setTab] = useState<TabId>('accounts');
   const [error, setError] = useState<PopupError | null>(null);
   const [noticeBusy, setNoticeBusy] = useState(false);
+  /**
+   * Confirmación de una operación destructiva que deja el popup en el formulario inicial
+   * (reset, CU-30 paso 6). Vive aquí, y no en la vista que la provoca, porque el reset deja la
+   * cartera vacía: `SecurityView` se desmonta al volver al inicio y su aviso se perdería.
+   */
+  const [flash, setFlash] = useState<string | null>(null);
 
   /** Lee el estado y decide la pantalla: aviso, dañada, vacía o lista. */
   const refresh = useCallback(async (): Promise<void> => {
@@ -135,6 +141,8 @@ export function App(): JSX.Element {
         <span className="tk-header__badge tk-badge">Anvil Local</span>
         <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
       </header>
+
+      <StatusMessage message={flash} tone="success" />
 
       {phase === 'loading' ? (
         <main className="tk-main tk-empty" aria-busy="true">
@@ -223,6 +231,7 @@ export function App(): JSX.Element {
                   accounts={accounts}
                   mnemonicPresent={snapshot.mnemonicPresent}
                   onChanged={handleChanged}
+                  onResetDone={setFlash}
                 />
               ) : null}
             </main>

@@ -295,6 +295,55 @@ export async function stopServiceWorker(
 }
 
 /**
+ * Pérdida de foco REAL de `page`, con la pestaña ajena que la provoca y la forma de recuperar el
+ * foco. La devuelve {@link loseFocusToOtherPage}.
+ */
+export interface FocusLossHandle {
+  /** Pestaña ajena que pasó a primer plano; hay que cerrarla al terminar la prueba. */
+  other: Page;
+  /**
+   * Devuelve el foco a `page` y restaura la emulación de Playwright. Es obligatorio ANTES de
+   * leer el portapapeles: Chrome solo permite `navigator.clipboard.readText()` con el documento
+   * enfocado. Recuperar el foco **no** vuelve a mostrar el valor (§3.8 regla 3).
+   */
+  restore(): Promise<void>;
+}
+
+/**
+ * Provoca una pérdida de foco REAL de `page`: es el disparador `window.blur` de la regla 3 de
+ * §3.8, que oculta el valor revelado.
+ *
+ * DESVIACIÓN DOCUMENTADA respecto a «una segunda pestaña pasa a primer plano». Medido en este
+ * repositorio con Chrome/Chromium 153 headless: Playwright mantiene activada la **emulación de
+ * foco**, de modo que TODAS las pestañas se reportan con `document.hasFocus() === true` y
+ * `visibilityState === 'visible'`; `bringToFront()` sobre otra pestaña no produce ningún
+ * `blur`, ningún `focus` y ningún `visibilitychange` observable (sonda
+ * `test-results/_probe-visibility.mjs`, 0 eventos). Con la emulación desactivada por CDP
+ * (`Emulation.setFocusEmulationEnabled`) el renderer pierde el foco de verdad: `hasFocus` pasa a
+ * `false` y `window` recibe `blur`. Se usa el disparador REAL del navegador, no un
+ * `dispatchEvent` sintético desde la prueba.
+ */
+export async function loseFocusToOtherPage(
+  context: BrowserContext,
+  page: Page,
+  url: string,
+): Promise<FocusLossHandle> {
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Emulation.setFocusEmulationEnabled', { enabled: false });
+  const other = await context.newPage();
+  await other.goto(url);
+  await other.bringToFront();
+  return {
+    other,
+    async restore() {
+      await page.bringToFront();
+      await cdp.send('Emulation.setFocusEmulationEnabled', { enabled: true }).catch(() => undefined);
+      await cdp.detach().catch(() => undefined);
+    },
+  };
+}
+
+/**
  * Abre el popup y acepta el aviso NO descartable de entorno de desarrollo (RNF-23) si aparece.
  * Devuelve la página ya lista para operar: es el paso previo de todas las pruebas de H2.
  */

@@ -264,13 +264,40 @@ export const removeImportedAccount = async (
   return response.ok ? { ok: true, value: account } : response;
 };
 
+/** Código de la cancelación de la consulta de guardas: `4001 userRejected` de §4.3. */
+const RESET_PROBE_CANCELLED_CODE = 4001;
+
+/**
+ * Consulta las guardas de estado del reset (CU-30 paso 2 / §3.9 pasos 1 y 2) **antes** de abrir
+ * el diálogo destructivo. Es el único camino posible sin violar RNF-14: el popup no lee
+ * `truekeate_pending_requests` ni `truekeate_inflight_tx` (no accede al almacén), así que pide
+ * al SW que evalúe el orden estricto llamando al MISMO método interno con `confirm: false`:
+ *
+ * - si una guarda bloquea, el SW responde `-32000 resetBlocked` con el literal de §4.3 y el
+ *   número exacto de solicitudes `pending`; el popup lo pinta y **no** abre el diálogo;
+ * - si las guardas están en verde, la falta de `confirm` deja la operación `cancelled` y el SW
+ *   responde `4001` (§5.1.1) **sin tocar el almacén**: es la señal de que el diálogo puede
+ *   abrirse y de que la confirmación destructiva es el siguiente paso.
+ *
+ * Devuelve el error a pintar, o `null` cuando se puede continuar. Nunca lanza.
+ */
+export const probeResetGuards = async (): Promise<PopupError | null> => {
+  const response = await callInternal<unknown>('wallet_resetWallet', [{ confirm: false }]);
+  if (response.ok) {
+    return null;
+  }
+  // `4001` es la cancelación esperada de la consulta (guardas en verde), no un fallo que pintar.
+  return response.error.code === RESET_PROBE_CANCELLED_CODE ? null : response.error;
+};
+
 /**
  * Reset de la cartera (`wallet_resetWallet`, RF-11 / §3.9).
  *
  * El orden de comprobación (cola `pending` vacía → sin transacción en vuelo → confirmación
  * destructiva → limpieza) lo aplica el **Service Worker** dentro de M33: el popup ya no consulta
  * el almacén. Si una guarda bloquea el reset, el SW responde `-32000 resetBlocked` con el
- * literal de §4.3; `truekeate_logs` se conserva (RF-32).
+ * literal de §4.3 (para consultarlas antes del diálogo, {@link probeResetGuards});
+ * `truekeate_logs` se conserva (RF-32).
  */
 export const resetWallet = async (): Promise<OperationResult<true>> => {
   const response = await callInternal<{ status: 'done' }>('wallet_resetWallet', [{ confirm: true }]);

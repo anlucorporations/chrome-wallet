@@ -1,0 +1,13 @@
+# Verificación de H2 — resultados reales (2026-09-11)
+
+npx tsc -b                              -> exit 0 (strict, 0 errores; ver typecheck-2026-09-11.log)
+npm run build                           -> exit 0 (6 entradas + manifest.json; ver build-2026-09-11.log)
+npm run build (final, plazos producción) -> exit 0 (dist/ se deja con 120000/60000/30000)
+npm run lint:prohibited                 -> exit 0 (0 hallazgos; ver lint-prohibited-2026-09-11.log)
+npm run test (Vitest)                   -> exit 0 — Test Files  18 passed (18) | Tests  290 passed (290) (ver vitest-2026-09-11.log)
+npm run coverage (Vitest + v8)          -> exit 0 — crypto/ 95,13 % de líneas y shared/validation/ 97,27 % (ver coverage-2026-09-11.json)
+npm run test:e2e (Playwright)           -> exit 0 — 23 passed / 0 failed / 0 skipped / 0 flaky (ver playwright-2026-09-11.log, e2e-2026-09-11.json)
+rg -n "chrome\.storage" src/popup      -> exit 1 = 0 coincidencias (grep no está instalado en este host; rg es el mismo motor)
+rg -n "from 'ethers'" src/popup       -> exit 1 = 0 coincidencias
+
+Anvil: cast chain-id --rpc-url http://127.0.0.1:8545 = 31337 (ver e2e-global-setup-2026-09-11.log)

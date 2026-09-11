@@ -260,7 +260,9 @@ test.describe('01 · Onboarding H2: crear, importar y sin contraseña', () => {
     const irregular = `  ${ANVIL_MNEMONIC.toUpperCase().split(' ').join('   ')}  `;
     await page.locator('#import-mnemonic').fill(irregular);
     await expect(page.locator('#import-mnemonic-error')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Importar frase' }).click();
+    // Con el formulario abierto hay DOS botones «Importar frase» (el que abre el formulario y el
+    // `submit` del propio formulario): el envío se acota al `form` para no depender del orden.
+    await page.locator('form').getByRole('button', { name: 'Importar frase' }).click();
 
     // Las 5 cuentas de Anvil, con la 0 y la 1 conocidas (contraste con `cast`).
     await expect(page.locator('.tk-account')).toHaveCount(5);

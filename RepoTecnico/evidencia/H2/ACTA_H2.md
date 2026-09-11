@@ -9,16 +9,27 @@ ejecución REAL registrada en `RepoTecnico/evidencia/H2/`; lo no ejecutado se de
 
 ## 1. Tabla de comandos y resultado real
 
+Ejecutados con **Anvil en `127.0.0.1:8545` (chainId 31337)** y `dist/` reconstruido por el
+`global-setup` del arnés (`VITE_SIGN_TIMEOUT_MS=3000`, `VITE_CONNECT_TIMEOUT_MS=2000`); al terminar
+la suite se reconstruyó `dist/` con los plazos de **producción**.
+
 | Comando | Resultado REAL | Evidencia |
 |---|---|---|
-| `npx tsc -b` | **exit 0** — sin errores de tipos (incluye `src/`, `test/` y `e2e/`) | `typecheck-2026-09-11.log` |
-| `npm run test` (Vitest) | **exit 0** — 16 ficheros, **278 tests passed**, 0 failed | `vitest-2026-09-11.log` |
-| `npm run coverage` (Vitest + v8) | **exit 0** — 278 tests; cobertura de `src/background/crypto/` = **95,13 %** de líneas y de `src/shared/validation/` = **97,27 %** de líneas (umbral ≥ 80 % **cumplido**) | `coverage-2026-09-11.json`, `vitest-coverage-2026-09-11.log` |
-| `npm run lint:prohibited` | **exit 0** — 70 ficheros de `src/` y 13 de `dist/`; 0 hallazgos | `lint-prohibited-2026-09-11.log` |
-| `npm run test:e2e` (Playwright, Anvil en marcha, `dist/` reconstruido por `global-setup`) | **exit 1** — **3 passed / 20 failed / 0 skipped** (23 specs) | `e2e-2026-09-11.json`, `e2e-2026-09-11.log`, `e2e-global-setup-2026-09-11.{log,json}` |
-| `npm run build` (dentro del `global-setup` de E2E) | **exit 0** — 6 entradas en `dist/` + `manifest.json` | `e2e-global-setup-2026-09-11.log` |
+| `npx tsc -b` | **exit 0** — strict, 0 errores (incluye `src/`, `test/` y `e2e/`) | `typecheck-2026-09-11.log` |
+| `npm run build` | **exit 0** — 6 entradas en `dist/` (`index.html`, `connect.html`, `notification.html`, `background.js`, `content-script.js`, `inject.js`) + `dist/manifest.json` | `build-2026-09-11.log` |
+| `npm run lint:prohibited` | **exit 0** — 73 ficheros de `src/` y 13 de `dist/`; 0 dependencias prohibidas, 0 `fetch(` propio, 0 `chrome.storage.sync`, 0 `codecrypto_`, 0 colores fuera de `tokens.css` y 0 `ethers` en el popup | `lint-prohibited-2026-09-11.log` |
+| `npm run test` (Vitest) | **exit 0** — **18 ficheros, 290 tests passed, 0 failed** | `vitest-2026-09-11.log` |
+| `npm run coverage` (Vitest + v8) | **exit 0** — `src/background/crypto/` = **95,13 %** de líneas (488/513) y `src/shared/validation/` = **97,27 %** (214/220); umbral ≥ 80 % **cumplido** | `coverage-2026-09-11.json`, `vitest-coverage-2026-09-11.log` |
+| `npm run test:e2e` (Playwright) | **exit 0** — **23 passed / 0 failed / 0 skipped / 0 flaky** (23 specs de H1+H2) | `playwright-2026-09-11.log`, `e2e-2026-09-11.json` |
+| `npm run build` (dentro del `global-setup` de E2E) | **exit 0** — 6 entradas en `dist/` + `manifest.json` con los plazos inyectados | `e2e-global-setup-2026-09-11.log` |
 | `cast chain-id --rpc-url http://127.0.0.1:8545` | **31337** (Anvil en marcha durante toda la suite) | `e2e-global-setup-2026-09-11.log` |
+| `rg -n "chrome\.storage" src/popup` | **0 coincidencias** (RNF-14: el popup no lee ni escribe el almacén) | `_verificacion-resumen.log` |
+| `rg -n "from 'ethers'" src/popup` | **0 coincidencias** (`CA-RT-02`) | `_verificacion-resumen.log` |
 
+> **Nota de host (no es un defecto del producto).** En este equipo Windows **no hay `grep`
+> instalado**: los dos últimos comandos se ejecutan con **ripgrep** (`rg`, el mismo motor de
+> búsqueda) y devuelven **exit 1 = 0 coincidencias** en ambos casos.
+>
 > **No se declara cumplido nada que no se haya ejecutado.** `npm run coverage` no aplica umbrales
 > automáticos en `vite.config.ts` (no hay `thresholds` declarados): el umbral de §3.2.9 se comprueba
 > **a mano** sobre `coverage-2026-09-11.json` y el cálculo está en §3 de esta acta.
@@ -27,7 +38,7 @@ ejecución REAL registrada en `RepoTecnico/evidencia/H2/`; lo no ejecutado se de
 
 ## 2. Specs creados y número de tests
 
-### 2.1 Vitest (12 specs, 237 tests nuevos; la suite completa queda en 278)
+### 2.1 Vitest (12 specs de H2; la suite completa queda en **290 tests / 18 ficheros**)
 
 | Spec | Tests | Qué demuestra |
 |---|---|---|
@@ -35,39 +46,31 @@ ejecución REAL registrada en `RepoTecnico/evidencia/H2/`; lo no ejecutado se de
 | `src/background/crypto/derivation.spec.ts` | 17 | Ruta `m/44'/60'/0'/0/i`, 5 cuentas (0..4) y la 6.ª, vectores REALES de Anvil y de BIP-39, cero derivaciones silenciosas |
 | `src/background/crypto/importPrivateKey.spec.ts` | 13 | `CA-RF-05`: forma, rango secp256k1 (1 y `n-1` válidos, 0 y `n` rechazados), dirección EIP-55, enmascarado |
 | `src/background/crypto/integrity.spec.ts` | 18 | RNF-22: checksum roto, palabra fuera de lista, dirección malformada / sin EIP-55, clave↔dirección incoherente, activa inexistente, `derivations: 0` |
-| `src/background/crypto/secretsExport.spec.ts` | 20 | `CA-RF-50`: confirmación explícita, allowlist de contexto, 30 s, mnemonic y clave derivada/importada, guarda `-32000` (vigente / caducada / desconectada / otro origen) |
+| `src/background/crypto/secretsExport.spec.ts` | 20 | `CA-RF-50`: confirmación explícita, allowlist de contexto (popup con o sin pestaña, D-H2-G), 30 s, mnemonic y clave derivada/importada, guarda `-32000` (vigente / caducada / desconectada / otro origen) |
 | `src/background/crypto/revealHygiene.spec.ts` | 14 | 30 000 ms exactos, ocultado por pérdida de foco, descarte de memoria, idempotencia, **0 `postMessage`**, el mensaje interno no transporta el valor |
 | `src/background/crypto/revealClipboard.spec.ts` | 14 | Borrado del portapapeles al ocultar; NO se destruye contenido ajeno; respaldo incondicional si falla la lectura; `dispose` no toca el portapapeles |
 | `src/background/accounts.spec.ts` | 35 | `CA-RF-01/02/03/04/05`: 5 cuentas + 6.ª, sin contraseña, etiquetas DEC-35 (derivadas vs importadas), visibilidad, y guarda `-32000` al **eliminar** una importada |
-| `src/background/state/state.spec.ts` | 27 | Claves canónicas, rechazo de clave no canónica, persistencia/restauración y **migración v1.2→v1.4 sin pérdida** (frase, cuentas, activa, logs, sesiones) |
+| `src/background/state/state.spec.ts` | 27 | Claves canónicas, rechazo de clave no canónica, persistencia/restauración y **migración v1.2→v1.4 sin pérdida** |
 | `src/background/state/reset.spec.ts` | 20 | `CA-RF-11`: **orden de comprobación** (cola → vuelo → confirmación → limpieza), bloqueo `-32000` sin tocar el almacén, 13 claves borradas y `truekeate_logs` conservada |
 | `src/shared/validation/validation.spec.ts` | 24 | `CA-RF-33`: los cuatro formularios (frase, dirección, importe, clave privada) con magnitudes concretas y el `code`/acción de §4.3 |
 | `src/shared/qr.spec.ts` | 14 | `CA-RF-07`: versiones 1..4, Reed-Solomon con síndromes nulos, información de formato, **símbolo decodificado** = dirección, SVG sin red ni literales de color |
 
-**Nota de entorno (no es un defecto del producto).** Los specs que usan `ethers.js` declaran
-`// @vitest-environment node`. Motivo verificado: Vitest sustituye `globalThis.Uint8Array` por el de
-jsdom al poblar el entorno (`node_modules/vitest/dist/chunks/index.CmSc2RE5.js`, lista `LIVING_KEYS`),
-mientras que `node:crypto` devuelve un `Buffer` cuyo prototipo apunta al `Uint8Array` del realm de
-Node; en consecuencia `Buffer instanceof Uint8Array` es `false` y `ethers` rechaza su propio digest
-con `invalid BytesLike value (argument="value", value={"type":"Buffer"})`. Se comprobó que con
-`--environment node` la misma frase valida correctamente. jsdom no existe en el Service Worker real,
-así que la desviación es del arnés y queda documentada aquí.
-
-### 2.2 Playwright (6 specs nuevos + ampliación de `01-onboarding`; 23 tests en H2)
+### 2.2 Playwright (7 specs, **23 tests**, todos en verde)
 
 | Spec | Tests | Qué demuestra |
 |---|---|---|
-| `e2e/01-onboarding.spec.ts` (ampliado) | +2 | Crear cartera sin **ningún** prompt de contraseña (`CA-RF-03`), importar la frase de Anvil normalizando mayúsculas/espacios (`CA-RF-02`) y dejar la evidencia `01-onboarding-<fecha>.json` |
-| `e2e/02-cuentas.spec.ts` | 3 | 5 cuentas + la 6.ª contra Anvil (`CA-RF-04`), importación por clave privada con etiqueta renombrable y duplicado `-32602` (`CA-RF-05`), bloqueo/desbloqueo de la eliminación por sesión de dApp |
+| `e2e/01-onboarding.spec.ts` (ampliado) | 6 | Carga de `dist/` con ID descubierto, popup 380×600 sin errores de consola, `sw_started`, suspensión/re-arranque del SW (RNF-08), crear cartera sin **ningún** prompt de contraseña (`CA-RF-01`/`CA-RF-03`) e importar la frase de Anvil normalizando mayúsculas/espacios (`CA-RF-02`) |
+| `e2e/02-cuentas.spec.ts` | 3 | 5 cuentas + la 6.ª contrastadas con **`cast balance`** (`CA-RF-04`), importación por clave privada con etiqueta renombrable y duplicado `-32602` (`CA-RF-05`), bloqueo/desbloqueo de la eliminación por sesión de dApp (`-32000`) |
 | `e2e/03-recibir.spec.ts` | 2 | Dirección mostrada = portapapeles = **QR decodificado** desde la rejilla del DOM (`CA-RF-07`) |
 | `e2e/05-persistencia.spec.ts` | 3 | Reapertura del popup sin pedir la frase (`CA-RF-09`/`CA-RF-10`), suspensión del SW por CDP sin pérdida y «Wallet dañada» (RNF-22) |
-| `e2e/06-reset.spec.ts` | 3 | Diálogo que enumera las importadas y conserva `truekeate_logs`; reset **bloqueado** con cola pendiente y con transacción en vuelo (`CA-RF-11`, evidencia `reset-<fecha>.json`) |
+| `e2e/06-reset.spec.ts` | 3 | Diálogo que enumera las importadas, reset con aviso de éxito y `truekeate_logs` conservada (`CA-RF-11`); reset **bloqueado** con `-32000` con cola `pending` y con transacción en vuelo (DEC-46) y estado intacto (evidencia `reset-<fecha>.json`) |
 | `e2e/16-validacion.spec.ts` | 3 | Error **inline** con `code` y acción en frase, clave privada y etiqueta, y operación NO enviada (`CA-RF-33`) |
-| `e2e/25-recuperacion.spec.ts` | 3 | Confirmación previa, revelado de 30 s, ocultado por pérdida de foco, portapapeles vaciado, 0 `postMessage`, bloqueo `-32000` y desbloqueo tras revocar (`CA-RF-50`; captura `25-recuperacion-<fecha>.png`) |
+| `e2e/25-recuperacion.spec.ts` | 3 | Confirmación previa, valor oculto por defecto, revelado de **30 s**, ocultado por **pérdida de foco real**, portapapeles vaciado, **0 `postMessage`**, bloqueo `-32000` con sesión de dApp vigente y desbloqueo tras revocar (`CA-RF-50`; captura `25-recuperacion-<fecha>.png`) |
 
-Helpers añadidos al arnés (sin romper los 4 tests que ya pasaban): `openPopupReady` y
-`readQrModules` en `e2e/fixtures/extension.ts`, `e2e/fixtures/h2.ts` (siembra del estado desde el
-Service Worker, sesiones de dApp, vectores de Anvil) y `e2e/fixtures/qr.ts` (descriptor del símbolo).
+**Helpers del arnés** (ninguno relaja una aserción): `openPopupReady`, `readQrModules`,
+`loseFocusToOtherPage` (pérdida de foco real en headless, D-H2-K) y `stopServiceWorker`/`watchServiceWorker`
+en `e2e/fixtures/extension.ts`; `e2e/fixtures/h2.ts` (siembra coherente del estado desde el Service
+Worker —D-H2-K—, sesiones de dApp y vectores de Anvil) y `e2e/fixtures/qr.ts` (descriptor del símbolo).
 Se añadió `--enable-clipboard-read-write` a los argumentos de Chrome: `context.grantPermissions` es
 inviable porque Chrome rechaza conceder permisos a orígenes opacos (`chrome-extension://`).
 
@@ -75,19 +78,19 @@ inviable porque Chrome rechaza conceder permisos a orígenes opacos (`chrome-ext
 
 ## 3. Cobertura: comprobación del umbral ≥ 80 %
 
-`coverage-2026-09-11.json` (`coverage-summary.json` de v8):
+`coverage-2026-09-11.json` (`coverage-summary.json` de v8), calculado por suma de líneas cubiertas:
 
-| Módulo | % líneas | % sentencias | % ramas | % funciones |
-|---|---|---|---|---|
-| `src/background/crypto/` | **95,13** | 95,13 | 87,36 | 100 |
-| `src/shared/validation/` | **97,27** | 97,27 | 91,08 | 100 |
-| `src/background/state/` | 90,40 | 90,40 | 85,83 | 95,45 |
-| `src/background/accounts.ts` | 82,69 | 82,69 | 81,21 | 81,25 |
-| `src/shared/qr.ts` | 99,13 | 99,13 | 88,14 | 100 |
-| Total del proyecto (incluye UI y módulos de H3/H4/H5 aún sin implementar) | 47,89 | 47,89 | 87,01 | 87,59 |
+| Ámbito | % líneas | Líneas |
+|---|---|---|
+| `src/background/crypto/` | **95,13** | 488 / 513 |
+| `src/shared/validation/` | **97,27** | 214 / 220 |
+| `src/background/state/` | 90,40 | 405 / 448 |
+| `src/shared/qr.ts` | 99,13 | — |
+| `src/background/accounts.ts` | 82,69 | — |
+| Total del proyecto (incluye la UI y los módulos de H3/H4/H5 aún sin implementar) | 52,42 | — |
 
 Desglose por fichero de los dos módulos del umbral: `crypto/hd.ts` 100 %, `crypto/mnemonic.ts`
-96,61 %, `crypto/secrets.ts` 95,69 %, `crypto/integrity.ts` 93,86 %, `crypto/importAccount.ts`
+96,61 %, `crypto/secrets.ts` 95,67 %, `crypto/integrity.ts` 93,86 %, `crypto/importAccount.ts`
 85,71 %; `validation/mnemonic.ts` 100 %, `validation/amount.ts` 97,59 %, `validation/privateKey.ts`
 95,55 %, `validation/address.ts` 95,12 %.
 
@@ -97,86 +100,55 @@ Desglose por fichero de los dos módulos del umbral: `crypto/hd.ts` 100 %, `cryp
 
 ## 4. Criterios de aceptación `CA-RF-*` del hito
 
-| Criterio | Estado | Motivo (con evidencia) |
+| Criterio | Estado | Evidencia |
 |---|---|---|
-| `CA-RF-01` — crear cartera con 12 palabras y checksum válido | **Cumplido en Vitest; NO demostrado en el navegador** | `mnemonic.spec.ts` (15/15) y `accounts.spec.ts` verifican generación, recuento y checksum. El E2E `01-onboarding.spec.ts:198` falla por **D-H2-A** (el popup no puede hablar con el SW), no por la generación |
-| `CA-RF-02` — importar frase con normalización y checksum; checksum roto → `-32602` | **Cumplido en Vitest; NO demostrado en el navegador** | `mnemonic.spec.ts`, `derivation.spec.ts` y `accounts.spec.ts` (frase irregular = misma cuenta 0; checksum roto = `-32602`). E2E `01-onboarding.spec.ts:252` falla por **D-H2-A** |
-| `CA-RF-03` — flujo sin contraseña (`encryptionEnabled: false`) | **Cumplido en Vitest; NO demostrado en el navegador** | `accounts.spec.ts` verifica `encryptionEnabled`/`requirePasswordOnOpen` en `false`. E2E `01-onboarding.spec.ts:198` (0 `input[type=password]`) falla por **D-H2-A** |
-| `CA-RF-04` — 5 cuentas y «Añadir cuenta» deriva la 6.ª | **Cumplido en Vitest; NO demostrado en el navegador** | `derivation.spec.ts` (17/17) y `accounts.spec.ts` (índices 0..5 persistidos). E2E `02-cuentas.spec.ts:23` falla por **D-H2-A** |
-| `CA-RF-05` — importar por clave privada con etiqueta; repetida → `-32602` | **Cumplido en Vitest; NO demostrado en el navegador** | `importPrivateKey.spec.ts` y `accounts.spec.ts` (etiqueta en `truekeate_imported_accounts`, duplicado `-32602`). E2E `02-cuentas.spec.ts:70` falla por **D-H2-A** |
-| `CA-RF-07` — dirección mostrada = portapapeles = QR, sin red | **Cumplido en Vitest; NO demostrado en el navegador** | `qr.spec.ts` (14/14) **decodifica el símbolo** y recupera exactamente la dirección; el SVG no tiene recursos remotos. E2E `03-recibir.spec.ts` falla por **D-H2-A** |
-| `CA-RF-09` / `CA-RF-10` — auto-carga y restauración sin pedir la frase | **Cumplido en Vitest; NO demostrado en el navegador** | `state.spec.ts` (lectura/escritura/restauración) y `accounts.spec.ts`. E2E `05-persistencia.spec.ts:36` falla por **D-H2-A** |
-| `CA-RF-11` (parte 1) — reset con confirmación destructiva, enumera importadas y conserva logs | **Cumplido en Vitest; NO demostrado en el navegador** | `reset.spec.ts` (20/20): 13 claves borradas, `truekeate_logs` intacta, diálogo que enumera. E2E `06-reset.spec.ts` falla por **D-H2-A** |
-| `CA-RF-33` — validación inline de los cuatro formularios sin enviar | **Cumplido en Vitest (`validation.spec.ts` 24/24, cubre también el importe de H4); NO demostrado en el navegador** | E2E `16-validacion.spec.ts:39/73/101` falla por **D-H2-A** (no llega a pintarse el formulario) |
-| `CA-RF-50` — 30 s, pérdida de foco, borrado del portapapeles, nunca `postMessage`, guarda `-32000` | **Cumplido en Vitest; NO demostrado en el navegador. DEFECTO ABIERTO en el popup (D-H2-C)** | El módulo `crypto/secrets.ts` cumple las cinco reglas (`secretsExport.spec.ts`, `revealHygiene.spec.ts`, `revealClipboard.spec.ts`). El POPUP no envía `confirmed: true` (**D-H2-C**), así que el revelado real devolvería `4001`; y hoy ni siquiera llega por **D-H2-A**. E2E `25-recuperacion.spec.ts` falla |
-| RNF-09 (higiene del revelado) | **Cumplido en Vitest** | `revealHygiene.spec.ts` demuestra 0 `postMessage`, descarte de memoria y 30 000 ms exactos |
-| RNF-22 («wallet dañada») | **Cumplido en Vitest** | `integrity.spec.ts` (18/18): daño por mnemonic o dirección, `derivations: 0`, `canDerive: false`. E2E `05-persistencia.spec.ts:100` falla por **D-H2-A** |
-| RNF-23 (aviso no descartable del primer arranque) | **No cumplido como criterio de aceptación en H2** | El aviso existe (`App.tsx`, `phase === 'notice'`) y su aceptación se registra en `truekeate_settings.devNoticeAcceptedAt`, pero **§3.2.6 NO lo enumera** entre los `CA-RF-*` del hito y el E2E no puede comprobarlo con el popup averiado |
-| `CA-RT-02` — solo `ethers.js`; `grep -rn "from 'ethers'" src/popup` → 0 | **Cumplido** | `npm run lint:prohibited` exit 0 («sin ethers en el popup»); ningún fichero de `src/popup/` importa `ethers` |
-| `CA-RT-10` — toda cadena visible en español | **Cumplido** (los literales de los specs y de la UI están en español; el grep del criterio es sobre `src/popup`) | Comprobado en los mensajes de error de §4.3 y en todos los `getByRole` de los E2E |
+| `CA-RF-01` — crear cartera con 12 palabras y checksum válido | ✅ **Cumplido (Vitest + navegador)** | `mnemonic.spec.ts` (15/15), `accounts.spec.ts`; `E2E: 01-onboarding.spec.ts:198` (5 cuentas y sin prompt de contraseña) |
+| `CA-RF-02` — importar frase con normalización y checksum; checksum roto → `-32602` | ✅ **Cumplido (Vitest + navegador)** | `mnemonic.spec.ts`, `derivation.spec.ts`; `E2E: 01-onboarding.spec.ts:252` (frase irregular = misma cuenta 0) y `E2E: 16-validacion.spec.ts:39` (checksum roto → `-32602` inline y en el SW, sin persistir nada) |
+| `CA-RF-03` — flujo sin contraseña (`encryptionEnabled: false`) | ✅ **Cumplido (Vitest + navegador)** | `accounts.spec.ts`; `E2E: 01-onboarding.spec.ts:198` (0 `input[type=password]`) |
+| `CA-RF-04` — 5 cuentas y «Añadir cuenta» deriva la 6.ª | ✅ **Cumplido (Vitest + navegador + `cast`)** | `derivation.spec.ts`, `accounts.spec.ts`; `E2E: 02-cuentas.spec.ts:23` (direcciones reales de Anvil, 6.ª derivada y `cast balance` > 0) |
+| `CA-RF-05` — importar por clave privada con etiqueta; repetida → `-32602` | ✅ **Cumplido (Vitest + navegador)** | `importPrivateKey.spec.ts`, `accounts.spec.ts`; `E2E: 02-cuentas.spec.ts:65` (etiqueta renombrable, duplicado `-32602`) y `02-cuentas.spec.ts:105` (guarda `-32000` al eliminar y desbloqueo tras revocar) |
+| `CA-RF-07` — dirección mostrada = portapapeles = QR, sin red | ✅ **Cumplido (Vitest + navegador)** | `qr.spec.ts` (14/14, símbolo decodificado); `E2E: 03-recibir.spec.ts` (2/2) |
+| `CA-RF-09` / `CA-RF-10` — auto-carga y restauración sin pedir la frase | ✅ **Cumplido (Vitest + navegador)** | `state.spec.ts` (27/27), `accounts.spec.ts`; `E2E: 05-persistencia.spec.ts` (3/3) |
+| `CA-RF-11` (parte 1) — reset con confirmación destructiva, enumera importadas y conserva logs | ✅ **Cumplido (Vitest + navegador)** | `reset.spec.ts` (20/20); `E2E: 06-reset.spec.ts:56` (diálogo que enumera, aviso «Cartera reseteada», 13 claves borradas y `truekeate_logs` intacta; evidencia `reset-2026-09-11.json`) |
+| `CA-RF-11` (parte 2, DEC-46/R-09b) — reset bloqueado con `-32000` por cola o transacción en vuelo | ✅ **Cumplido (Vitest + navegador)** | `reset.spec.ts`; `E2E: 06-reset.spec.ts:126` (1 `pending` → `-32000` «quedan 1 solicitudes pendientes», sin diálogo y sin tocar el almacén) y `06-reset.spec.ts:159` (transacción en vuelo vigente) |
+| `CA-RF-33` — validación inline de los cuatro formularios sin enviar | ✅ **Cumplido (Vitest + navegador)** | `validation.spec.ts` (24/24, cubre también el importe de H4); `E2E: 16-validacion.spec.ts` (3/3, con `aria-invalid`/`aria-describedby` y almacén sin cambios) |
+| `CA-RF-50` — 30 s, pérdida de foco, borrado del portapapeles, nunca `postMessage`, guarda `-32000` | ✅ **Cumplido (Vitest + navegador)** | `secretsExport.spec.ts`, `revealHygiene.spec.ts`, `revealClipboard.spec.ts`; `E2E: 25-recuperacion.spec.ts` (3/3: confirmación previa, 30 s con cuenta atrás, ocultado por **pérdida de foco real**, portapapeles vaciado, 0 `postMessage`, `-32000` con sesión vigente nombrando el origen y desbloqueo tras revocar) |
+| RNF-09 (higiene del revelado) | ✅ **Cumplido (Vitest + navegador)** | `revealHygiene.spec.ts` (0 `postMessage`, descarte de memoria, 30 000 ms); `E2E: 25-recuperacion.spec.ts:54` (intercepta `window.postMessage` en el popup: 0 mensajes) |
+| RNF-14 (el popup no custodia estado) | ✅ **Cumplido** | `rg -n "chrome\.storage" src/popup` → **0**; `rg -n "from 'ethers'" src/popup` → **0**; toda lectura y mutación pasa por los 15 métodos internos de §5.1.1 |
+| RNF-22 («wallet dañada») | ✅ **Cumplido (Vitest + navegador)** | `integrity.spec.ts` (18/18); `E2E: 05-persistencia.spec.ts:100` (mnemonic corrupto → «Wallet dañada», sin derivar cuentas nuevas) |
+| RNF-23 (aviso no descartable del primer arranque) | ✅ **Cumplido (navegador)** | `E2E: 01-onboarding.spec.ts:64` (capa modal con `aria-modal`, bloquea la UI y no hay `.tk-empty` en el DOM hasta aceptarla); `E2E: 06-reset.spec.ts:56` (tras el reset, que borra `truekeate_settings`, el aviso vuelve a mostrarse) |
+| `CA-RT-02` — solo `ethers.js`; `grep -rn "from 'ethers'" src/popup` → 0 | ✅ **Cumplido** | `npm run lint:prohibited` exit 0 («sin ethers en el popup»); `rg -n "from 'ethers'" src/popup` → 0 |
+| `CA-RT-10` — toda cadena visible en español | ✅ **Cumplido** | `lint:prohibited` (0 coincidencias de `send|cancel|copy|confirm` en `src/popup`) y literales de §4.3 en todos los `getByRole` de los E2E |
 
-**Resumen:** de los 10 `CA-RF-*` exigidos por §3.2.6, **ninguno queda demostrado en el navegador**
-porque **D-H2-A** rompe el canal popup↔Service Worker; los 10 están cubiertos y en verde en la capa
-de módulos (Vitest). `CA-RF-50` además tiene un defecto propio y abierto en el popup (**D-H2-C**).
+**Resumen:** los **11 RF Must** del hito (RF-01..RF-05, RF-07, RF-09..RF-11, RF-33, RF-50) y sus
+`CA-RF-01..05/07/09/10/11/33/50` quedan **demostrados en el navegador** con los 23 E2E en verde, más
+RNF-09, RNF-14, RNF-22 y RNF-23.
 
 ---
 
-## 5. Defectos de producción encontrados
+## 5. Defectos encontrados y CORREGIDOS en esta sesión
 
-> No se ha tocado el código de producción: los defectos se reportan con su ubicación y su salida
-> exacta, tal y como exige el alcance de esta tarea.
+El acta anterior de este hito registraba **3 passed / 20 failed**, con los defectos **D-H2-A**
+(canal `chrome.runtime.postMessage` inexistente), **D-H2-B** (la guarda no reconocía al popup como
+contexto de la extensión) y **D-H2-C** (el popup pedía el revelado sin `confirmed: true`), más los
+menores `D-H2-D..D-H2-F`: los cuatro ya se corrigieron en el código de H2. Al abrir **esta** sesión
+la suite quedaba en **15 passed / 8 failed** (uno de ellos, `02-cuentas.spec.ts:23`, solo porque
+**Anvil no estaba en marcha**). Poner los fallos restantes en verde destapó **cinco defectos más**,
+ya corregidos y registrados como **DEC-52..DEC-56** en `estado_proyecto.md` y **§3.2.10** de
+`plan_desarrollo.md`:
 
-### D-H2-A (BLOQUEANTE) — el canal popup↔Service Worker no existe: `chrome.runtime.postMessage`
+| Id | Qué estaba mal | Dónde | Corrección (producción / test) |
+|---|---|---|---|
+| **D-H2-G** | El revelado era **inalcanzable**: `canRevealInContext` exigía `tabId === null`, pero el popup llega **con `sender.tab`** (igual que documentó D-H2-B). Medido: `-32000` esperado, **`4200`** recibido | `src/background/crypto/secrets.ts` (M12) | **Producción**: se elimina la condición de `tabId`; se mantienen `isExtensionContext` y `REVEAL_ALLOWED_ROUTES = ['index.html']`. Se alinean 2 aserciones del spec que codificaban el defecto |
+| **D-H2-H** | (a) `handleResetWallet` comprobaba `confirm` **antes** que las guardas, invirtiendo el orden de CU-30 y dejando el `-32000` inalcanzable; (b) el popup abría el diálogo destructivo **sin** consultar las guardas (CU-30 paso 3 / §3.9) | `src/background/rpc/catalog.ts`, `src/popup/walletState.ts`, `src/popup/views/SecurityView.tsx` | **Producción**: M33 aplica el orden guardas → confirmación y el manejador traduce `blocked → -32000` / `cancelled → 4001`; el popup consulta con `wallet_resetWallet { confirm: false }` (`probeResetGuards`) y no abre el diálogo si hay bloqueo |
+| **D-H2-I** | El aviso «Cartera reseteada» desaparecía: el reset vacía la cartera y `SecurityView` se desmonta al volver al formulario inicial | `src/popup/App.tsx`, `src/popup/views/SecurityView.tsx` | **Producción**: el aviso se eleva a `App` (`flash`, `tone="success"`) vía `onResetDone` |
+| **D-H2-J** | Con el ocultado por **pérdida de foco**, el borrado del portapapeles es **imposible**: medido en el navegador real, `navigator.clipboard.writeText('')` → `NotAllowedError: Document is not focused` y `document.execCommand('copy')` devuelve `true` **sin** modificar el portapapeles. La semilla quedaba copiada e incumplía `CA-RF-50` | `src/popup/views/SecurityView.tsx` | **Producción**: se aplaza el borrado guardando **solo la huella SHA-256** (`clipboardHash` de §3.10) y se ejecuta al recuperar el foco, comparando por huella (nunca borrado a ciegas). Desviación declarada de §3.8 regla 5 («no se reintenta»): un único reintento, al recuperar el foco |
+| **D-H2-K** | Defectos del **arnés**, no del producto: (1) `seedWallet` sembraba `truekeate_current_account: 'idx:0'` con `accounts: []`, que M13 clasifica como **cartera dañada** (RNF-22) y el popup pintaba «Wallet dañada»; (2) `getByRole('button', { name: 'Importar frase' })` resolvía a **2 elementos**; (3) «una segunda pestaña pasa a primer plano» **no produce pérdida de foco** en Chromium headless; (4) el reset borra `truekeate_settings` y el aviso RNF-23 vuelve a mostrarse; (5) `popupError` mostraba la acción de «cuenta en uso por una dApp» para un `-32000 resetBlocked` | `e2e/fixtures/h2.ts`, `e2e/fixtures/extension.ts`, `e2e/01-onboarding.spec.ts`, `e2e/06-reset.spec.ts`, `src/popup/popupErrors.ts` | **Arnés**: siembra coherente; selector acotado al `form`; nuevo `loseFocusToOtherPage` (CDP `Emulation.setFocusEmulationEnabled` + otra pestaña al frente = `blur` **real**); el test acepta el aviso antes de comprobar el estado vacío. **Producción**: `popupError` busca la acción por **plantilla del mensaje**. Ninguna aserción se relajó |
 
-- **Ubicación:** `src/popup/walletRpc.ts:46` y `src/popup/walletRpc.ts:99`.
-- **Defecto:** el canal se busca con `Reflect.get(chrome.runtime, 'pos' + 'tMessage')`. Chrome NO
-  expone `chrome.runtime.postMessage` (el método real es `chrome.runtime.sendMessage`), así que
-  `hasRuntimeMessaging()` es `false` y `callInternal` devuelve siempre
-  `-32603` con `data.reason = 'transport'` (`walletRpc.ts:120-121`). Además, la concatenación
-  `'pos' + 'tMessage'` se pasa a `Reflect.get` como expresión, no se evalúa como nombre de propiedad.
-- **Salida real (arnés E2E, diagnóstico temporal):**
-  - `chrome.runtime` del popup: `[... "sendMessage", ...]` — **no** aparece `postMessage`.
-  - Llamando al canal real (`chrome.runtime.sendMessage`) con `wallet_getState` desde el popup:
-    `{"error":{"code":4200,"message":"El método solicitado no está permitido en este contexto."}}`.
-- **Efecto observable:** el popup pinta `-32603 Error interno de la cartera` y **0 pestañas**
-  (HTML real capturado: `<main class="tk-main"><p class="tk-status tk-status--error" role="alert">
-  <code class="tk-status__code">-32603</code>…`). **Fallan los 20 E2E de H2**; los 3 que pasan son
-  los de H1 que no usan el canal (`01-onboarding.spec.ts:48`, `:124` y `:157`).
-
-### D-H2-B — la guarda de emisor no reconoce al popup como contexto de la extensión
-
-- **Ubicación:** `src/background/security/senderGuard.ts:147-153` (`isExtensionSender`), usado en
-  `senderGuard.ts:183` y `senderGuard.ts:193-195`.
-- **Defecto:** la extensión se reconoce **solo** si `routeFromUrl(sender.url)` cae en la allowlist
-  (`index.html` / `connect.html` / `notification.html`). Para un mensaje nacido en el popup, `sender.url`
-  no está disponible y `sender.origin` es `chrome-extension://<id>` (origen que no es una URL con
-  ruta válida), de modo que `isExtensionContext` es `false`.
-- **Salida real:** invocando `wallet_getState` con el canal correcto desde el popup, el router
-  responde `4200 methodNotAllowedInContext` (`senderGuard.ts:194`), que es exactamente lo que
-  devuelve la guarda de métodos internos.
-- **Efecto:** aun corrigiendo D-H2-A, ningún `wallet_*` funcionaría desde el popup. La guarda debe
-  derivar el contexto de extensión de `sender.origin === chrome-extension://<runtime.id>`
-  (o del `sender.url` de la página interna), no solo de una ruta.
-
-### D-H2-C — el popup pide `wallet_revealSecret` sin la confirmación explícita
-
-- **Ubicación:** `src/popup/views/SecurityView.tsx:212-216`
-  (`const params = kind === 'mnemonic' ? [{ kind }] : [{ kind, accountRef: account?.ref ?? null }]`).
-- **Defecto:** no se envía `confirmed: true`. El catálogo lo traduce con
-  `asRevealTarget` (`src/background/rpc/catalog.ts:681`: `confirmed: value.confirmed === true`) y
-  `resolveSecret` (`src/background/crypto/secrets.ts:117-119`) responde `4001 userRejected`
-  cuando `confirmed !== true`.
-- **Efecto:** **todo** revelado/exportación desde el popup falla con «Operación cancelada por el
-  usuario.»; `CA-RF-50` no puede cumplirse por la UI. La confirmación del `DialogoDecision`
-  (`SecurityView.tsx:401-403`) se pierde al construir los parámetros.
-
-### Defectos menores (no bloquean el hito, se registran por completitud)
-
-| Id | Ubicación | Observación |
-|---|---|---|
-| D-H2-D | `src/background/accounts.ts:603-607` | La etiqueta inválida se respondía con `-32603 internalError` porque `validateLabel` de M29 devolvía `error: null`; **corregido durante esta sesión** con la causa `invalidLabel` (`-32602`) del catálogo extendido. Los specs ya verifican el comportamiento corregido |
-| D-H2-E | `src/background/accounts.ts:488` | «Sin cartera» se responde `-32000 walletNotCreated`; el spec inicial esperaba `-32603`. Se alineó el spec con el catálogo extendido de la v1.9 (`EXTENDED_ERROR_CATALOG`, `errors.ts:220-225`) |
-| D-H2-F | `e2e/fixtures/extension.ts` (arnés) | `context.grantPermissions` es inviable para `chrome-extension://` (origen opaco): se sustituyó por `--enable-clipboard-read-write` en los argumentos de Chrome |
+**Fallo reportado que no era un defecto:** `e2e/02-cuentas.spec.ts:23` fallaba porque **Anvil no
+estaba en marcha** (el contraste lo hace `execFileSync('cast', ['balance', …])` desde el proceso de
+prueba). Con Anvil arriba (`cast` está en el `PATH` del runner: `C:\Users\lucci\.cargo\bin\cast.exe`)
+pasa sin cambios. No hay ningún test en `skip`/`fixme` ni ninguna espera fija añadida.
 
 ---
 
@@ -184,30 +156,31 @@ de módulos (Vitest). `CA-RF-50` además tiene un defecto propio y abierto en el
 
 | Fichero | Contenido |
 |---|---|
-| `vitest-2026-09-11.log` | Salida real de `npm run test` (278 passed) |
-| `vitest-coverage-2026-09-11.log` | Salida real de `npm run coverage` con la tabla por fichero |
-| `coverage-2026-09-11.json` | `coverage-summary.json` de v8 (fuente del §3) |
-| `lint-prohibited-2026-09-11.log` | Salida real del lint de prohibiciones (exit 0) |
 | `typecheck-2026-09-11.log` | Salida real de `npx tsc -b` (exit 0) |
-| `e2e-2026-09-11.json` / `e2e-2026-09-11.log` | Informe de Playwright: 3 passed / 20 failed / 0 skipped |
-| `e2e-global-setup-2026-09-11.log` / `.json` | Build de `dist/`, plazos verificados, Anvil 31337 |
-| `01-onboarding-2026-09-11.json` | Flujo de onboarding (se escribe cuando el E2E lo completa; hoy bloqueado por D-H2-A) |
-| `reset-2026-09-11.json` | Flujo de reset (ídem) |
-| `25-recuperacion-2026-09-11.png` | Captura del revelado (ídem) |
-
-> Las tres evidencias por flujo (`01-onboarding-*.json`, `reset-*.json`, `25-recuperacion-*.png`) las
-> escribe el propio spec al completar su flujo. Con **D-H2-A** abierto, el popup no llega a pintar
-> ningún flujo, de modo que **no se han podido generar** y quedan pendientes de la corrección.
+| `build-2026-09-11.log` | Salida real de `npm run build` (exit 0, 6 entradas + manifest) |
+| `lint-prohibited-2026-09-11.log` | Salida real de `npm run lint:prohibited` (exit 0) |
+| `vitest-2026-09-11.log` | Salida real de `npm run test` (**290 passed / 18 ficheros**) |
+| `vitest-coverage-2026-09-11.log` | Salida real de `npm run coverage` con la tabla por fichero |
+| `coverage-2026-09-11.json` | `coverage-summary.json` de v8 (fuente de §3) |
+| `playwright-2026-09-11.log`, `e2e-2026-09-11.{json,log}` | Informe de Playwright: **23 passed / 0 failed / 0 skipped / 0 flaky** |
+| `e2e-global-setup-2026-09-11.{log,json}` | Build de `dist/`, plazos verificados y Anvil 31337 |
+| `_verificacion-resumen.log` | Resumen de los 7 comandos con su `exit code` y los dos `rg` |
+| `01-onboarding-2026-09-11.json` / `.png` | Flujo de onboarding y captura del popup 380×600 |
+| `25-recuperacion-2026-09-11.png` | Captura del revelado (aviso de captura y cuenta atrás) |
+| `reset-2026-09-11.json` | Claves tras el reset (solo `truekeate_logs`) y logs conservados |
 
 ---
 
 ## 7. Conclusión del acta
 
-- **Tareas 2.16:** COMPLETADA. 12 specs de Vitest (237 tests) en verde; cobertura de `crypto/`
-  95,13 % y de `shared/validation/` 97,27 % (≥ 80 %); `lint:prohibited` y `tsc -b` en verde.
-- **Tareas 2.17:** specs entregados y ejecutados, pero **el hito NO está en verde**: 3 de 23 E2E
-  pasan. Los 20 fallos comparten una única causa raíz de producción (**D-H2-A**) y hay un defecto
-  adicional abierto (**D-H2-C**) que impediría cumplir `CA-RF-50` por la UI aunque el canal se
-  arreglara.
-- **Nada se declara cumplido sin haberlo ejecutado:** los 10 `CA-RF-*` del hito se declaran
-  «cumplidos en Vitest, no demostrados en el navegador» y `CA-RF-50` queda explícitamente abierto.
+- **Tareas 2.16:** COMPLETADA. **Vitest 290 passed / 18 ficheros** (12 specs del hito) en verde;
+  cobertura de `crypto/` **95,13 %** y de `shared/validation/` **97,27 %** (≥ 80 %); `tsc -b` y
+  `lint:prohibited` en verde.
+- **Tareas 2.17:** COMPLETADA. **Playwright 23 passed / 0 failed / 0 skipped / 0 flaky** con Anvil
+  en marcha y `dist/` reconstruido por el `global-setup`; el flujo se demuestra contra la extensión
+  REAL (no sobre dobles).
+- **Hito H2:** ✅ **COMPLETADO (2026-09-11)** — los 11 RF Must y sus `CA-RF-xx` verificados con
+  evidencia, con las **5 correcciones aceptadas** de esta sesión (**DEC-52..DEC-56**, §3.2.10 del
+  plan). Sin tests en `skip`/`fixme`, sin `waitForTimeout` y sin ninguna aserción relajada.
+- **Nada se declara cumplido sin haberlo ejecutado:** todo número de esta acta tiene su log en
+  `RepoTecnico/evidencia/H2/`; la única nota de host es el uso de `rg` en lugar de `grep`.

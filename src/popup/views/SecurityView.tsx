@@ -34,7 +34,7 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 import { DialogoDecision } from '../components/DialogoDecision';
 import { StatusMessage } from '../components/StatusMessage';
 import { REVEAL_HIDE_MS } from '../../shared/constants';
-import { resetWallet, type AccountRow } from '../walletState';
+import { probeResetGuards, resetWallet, type AccountRow } from '../walletState';
 import { popupErrorOf, type PopupError } from '../popupErrors';
 import { callInternal } from '../walletRpc';
 
@@ -43,6 +43,10 @@ type SecretKind = 'mnemonic' | 'privateKey';
 
 /** Motivo por el que se ha ocultado el valor (para el aviso de la UI). */
 type HideReason = 'timer' | 'blur' | 'manual';
+
+/** Confirmación visible del reset (CU-30 paso 6). */
+export const RESET_SUCCESS_MESSAGE =
+  'Cartera reseteada: se han eliminado las cuentas, la frase y las sesiones. El registro de actividad se conserva.';
 
 /** Valor revelado, con su ancla temporal. */
 interface RevealedSecret {
@@ -65,6 +69,12 @@ export interface SecurityViewProps {
   mnemonicPresent: boolean;
   /** Recarga el estado tras el reset. */
   onChanged: () => Promise<void>;
+  /**
+   * Confirmación del reset con éxito. La entrega el contenedor (`App`) porque el reset deja la
+   * cartera vacía y esta vista se desmonta al volver al formulario inicial (CU-30 paso 6): el
+   * aviso tiene que sobrevivir en una superficie que siga montada.
+   */
+  onResetDone: (message: string) => void;
 }
 
 /** Contenido del portapapeles, o `null` si no se pudo leer. */
@@ -86,8 +96,30 @@ const clearClipboard = async (): Promise<boolean> => {
   }
 };
 
+/**
+ * Huella SHA-256 (hex) de un texto, o `null` si el digest no está disponible.
+ *
+ * Es el mecanismo que `diccionario_datos.md` §3.10 prescribe (`clipboardHash`): permite
+ * comprobar MÁS TARDE si el portapapeles sigue conteniendo el valor revelado **sin** conservar
+ * el valor en memoria (regla 4 de §3.8) y **sin** borrar a ciegas el portapapeles del usuario
+ * (regla 5 de §3.8 / P-20): solo se sobrescribe si el contenido COINCIDE con la huella.
+ */
+const hashText = async (text: string): Promise<string | null> => {
+  try {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return null;
+  }
+};
+
 /** Vista de seguridad del popup. */
-export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityViewProps): JSX.Element {
+export function SecurityView({
+  accounts,
+  mnemonicPresent,
+  onChanged,
+  onResetDone,
+}: SecurityViewProps): JSX.Element {
   const [revelandoTipo, setRevelandoTipo] = useState<SecretKind | null>(null);
   const [cuentaARevelar, setCuentaARevelar] = useState<AccountRow | null>(null);
   const [secret, setSecret] = useState<RevealedSecret | null>(null);
@@ -97,10 +129,17 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
   const [busy, setBusy] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
-  const [resetNotice, setResetNotice] = useState<string | null>(null);
 
   const secretRef = useRef<RevealedSecret | null>(null);
   secretRef.current = secret;
+
+  /**
+   * Huella del valor copiado que quedó PENDIENTE de borrar del portapapeles. Solo se rellena
+   * cuando el ocultado ocurre sin foco (Chrome rechaza leer y escribir el portapapeles con el
+   * documento sin foco: `NotAllowedError: Document is not focused`), y se resuelve en cuanto la
+   * ventana recupera el foco. Nunca contiene el valor revelado, solo su SHA-256.
+   */
+  const pendingClipboardRef = useRef<string | null>(null);
 
   const importedAccounts = accounts.filter((account) => account.kind === 'imported');
 
@@ -122,12 +161,22 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
 
     let clipboardCleared = false;
     let clipboardFailed = false;
-    if (wasCopied) {
+    let aplazado = false;
+    if (wasCopied && value.length > 0) {
       const clipboard = await readClipboard();
       if (clipboard === null) {
-        // Sin permiso de lectura (por ejemplo, documento ya sin foco): borrado incondicional,
-        // que `clipboardWrite` permite. Nunca se destruye contenido ajeno comprobable.
-        clipboardFailed = !(await clearClipboard());
+        // Sin foco, Chrome RECHAZA leer y escribir el portapapeles (`Document is not focused`),
+        // así que el borrado inmediato es imposible: se aplaza guardando solo la HUELLA del valor
+        // (§3.10 `clipboardHash`) y se ejecuta en cuanto la ventana recupere el foco.
+        const digest = await hashText(value);
+        if (digest === null) {
+          // Sin digest no se puede comparar después: se aplica el borrado incondicional de
+          // respaldo de §3.10 regla 4 y se informa si también falla.
+          clipboardFailed = !(await clearClipboard());
+        } else {
+          pendingClipboardRef.current = digest;
+          aplazado = true;
+        }
       } else if (clipboard === value) {
         clipboardCleared = await clearClipboard();
         clipboardFailed = !clipboardCleared;
@@ -144,7 +193,9 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
       wasCopied
         ? clipboardFailed
           ? `${reasonText} No se pudo limpiar el portapapeles: revísalo y bórralo a mano.`
-          : `${reasonText} Portapapeles vaciado.`
+          : aplazado
+            ? `${reasonText} El portapapeles se vaciará en cuanto la ventana recupere el foco.`
+            : `${reasonText} Portapapeles vaciado.`
         : reasonText,
     );
     if (clipboardFailed) {
@@ -152,6 +203,50 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
       setError(popupErrorOf('clipboardFailure', {}, { reason: 'clipboard-clear' }));
     }
   }, []);
+
+  /**
+   * Ejecuta el borrado aplazado del portapapeles: al recuperar el foco (o al volver a ser
+   * visible) compara el contenido con la huella guardada y **solo** lo sobrescribe si COINCIDE
+   * con el valor revelado (nunca se borra a ciegas lo que el usuario haya copiado entretanto).
+   * Si el portapapeles ya no contiene el valor, se descarta la huella sin tocarlo.
+   */
+  const limpiarPortapapelesPendiente = useCallback(async (): Promise<void> => {
+    const digest = pendingClipboardRef.current;
+    if (digest === null) {
+      return;
+    }
+    const actual = await readClipboard();
+    if (actual === null) {
+      return; // Sigue sin foco: se reintentará en el siguiente cambio de foco.
+    }
+    pendingClipboardRef.current = null;
+    if (actual.length === 0 || (await hashText(actual)) !== digest) {
+      return;
+    }
+    if (await clearClipboard()) {
+      setHideNotice('Portapapeles vaciado al recuperar el foco.');
+      return;
+    }
+    setError(popupErrorOf('clipboardFailure', {}, { reason: 'clipboard-clear-deferred' }));
+  }, []);
+
+  // Cambio de foco/visibilidad: resuelve el borrado aplazado del portapapeles (D-H2-J).
+  useEffect(() => {
+    const onFocus = (): void => {
+      void limpiarPortapapelesPendiente();
+    };
+    const onVisibility = (): void => {
+      if (!document.hidden) {
+        onFocus();
+      }
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [limpiarPortapapelesPendiente]);
 
   // Cuenta atrás del revelado: relee el tiempo transcurrido y oculta al llegar al plazo.
   useEffect(() => {
@@ -267,13 +362,24 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
   };
 
   /**
-   * Abre el diálogo de reset. Las guardas de DEC-46 (cola `pending` vacía y sin transacción en
-   * vuelo) las comprueba el Service Worker al ejecutar `wallet_resetWallet`: el popup no puede
-   * (ni debe) consultarlas por su cuenta (RNF-14).
+   * Abre el diálogo de reset SOLO si las guardas de estado lo permiten.
+   *
+   * CU-30 fija el orden: al pulsar «Reset wallet» el SW comprueba primero la cola
+   * `truekeate_pending_requests` y la transacción en vuelo (`truekeate_inflight_tx`); con alguna
+   * guarda activa el reset se bloquea con `-32000`, la UI lo explica con el número exacto de
+   * pendientes y **no se abre** el diálogo destructivo. El popup no puede leer el almacén
+   * (RNF-14), así que la consulta la responde el SW con `wallet_resetWallet { confirm: false }`
+   * (`probeResetGuards`); las guardas en verde se traducen en `4001` cancelado sin tocar nada.
    */
-  const requestReset = (): void => {
+  const requestReset = async (): Promise<void> => {
     setError(null);
-    setResetNotice(null);
+    setResetBusy(true);
+    const blocked = await probeResetGuards();
+    setResetBusy(false);
+    if (blocked !== null) {
+      setError(blocked);
+      return;
+    }
     setResetOpen(true);
   };
 
@@ -287,9 +393,9 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
       setError(result.error);
       return;
     }
-    setResetNotice(
-      'Cartera reseteada: se han eliminado las cuentas, la frase y las sesiones. El registro de actividad se conserva.',
-    );
+    // El aviso se entrega al contenedor ANTES de recargar: el reset deja la cartera vacía y esta
+    // vista se desmonta al volver al formulario inicial (CU-30 paso 6).
+    onResetDone(RESET_SUCCESS_MESSAGE);
     await onChanged();
   };
 
@@ -301,7 +407,6 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
     <div className="tk-view">
       <StatusMessage error={error} />
       <StatusMessage message={hideNotice} />
-      <StatusMessage message={resetNotice} tone="success" />
 
       <section className="tk-section" aria-labelledby="seguridad-revelar">
         <h3 className="tk-section__title" id="seguridad-revelar">
@@ -392,7 +497,14 @@ export function SecurityView({ accounts, mnemonicPresent, onChanged }: SecurityV
           Elimina la frase, las cuentas y las sesiones de dApps. El registro de actividad se
           conserva.
         </p>
-        <button type="button" className="tk-btn-danger" onClick={requestReset}>
+        <button
+          type="button"
+          className="tk-btn-danger"
+          onClick={() => {
+            void requestReset();
+          }}
+          disabled={resetBusy}
+        >
           Reset wallet
         </button>
       </section>

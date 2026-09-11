@@ -8,9 +8,12 @@
  *
  * Reglas que implementa:
  * 1. **Confirmación explícita obligatoria**: sin `confirmed: true` no se entrega nada (`4001`).
- * 2. **Solo contextos de confianza**: `sender.tab === undefined` y ruta en la allowlist
- *    (`index.html`); cualquier otro contexto responde `4200`. El valor **jamás** viaja por
- *    `window.postMessage` (RNF-09): el canal es el mensaje interno del protocolo.
+ * 2. **Solo contextos de confianza**: contexto de la extensión (`senderGuard`) **y** ruta en la
+ *    allowlist (`index.html`); cualquier otro contexto responde `4200`. La frontera es el
+ *    ORIGEN, no `sender.tab` (D-H2-G): el popup del `action` y la página `index.html` abierta en
+ *    una pestaña llegan CON `sender.tab` —igual que ya documentó D-H2-B para el router—, así que
+ *    exigir `sender.tab === undefined` dejaba el revelado inalcanzable. El valor **jamás** viaja
+ *    por `window.postMessage` (RNF-09): el canal es el mensaje interno del protocolo.
  * 3. **Guarda `-32000`**: con una entrada **vigente** en `truekeate_connected_sites` para la
  *    cuenta (o, al revelar el mnemonic, para cualquiera de las cuentas que este deriva) la
  *    operación se bloquea con el literal de la causa «Cuenta en uso por una dApp» de §4.3.
@@ -97,10 +100,21 @@ export interface RevealContextLike {
 /** Rutas internas autorizadas a recibir el valor: solo el popup (§3.8 regla 6). */
 export const REVEAL_ALLOWED_ROUTES: readonly string[] = [EXTENSION_ROUTE_POPUP];
 
-/** ¿Puede este contexto recibir un secreto? `sender.tab === undefined` y ruta en la allowlist. */
+/**
+ * ¿Puede este contexto recibir un secreto?
+ *
+ * Criterio (D-H2-G): **contexto de la extensión + ruta del popup**. NO se exige
+ * `sender.tab === undefined`: el popup del `action` y la página `index.html` abierta en una
+ * pestaña —que es la superficie que §5.2 define como «Popup (`index.html`)»— llegan con
+ * `sender.tab`, de modo que esa condición respondía `4200` SIEMPRE y el revelado de RF-50 no se
+ * podía completar nunca. Es la misma corrección que D-H2-B aplicó en `security/senderGuard.ts`.
+ *
+ * La frontera de seguridad se mantiene: una página web NUNCA es contexto de la extensión
+ * (`isExtensionContext` es `false` y responde `4200`), y una página de la extensión cuya ruta no
+ * sea el popup (`connect.html`, `notification.html`) tampoco está en `REVEAL_ALLOWED_ROUTES`.
+ */
 export const canRevealInContext = (context: RevealContextLike): boolean =>
   context.isExtensionContext &&
-  context.tabId === null &&
   context.route !== null &&
   REVEAL_ALLOWED_ROUTES.includes(context.route);
 

@@ -29,6 +29,7 @@ import {
   distDisponible,
   expect,
   extensionUrl,
+  loseFocusToOtherPage,
   openPopupReady,
   test,
 } from './fixtures/extension';
@@ -118,17 +119,20 @@ test.describe('25 · Recuperación: revelado temporal, portapapeles y bloqueo', 
     await page.getByRole('button', { name: 'Copiar' }).click();
     expect(await page.evaluate(async () => navigator.clipboard.readText())).toBe(ANVIL_MNEMONIC);
 
-    // Pérdida de foco real: una segunda pestaña pasa a primer plano.
-    const otra = await context.newPage();
-    await otra.goto(extensionUrl(extensionId, 'index.html'));
-    await otra.bringToFront();
+    // Pérdida de foco REAL: el popup deja de estar enfocado (disparador `window.blur` de §3.8
+    // regla 3). Ver `loseFocusToOtherPage`: en headless hay que desactivar la emulación de foco
+    // de Playwright, porque con ella ninguna pestaña pierde el foco observablemente.
+    const foco = await loseFocusToOtherPage(context, page, extensionUrl(extensionId, 'index.html'));
 
     await expect(page.locator('.tk-reveal__value')).toHaveCount(0);
     await expect(page.locator('.tk-status__message').first()).toContainText('perdido el foco');
+    // El portapapeles solo se puede LEER con el documento enfocado: se recupera el foco (lo que
+    // no vuelve a mostrar el valor) antes de comprobar que quedó vacío.
+    await foco.restore();
     await expect
       .poll(async () => page.evaluate(async () => navigator.clipboard.readText()))
       .toBe('');
-    await otra.close();
+    await foco.other.close();
   });
 
   test('con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar', async ({

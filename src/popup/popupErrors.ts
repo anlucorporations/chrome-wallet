@@ -182,18 +182,31 @@ export const popupErrorOf = (
 };
 
 /**
+ * Prefijo literal de un mensaje de la tabla: todo lo anterior al primer marcador `<x>`.
+ * Un mensaje ya rellenado por el SW empieza por ese prefijo (`-32000` admite varias causas y
+ * `resetBlocked` se entrega con el número de pendientes ya sustituido).
+ */
+const messagePrefix = (message: string): string => {
+  const marker = message.indexOf('<');
+  return marker === -1 ? message : message.slice(0, marker);
+};
+
+/**
  * Adapta un error EIP-1193 recibido del SW al modelo del popup.
  *
  * El mensaje de la tabla es la fuente única, así que se conserva tal cual. La acción sugerida se
- * busca **primero por mensaje** (un mismo `code` admite varias causas y, desde la v1.9, hay
- * causas nuevas que comparten `-32602` y `-32603`) y solo después por `code`; si el `code` no
- * está entre los del catálogo del popup, se degrada a «Error interno de la cartera» conservando
- * el código original en el detalle (nunca se pinta un mensaje sin `code`).
+ * busca **primero por la plantilla del mensaje** (un mismo `code` admite varias causas y, desde
+ * la v1.9, hay causas nuevas que comparten `-32602` y `-32603`) y solo después por `code`; si el
+ * `code` no está entre los del catálogo del popup, se degrada a «Error interno de la cartera»
+ * conservando el código original en el detalle (nunca se pinta un mensaje sin `code`).
  */
 export const popupError = (error: Eip1193Error): PopupError => {
   const rows = Object.values(POPUP_ERRORS);
-  const known =
-    rows.find((row) => row.message === error.message) ?? rows.find((row) => row.code === error.code);
+  const byTemplate = rows.find((row) => {
+    const prefix = messagePrefix(row.message);
+    return prefix.length > 0 && error.message.startsWith(prefix);
+  });
+  const known = byTemplate ?? rows.find((row) => row.code === error.code);
   return {
     code: error.code,
     message: error.message.length > 0 ? error.message : (known?.message ?? 'Error interno de la cartera.'),

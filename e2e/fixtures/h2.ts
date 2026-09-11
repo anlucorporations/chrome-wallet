@@ -60,8 +60,8 @@ export interface SeedOptions {
   accounts?: readonly string[];
   /** Cuentas importadas, con su clave y etiqueta. */
   imported?: readonly { address: string; privateKey: string; label: string; visible?: boolean }[];
-  /** Cuenta activa (`idx:0` por defecto). */
-  currentAccount?: string;
+  /** Cuenta activa (`idx:0` por defecto; `null` deja la cartera SIN cuenta activa). */
+  currentAccount?: string | null;
   /** Sesiones de dApp en `truekeate_connected_sites`. */
   connectedSites?: Record<string, unknown>;
   /** Entradas de `truekeate_pending_requests`. */
@@ -80,21 +80,42 @@ export interface SeedOptions {
  */
 export async function seedWallet(background: Worker, options: SeedOptions = {}): Promise<void> {
   const accounts = options.accounts ?? ANVIL_ADDRESSES.slice(0, 5);
+  const importedAccounts = (options.imported ?? []).map((entry) => ({
+    address: entry.address,
+    privateKey: entry.privateKey,
+    label: entry.label,
+    importedAt: 1,
+    visible: entry.visible !== false,
+  }));
+  /**
+   * Cuenta activa COHERENTE con lo sembrado. Escribir `idx:0` con `accounts: []` deja el estado
+   * incoherente y M13 lo clasifica como cartera dañada (`current-account-missing`, RNF-22): el
+   * popup pintaría «Wallet dañada» en lugar del estado vacío. Sin cuentas ni frase no hay cuenta
+   * activa que persistir (RF-09/RF-10).
+   */
+  const currentAccount =
+    options.currentAccount !== undefined
+      ? options.currentAccount
+      : accounts.length > 0
+        ? 'idx:0'
+        : importedAccounts.length > 0
+          ? `imp:${importedAccounts[0]?.address ?? ''}`
+          : null;
   const items: Record<string, unknown> = {
-    truekeate_accounts: [...accounts],
-    truekeate_imported_accounts: (options.imported ?? []).map((entry) => ({
-      address: entry.address,
-      privateKey: entry.privateKey,
-      label: entry.label,
-      importedAt: 1,
-      visible: entry.visible !== false,
-    })),
-    truekeate_current_account: options.currentAccount ?? 'idx:0',
+    truekeate_imported_accounts: importedAccounts,
     truekeate_settings: {
       ...acceptedSettings(),
       devNoticeAcceptedAt: options.devNoticeAccepted === false ? undefined : 1,
     },
   };
+  // La clave de las derivadas solo existe si hay derivadas: es lo que escribe el producto, y de
+  // otro modo una cartera sin cuentas aparentaría tener una lista vacía ya persistida.
+  if (accounts.length > 0) {
+    items.truekeate_accounts = [...accounts];
+  }
+  if (currentAccount !== null) {
+    items.truekeate_current_account = currentAccount;
+  }
   if (options.mnemonic !== null) {
     items.truekeate_mnemonic = options.mnemonic ?? ANVIL_MNEMONIC;
   }

@@ -79,6 +79,15 @@ test.describe('06 · Reset de la cartera', () => {
 
     await dialogo.getByRole('button', { name: 'Resetear cartera' }).click();
     await expect(page.locator('.tk-status--success')).toContainText('Cartera reseteada');
+    // El reset elimina `truekeate_settings` (§3.9), así que la aceptación del aviso NO descartable
+    // de RNF-23 se pierde con él: el popup vuelve al arranque inicial y la capa modal vuelve a
+    // bloquear la UI hasta aceptarla (la misma regla que comprueba `01-onboarding.spec.ts`).
+    const continuar = page.getByRole('button', { name: 'He entendido, continuar' });
+    const aviso = page.locator('.tk-dialog--notice');
+    await expect(aviso).toBeVisible();
+    await continuar.click();
+    await expect(aviso).toHaveCount(0);
+
     // El popup vuelve al inicio (estado vacío).
     await expect(page.locator('.tk-empty__title')).toHaveText('Sin cartera');
     await expect(page.locator('.tk-account')).toHaveCount(0);

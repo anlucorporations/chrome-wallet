@@ -24,10 +24,10 @@ dist/assets/base-B5SYnwbT.css       14.81 kB │ gzip:  3.47 kB
 dist/chunks/constants-DHnnyiYd.js    0.53 kB │ gzip:  0.39 kB │ map:    11.92 kB
 dist/connect.js                      1.15 kB │ gzip:  0.65 kB │ map:     3.30 kB
 dist/notification.js                 1.33 kB │ gzip:  0.74 kB │ map:     3.71 kB
-dist/index.js                       35.74 kB │ gzip: 11.78 kB │ map:   160.33 kB
-dist/background.js                 194.70 kB │ gzip: 72.97 kB │ map:   999.07 kB
+dist/index.js                       36.97 kB │ gzip: 12.15 kB │ map:   169.46 kB
+dist/background.js                 194.71 kB │ gzip: 72.96 kB │ map: 1,000.78 kB
 dist/chunks/base-GbSk7swv.js       222.48 kB │ gzip: 69.31 kB │ map: 1,052.64 kB
-✓ built in 3.45s
+✓ built in 3.02s
 [manifest] dist/manifest.json generado (version 1.0.0).
 
 ## Artefacto

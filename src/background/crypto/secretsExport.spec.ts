@@ -12,7 +12,11 @@
 import { describe, expect, it } from 'vitest';
 import { chromeStub } from '../../../test/setup/chrome-stub';
 import { CLIPBOARD_CLEAR_ON_HIDE, REVEAL_HIDE_MS } from '../../shared/constants';
-import { EXTENSION_ROUTE_CONNECT, EXTENSION_ROUTE_POPUP } from '../../shared/protocol';
+import {
+  EXTENSION_ROUTE_CONNECT,
+  EXTENSION_ROUTE_NOTIFICATION,
+  EXTENSION_ROUTE_POPUP,
+} from '../../shared/protocol';
 import { STORAGE_KEYS } from '../state/schema';
 import { accountRefForIndex } from '../accounts';
 import {
@@ -40,7 +44,7 @@ const DAPP_ORIGIN = 'http://localhost:5174';
 /** Instante determinista del revelado. */
 const NOW = 1_700_000_000_000;
 
-/** Contexto de confianza del popup (`sender.tab === undefined`). */
+/** Contexto de confianza del popup (`index.html`; el `tabId` no discrimina, D-H2-G). */
 const POPUP_CONTEXT: RevealContextLike = {
   isExtensionContext: true,
   route: EXTENSION_ROUTE_POPUP,
@@ -96,11 +100,15 @@ describe('M12 · confirmación explícita y contexto de confianza', () => {
     }
   });
 
-  it('solo el popup (`index.html`, sin pestaña) está en la allowlist', () => {
+  it('solo el popup (`index.html`) está en la allowlist, con pestaña o sin ella (D-H2-G)', () => {
     expect(REVEAL_ALLOWED_ROUTES).toEqual([EXTENSION_ROUTE_POPUP]);
     expect(canRevealInContext(POPUP_CONTEXT)).toBe(true);
     expect(canRevealInContext({ isExtensionContext: true, route: EXTENSION_ROUTE_CONNECT, tabId: null })).toBe(false);
-    expect(canRevealInContext({ isExtensionContext: true, route: EXTENSION_ROUTE_POPUP, tabId: 7 })).toBe(false);
+    // D-H2-G: el popup del `action` y `index.html` abierto en una pestaña llegan CON `sender.tab`
+    // (igual que documentó D-H2-B en `security/senderGuard.ts`). El `tabId` NO discrimina el
+    // contexto: la frontera es el ORIGEN de la extensión y la ruta del popup.
+    expect(canRevealInContext({ isExtensionContext: true, route: EXTENSION_ROUTE_POPUP, tabId: 7 })).toBe(true);
+    expect(canRevealInContext({ isExtensionContext: true, route: EXTENSION_ROUTE_NOTIFICATION, tabId: 7 })).toBe(false);
     expect(canRevealInContext({ isExtensionContext: false, route: EXTENSION_ROUTE_POPUP, tabId: null })).toBe(false);
     expect(canRevealInContext({ isExtensionContext: true, route: null, tabId: null })).toBe(false);
   });
