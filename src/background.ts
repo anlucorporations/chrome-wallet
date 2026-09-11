@@ -2,26 +2,45 @@
  * M2 — `src/background.ts`
  * Punto de entrada del Service Worker (ESM, `background.js` en `dist/`).
  *
- * Alcance de H1 (andamiaje): Service Worker MÍNIMO OPERATIVO. Al instalar y en cada
- * arranque:
- *   1. aplica `chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })`;
- *   2. escribe UNA entrada de log `sw_started` en `truekeate_logs`, respetando `logLimit`;
- *   3. ejecuta una reconciliación VACÍA (no hay cola persistida todavía) en < 1 s;
- *   4. registra el listener de `chrome.runtime.onConnect` del puerto `truekeate_approval`.
+ * ORDEN DE ARRANQUE (H2, invariante de `documento_tecnico.md` §2.3 y `plan_desarrollo.md`
+ * §3.2.5 tareas 2.10, 2.11, 2.12, 2.13 y 2.15). En cada arranque, y en menos de 1 s:
  *
- * Queda FUERA de H1: derivación HD, firmas, difusión, ventanas de aprobación y métodos RPC
- * funcionales. Por eso el arranque no llama al router para ninguna ruta de negocio.
+ *   1. `chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })` (M21): lo
+ *      PRIMERO, para que ningún content script pueda leer `truekeate_mnemonic` ni las claves.
+ *   2. **Migraciones** de esquema (M34) v1.2 → v1.4, antes de leer ningún estado.
+ *   3. **Integridad** (M13): checksum BIP-39 y EIP-55; puede dejar la cartera «dañada» sin
+ *      derivar nada de forma silenciosa.
+ *   4. **Auto-carga** del estado: cuenta activa, red, importadas, etiquetas y sesiones se
+ *      reconstruyen desde `chrome.storage.local` (claves canónicas de M33) sin pedir la frase.
+ *   5. **Reconciliación de plazos**: VACÍA en H2 (la cola persistida y `chrome.alarms` llegan
+ *      con M16 en H4). Nunca usa `setTimeout`/`setInterval` (prohibidos en el SW).
+ *   6. **UNA sola entrada de log `sw_started`** por arranque, con `bytesInUse` y `bootMs`.
+ *
+ * CANALES QUE REGISTRA (de forma SÍNCRONA, antes del primer `await`):
+ *   - `chrome.runtime.onConnect`: puerto de larga vida `truekeate_approval` (H1, intacto).
+ *   - `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3). Los métodos internos
+ *     `wallet_*` se despachan en H2; los públicos EIP-1193 responden `4200` hasta H3/H4/H5.
+ *
+ * Queda FUERA de H2: derivación desde la UI de firma, firmas, difusión, ventanas de aprobación,
+ * polling de saldos y log de actividad (solo se escriben `sw_started`, y `sw_reconcile` a
+ * partir de H4).
  */
 
 import { APPROVAL_PORT_NAME, logLimit } from './shared/constants';
-import { STORAGE_KEYS, SCHEMA_VERSION } from './background/state/schema';
+import { STORAGE_KEYS, SCHEMA_VERSION, readStorage } from './background/state/schema';
 import { applyStorageAccessLevel } from './background/security/accessLevel';
-import {
-  unsupportedMethodError,
-  userRejectedError,
-} from './background/rpc/errors';
-import type { LogEntry, LogLevel, LogEventName, LogCategory } from './shared/types';
+import { unsupportedMethodError, userRejectedError, internalError } from './background/rpc/errors';
+import { handleRpcMessage, type RpcResponse } from './background/rpc/router';
+import { runMigrations } from './background/state/migrations';
+import { checkWalletIntegrity } from './background/crypto/integrity';
 import { isTruekeateMessageType } from './shared/protocol';
+import type {
+  LogEntry,
+  LogLevel,
+  LogEventName,
+  LogCategory,
+} from './shared/types';
+import type { SenderLike } from './background/security/senderGuard';
 
 // ---------------------------------------------------------------------------
 // Tipos mínimos de las APIs de extensión que usa el arranque
@@ -36,11 +55,29 @@ interface RuntimePortLike {
   onDisconnect: { addListener(listener: (port: RuntimePortLike) => void): void };
 }
 
+/** Emisor que entrega `chrome.runtime` en `onMessage` (datos NO fiables salvo `id`). */
+interface SenderLikeRaw {
+  id?: unknown;
+  origin?: unknown;
+  url?: unknown;
+  tab?: unknown;
+  frameId?: unknown;
+}
+
 /** Superficie de eventos de `chrome.runtime` que usa el arranque. */
 interface RuntimeEventsLike {
   onInstalled: { addListener(listener: (details: unknown) => void): void };
   onStartup: { addListener(listener: () => void): void };
   onConnect: { addListener(listener: (port: RuntimePortLike) => void): void };
+  onMessage: {
+    addListener(
+      listener: (
+        message: unknown,
+        sender: SenderLikeRaw,
+        sendResponse: (response?: unknown) => void,
+      ) => unknown,
+    ): void;
+  };
 }
 
 /** Superficie de `chrome.storage.local` que usa el arranque. */
@@ -99,6 +136,28 @@ const storageLocal = (): StorageLocalLike | undefined => {
   return local as StorageLocalLike;
 };
 
+/** ¿Es un objeto plano utilizable como mensaje? */
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+
+/**
+ * Convierte el emisor de `chrome.runtime` en la forma que consume la guarda (M20).
+ * Solo se copian los campos; el `origin` seguirá siendo dato NO fiable y M20 lo recalcula.
+ */
+const toSenderLike = (raw: unknown): SenderLike => {
+  const sender = asRecord(raw) ?? {};
+  const tab = asRecord(sender.tab);
+  return {
+    id: typeof sender.id === 'string' ? sender.id : undefined,
+    origin: typeof sender.origin === 'string' ? sender.origin : undefined,
+    url: typeof sender.url === 'string' ? sender.url : undefined,
+    tab: tab === null || typeof tab.id !== 'number' ? undefined : { id: tab.id },
+    frameId: typeof sender.frameId === 'number' ? sender.frameId : undefined,
+  };
+};
+
 // ---------------------------------------------------------------------------
 // Log del arranque: UNA entrada `sw_started`, con retención FIFO
 // ---------------------------------------------------------------------------
@@ -122,22 +181,73 @@ const buildLogEntry = (
   data,
 });
 
+/** Informe de migración de esquema (M34), normalizado sin depender de su tipo exacto. */
+export interface MigrationSnapshot {
+  ok: boolean;
+  from: string;
+  to: string;
+  migrated: boolean;
+}
+
+/** Informe de integridad (M13), resumido para el arranque y la traza. */
+export interface IntegritySnapshot {
+  /** `true` cuando la cartera NO está dañada (`status !== 'damaged'`). */
+  ok: boolean;
+  /** `'absent'` (sin cartera), `'ok'` o `'damaged'` (M13). */
+  status: string;
+  /** Motivos, en texto; nunca material de la cartera. */
+  problems: string[];
+}
+
+/** Estado auto-cargado al arrancar (restauración sin pedir la frase, CA-RF-09/CA-RF-10). */
+export interface AutoLoadedState {
+  hasMnemonic: boolean;
+  accountCount: number;
+  currentAccount: string | null;
+  chainId: string;
+  networkCount: number;
+  importedCount: number;
+  visibleImportedCount: number;
+  labelCount: number;
+  sessionCount: number;
+}
+
+/** Instantánea del arranque, en memoria (estado VOLÁTIL admisible: es reconstruible). */
+export interface BootSnapshot {
+  startedAt: number;
+  bootMs: number;
+  schemaVersion: string;
+  migration: MigrationSnapshot;
+  integrity: IntegritySnapshot;
+  autoLoaded: AutoLoadedState;
+  reconciliation: { pendingProcessed: number; elapsedMs: number };
+}
+
+/** Estado de arranque reconstruido en cada despertar del SW. */
+let bootSnapshot: BootSnapshot | null = null;
+
+/** Instantánea del último arranque (`null` antes de completarlo). */
+export const getBootSnapshot = (): BootSnapshot | null => bootSnapshot;
+
+/** ¿Dejó la comprobación de integridad la cartera en estado «dañada»? */
+export const isWalletDamaged = (): boolean =>
+  bootSnapshot !== null && !bootSnapshot.integrity.ok;
+
 /**
  * Escribe la entrada `sw_started` en `truekeate_logs`.
  *
  * - Categoría `system`, nivel `info` (catálogo cerrado de 24 eventos, diccionario §2.11).
  * - Retención FIFO por `ts`: se descartan las entradas más antiguas al superar `logLimit`.
- * - `data` lleva la medición de `getBytesInUse()` y el tiempo de arranque (diagnóstico
- *   declarado en `diccionario_datos.md` §2.15); NO se persiste ningún contador propio.
- * - Si el almacén rechaza la escritura (cuota), el arranque NO se rompe: se avisa por
- *   consola. El tratamiento observable completo de la cuota es de H5 (ADT-14 / D-M).
+ * - `data` lleva la medición de `getBytesInUse()`, el tiempo de arranque y el resumen de las
+ *   fases de H2 (diagnóstico de §2.15); NO se persiste ningún contador propio.
+ * - Si el almacén rechaza la escritura (cuota), el arranque NO se rompe: se avisa por consola.
+ *   El tratamiento observable completo de la cuota es de H5 (ADT-14 / D-M).
  */
-const writeStartupLog = async (): Promise<void> => {
+const writeStartupLog = async (snapshot: BootSnapshot): Promise<void> => {
   const local = storageLocal();
   if (local === undefined) {
     return;
   }
-  const elapsedMs = Date.now() - bootStartedAt;
   let bytesInUse: number | null = null;
   try {
     bytesInUse = await local.getBytesInUse(null);
@@ -145,19 +255,16 @@ const writeStartupLog = async (): Promise<void> => {
     bytesInUse = null;
   }
 
-  const entry = buildLogEntry(
-    'sw_started',
-    'system',
-    'info',
-    'Service Worker arrancado',
-    {
-      bytesInUse,
-      bootMs: elapsedMs,
-      // Sin cola persistida en H1: la reconciliación procesa 0 entradas.
-      pendingProcessed: 0,
-      schemaVersion: SCHEMA_VERSION,
-    },
-  );
+  const entry = buildLogEntry('sw_started', 'system', 'info', 'Service Worker arrancado', {
+    bytesInUse,
+    bootMs: snapshot.bootMs,
+    schemaVersion: snapshot.schemaVersion,
+    migrations: snapshot.migration,
+    integrity: { ok: snapshot.integrity.ok, status: snapshot.integrity.status },
+    autoLoaded: snapshot.autoLoaded,
+    // Sin cola persistida en H2: la reconciliación procesa 0 entradas.
+    pendingProcessed: snapshot.reconciliation.pendingProcessed,
+  });
 
   try {
     const stored = await local.get(STORAGE_KEYS.logs);
@@ -173,29 +280,168 @@ const writeStartupLog = async (): Promise<void> => {
 };
 
 // ---------------------------------------------------------------------------
-// Reconciliación vacía del arranque (H1) — la completa es de H2/H4 (M16)
+// Fases del arranque
 // ---------------------------------------------------------------------------
 
+/** Normaliza el informe de M34 sin depender de su tipo exacto. */
+const asMigrationSnapshot = (value: unknown): MigrationSnapshot => {
+  const record = asRecord(value);
+  return {
+    ok: record?.ok !== false,
+    from: typeof record?.from === 'string' ? record.from : SCHEMA_VERSION,
+    to: typeof record?.to === 'string' ? record.to : SCHEMA_VERSION,
+    migrated: record?.migrated === true,
+  };
+};
+
 /**
- * Reconciliación al arrancar. En H1 es VACÍA por diseño: no existe todavía cola
- * persistida, marca de «tx en vuelo» ni ventana de aprobación que reconstruir.
+ * Normaliza el `WalletIntegrityReport` de M13 al resumen del arranque.
+ *
+ * `status` es la fuente de verdad: `'damaged'` deja la cartera dañada («Wallet dañada»),
+ * `'absent'` (sin cartera todavía) y `'ok'` son estados SANOS. Los `issues` se reducen a sus
+ * mensajes, que son los que se trazan; nunca se vuelca material de la cartera.
+ */
+const asIntegritySnapshot = (value: unknown): IntegritySnapshot => {
+  const record = asRecord(value);
+  const status = typeof record?.status === 'string' ? record.status : 'ok';
+  const issues: unknown = record?.issues;
+  const problems = Array.isArray(issues)
+    ? issues
+        .map((issue) => {
+          const entry = asRecord(issue);
+          const message = entry?.message;
+          const code = entry?.code;
+          if (typeof message !== 'string') {
+            return null;
+          }
+          return typeof code === 'string' ? `${code}: ${message}` : message;
+        })
+        .filter((problem): problem is string => problem !== null)
+    : [];
+  return { ok: status !== 'damaged', status, problems };
+};
+
+/**
+ * Fase 2 — migraciones de esquema (M34). Un fallo NO interrumpe el arranque: se registra como
+ * migración no aplicada y el estado se lee tal cual está.
+ */
+const runMigrationsPhase = async (): Promise<MigrationSnapshot> => {
+  try {
+    return asMigrationSnapshot(await runMigrations());
+  } catch (error) {
+    console.warn('[truekeate] la migración de esquema falló; se continúa con el estado actual', error);
+    return { ok: false, from: SCHEMA_VERSION, to: SCHEMA_VERSION, migrated: false };
+  }
+};
+
+/**
+ * Fase 3 — integridad al arrancar (M13). Un checksum BIP-39 roto o una dirección con EIP-55
+ * inválido dejan la cartera «dañada»: el SW sigue operativo, NO deriva nada en silencio y la
+ * instantánea del arranque conserva el estado «dañada» para la UI (RNF-22).
+ */
+const runIntegrityPhase = async (): Promise<IntegritySnapshot> => {
+  try {
+    const report = asIntegritySnapshot(await checkWalletIntegrity());
+    if (!report.ok) {
+      // Aviso (no error) y sin volcar material sensible: solo los motivos.
+      console.warn('[truekeate] cartera dañada:', report.problems.join(' | '));
+    }
+    return report;
+  } catch (error) {
+    console.warn('[truekeate] la comprobación de integridad falló', error);
+    return { ok: false, status: 'damaged', problems: ['integrity-check-failed'] };
+  }
+};
+
+/** Lectura defensiva de una clave canónica. */
+const readValue = (stored: Record<string, unknown>, key: string): unknown => stored[key];
+
+/** Cuenta las entradas de un mapa persistido sin `any`. */
+const countEntries = (value: unknown): number => {
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+  const record = asRecord(value);
+  return record === null ? 0 : Object.keys(record).length;
+};
+
+/**
+ * Fase 4 — auto-carga del estado (M33/M28/M29). Una sola lectura de las claves canónicas
+ * reconstruye cuenta activa, red, importadas, etiquetas y sesiones: es el equivalente
+ * RESTAURADO de la creación y no pide la frase (`CA-RF-09`/`CA-RF-10`).
+ *
+ * La lectura la hace `readStorage` de M33 (una sola implementación de `chrome.storage.local`),
+ * que nunca lanza: ante un fallo de la API se arranca con el estado inicial.
+ */
+const autoLoadStatePhase = async (): Promise<AutoLoadedState> => {
+  const empty: AutoLoadedState = {
+    hasMnemonic: false,
+    accountCount: 0,
+    currentAccount: null,
+    chainId: '',
+    networkCount: 0,
+    importedCount: 0,
+    visibleImportedCount: 0,
+    labelCount: 0,
+    sessionCount: 0,
+  };
+  const stored = await readStorage([
+    STORAGE_KEYS.mnemonic,
+    STORAGE_KEYS.accounts,
+    STORAGE_KEYS.importedAccounts,
+    STORAGE_KEYS.currentAccount,
+    STORAGE_KEYS.chainId,
+    STORAGE_KEYS.networks,
+    STORAGE_KEYS.connectedSites,
+    STORAGE_KEYS.settings,
+  ]);
+  if (Object.keys(stored).length === 0) {
+    return empty;
+  }
+
+  const accounts = readValue(stored, STORAGE_KEYS.accounts);
+  const imported = readValue(stored, STORAGE_KEYS.importedAccounts);
+  const currentAccount = readValue(stored, STORAGE_KEYS.currentAccount);
+  const chainId = readValue(stored, STORAGE_KEYS.chainId);
+  const settings = asRecord(readValue(stored, STORAGE_KEYS.settings));
+  const labels = asRecord(settings?.accountLabels);
+  const importedList = Array.isArray(imported) ? imported : [];
+  const visibleImported = importedList.filter(
+    (entry) => asRecord(entry)?.visible !== false,
+  ).length;
+
+  return {
+    hasMnemonic: typeof readValue(stored, STORAGE_KEYS.mnemonic) === 'string',
+    accountCount: countEntries(accounts),
+    currentAccount: typeof currentAccount === 'string' ? currentAccount : null,
+    chainId: typeof chainId === 'string' ? chainId : '',
+    networkCount: countEntries(readValue(stored, STORAGE_KEYS.networks)),
+    importedCount: importedList.length,
+    visibleImportedCount: visibleImported,
+    labelCount: labels === null ? 0 : Object.keys(labels).length,
+    sessionCount: countEntries(readValue(stored, STORAGE_KEYS.connectedSites)),
+  };
+};
+
+/**
+ * Fase 5 — reconciliación de plazos. En H2 es VACÍA por diseño: no existe todavía cola
+ * persistida (`truekeate_pending_requests`), marca de «tx en vuelo» ni `alarms` de vencimiento
+ * que rearmar; M16 la completa en H4.
  *
  * Lo que SÍ garantiza ya:
- * - Se ejecuta en cada arranque (`onInstalled` + `onStartup`) y es idempotente.
- * - No usa `setTimeout` ni `setInterval` (prohibidos en el SW: no sobreviven a la
- *   suspensión; H-02/H-07/H-21).
- * - Deja el coste medido en `bootMs` de la entrada `sw_started` para verificar la cota
- *   de < 1 s con 50 pendientes que exige RNF-08 en H2.
+ * - Se ejecuta en cada arranque y es idempotente.
+ * - No usa `setTimeout` ni `setInterval` (prohibidos en el SW: no sobreviven a la suspensión).
+ * - Devuelve su coste medido, que se persiste en `bootMs` de la entrada `sw_started`.
  */
-const runEmptyReconciliation = async (): Promise<void> => {
+const runEmptyReconciliation = async (): Promise<{ pendingProcessed: number; elapsedMs: number }> => {
   const startedAt = Date.now();
-  // H1: no hay estado que purgar, huérfanas que resolver ni `alarms` que rearmar.
-  const processed = 0;
-  const elapsed = Date.now() - startedAt;
-  if (elapsed > 1_000) {
-    console.warn('[truekeate] la reconciliación vacía superó 1 s:', elapsed);
+  // H2: no hay estado que purgar, huérfanas que resolver ni `alarms` que rearmar.
+  const pendingProcessed = 0;
+  const elapsedMs = Date.now() - startedAt;
+  if (elapsedMs > 1_000) {
+    console.warn('[truekeate] la reconciliación vacía superó 1 s:', elapsedMs);
   }
-  void processed;
+  return { pendingProcessed, elapsedMs };
 };
 
 // ---------------------------------------------------------------------------
@@ -208,7 +454,7 @@ const replyUnsupported = (port: RuntimePortLike, type: string): void => {
     port.postMessage({
       type: 'TRUEKEATE_RESPONSE',
       id: type,
-      // El catálogo de H1 está vacío: toda petición por el puerto responde `4200`.
+      // Los tipos que no son `TRUEKEATE_RPC` sobre este puerto llegan en H4/H5.
       error: unsupportedMethodError(),
     });
   } catch {
@@ -221,8 +467,8 @@ const replyUnsupported = (port: RuntimePortLike, type: string): void => {
  *
  * El puerto es un CANAL de transporte y correlación, NO un *keep-alive*: el navegador
  * suspende el SW a los ~30 s de inactividad y el puerto se cierra con él (ADT-15/R16).
- * En H1 el SW solo acusa recibo: la cola persistida y el mensaje `RESUME` operativo
- * llegan en H4 (M17).
+ * En H2 el SW solo acusa recibo: la cola persistida y el mensaje `RESUME` operativo llegan
+ * en H4 (M17).
  */
 const registerApprovalPortListener = (): void => {
   const runtime = runtimeApi();
@@ -234,42 +480,106 @@ const registerApprovalPortListener = (): void => {
       return;
     }
     port.onMessage.addListener((message) => {
-      const type =
-        typeof message === 'object' && message !== null
-          ? (message as { type?: unknown }).type
-          : undefined;
+      const record = asRecord(message);
+      const type = record?.type;
       if (isTruekeateMessageType(type) && type === 'RESUME') {
-        // Sin cola persistida en H1: la solicitud no puede estar `pending`.
+        // Sin cola persistida en H2: la solicitud no puede estar `pending`.
         try {
           port.postMessage({
             type: 'TRUEKEATE_RESPONSE',
             id: 'RESUME',
-            error: userRejectedError({ via: 'approval-port', reason: 'no-pending-queue-h1' }),
+            error: userRejectedError({ via: 'approval-port', reason: 'no-pending-queue-h2' }),
           });
         } catch {
           // Puerto cerrado: nada que responder.
         }
         return;
       }
-      // Cualquier otra petición por el puerto: el catálogo de H1 está vacío → 4200.
+      // Cualquier otra petición por el puerto: catálogo público sin implementar → 4200.
       replyUnsupported(port, typeof type === 'string' ? type : 'TRUEKEATE_RPC');
     });
     port.onDisconnect.addListener(() => {
-      // Nada que limpiar: el estado volátil admisible de H1 es vacío.
+      // Nada que limpiar: el estado volátil admisible de H2 es la instantánea del arranque.
     });
   });
 };
 
-/** Secuencia de arranque: acceso al almacén, reconciliación y log. */
-const bootstrap = async (): Promise<void> => {
-  await applyStorageAccessLevel();
-  await runEmptyReconciliation();
-  await writeStartupLog();
+/**
+ * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3).
+ *
+ * Se responde de forma ASÍNCRONA (`return true`) porque el despacho de los métodos internos
+ * toca el almacén. Un mensaje que no pertenece al protocolo (ningún tipo `TRUEKEATE_*`) no se
+ * responde y no se marca como asíncrono: así no se deja colgada a ninguna otra superficie.
+ * Ninguna excepción escapa del listener: se traduce a un error EIP-1193 tipado.
+ */
+const registerRpcMessageListener = (): void => {
+  const runtime = runtimeApi();
+  if (runtime === undefined || typeof runtime.onMessage?.addListener !== 'function') {
+    return;
+  }
+  runtime.onMessage.addListener((message, sender, sendResponse) => {
+    const record = asRecord(message);
+    if (record === null || !isTruekeateMessageType(record.type)) {
+      // No es un mensaje del protocolo: no se responde ni se retiene el canal.
+      return undefined;
+    }
+    void handleRpcMessage(message, toSenderLike(sender))
+      .then((response: RpcResponse | undefined) => {
+        sendResponse(response);
+      })
+      .catch((error: unknown) => {
+        // Última red de seguridad: jamás un error sin `code` hacia el popup.
+        sendResponse({
+          error: internalError({
+            reason: 'rpc-listener',
+            detail: error instanceof Error ? error.message : 'unhandled',
+          }),
+        });
+      });
+    // `true` = la respuesta llegará de forma asíncrona (semántica de `chrome.runtime`).
+    return true;
+  });
 };
 
-// El listener del puerto se registra de forma SÍNCRONA: si el SW se despierta por una
-// conexión, el listener debe existir ya al final del primer ciclo de evaluación.
+/**
+ * Secuencia de arranque completa: acceso al almacén → migración → integridad → carga → log.
+ *
+ * Es **idempotente** y se expone para las pruebas del arranque: cada invocación es un arranque
+ * y escribe SU entrada `sw_started` (una por arranque). El ciclo normal lo dispara
+ * `onInstalled`, `onStartup` y la evaluación inicial del propio Service Worker.
+ */
+export const bootstrap = async (): Promise<void> => {
+  // 1. Aislamiento del almacén (M21), lo ANTES posible.
+  await applyStorageAccessLevel();
+  // 2. Migraciones de esquema (M34), antes de leer estado.
+  const migration = await runMigrationsPhase();
+  // 3. Integridad (M13): puede dejar la cartera «dañada».
+  const integrity = await runIntegrityPhase();
+  // 4. Auto-carga del estado (M33/M28/M29).
+  const autoLoaded = await autoLoadStatePhase();
+  // 5. Reconciliación de plazos (vacía en H2).
+  const reconciliation = await runEmptyReconciliation();
+
+  const bootMs = Date.now() - bootStartedAt;
+  const snapshot: BootSnapshot = {
+    startedAt: bootStartedAt,
+    bootMs,
+    schemaVersion: SCHEMA_VERSION,
+    migration,
+    integrity,
+    autoLoaded,
+    reconciliation,
+  };
+  bootSnapshot = snapshot;
+
+  // 6. UNA sola entrada `sw_started` por arranque.
+  await writeStartupLog(snapshot);
+};
+
+// Los listeners se registran de forma SÍNCRONA: si el SW se despierta por una conexión o por un
+// mensaje, ambos deben existir ya al final del primer ciclo de evaluación.
 registerApprovalPortListener();
+registerRpcMessageListener();
 
 const runtime = runtimeApi();
 if (runtime !== undefined) {

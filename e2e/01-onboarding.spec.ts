@@ -11,7 +11,7 @@
  *      evento posterior (RNF-08): es la capacidad que exige §7.4.1.c.
  */
 
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -24,6 +24,7 @@ import {
   extensionUrl,
   getBackgroundWorker,
   openPopup,
+  openPopupReady,
   readChromeStorage,
   stopServiceWorker,
   test,
@@ -90,12 +91,23 @@ test.describe('01 · Onboarding: carga de dist/ y popup en estado vacío', () =>
     expect(caja?.height).toBe(600);
 
     // --- Estado vacío en español -----------------------------------------------------------
+    // H2 (tarea 2.15) exige el aviso NO descartable del primer arranque: en un perfil nuevo la
+    // capa modal BLOQUEA la UI hasta que se acepta (RNF-23), así que el estado vacío se comprueba
+    // después de aceptarla.
     expect(await page.locator('html').getAttribute('lang')).toBe('es');
     await expect(page.locator('.tk-header__title')).toHaveText('TrueKeate Wallet');
-    await expect(page.locator('.tk-empty__title')).toHaveText('TrueKeate Wallet');
+    const aviso = page.locator('.tk-dialog--notice');
+    await expect(aviso).toBeVisible();
+    await expect(aviso).toHaveAttribute('aria-modal', 'true');
+    await expect(aviso.getByRole('heading')).toHaveText('Entorno de desarrollo — no usar con fondos reales');
+    await expect(page.locator('.tk-empty')).toHaveCount(0);
+    await page.getByRole('button', { name: 'He entendido, continuar' }).click();
+    await expect(aviso).toHaveCount(0);
+
+    await expect(page.locator('.tk-empty__title')).toHaveText('Sin cartera');
     await expect(page.locator('.tk-empty__text')).toContainText('Todavía no hay ninguna cartera');
     await expect(page.locator('.tk-empty__text')).toContainText('frase de recuperación de 12 palabras');
-    await expect(page.getByRole('button', { name: 'Crear cartera' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Crear cartera nueva' })).toBeVisible();
     await expect(page.locator('.tk-tagline')).toHaveText('PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS');
 
     // --- Evidencia visual (§7.4.1.f) --------------------------------------------------------
@@ -166,5 +178,96 @@ test.describe('01 · Onboarding: carga de dist/ y popup en estado vacío', () =>
     const revivido = await getBackgroundWorker(context);
     const almacen = await readChromeStorage(revivido, null);
     expect(typeof almacen).toBe('object');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// H2 (tarea 2.17) — crear, importar y SIN prompt de contraseña (CA-RF-01/02/03)
+// ---------------------------------------------------------------------------
+
+/** Frase de Anvil: semilla de desarrollo cuya cuenta 0 es conocida y contrastable. */
+const ANVIL_MNEMONIC = 'test test test test test test test test test test test junk';
+
+/** Direcciones EIP-55 reales de las cuentas 0 y 1 de Anvil. */
+const ANVIL_ADDRESS0 = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+const ANVIL_ADDRESS1 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+
+test.describe('01 · Onboarding H2: crear, importar y sin contraseña', () => {
+  test.skip(!distDisponible(), MOTIVO_SIN_DIST);
+
+  test('crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03)', async ({
+    context,
+    extensionId,
+    background,
+  }) => {
+    const page = await openPopupReady(context, extensionId);
+
+    await page.getByRole('button', { name: 'Crear cartera nueva' }).click();
+    await expect(page.locator('.tk-account')).toHaveCount(5);
+
+    // CA-RF-03 / RE-02: sin contraseña en ningún momento del flujo.
+    await expect(page.locator('input[type="password"]')).toHaveCount(0);
+    await expect(page.getByText(/contraseña/i).first()).toBeVisible();
+    const camposDeTexto = await page.locator('input, textarea').count();
+    expect(camposDeTexto, 'la cartera operativa no abre ningún formulario ni pide credenciales').toBe(0);
+
+    // El estado persistido es coherente: 12 palabras, 5 direcciones y sin cifrado (P-03).
+    const almacen = await readChromeStorage(background, [
+      'truekeate_mnemonic',
+      'truekeate_accounts',
+      'truekeate_current_account',
+      'truekeate_settings',
+    ]);
+    const palabras = String(almacen.truekeate_mnemonic ?? '').split(' ');
+    expect(palabras).toHaveLength(12);
+    const cuentas = almacen.truekeate_accounts as string[];
+    expect(cuentas).toHaveLength(5);
+    expect(new Set(cuentas).size).toBe(5);
+    expect(almacen.truekeate_current_account).toBe('idx:0');
+    const settings = almacen.truekeate_settings as Record<string, unknown>;
+    expect(settings.encryptionEnabled).toBe(false);
+    expect(settings.requirePasswordOnOpen).toBe(false);
+
+    // Evidencia JSON del flujo (§3.2.7).
+    mkdirSync(EVIDENCE_DIR, { recursive: true });
+    writeFileSync(
+      join(EVIDENCE_DIR, `01-onboarding-${RUN_DATE}.json`),
+      `${JSON.stringify(
+        {
+          flujo: 'crear cartera',
+          fecha: RUN_DATE,
+          extensionIdDerivado: expectedExtensionId(),
+          cuentasDerivadas: cuentas.length,
+          cuentaActiva: almacen.truekeate_current_account,
+          palabrasDeLaFrase: palabras.length,
+          encryptionEnabled: settings.encryptionEnabled,
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+  });
+
+  test('importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02)', async ({
+    context,
+    extensionId,
+  }) => {
+    const page = await openPopupReady(context, extensionId);
+
+    await page.getByRole('button', { name: 'Importar frase' }).click();
+    // Entrada deliberadamente irregular: mayúsculas, tabulaciones y espacios de sobra.
+    const irregular = `  ${ANVIL_MNEMONIC.toUpperCase().split(' ').join('   ')}  `;
+    await page.locator('#import-mnemonic').fill(irregular);
+    await expect(page.locator('#import-mnemonic-error')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Importar frase' }).click();
+
+    // Las 5 cuentas de Anvil, con la 0 y la 1 conocidas (contraste con `cast`).
+    await expect(page.locator('.tk-account')).toHaveCount(5);
+    await expect(page.locator('.tk-account__address')).toHaveCount(5);
+    await expect(page.locator('.tk-account__address').nth(0)).toHaveAttribute('title', ANVIL_ADDRESS0);
+    await expect(page.locator('.tk-account__address').nth(1)).toHaveAttribute('title', ANVIL_ADDRESS1);
+    // La cuenta 0 queda activa y la etiqueta por defecto es la española de `settings.ts`.
+    await expect(page.locator('.tk-account--active .tk-account__label')).toHaveText('Cuenta 1');
   });
 });

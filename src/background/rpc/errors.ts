@@ -3,8 +3,16 @@
  * Catálogo de códigos EIP-1193 y construcción de los objetos de error.
  *
  * FUENTE ÚNICA de los literales en español: `diccionario_datos.md` §4.3 (tabla cerrada
- * «Código | Causa | Mensaje | Acción sugerida», 25 filas). Este módulo NO inventa ningún
+ * «Código | Causa | Mensaje | Acción sugerida»). Este módulo NO inventa ningún
  * mensaje: transcribe esa tabla y la expone como 8 códigos con una función por causa.
+ *
+ * §4.3 tiene, desde la v1.9, **dos bloques** dentro de la misma sección:
+ * - la tabla cerrada del núcleo (**25 filas**), que se transcribe fila a fila en
+ *   {@link ERROR_CATALOG} —es la que verifica `errors.spec.ts`—;
+ * - el bloque «Causas añadidas en la v1.9 (H2)» (**7 filas**), que se transcribe en
+ *   {@link EXTENDED_ERROR_CATALOG}. Estas causas reutilizan códigos ya existentes (§4.3: «un
+ *   mismo `code` admite varios mensajes, uno por causa»), así que el catálogo sigue teniendo
+ *   **8 códigos**.
  *
  * Regla dura (ACU-05 / D-E, RNF-06): todo error que ve el usuario lleva `code` numérico.
  * Queda prohibido `new Error('Request timeout')` y cualquier error sin `code`.
@@ -189,15 +197,86 @@ export const ERROR_CATALOG = [
   },
 ] as const satisfies readonly ErrorDefinition[];
 
+/**
+ * Causas AÑADIDAS en la v1.9 de `diccionario_datos.md` §4.3 (bloque «Causas añadidas en la
+ * v1.9 (H2)»), en el MISMO orden que ese bloque. Las reportó el implementador de H2 como
+ * huecos del catálogo: sin ellas, la UI y el SW tenían que inventar un literal o degradar
+ * cualquier fallo a «Error interno de la cartera».
+ *
+ * Reutilizan códigos ya registrados, así que **no** añaden ningún código nuevo:
+ * - `-32602` (material de entrada inválido): `unknownAccount`, `invalidAmount`, `invalidLabel`;
+ * - `-32000` (conflicto de estado): `walletNotCreated`;
+ * - `-32603` (fallo interno o de plataforma): `damagedWallet`, `clipboardFailure`,
+ *   `migrationWriteFailed`.
+ */
+export const EXTENDED_ERROR_CATALOG = [
+  {
+    code: -32603,
+    cause: 'damagedWallet',
+    message:
+      'La cartera guardada está dañada y no se puede usar: no se derivan cuentas nuevas desde ella.',
+    action: 'Restaurar la cartera desde la frase de recuperación o resetearla',
+  },
+  {
+    code: -32000,
+    cause: 'walletNotCreated',
+    message: 'Todavía no hay ninguna cartera: no se puede derivar ninguna cuenta.',
+    action: 'Crear una cartera nueva o importar una frase de recuperación',
+  },
+  {
+    code: -32602,
+    cause: 'unknownAccount',
+    message: 'La cuenta indicada no existe en la cartera.',
+    action: 'Elegir una cuenta de la lista',
+  },
+  {
+    code: -32602,
+    cause: 'invalidAmount',
+    message: 'El importe no es válido: usa un número decimal positivo con hasta 18 decimales.',
+    action: 'Revisar el importe',
+  },
+  {
+    code: -32602,
+    cause: 'invalidLabel',
+    message: 'La etiqueta no es válida: debe tener entre 1 y 32 caracteres.',
+    action: 'Acortar o corregir la etiqueta',
+  },
+  {
+    code: -32603,
+    cause: 'clipboardFailure',
+    message:
+      'No se pudo usar el portapapeles: el valor no se ha copiado o no se ha podido borrar.',
+    action:
+      'Comprobar el permiso del portapapeles y reintentar; borrar el valor a mano si estaba copiado',
+  },
+  {
+    code: -32603,
+    cause: 'migrationWriteFailed',
+    message:
+      'No se pudo guardar la migración del esquema: los datos se han quedado sin actualizar.',
+    action: 'Exportar los logs en JSON y reintentar; si persiste, resetear la cartera',
+  },
+] as const satisfies readonly ErrorDefinition[];
+
+/**
+ * TODAS las causas registradas: primero el núcleo (que conserva el orden de la tabla de §4.3)
+ * y después las añadidas en la v1.9. Las resoluciones por `cause` y por `code` usan esta lista,
+ * de modo que el primer registro de cada código sigue siendo el del núcleo.
+ */
+export const ALL_ERROR_DEFINITIONS: readonly ErrorDefinition[] = [
+  ...ERROR_CATALOG,
+  ...EXTENDED_ERROR_CATALOG,
+];
+
 /** Códigos EIP-1193 del catálogo, sin repetición: son los 8 que usa la cartera. */
 export type Eip1193ErrorCode = (typeof ERROR_CATALOG)[number]['code'];
 
 /** Causas registradas: un `code` admite varios mensajes, uno por causa. */
-export type Eip1193ErrorCause = (typeof ERROR_CATALOG)[number]['cause'];
+export type Eip1193ErrorCause = (typeof ALL_ERROR_DEFINITIONS)[number]['cause'];
 
 /** Fila concreta del catálogo, estrechada por su `cause`. */
 export type ErrorDefinitionFor<C extends Eip1193ErrorCause> = Extract<
-  (typeof ERROR_CATALOG)[number],
+  (typeof ALL_ERROR_DEFINITIONS)[number],
   { cause: C }
 >;
 
@@ -207,7 +286,7 @@ export const ERROR_CODES: readonly number[] = [...new Set(ERROR_CATALOG.map((row
 /** Índice `code → definición`, útil para pruebas y para el router. */
 export const ERROR_BY_CODE: Readonly<Record<number, readonly ErrorDefinition[]>> =
   Object.freeze(
-    ERROR_CATALOG.reduce<Record<number, ErrorDefinition[]>>((acc, row) => {
+    ALL_ERROR_DEFINITIONS.reduce<Record<number, ErrorDefinition[]>>((acc, row) => {
       const bucket = acc[row.code] ?? [];
       bucket.push(row);
       acc[row.code] = bucket;
@@ -265,7 +344,7 @@ export const createEip1193Error = <C extends Eip1193ErrorCause>(
 ): Eip1193Error => {
   // Comparación por cadena para no estrechar el genérico (un `type predicate` con `C` no
   // es asignable al parámetro de `Array.prototype.find`).
-  const definition: ErrorDefinition | undefined = ERROR_CATALOG.find(
+  const definition: ErrorDefinition | undefined = ALL_ERROR_DEFINITIONS.find(
     (row) => row.cause === (cause as Eip1193ErrorCause),
   );
   if (definition === undefined) {
@@ -413,3 +492,35 @@ export const storageQuotaExceededError = (): Eip1193Error =>
 /** `-32603` — difusión interrumpida por suspensión del SW (ADT-23 / D-R). */
 export const broadcastInterruptedError = (data?: unknown): Eip1193Error =>
   createEip1193Error('broadcastInterrupted', {}, data);
+
+// ---------------------------------------------------------------------------
+// Helpers de las causas añadidas en la v1.9 de §4.3 (bloque «Causas añadidas en H2»)
+// ---------------------------------------------------------------------------
+
+/** `-32603` — la cartera persistida está dañada (RNF-22); no se deriva nada en silencio. */
+export const damagedWalletError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('damagedWallet', {}, data);
+
+/** `-32000` — no hay cartera (ni frase ni cuentas): no se puede derivar (RF-04). */
+export const walletNotCreatedError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('walletNotCreated', {}, data);
+
+/** `-32602` — la referencia de cuenta no existe en la cartera (RF-06). */
+export const unknownAccountError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('unknownAccount', {}, data);
+
+/** `-32602` — importe malformado o no positivo (RF-33, M60). */
+export const invalidAmountError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('invalidAmount', {}, data);
+
+/** `-32602` — etiqueta fuera de 1..32 caracteres (DEC-35 / ACU-06). */
+export const invalidLabelError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('invalidLabel', {}, data);
+
+/** `-32603` — el portapapeles no se pudo leer, escribir o limpiar (P-20 / §3.8 regla 5). */
+export const clipboardFailureError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('clipboardFailure', {}, data);
+
+/** `-32603` — la migración de esquema no se pudo escribir (M34 / §4.3). */
+export const migrationWriteFailedError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('migrationWriteFailed', {}, data);

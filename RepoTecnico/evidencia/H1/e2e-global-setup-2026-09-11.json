@@ -21,8 +21,10 @@
   "buildAlternativo": null,
   "anvil": {
     "rpcUrl": "http://127.0.0.1:8545",
-    "disponible": true,
-    "chainId": "31337"
+    "disponible": false,
+    "chainId": "Error: error sending request for url (ht"
   },
-  "advertencias": []
+  "advertencias": [
+    "Anvil no disponible en http://127.0.0.1:8545: los flujos con red se saltarán o fallarán en hitos posteriores"
+  ]
 }

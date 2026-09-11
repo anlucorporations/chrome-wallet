@@ -480,3 +480,481 @@ body.tk-dapp {
     scroll-behavior: auto !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Popup de H2: pestañas, formularios, cuentas, recepción y revelado
+
+   Solo se usan tokens de `tokens.css` (M64). La capa de tarjeta seleccionada y el módulo claro
+   del QR son los dos únicos literales nuevos y viven en `tokens.css`.
+   -------------------------------------------------------------------------- */
+
+.tk-header__badge {
+  margin-left: auto;
+  margin-right: 104px;
+}
+
+/* Pestañas: pestaña activa con el acento y subrayado de 2 px (identidad_visual.md §5.2). */
+.tk-tabs {
+  padding: 0 12px;
+  background: var(--tk-surface-raised);
+  border-bottom: 1px solid var(--tk-border);
+}
+
+.tk-tabs__list {
+  display: flex;
+  gap: 4px;
+}
+
+.tk-tab {
+  flex: 1 1 0;
+  min-height: var(--tk-touch-target);
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--tk-text-secondary);
+  font-family: var(--tk-font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tk-tab--active {
+  color: var(--tk-text-primary);
+  border-bottom-color: var(--tk-accent);
+}
+
+/* Vistas y secciones */
+.tk-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tk-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tk-section__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tk-section__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tk-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tk-note,
+.tk-check-note {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-note {
+  margin-top: -4px;
+}
+
+.tk-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+/* Campos con validación inline */
+.tk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-field__label {
+  font-family: var(--tk-font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tk-text-primary);
+}
+
+.tk-field__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tk-input {
+  flex: 1 1 auto;
+  min-height: var(--tk-touch-target);
+  padding: 10px 12px;
+  background: var(--tk-surface-raised);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-text-primary);
+  font-size: 13px;
+}
+
+.tk-input[aria-invalid='true'] {
+  border-color: var(--tk-danger-dark);
+  border-width: 2px;
+}
+
+textarea.tk-input {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.tk-field__hint {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-field__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--tk-danger-dark);
+}
+
+/* Mensajes de estado: siempre con el código y la acción de la tabla de §4.3 */
+.tk-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--tk-radius-sm);
+  border-left: 3px solid var(--tk-warning);
+  background: var(--tk-surface-card);
+  font-size: 13px;
+}
+
+.tk-status--error {
+  border-left-color: var(--tk-danger-dark);
+}
+
+.tk-status--success {
+  border-left-color: var(--tk-success);
+}
+
+.tk-status__code {
+  padding: 1px 6px;
+  border-radius: var(--tk-radius-pill);
+  background: var(--tk-surface-app);
+  border: 1px solid var(--tk-border);
+  font-family: var(--tk-font-mono);
+  font-size: 11px;
+  color: var(--tk-text-primary);
+}
+
+.tk-status__action {
+  flex: 1 1 100%;
+  color: var(--tk-text-secondary);
+}
+
+/* Tarjeta de cuenta */
+.tk-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-account {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-account--active {
+  border: 2px solid var(--tk-accent);
+  background: var(--tk-surface-selected);
+}
+
+.tk-account__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tk-account__select {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: var(--tk-touch-target);
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+}
+
+.tk-account__label {
+  font-family: var(--tk-font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tk-text-primary);
+}
+
+.tk-account__kind {
+  font-size: 11px;
+  color: var(--tk-text-secondary);
+  text-transform: lowercase;
+}
+
+.tk-account__balance {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-account__address {
+  align-self: flex-start;
+  min-height: var(--tk-touch-target);
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  color: var(--tk-navy-800);
+  font-size: 13px;
+}
+
+.tk-account__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tk-btn-small {
+  min-height: var(--tk-touch-target);
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+/* Recepción */
+.tk-address-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tk-address-full {
+  word-break: break-all;
+  color: var(--tk-navy-800);
+  font-size: 13px;
+}
+
+.tk-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.tk-qr__grid {
+  display: grid;
+  gap: 0;
+  padding: 8px;
+  background: var(--tk-qr-light);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+}
+
+.tk-qr__module {
+  background: var(--tk-qr-light);
+}
+
+.tk-qr__module--dark {
+  background: var(--tk-qr-dark);
+}
+
+.tk-qr__caption {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+/* Revelado del material de recuperación */
+.tk-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-reveal__warning {
+  padding: 8px 10px;
+  border-left: 3px solid var(--tk-danger-dark);
+  background: var(--tk-surface-raised);
+  border-radius: var(--tk-radius-sm);
+  font-size: 12px;
+  color: var(--tk-text-primary);
+}
+
+.tk-reveal__value {
+  padding: 10px;
+  background: var(--tk-surface-raised);
+  border: 1px dashed var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-navy-800);
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.tk-reveal__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tk-progress {
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: var(--tk-radius-pill);
+  background: var(--tk-progress-track);
+  overflow: hidden;
+}
+
+.tk-progress__fill {
+  height: 100%;
+  transform-origin: left center;
+  background: var(--tk-grad-gold);
+}
+
+.tk-reveal__countdown {
+  min-width: 4ch;
+  text-align: right;
+  font-size: 12px;
+  color: var(--tk-navy-800);
+}
+
+/* Diálogos y capa modal */
+.tk-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--tk-overlay-scrim);
+}
+
+.tk-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--tk-surface-raised);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+  box-shadow: var(--tk-shadow-pop);
+}
+
+.tk-dialog__title {
+  font-size: 16px;
+}
+
+.tk-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  font-size: 12px;
+}
+
+.tk-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tk-touch-target);
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-check input {
+  width: 18px;
+  height: 18px;
+}
+
+/* Indicador de carga con el degradado de marca */
+.tk-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--tk-progress-track);
+  border-top-color: var(--tk-accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tk-spinner {
+    animation: tk-spin 900ms linear infinite;
+  }
+}
+
+@keyframes tk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modo oscuro: el texto de las tarjetas y del revelado pasa a los tokens de superficie. */
+@media (prefers-color-scheme: dark) {
+  .tk-account__address,
+  .tk-address-full,
+  .tk-reveal__value,
+  .tk-reveal__countdown {
+    color: var(--tk-text-primary);
+  }
+}

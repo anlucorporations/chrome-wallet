@@ -5,9 +5,12 @@
  * Controles que implementa (`documento_tecnico.md` §3.7 y `diccionario_datos.md` §4.2):
  * 1. `sender.id === chrome.runtime.id`; si no, `4100`.
  * 2. Allowlist de rutas: `SIGN_RESPONSE` solo desde `notification.html`,
- *    `CONNECT_RESPONSE` solo desde `connect.html`; otra ruta → `4200`.
- * 3. Allowlist de métodos internos: los `wallet_*` solo desde páginas de la extensión
- *    (`sender.tab === undefined`); desde un content script → `4200`.
+ *    `CONNECT_RESPONSE` solo desde `connect.html`; otra ruta → `4200`. Una página de la extensión
+ *    abierta por el usuario fuera de `EXTENSION_ROUTE_ALLOWLIST` tampoco es contexto confiable.
+ * 3. Allowlist de métodos internos: los `wallet_*` solo desde contextos de la extensión
+ *    (`chrome-extension://<id>` o el Service Worker); desde un content script → `4200`.
+ *    D-H2-B: el criterio es el ORIGEN, no `sender.tab === undefined` —el popup del `action` y una
+ *    página de la extensión abierta en una pestaña llegan con `tab` y quedaban fuera.
  * 4. El `origin` se recalcula SOLO desde `sender.origin`. Con `sender.frameId !== 0`
  *    queda PROHIBIDO respaldarse en `sender.tab.url` (D-J / ADT-07): en un iframe
  *    cross-origin ese `url` es el del top y el iframe heredaría la sesión del anfitrión.
@@ -125,17 +128,40 @@ export const routeFromUrl = (url: string | undefined): string | null => {
   }
 };
 
+/** Esquema de las URLs y los orígenes de la propia extensión. */
+export const EXTENSION_URL_SCHEME = 'chrome-extension://';
+
+/** Origen canónico de la extensión (`chrome-extension://<id>`), o `null` si no hay `id`. */
+export const extensionOriginFor = (runtimeId: string): string | null =>
+  runtimeId.length > 0 ? `${EXTENSION_URL_SCHEME}${runtimeId}` : null;
+
+/** ¿El valor es una URL del esquema de extensiones? (`sender.url` del popup, del SW…) */
+export const isExtensionUrl = (value: string | undefined): boolean =>
+  typeof value === 'string' && value.trim().toLowerCase().startsWith(EXTENSION_URL_SCHEME);
+
+/** ¿El origen normalizado es un origen de extensión? (`chrome-extension://<id>`) */
+export const isExtensionOrigin = (value: string | null): boolean =>
+  value !== null && value.startsWith(EXTENSION_URL_SCHEME);
+
 /**
  * Deriva el origen confiable. Regla dura: SOLO desde `sender.origin`; para los contextos
  * de la propia extensión (que no tienen origen de página) se usa `extension`.
  * Nunca se usa `sender.tab.url` (D-J / ADT-07).
+ *
+ * D-H2-B: el popup llega con `origin = chrome-extension://<id>` (y **sin** `url` en Chrome), así
+ * que un origen del esquema de extensiones se normaliza a la clave canónica `extension` —igual
+ * que un contexto sin origen— para que el `id` de la extensión no acabe haciendo de «origen de
+ * página» en trazas ni sesiones. Un origen `http(s)` sigue devolviéndose tal cual.
  */
 export const resolveOrigin = (sender: SenderLike): string => {
   const fromSender = normalizeOrigin(sender.origin);
   if (fromSender !== null) {
-    return fromSender;
+    return isExtensionOrigin(fromSender) ? EXTENSION_ORIGIN : fromSender;
   }
-  // Contextos de la extensión: popup, connect.html y notification.html no tienen origen web.
+  // Contextos de la extensión: popup, connect.html, notification.html y Service Worker.
+  if (isExtensionUrl(sender.url)) {
+    return EXTENSION_ORIGIN;
+  }
   if (sender.tab === undefined) {
     return EXTENSION_ORIGIN;
   }
@@ -143,13 +169,48 @@ export const resolveOrigin = (sender: SenderLike): string => {
   return '';
 };
 
-/** ¿Es un contexto de la propia extensión? `sender.tab === undefined` y ruta en allowlist. */
+/**
+ * ¿Es un contexto de la propia extensión?
+ *
+ * Criterio (D-H2-B): el emisor pertenece a ESTA extensión (`sender.id === chrome.runtime.id`) y
+ * el origen del que llega es del esquema `chrome-extension://` —el popup, `connect.html`,
+ * `notification.html` y el propio Service Worker—. A diferencia de la versión anterior, **no se
+ * exige `sender.tab === undefined`**: el popup del `action` y una página de la extensión abierta
+ * en una pestaña se reportan con `tab`, y esa condición dejaba fuera a los dos, de modo que todo
+ * `wallet_*` respondía `4200`.
+ *
+ * La guarda NO se relaja para páginas web: un content script llega con `origin = http(s)://…`
+ * (o con `url` de página) y sigue sin ser contexto de extensión, así que los `wallet_*` le
+ * responden `4200`; y si el `id` no es el de la extensión, `guardSender` responde `4100` antes de
+ * llegar aquí. Cuando la URL permite derivar una ruta interna, esta debe estar en la allowlist
+ * (control 2 de la cabecera): una página de la extensión fuera de ella no es contexto confiable.
+ */
 export const isExtensionSender = (sender: SenderLike): boolean => {
-  if (sender.tab !== undefined) {
+  const runtimeId = getRuntimeId();
+  if (runtimeId.length > 0 && sender.id !== runtimeId) {
     return false;
   }
-  const route = routeFromUrl(sender.url);
-  return route !== null && EXTENSION_ROUTE_ALLOWLIST.includes(route);
+  const declaredOrigin = normalizeOrigin(sender.origin);
+  const urlIsExtension = isExtensionUrl(sender.url);
+  const hasUrl = typeof sender.url === 'string' && sender.url.length > 0;
+
+  // Un origen o una URL de página web NUNCA son contexto de la extensión.
+  if (declaredOrigin !== null && !isExtensionOrigin(declaredOrigin)) {
+    return false;
+  }
+  if (hasUrl && !urlIsExtension) {
+    return false;
+  }
+  // Origen de la extensión: el popup y las ventanas internas (con o sin `tab`).
+  if (isExtensionOrigin(declaredOrigin) || urlIsExtension) {
+    const route = routeFromUrl(sender.url);
+    // Sin `url` (popup del `action`) la ruta no es derivable desde el emisor: la fija el
+    // catálogo de métodos y, para el revelado, `REVEAL_ALLOWED_ROUTES` en `crypto/secrets.ts`.
+    return route === null || EXTENSION_ROUTE_ALLOWLIST.includes(route);
+  }
+  // Sin `origin` y sin `url`: es el Service Worker (o un contexto interno equivalente) y solo se
+  // acepta si no se ha identificado ninguna pestaña. Con `tab` presente se trata como página.
+  return sender.tab === undefined;
 };
 
 /**

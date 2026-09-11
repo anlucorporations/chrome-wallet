@@ -188,3 +188,46 @@ export const PROVIDER_EVENTS = [
 /** Reintentos de reconexión del puerto: backoff 1/2/4/8/16 s con tope de 30 s (H-02). */
 export const PORT_RECONNECT_BASE_MS = 1_000 as const;
 export const PORT_RECONNECT_MAX_MS = 30_000 as const;
+
+// ---------------------------------------------------------------------------
+// Ampliación de H2 (M33/M57/M58..M62): cuentas, etiquetas, revelado y formato
+// ---------------------------------------------------------------------------
+
+/**
+ * Política de portapapeles del revelado (P-20 / ADT-09, `documento_tecnico.md` §3.8,
+ * `diccionario_datos.md` §3.10): al ocultarse el valor revelado, si el portapapeles **aún lo
+ * contiene**, se sobrescribe con cadena vacía. La comparación se hace por `sha256` del valor
+ * revelado, así que nunca se destruye contenido ajeno.
+ */
+export const CLIPBOARD_CLEAR_ON_HIDE = true as const;
+
+/** Longitud máxima de una etiqueta de cuenta (derivada o importada): 32 caracteres. */
+export const MAX_LABEL_LENGTH = 32 as const;
+
+/** Decimales con los que la UI muestra los importes en ETH (RF-34, M62). */
+export const ETH_DISPLAY_DECIMALS = 4 as const;
+
+/**
+ * Decimales máximos aceptados en un importe ETH tecleado por el usuario (M60). El corpus fija
+ * el formato de ETH a 4 decimales (RF-34/M60); la cota es configurable por parámetro para no
+ * cerrar la puerta a entradas de más precisión en hitos posteriores.
+ */
+export const ETH_AMOUNT_MAX_DECIMALS = 4 as const;
+
+/** Decimales de la moneda nativa (18): base del paso de ETH a wei en M60. */
+export const ETH_DECIMALS = 18 as const;
+
+/** Recorte de direcciones y hashes: `0x1234…abcd` (M62, `identidad_visual.md` §5). */
+export const ADDRESS_SHORT_PREFIX = 6 as const;
+export const ADDRESS_SHORT_SUFFIX = 4 as const;
+
+/** Carácter de elipsis del recorte (U+2026), no tres puntos. */
+export const SHORT_ELLIPSIS = '…' as const;
+
+/**
+ * Orden del grupo de la curva secp256k1 (`n`). Solo se usa para comprobar el **rango** de una
+ * clave privada (`0 < d < n`) en la validación estructural de M61: es aritmética, no
+ * criptografía, y por eso puede vivir en la capa compartida que consume el popup.
+ */
+export const SECP256K1_N_HEX =
+  '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141' as const;

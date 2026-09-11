@@ -1,19 +1,31 @@
 /**
  * M39 — `src/popup/App.tsx`
- * Popup 380×600 en ESTADO VACÍO (H1: todavía no existe cartera).
+ * Contenedor del popup 380×600: encabezado de marca, pestañas, estado global de la UI y los
+ * estados de carga, vacío («sin cartera»), error y «wallet dañada» (RNF-22).
  *
- * Contenido de bienvenida en español:
- * - isologo `brand/truekeate-mark-96.png`;
- * - título «TrueKeate Wallet»;
- * - texto de bienvenida;
- * - tagline de marca `PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS`;
- * - llamada a la acción «Crear cartera», todavía SIN lógica (H2 la implementa).
+ * Pestañas (alcance de H2): **Cuentas** (M40), **Recibir** (M41) y **Seguridad** (M46). Las
+ * pestañas de red, sitios conectados y actividad llegan en H3/H5: no se declaran para no ofrecer
+ * algo que no existe.
  *
- * RNF-14: este fichero NO importa `ethers` (ni ningún módulo del Service Worker). El
- * bundle de `ethers` vive solo en el SW; el popup es solo React + estilos.
+ * Responsabilidades de este contenedor:
+ * - **Auto-carga y restauración** (RF-09/RF-10, tarea 2.13): al abrir el popup se pide el estado
+ *   al Service Worker con `wallet_getState` y se restaura la cuenta activa; nunca se pide la
+ *   frase y **nunca** se lee el almacén desde aquí (RNF-14).
+ * - **Sin contraseña** (P-03 / RE-02): no hay ningún prompt de contraseña y
+ *   `settings.encryptionEnabled` es siempre `false`.
+ * - **Aviso no descartable del primer arranque** (RNF-23, tarea 2.15): mientras no esté aceptado
+ *   se muestra una capa modal que bloquea el resto de la UI; la aceptación se registra con
+ *   `wallet_acceptDevNotice` en `truekeate_settings.devNoticeAcceptedAt`.
+ * - **RNF-14**: este fichero no importa `ethers` ni ningún módulo del Service Worker.
  */
 
-import { useState, type JSX } from 'react';
+import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
+import { AccountsView } from './views/AccountsView';
+import { ReceiveView } from './views/ReceiveView';
+import { SecurityView } from './views/SecurityView';
+import { StatusMessage } from './components/StatusMessage';
+import { acceptDevNotice, readSnapshot, type AccountRow, type WalletSnapshot } from './walletState';
+import { popupErrorOf, type PopupError } from './popupErrors';
 import '../styles/tokens.css';
 import '../styles/base.css';
 
@@ -23,49 +35,239 @@ export const TAGLINE = 'PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS';
 /** Ruta pública del isologo de 96 px. */
 const MARK_SRC = 'brand/truekeate-mark-96.png';
 
-/**
- * Pantalla de bienvenida del popup. El botón «Crear cartera» aún no tiene lógica: al
- * pulsarlo se muestra un aviso de que la creación de cartera llega en el hito H2.
- */
+/** Pestañas del popup en H2. */
+type TabId = 'accounts' | 'receive' | 'security';
+
+/** Definición de una pestaña. */
+interface TabDefinition {
+  id: TabId;
+  label: string;
+}
+
+/** Las tres pestañas, en orden de tabulación. */
+const TABS: readonly TabDefinition[] = [
+  { id: 'accounts', label: 'Cuentas' },
+  { id: 'receive', label: 'Recibir' },
+  { id: 'security', label: 'Seguridad' },
+];
+
+/** Estado de arranque del popup. */
+type BootPhase = 'loading' | 'notice' | 'error' | 'ready';
+
+/** Popup de TrueKeate Wallet. */
 export function App(): JSX.Element {
-  const [noticeVisible, setNoticeVisible] = useState(false);
+  const [phase, setPhase] = useState<BootPhase>('loading');
+  const [snapshot, setSnapshot] = useState<WalletSnapshot | null>(null);
+  const [tab, setTab] = useState<TabId>('accounts');
+  const [error, setError] = useState<PopupError | null>(null);
+  const [noticeBusy, setNoticeBusy] = useState(false);
+
+  /** Lee el estado y decide la pantalla: aviso, dañada, vacía o lista. */
+  const refresh = useCallback(async (): Promise<void> => {
+    const next = await readSnapshot();
+    if (!next.ok) {
+      setError(next.error);
+      setPhase('error');
+      return;
+    }
+    setSnapshot(next.snapshot);
+    setPhase(next.snapshot.settings?.devNoticeAcceptedAt !== undefined ? 'ready' : 'notice');
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const next = await readSnapshot();
+        if (!active) {
+          return;
+        }
+        if (!next.ok) {
+          setError(next.error);
+          setPhase('error');
+          return;
+        }
+        setSnapshot(next.snapshot);
+        setPhase(next.snapshot.settings?.devNoticeAcceptedAt !== undefined ? 'ready' : 'notice');
+      } catch (cause) {
+        if (!active) {
+          return;
+        }
+        setError(popupErrorOf('internalError', {}, cause instanceof Error ? cause.message : cause));
+        setPhase('error');
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleNoticeAccept = async (): Promise<void> => {
+    setNoticeBusy(true);
+    const accepted = await acceptDevNotice();
+    setNoticeBusy(false);
+    if (!accepted.ok) {
+      setError(accepted.error);
+      setPhase('error');
+      return;
+    }
+    await refresh();
+  };
+
+  const accounts: readonly AccountRow[] = useMemo(() => snapshot?.accounts ?? [], [snapshot]);
+
+  const currentAccount = useMemo(() => {
+    if (snapshot === null) {
+      return null;
+    }
+    const ref = snapshot.currentAccount;
+    return accounts.find((account) => account.ref === ref) ?? accounts[0] ?? null;
+  }, [accounts, snapshot]);
+
+  const handleChanged = async (): Promise<void> => {
+    await refresh();
+  };
 
   return (
     <div className="tk-window tk-popup">
       <header className="tk-header">
         <h1 className="tk-header__title">TrueKeate Wallet</h1>
+        <span className="tk-header__badge tk-badge">Anvil Local</span>
         <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
       </header>
 
-      <main className="tk-main tk-empty">
-        <img className="tk-empty__mark" src={MARK_SRC} alt="Isologo de TrueKeate" />
-        <h2 className="tk-empty__title">TrueKeate Wallet</h2>
-        <p className="tk-empty__text">
-          Bienvenido a tu cartera de criptoactivos tokenizados. Todavía no hay ninguna
-          cartera en este navegador: créala con una frase de recuperación de 12 palabras o
-          importa una cuenta.
-        </p>
-        <p className="tk-tagline">{TAGLINE}</p>
-
-        <button
-          type="button"
-          className="tk-btn-primary"
-          onClick={() => {
-            setNoticeVisible(true);
-          }}
-        >
-          Crear cartera
-        </button>
-
-        {noticeVisible ? (
-          <p className="tk-notice" role="status">
-            La creación de cartera se implementa en el hito H2 (cartera, cuentas y
-            recuperación). Todavía no hay nada que guardar.
+      {phase === 'loading' ? (
+        <main className="tk-main tk-empty" aria-busy="true">
+          <span className="tk-spinner" aria-hidden="true" />
+          <p className="tk-empty__text" role="status">
+            Cargando la cartera…
           </p>
-        ) : null}
+        </main>
+      ) : null}
 
-        <p className="tk-pending">Aplicación en construcción · H1 (andamiaje)</p>
-      </main>
+      {phase === 'error' ? (
+        <main className="tk-main">
+          <StatusMessage error={error ?? popupErrorOf('internalError')} />
+        </main>
+      ) : null}
+
+      {phase === 'notice' ? <DevNoticeDialog busy={noticeBusy} onAccept={handleNoticeAccept} /> : null}
+
+      {phase === 'ready' && snapshot !== null ? (
+        snapshot.damaged ? (
+          <main className="tk-main">
+            <h2 className="tk-empty__title">Wallet dañada</h2>
+            <p className="tk-empty__text">
+              {snapshot.damagedReason ??
+                'La cartera guardada no es coherente y no se han derivado direcciones nuevas.'}
+            </p>
+            <StatusMessage
+              error={popupErrorOf('damagedWallet', {}, { reason: 'integrity', problems: snapshot.integrity.problems })}
+            />
+          </main>
+        ) : !snapshot.hasWallet ? (
+          <main className="tk-main tk-empty">
+            <img className="tk-empty__mark" src={MARK_SRC} alt="Isologo de TrueKeate" />
+            <h2 className="tk-empty__title">Sin cartera</h2>
+            <p className="tk-empty__text">
+              Todavía no hay ninguna cartera en este navegador: créala con una frase de
+              recuperación de 12 palabras o importa una cuenta.
+            </p>
+            <p className="tk-tagline">{TAGLINE}</p>
+            <AccountsView
+              accounts={accounts}
+              currentAccount={currentAccount?.ref ?? null}
+              onChanged={handleChanged}
+              onWalletGone={() => {
+                void refresh();
+              }}
+            />
+          </main>
+        ) : (
+          <>
+            <nav className="tk-tabs" aria-label="Secciones del popup">
+              <div className="tk-tabs__list" role="tablist">
+                {TABS.map((definition) => (
+                  <button
+                    key={definition.id}
+                    type="button"
+                    role="tab"
+                    id={`tab-${definition.id}`}
+                    aria-selected={tab === definition.id}
+                    aria-controls={`panel-${definition.id}`}
+                    className={`tk-tab${tab === definition.id ? ' tk-tab--active' : ''}`}
+                    onClick={() => {
+                      setTab(definition.id);
+                    }}
+                  >
+                    {definition.label}
+                  </button>
+                ))}
+              </div>
+            </nav>
+
+            <main className="tk-main" id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
+              {tab === 'accounts' ? (
+                <AccountsView
+                  accounts={accounts}
+                  currentAccount={currentAccount?.ref ?? null}
+                  onChanged={handleChanged}
+                  onWalletGone={() => {
+                    void refresh();
+                  }}
+                />
+              ) : null}
+              {tab === 'receive' ? <ReceiveView account={currentAccount} /> : null}
+              {tab === 'security' ? (
+                <SecurityView
+                  accounts={accounts}
+                  mnemonicPresent={snapshot.mnemonicPresent}
+                  onChanged={handleChanged}
+                />
+              ) : null}
+            </main>
+          </>
+        )
+      ) : null}
+    </div>
+  );
+}
+
+/** Props del aviso del primer arranque. */
+interface DevNoticeDialogProps {
+  busy: boolean;
+  onAccept: () => Promise<void>;
+}
+
+/**
+ * Aviso **no descartable** de entorno de desarrollo (RNF-23 / RE-02).
+ *
+ * No se cierra con `Escape`, ni pulsando el fondo, ni con un botón de cierre: solo con la
+ * aceptación explícita, que queda registrada. Bloquea el resto de la interfaz mientras está
+ * visible, de modo que ninguna operación de cartera ocurre antes de la aceptación.
+ */
+function DevNoticeDialog({ busy, onAccept }: DevNoticeDialogProps): JSX.Element {
+  return (
+    <div className="tk-overlay">
+      <div className="tk-dialog tk-dialog--notice" role="dialog" aria-modal="true" aria-label="Aviso de entorno de desarrollo">
+        <h2 className="tk-dialog__title">Entorno de desarrollo — no usar con fondos reales</h2>
+        <div className="tk-dialog__body">
+          <p>
+            Esta cartera funciona <strong>sin contraseña</strong> y guarda la frase de recuperación
+            en el almacén local de la extensión. Está pensada para la red local de pruebas (Anvil)
+            y para practicar, nunca para fondos reales.
+          </p>
+          <p className="tk-note">
+            Al continuar, la aceptación de este aviso queda registrada en la configuración de la
+            cartera.
+          </p>
+        </div>
+        <div className="tk-dialog__actions">
+          <button type="button" className="tk-btn-primary" onClick={() => void onAccept()} disabled={busy}>
+            He entendido, continuar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

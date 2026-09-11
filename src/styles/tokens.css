@@ -79,6 +79,15 @@
   --tk-focus-width: 2px;
   --tk-focus-offset: 2px;
 
+  /* Superficies y colores derivados que necesita el popup de H2. Van aquí porque
+     tokens.css es la ÚNICA fuente de color del proyecto (RNF-18): ninguna hoja de estilos del
+     popup escribe un color literal. */
+  --tk-surface-selected: color-mix(in srgb, var(--tk-teal-500) 8%, transparent);
+  --tk-overlay-scrim: color-mix(in srgb, var(--tk-navy-800) 55%, transparent);
+  --tk-progress-track: var(--tk-gray-300);
+  --tk-qr-light: var(--tk-white);
+  --tk-qr-dark: var(--tk-night-900);
+
   /* Superficies semánticas del tema claro (se reasignan en modo oscuro) */
   --tk-surface-app: var(--tk-gray-050);
   --tk-surface-card: var(--tk-gray-100);
@@ -101,5 +110,6 @@
     --tk-text-primary: var(--tk-gray-100);
     --tk-text-secondary: var(--tk-cyan-200);
     --tk-accent: var(--tk-teal-400);
+    --tk-progress-track: var(--tk-night-800);
   }
 }

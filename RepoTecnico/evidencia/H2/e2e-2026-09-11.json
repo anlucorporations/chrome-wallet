@@ -1,0 +1,1893 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\playwright.config.ts",
+    "rootDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-extension",
+        "name": "chromium-extension",
+        "testDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "RepoTecnico/evidencia/H2/e2e-2026-09-11.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "01-onboarding.spec.ts",
+      "file": "01-onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "01 · Onboarding: carga de dist/ y popup en estado vacío",
+          "file": "01-onboarding.spec.ts",
+          "line": 43,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la extensión carga desde dist/ y el ID se descubre del Service Worker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2691,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:22:23.275Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-2eba15d7df659200b20b",
+              "file": "01-onboarding.spec.ts",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13480,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-dialog--notice')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.tk-dialog--notice') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-dialog--notice')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-dialog--notice')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.tk-dialog--notice') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-dialog--notice')\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:100:25",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                          "column": 25,
+                          "line": 100
+                        },
+                        "snippet": "   98 |     await expect(page.locator('.tk-header__title')).toHaveText('TrueKeate Wallet');\n   99 |     const aviso = page.locator('.tk-dialog--notice');\n> 100 |     await expect(aviso).toBeVisible();\n      |                         ^\n  101 |     await expect(aviso).toHaveAttribute('aria-modal', 'true');\n  102 |     await expect(aviso.getByRole('heading')).toHaveText('Entorno de desarrollo — no usar con fondos reales');\n  103 |     await expect(page.locator('.tk-empty')).toHaveCount(0);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                            "column": 25,
+                            "line": 100
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-dialog--notice')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.tk-dialog--notice') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-dialog--notice')\u001b[22m\n\n\n   98 |     await expect(page.locator('.tk-header__title')).toHaveText('TrueKeate Wallet');\n   99 |     const aviso = page.locator('.tk-dialog--notice');\n> 100 |     await expect(aviso).toBeVisible();\n      |                         ^\n  101 |     await expect(aviso).toHaveAttribute('aria-modal', 'true');\n  102 |     await expect(aviso.getByRole('heading')).toHaveText('Entorno de desarrollo — no usar con fondos reales');\n  103 |     await expect(page.locator('.tk-empty')).toHaveCount(0);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:100:25"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:22:26.090Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-0aad5-y-no-hay-errores-de-consola-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-0aad5-y-no-hay-errores-de-consola-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-0aad5-y-no-hay-errores-de-consola-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-0aad5-y-no-hay-errores-de-consola-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                        "column": 25,
+                        "line": 100
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-20651e6bbe346f6d9a7a",
+              "file": "01-onboarding.spec.ts",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2978,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:22:42.147Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-b8854f827a86f020a399",
+              "file": "01-onboarding.spec.ts",
+              "line": 124,
+              "column": 3
+            },
+            {
+              "title": "el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3301,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:22:45.311Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-d6e9c4783705fee77ae9",
+              "file": "01-onboarding.spec.ts",
+              "line": 157,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "01 · Onboarding H2: crear, importar y sin contraseña",
+          "file": "01-onboarding.spec.ts",
+          "line": 195,
+          "column": 6,
+          "specs": [
+            {
+              "title": "crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18346,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Crear cartera nueva' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Crear cartera nueva' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:205:69",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                          "column": 69,
+                          "line": 205
+                        },
+                        "snippet": "  203 |     const page = await openPopupReady(context, extensionId);\n  204 |\n> 205 |     await page.getByRole('button', { name: 'Crear cartera nueva' }).click();\n      |                                                                     ^\n  206 |     await expect(page.locator('.tk-account')).toHaveCount(5);\n  207 |\n  208 |     // CA-RF-03 / RE-02: sin contraseña en ningún momento del flujo."
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                            "column": 69,
+                            "line": 205
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Crear cartera nueva' })\u001b[22m\n\n\n  203 |     const page = await openPopupReady(context, extensionId);\n  204 |\n> 205 |     await page.getByRole('button', { name: 'Crear cartera nueva' }).click();\n      |                                                                     ^\n  206 |     await expect(page.locator('.tk-account')).toHaveCount(5);\n  207 |\n  208 |     // CA-RF-03 / RE-02: sin contraseña en ningún momento del flujo.\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:205:69"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:22:48.693Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-93995-ntraseña-CA-RF-01-CA-RF-03--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-93995-ntraseña-CA-RF-01-CA-RF-03--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-93995-ntraseña-CA-RF-01-CA-RF-03--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-93995-ntraseña-CA-RF-01-CA-RF-03--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                        "column": 69,
+                        "line": 205
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-e915165a3814dd467810",
+              "file": "01-onboarding.spec.ts",
+              "line": 198,
+              "column": 3
+            },
+            {
+              "title": "importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18671,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:258:64",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                          "column": 64,
+                          "line": 258
+                        },
+                        "snippet": "  256 |     const page = await openPopupReady(context, extensionId);\n  257 |\n> 258 |     await page.getByRole('button', { name: 'Importar frase' }).click();\n      |                                                                ^\n  259 |     // Entrada deliberadamente irregular: mayúsculas, tabulaciones y espacios de sobra.\n  260 |     const irregular = `  ${ANVIL_MNEMONIC.toUpperCase().split(' ').join('   ')}  `;\n  261 |     await page.locator('#import-mnemonic').fill(irregular);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                            "column": 64,
+                            "line": 258
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n\n\n  256 |     const page = await openPopupReady(context, extensionId);\n  257 |\n> 258 |     await page.getByRole('button', { name: 'Importar frase' }).click();\n      |                                                                ^\n  259 |     // Entrada deliberadamente irregular: mayúsculas, tabulaciones y espacios de sobra.\n  260 |     const irregular = `  ${ANVIL_MNEMONIC.toUpperCase().split(' ').join('   ')}  `;\n  261 |     await page.locator('#import-mnemonic').fill(irregular);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts:258:64"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:23:09.191Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-38cd5-maliza-la-entrada-CA-RF-02--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-38cd5-maliza-la-entrada-CA-RF-02--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-38cd5-maliza-la-entrada-CA-RF-02--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\01-onboarding-01-·-Onboard-38cd5-maliza-la-entrada-CA-RF-02--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\01-onboarding.spec.ts",
+                        "column": 64,
+                        "line": 258
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-157d4ef4d9afda74a47e",
+              "file": "01-onboarding.spec.ts",
+              "line": 252,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "02-cuentas.spec.ts",
+      "file": "02-cuentas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "02 · Cuentas: 5 derivadas, la 6.ª y la importada",
+          "file": "02-cuentas.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13646,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.tk-account')\nExpected: \u001b[32m5\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.tk-account') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account')\u001b[22m\n\u001b[2m    23 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.tk-account')\nExpected: \u001b[32m5\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.tk-account') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account')\u001b[22m\n\u001b[2m    23 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:32:47",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                          "column": 47,
+                          "line": 32
+                        },
+                        "snippet": "  30 |\n  31 |     // Cinco tarjetas, con las direcciones REALES `m/44'/60'/0'/0/i` de la frase de Anvil.\n> 32 |     await expect(page.locator('.tk-account')).toHaveCount(5);\n     |                                               ^\n  33 |     const cinco = [...ANVIL_ADDRESSES.slice(0, 5)];\n  34 |     for (const [index, direccion] of cinco.entries()) {\n  35 |       await expect(page.locator('.tk-account__address').nth(index)).toHaveAttribute('title', direccion);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                            "column": 47,
+                            "line": 32
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.tk-account')\nExpected: \u001b[32m5\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.tk-account') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account')\u001b[22m\n\u001b[2m    23 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  30 |\n  31 |     // Cinco tarjetas, con las direcciones REALES `m/44'/60'/0'/0/i` de la frase de Anvil.\n> 32 |     await expect(page.locator('.tk-account')).toHaveCount(5);\n     |                                               ^\n  33 |     const cinco = [...ANVIL_ADDRESSES.slice(0, 5)];\n  34 |     for (const [index, direccion] of cinco.entries()) {\n  35 |       await expect(page.locator('.tk-account__address').nth(index)).toHaveAttribute('title', direccion);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:32:47"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:23:30.068Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                        "column": 47,
+                        "line": 32
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-5f6fd616c4a16bf180ba",
+              "file": "02-cuentas.spec.ts",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "importar por clave privada la marca como importada y su etiqueta se renombra (CA-RF-05)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18722,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:78:72",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                          "column": 72,
+                          "line": 78
+                        },
+                        "snippet": "  76 |     const page = await openPopupReady(context, extensionId);\n  77 |\n> 78 |     await page.getByRole('button', { name: 'Importar clave privada' }).click();\n     |                                                                        ^\n  79 |     await page.locator('#import-clave').fill(KEY_TWO);\n  80 |     await page.locator('#import-etiqueta').fill('Ahorros');\n  81 |     await page.locator('form').getByRole('button', { name: 'Importar clave privada' }).click();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                            "column": 72,
+                            "line": 78
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n\n\n  76 |     const page = await openPopupReady(context, extensionId);\n  77 |\n> 78 |     await page.getByRole('button', { name: 'Importar clave privada' }).click();\n     |                                                                        ^\n  79 |     await page.locator('#import-clave').fill(KEY_TWO);\n  80 |     await page.locator('#import-etiqueta').fill('Ahorros');\n  81 |     await page.locator('form').getByRole('button', { name: 'Importar clave privada' }).click();\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:78:72"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:23:46.219Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--37450-queta-se-renombra-CA-RF-05--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--37450-queta-se-renombra-CA-RF-05--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--37450-queta-se-renombra-CA-RF-05--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--37450-queta-se-renombra-CA-RF-05--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                        "column": 72,
+                        "line": 78
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-0176aa69b6dace64d39e",
+              "file": "02-cuentas.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "la sesión de dApp vigente bloquea la eliminación con `-32000` y se desbloquea al revocarla",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13692,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account').nth(5).locator('.tk-account__kind')\nExpected: \u001b[32m\"importada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account').nth(5).locator('.tk-account__kind') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account').nth(5).locator('.tk-account__kind')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account').nth(5).locator('.tk-account__kind')\nExpected: \u001b[32m\"importada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account').nth(5).locator('.tk-account__kind') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account').nth(5).locator('.tk-account__kind')\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:120:58",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                          "column": 58,
+                          "line": 120
+                        },
+                        "snippet": "  118 |     const page = await openPopupReady(context, extensionId);\n  119 |     const importada = page.locator('.tk-account').nth(5);\n> 120 |     await expect(importada.locator('.tk-account__kind')).toHaveText('importada');\n      |                                                          ^\n  121 |\n  122 |     // Sin sesión: el diálogo enumeraría la pérdida y la eliminación procede.\n  123 |     // Con sesión vigente: la guarda del SW responde `-32000` nombrando el origen."
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                            "column": 58,
+                            "line": 120
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account').nth(5).locator('.tk-account__kind')\nExpected: \u001b[32m\"importada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account').nth(5).locator('.tk-account__kind') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account').nth(5).locator('.tk-account__kind')\u001b[22m\n\n\n  118 |     const page = await openPopupReady(context, extensionId);\n  119 |     const importada = page.locator('.tk-account').nth(5);\n> 120 |     await expect(importada.locator('.tk-account__kind')).toHaveText('importada');\n      |                                                          ^\n  121 |\n  122 |     // Sin sesión: el diálogo enumeraría la pérdida y la eliminación procede.\n  123 |     // Con sesión vigente: la guarda del SW responde `-32000` nombrando el origen.\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:120:58"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:24:07.501Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--5af3c--se-desbloquea-al-revocarla-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--5af3c--se-desbloquea-al-revocarla-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--5af3c--se-desbloquea-al-revocarla-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--5af3c--se-desbloquea-al-revocarla-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
+                        "column": 58,
+                        "line": 120
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-d51bd899cdfdc45b4901",
+              "file": "02-cuentas.spec.ts",
+              "line": 110,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "03-recibir.spec.ts",
+      "file": "03-recibir.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "03 · Recibir: dirección, portapapeles y QR coinciden",
+          "file": "03-recibir.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la pestaña «Recibir» muestra la dirección de la cuenta activa y su QR la codifica (CA-RF-07)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18560,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts:32:54",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                          "column": 54,
+                          "line": 32
+                        },
+                        "snippet": "  30 |     await seedWallet(background, { accounts: ANVIL_ADDRESSES.slice(0, 5) });\n  31 |     const page = await openPopupReady(context, extensionId);\n> 32 |     await page.getByRole('tab', { name: 'Recibir' }).click();\n     |                                                      ^\n  33 |\n  34 |     const mostrada = await page.locator('.tk-address-full').textContent();\n  35 |     expect(mostrada).toBe(ANVIL_ADDRESSES[0]);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                            "column": 54,
+                            "line": 32
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n\n\n  30 |     await seedWallet(background, { accounts: ANVIL_ADDRESSES.slice(0, 5) });\n  31 |     const page = await openPopupReady(context, extensionId);\n> 32 |     await page.getByRole('tab', { name: 'Recibir' }).click();\n     |                                                      ^\n  33 |\n  34 |     const mostrada = await page.locator('.tk-address-full').textContent();\n  35 |     expect(mostrada).toBe(ANVIL_ADDRESSES[0]);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts:32:54"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:24:23.380Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-01249-su-QR-la-codifica-CA-RF-07--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-01249-su-QR-la-codifica-CA-RF-07--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-01249-su-QR-la-codifica-CA-RF-07--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-01249-su-QR-la-codifica-CA-RF-07--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                        "column": 54,
+                        "line": 32
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1d9fca96db279add5c4d-89ecbe6acd4c219f52cb",
+              "file": "03-recibir.spec.ts",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "«Copiar» deja en el portapapeles la misma dirección que se muestra (CA-RF-07)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18730,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts:62:54",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                          "column": 54,
+                          "line": 62
+                        },
+                        "snippet": "  60 |     await seedWallet(background, { accounts: ANVIL_ADDRESSES.slice(0, 5) });\n  61 |     const page = await openPopupReady(context, extensionId);\n> 62 |     await page.getByRole('tab', { name: 'Recibir' }).click();\n     |                                                      ^\n  63 |\n  64 |     const mostrada = await page.locator('.tk-address-full').textContent();\n  65 |     await page.getByRole('button', { name: 'Copiar' }).click();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                            "column": 54,
+                            "line": 62
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Recibir' })\u001b[22m\n\n\n  60 |     await seedWallet(background, { accounts: ANVIL_ADDRESSES.slice(0, 5) });\n  61 |     const page = await openPopupReady(context, extensionId);\n> 62 |     await page.getByRole('tab', { name: 'Recibir' }).click();\n     |                                                      ^\n  63 |\n  64 |     const mostrada = await page.locator('.tk-address-full').textContent();\n  65 |     await page.getByRole('button', { name: 'Copiar' }).click();\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts:62:54"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:24:44.120Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-a72cb-ón-que-se-muestra-CA-RF-07--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-a72cb-ón-que-se-muestra-CA-RF-07--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-a72cb-ón-que-se-muestra-CA-RF-07--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\03-recibir-03-·-Recibir-di-a72cb-ón-que-se-muestra-CA-RF-07--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\03-recibir.spec.ts",
+                        "column": 54,
+                        "line": 62
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1d9fca96db279add5c4d-c29f1d67cfd859a7e9d0",
+              "file": "03-recibir.spec.ts",
+              "line": 55,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "05-persistencia.spec.ts",
+      "file": "05-persistencia.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "05 · Persistencia: reabrir el popup restaura el estado",
+          "file": "05-persistencia.spec.ts",
+          "line": 33,
+          "column": 6,
+          "specs": [
+            {
+              "title": "reabrir el popup restaura cuenta activa e importadas SIN pedir la frase (CA-RF-09 / CA-RF-10)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13750,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 4\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 4\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:49:77",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                          "column": 77,
+                          "line": 49
+                        },
+                        "snippet": "  47 |     const primera = await openPopupReady(context, extensionId);\n  48 |     // La cuenta activa guardada (`idx:3`) es la que se pinta como activa.\n> 49 |     await expect(primera.locator('.tk-account--active .tk-account__label')).toHaveText('Cuenta 4');\n     |                                                                             ^\n  50 |     await expect(primera.locator('.tk-account')).toHaveCount(6);\n  51 |     // Sin prompt de contraseña ni petición de la frase en ningún momento.\n  52 |     await expect(primera.locator('input[type=\"password\"]')).toHaveCount(0);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                            "column": 77,
+                            "line": 49
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 4\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n\n\n  47 |     const primera = await openPopupReady(context, extensionId);\n  48 |     // La cuenta activa guardada (`idx:3`) es la que se pinta como activa.\n> 49 |     await expect(primera.locator('.tk-account--active .tk-account__label')).toHaveText('Cuenta 4');\n     |                                                                             ^\n  50 |     await expect(primera.locator('.tk-account')).toHaveCount(6);\n  51 |     // Sin prompt de contraseña ni petición de la frase en ningún momento.\n  52 |     await expect(primera.locator('input[type=\"password\"]')).toHaveCount(0);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:49:77"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:25:05.095Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-b1135-la-frase-CA-RF-09-CA-RF-10--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-b1135-la-frase-CA-RF-09-CA-RF-10--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-b1135-la-frase-CA-RF-09-CA-RF-10--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-b1135-la-frase-CA-RF-09-CA-RF-10--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                        "column": 77,
+                        "line": 49
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-f14f08b76986d09307d9",
+              "file": "05-persistencia.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "la suspensión del Service Worker por CDP no pierde el estado persistido (RNF-08)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 14572,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 3\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 3\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:97:74",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                          "column": 74,
+                          "line": 97
+                        },
+                        "snippet": "   95 |     // Y el popup, recargado, sigue mostrando la cuenta activa restaurada.\n   96 |     await page.reload();\n>  97 |     await expect(page.locator('.tk-account--active .tk-account__label')).toHaveText('Cuenta 3');\n      |                                                                          ^\n   98 |   });\n   99 |\n  100 |   test('una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22)', async ({"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                            "column": 74,
+                            "line": 97
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-account--active .tk-account__label')\nExpected: \u001b[32m\"Cuenta 3\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-account--active .tk-account__label') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-account--active .tk-account__label')\u001b[22m\n\n\n   95 |     // Y el popup, recargado, sigue mostrando la cuenta activa restaurada.\n   96 |     await page.reload();\n>  97 |     await expect(page.locator('.tk-account--active .tk-account__label')).toHaveText('Cuenta 3');\n      |                                                                          ^\n   98 |   });\n   99 |\n  100 |   test('una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22)', async ({\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:97:74"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:25:21.077Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-d7f54-l-estado-persistido-RNF-08--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-d7f54-l-estado-persistido-RNF-08--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-d7f54-l-estado-persistido-RNF-08--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-d7f54-l-estado-persistido-RNF-08--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                        "column": 74,
+                        "line": 97
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-86e4748e09de7239c9a3",
+              "file": "05-persistencia.spec.ts",
+              "line": 68,
+              "column": 3
+            },
+            {
+              "title": "una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13665,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-empty__title')\nExpected: \u001b[32m\"Wallet dañada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-empty__title') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-empty__title')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-empty__title')\nExpected: \u001b[32m\"Wallet dañada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-empty__title') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-empty__title')\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:111:52",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                          "column": 52,
+                          "line": 111
+                        },
+                        "snippet": "  109 |     });\n  110 |     const page = await openPopupReady(context, extensionId);\n> 111 |     await expect(page.locator('.tk-empty__title')).toHaveText('Wallet dañada');\n      |                                                    ^\n  112 |     await expect(page.locator('.tk-status__message').first()).toContainText('cartera');\n  113 |     // No se ofrece derivar ni crear: el estado dañado bloquea la UI.\n  114 |     await expect(page.getByRole('button', { name: 'Añadir cuenta' })).toHaveCount(0);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                            "column": 52,
+                            "line": 111
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.tk-empty__title')\nExpected: \u001b[32m\"Wallet dañada\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.tk-empty__title') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.tk-empty__title')\u001b[22m\n\n\n  109 |     });\n  110 |     const page = await openPopupReady(context, extensionId);\n> 111 |     await expect(page.locator('.tk-empty__title')).toHaveText('Wallet dañada');\n      |                                                    ^\n  112 |     await expect(page.locator('.tk-status__message').first()).toContainText('cartera');\n  113 |     // No se ofrece derivar ni crear: el estado dañado bloquea la UI.\n  114 |     await expect(page.getByRole('button', { name: 'Añadir cuenta' })).toHaveCount(0);\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts:111:52"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:25:38.008Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-66214-riva-cuentas-nuevas-RNF-22--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-66214-riva-cuentas-nuevas-RNF-22--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-66214-riva-cuentas-nuevas-RNF-22--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\05-persistencia-05-·-Persi-66214-riva-cuentas-nuevas-RNF-22--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\05-persistencia.spec.ts",
+                        "column": 52,
+                        "line": 111
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-8e30b5abbc84b4c1cd1c",
+              "file": "05-persistencia.spec.ts",
+              "line": 100,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "06-reset.spec.ts",
+      "file": "06-reset.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "06 · Reset de la cartera",
+          "file": "06-reset.spec.ts",
+          "line": 53,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el reset enumera las importadas, borra cartera y sesiones y CONSERVA los logs (CA-RF-11 / RF-32)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18856,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:67:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                          "column": 54,
+                          "line": 49
+                        },
+                        "snippet": "  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                            "column": 54,
+                            "line": 49
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:67:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:25:53.870Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--a2690-VA-los-logs-CA-RF-11-RF-32--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--a2690-VA-los-logs-CA-RF-11-RF-32--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--a2690-VA-los-logs-CA-RF-11-RF-32--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--a2690-VA-los-logs-CA-RF-11-RF-32--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                        "column": 54,
+                        "line": 49
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-7840f29fb471443b4148",
+              "file": "06-reset.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "con una solicitud `pending` el reset se bloquea con `-32000` y no toca el almacén (DEC-46)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18893,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:131:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                          "column": 54,
+                          "line": 49
+                        },
+                        "snippet": "  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                            "column": 54,
+                            "line": 49
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:131:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:26:15.005Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--7b819--no-toca-el-almacén-DEC-46--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--7b819--no-toca-el-almacén-DEC-46--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--7b819--no-toca-el-almacén-DEC-46--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--7b819--no-toca-el-almacén-DEC-46--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                        "column": 54,
+                        "line": 49
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-e805c91f83c7bd42ac02",
+              "file": "06-reset.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "con una transacción en vuelo vigente el reset también se bloquea (DEC-46)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18408,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:159:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                          "column": 54,
+                          "line": 49
+                        },
+                        "snippet": "  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                            "column": 54,
+                            "line": 49
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  47 | /** Abre la pestaña «Seguridad». */\n  48 | const abrirSeguridad = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 49 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  50 |   await expect(page.getByRole('heading', { name: 'Reset de la cartera' })).toBeVisible();\n  51 | };\n  52 |\n    at abrirSeguridad (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:49:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts:159:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:26:35.982Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--83ee9--también-se-bloquea-DEC-46--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--83ee9--también-se-bloquea-DEC-46--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--83ee9--también-se-bloquea-DEC-46--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\06-reset-06-·-Reset-de-la--83ee9--también-se-bloquea-DEC-46--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\06-reset.spec.ts",
+                        "column": 54,
+                        "line": 49
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-bdd5de0aa04ad16ce1c4",
+              "file": "06-reset.spec.ts",
+              "line": 150,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "16-validacion.spec.ts",
+      "file": "16-validacion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "16 · Validación inline de formularios (CA-RF-33)",
+          "file": "16-validacion.spec.ts",
+          "line": 36,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la frase inválida muestra el error inline y no envía la operación",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18693,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:46:64",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                          "column": 64,
+                          "line": 46
+                        },
+                        "snippet": "  44 |     await seedWallet(background, { mnemonic: null, accounts: [] });\n  45 |     const page = await openPopupReady(context, extensionId);\n> 46 |     await page.getByRole('button', { name: 'Importar frase' }).click();\n     |                                                                ^\n  47 |     const campo = page.locator('#import-mnemonic');\n  48 |\n  49 |     // 11 palabras → mensaje inline con `-32602` y la acción de §4.3."
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                            "column": 64,
+                            "line": 46
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar frase' })\u001b[22m\n\n\n  44 |     await seedWallet(background, { mnemonic: null, accounts: [] });\n  45 |     const page = await openPopupReady(context, extensionId);\n> 46 |     await page.getByRole('button', { name: 'Importar frase' }).click();\n     |                                                                ^\n  47 |     const campo = page.locator('#import-mnemonic');\n  48 |\n  49 |     // 11 palabras → mensaje inline con `-32602` y la acción de §4.3.\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:46:64"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:26:56.580Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-0fb4f-ine-y-no-envía-la-operación-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-0fb4f-ine-y-no-envía-la-operación-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-0fb4f-ine-y-no-envía-la-operación-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-0fb4f-ine-y-no-envía-la-operación-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                        "column": 64,
+                        "line": 46
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-8612f893e335b4390054",
+              "file": "16-validacion.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "la clave privada inválida muestra el error inline y no añade ninguna cuenta",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19040,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:80:72",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                          "column": 72,
+                          "line": 80
+                        },
+                        "snippet": "  78 |     await seedWallet(background);\n  79 |     const page = await openPopupReady(context, extensionId);\n> 80 |     await page.getByRole('button', { name: 'Importar clave privada' }).click();\n     |                                                                        ^\n  81 |     const campo = page.locator('#import-clave');\n  82 |\n  83 |     // Longitud incorrecta."
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                            "column": 72,
+                            "line": 80
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Importar clave privada' })\u001b[22m\n\n\n  78 |     await seedWallet(background);\n  79 |     const page = await openPopupReady(context, extensionId);\n> 80 |     await page.getByRole('button', { name: 'Importar clave privada' }).click();\n     |                                                                        ^\n  81 |     const campo = page.locator('#import-clave');\n  82 |\n  83 |     // Longitud incorrecta.\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:80:72"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:27:17.479Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-5b276-e-y-no-añade-ninguna-cuenta-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-5b276-e-y-no-añade-ninguna-cuenta-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-5b276-e-y-no-añade-ninguna-cuenta-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-5b276-e-y-no-añade-ninguna-cuenta-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                        "column": 72,
+                        "line": 80
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-720b6773e2d35ec0bd2c",
+              "file": "16-validacion.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "la etiqueta inválida se señala inline y no renombra la cuenta (CA-RF-33)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18628,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.tk-account').nth(5).getByRole('button', { name: 'Renombrar' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.tk-account').nth(5).getByRole('button', { name: 'Renombrar' })\u001b[22m\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:110:89",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                          "column": 89,
+                          "line": 110
+                        },
+                        "snippet": "  108 |     });\n  109 |     const page = await openPopupReady(context, extensionId);\n> 110 |     await page.locator('.tk-account').nth(5).getByRole('button', { name: 'Renombrar' }).click();\n      |                                                                                         ^\n  111 |     const campo = page.locator('#renombrar');\n  112 |\n  113 |     await campo.fill('x'.repeat(33));"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                            "column": 89,
+                            "line": 110
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.tk-account').nth(5).getByRole('button', { name: 'Renombrar' })\u001b[22m\n\n\n  108 |     });\n  109 |     const page = await openPopupReady(context, extensionId);\n> 110 |     await page.locator('.tk-account').nth(5).getByRole('button', { name: 'Renombrar' }).click();\n      |                                                                                         ^\n  111 |     const campo = page.locator('#renombrar');\n  112 |\n  113 |     await campo.fill('x'.repeat(33));\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts:110:89"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:27:38.778Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-552e6-enombra-la-cuenta-CA-RF-33--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-552e6-enombra-la-cuenta-CA-RF-33--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-552e6-enombra-la-cuenta-CA-RF-33--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\16-validacion-16-·-Validac-552e6-enombra-la-cuenta-CA-RF-33--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\16-validacion.spec.ts",
+                        "column": 89,
+                        "line": 110
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-ecf9c4b54f5996281e2a",
+              "file": "16-validacion.spec.ts",
+              "line": 101,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "25-recuperacion.spec.ts",
+      "file": "25-recuperacion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "25 · Recuperación: revelado temporal, portapapeles y bloqueo",
+          "file": "25-recuperacion.spec.ts",
+          "line": 50,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el revelado exige confirmación, dura 30 s, descarta la memoria y NO pasa por postMessage (CA-RF-50)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18933,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:73:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                          "column": 54,
+                          "line": 41
+                        },
+                        "snippet": "  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                            "column": 54,
+                            "line": 41
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:73:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:27:59.562Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-00117-a-por-postMessage-CA-RF-50--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-00117-a-por-postMessage-CA-RF-50--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-00117-a-por-postMessage-CA-RF-50--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-00117-a-por-postMessage-CA-RF-50--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                        "column": 54,
+                        "line": 41
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-9595df9091269eba39ca",
+              "file": "25-recuperacion.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "el revelado se oculta al PERDER el foco y vacía el portapapeles (CA-RF-50)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18955,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:116:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                          "column": 54,
+                          "line": 41
+                        },
+                        "snippet": "  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                            "column": 54,
+                            "line": 41
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:116:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:28:20.718Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-4e81d-a-el-portapapeles-CA-RF-50--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-4e81d-a-el-portapapeles-CA-RF-50--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-4e81d-a-el-portapapeles-CA-RF-50--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-4e81d-a-el-portapapeles-CA-RF-50--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                        "column": 54,
+                        "line": 41
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-d40182ce6a27f2ff8aee",
+              "file": "25-recuperacion.spec.ts",
+              "line": 109,
+              "column": 3
+            },
+            {
+              "title": "con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18634,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:144:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                          "column": 54,
+                          "line": 41
+                        },
+                        "snippet": "  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                            "column": 54,
+                            "line": 41
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: 'Seguridad' })\u001b[22m\n\n\n  39 | /** Abre la pestaña «Seguridad» y pide el revelado de la frase aceptando el diálogo. */\n  40 | const revelarFrase = async (page: Awaited<ReturnType<typeof openPopupReady>>): Promise<void> => {\n> 41 |   await page.getByRole('tab', { name: 'Seguridad' }).click();\n     |                                                      ^\n  42 |   await page.getByRole('button', { name: 'Revelar frase semilla' }).click();\n  43 |   const dialogo = page.getByRole('dialog', { name: 'Revelar frase semilla' });\n  44 |   await expect(dialogo).toBeVisible();\n    at revelarFrase (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:41:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts:144:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T15:28:41.917Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-6d6f7--y-se-desbloquea-al-revocar-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-6d6f7--y-se-desbloquea-al-revocar-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-6d6f7--y-se-desbloquea-al-revocar-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\25-recuperacion-25-·-Recup-6d6f7--y-se-desbloquea-al-revocar-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\25-recuperacion.spec.ts",
+                        "column": 54,
+                        "line": 41
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-ccc3a80721f0bb09110d",
+              "file": "25-recuperacion.spec.ts",
+              "line": 134,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-11T15:21:55.429Z",
+    "duration": 425504.038,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 20,
+    "flaky": 0
+  }
+}

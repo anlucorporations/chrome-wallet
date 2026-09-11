@@ -28,8 +28,14 @@ export type WeiString = string;
 /** `chainId` en hexadecimal (`0x7a69` con Anvil). */
 export type ChainIdHex = `0x${string}`;
 
-/** Referencia a una cuenta: derivada por índice BIP-44 o importada por dirección. */
-export type AccountRef = `idx:${number}` | `imp:${Address}`;
+/**
+ * Referencia a una cuenta: canónica `idx:<n>` (derivada por índice BIP-44) o `imp:<address>`
+ * (importada por dirección). Se admite además la **forma heredada sin prefijo** (`"0"`), que
+ * `diccionario_datos.md` §2.4 declara retrocompatible y que M28 (`parseAccountRef`) interpreta y
+ * M34 normaliza a `idx:0` al migrar; el tipo la incluye para no mentir sobre lo que la API
+ * acepta.
+ */
+export type AccountRef = `idx:${number}` | `imp:${Address}` | `${number}`;
 
 /** Identificador UUID v4 (claves de la cola y de la conexión). */
 export type Uuid = string;
@@ -54,21 +60,32 @@ export type ApprovalMethod =
   | 'wallet_revokePermissions';
 
 /**
- * Los 7 métodos internos `wallet_*` (contrato de `documento_tecnico.md` §5.1.1).
- * Solo se aceptan desde páginas de la extensión; desde un content script → `4200`.
+ * Los **15** métodos internos `wallet_*` (contrato de `documento_tecnico.md` §5.1.1, ampliado
+ * en la v1.6 con los 8 métodos de UI del hito H2). Solo se aceptan desde páginas de la
+ * extensión; desde un content script → `4200`.
  *
- * Nota de discrepancia anotada: la tabla de `diccionario_datos.md` §4.3 enumera 6 de
- * ellos (omite `wallet_importMnemonic`, que sí existe en §5.1.1 y en la tabla de
+ * Nota de discrepancia anotada: la tabla de `diccionario_datos.md` §4.3 enumera 6 de los 7
+ * originales (omite `wallet_importMnemonic`, que sí existe en §5.1.1 y en la tabla de
  * métodos internos de §5.1); se sigue el documento técnico, que es la fuente del contrato.
  */
 export type InternalMethod =
+  // --- Contrato original (H2, tareas 2.1 a 2.5 y 2.9) ---
   | 'wallet_generateMnemonic'
   | 'wallet_importMnemonic'
   | 'wallet_deriveAccounts'
   | 'wallet_importPrivateKey'
   | 'wallet_getNetworks'
   | 'wallet_getLogs'
-  | 'wallet_revealSecret';
+  | 'wallet_revealSecret'
+  // --- Ampliación de la v1.6 (§5.1.1): estado y operaciones de UI (RNF-14) ---
+  | 'wallet_getState'
+  | 'wallet_setCurrentAccount'
+  | 'wallet_addDerivedAccount'
+  | 'wallet_renameAccount'
+  | 'wallet_setAccountVisible'
+  | 'wallet_deleteImportedAccount'
+  | 'wallet_resetWallet'
+  | 'wallet_acceptDevNotice';
 
 /** Métodos de lectura del catálogo que NO requieren aprobación. */
 export type PageReadMethod =
@@ -338,6 +355,12 @@ export interface TruekeateSettings {
   derivedAccountCount: number;
   /** Etiquetas de las cuentas DERIVADAS, por índice BIP-44. */
   accountLabels: Record<number, string>;
+  /**
+   * Índices BIP-44 de las cuentas derivadas **ocultas** (RF-06 / DEC-35): una derivada nunca se
+   * elimina, solo se oculta. Es clave canónica de `truekeate_settings`, junto a `accountLabels`,
+   * y el reset de la cartera la limpia con el resto del objeto de ajustes.
+   */
+  hiddenAccounts: number[];
   balancePollMs: number;
   balancePollMaxAccounts: number;
   logLimit: number;

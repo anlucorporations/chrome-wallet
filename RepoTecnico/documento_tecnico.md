@@ -1,6 +1,7 @@
 # Documento Técnico — TrueKeate Wallet
 
-> **Fase:** 3 — Desarrollo (especificación de Fase 2, corregida al implementar H1) · **Versión:** 1.5 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada y **correcciones de H1** incorporadas — ver §10.4 «Historial de cambios»
+> **Fase:** 3 — Desarrollo (especificación de Fase 2, corregida al implementar H1 y ampliada al implementar H2) · **Versión:** 1.6 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada, **correcciones de H1** y **ampliación del contrato interno de H2** incorporadas — ver §10.4 «Historial de cambios»
+> **Cambios de la v1.6 (resumen).** **Cierre de la integración de H2** (2026-09-11): **(1)** §5.1.1 pasa de **7** a **15** métodos internos `wallet_*`: se añaden `wallet_getState`, `wallet_setCurrentAccount`, `wallet_addDerivedAccount`, `wallet_renameAccount`, `wallet_setAccountVisible`, `wallet_deleteImportedAccount`, `wallet_resetWallet` y `wallet_acceptDevNotice`, con sus **parámetros, retorno y errores** (tabla nueva); **(2)** §2.5.1 y §5.1 se sincronizan con la unión cerrada de 15; **(3)** §2.3 gana el invariante **«el popup no custodia estado»** (RNF-14) y §3.3/§3.8 declaran que la UI deja de leer el almacén y opera **solo** por métodos internos; **(4)** §7.3 precisa que el permiso `storage` lo justifica **únicamente** el Service Worker, que es el custodio del estado; **(5)** §3.3 asienta `truekeate_settings.hiddenAccounts` como clave canónica de la visibilidad de las cuentas derivadas (RF-06), junto a `accountLabels`. Los literales de error de las causas nuevas son de `diccionario_datos.md` §4.3 (v1.9), que sigue siendo la fuente única.
 > **Cambios de la v1.5 (resumen).** Correcciones descubiertas **al implementar H1** (2026-09-11; desviaciones **DEC-47..DEC-51**, `plan_desarrollo.md` §3.1.10): **(1)** §7.3 elimina `chrome-extension://*/*` de `exclude_matches` —**no es un patrón válido**: Chrome rechaza el manifest completo y la extensión no carga; `<all_urls>` no cubre ese esquema— y fija la **regla vinculante de prohibición**; **(2)** §7.5.2/§7.5.3 documentan los **3 builds encadenados** con la API programática `build()` desde `closeBundle` (ES + IIFE de `content-script` + IIFE de `inject`) porque **Vite 7 no admite exportar un array de builds** y el IIFE exige **una entrada por build**; **(3)** §5.2 fija el **tamaño explícito del `body`** de las tres ventanas con los tokens `--tk-popup/connect/notification-width/height` (con `min-height: 100vh` el popup medía **720 px**); **(4)** §7.4 y §7.2 fijan el literal **`forge test --root contracts --match-contract EIP712VerifierTest`** y advierten del **falso verde** del literal sin `--root contracts` (0 pruebas, exit 0); **(5)** §7.4.1.f pasa a **`H1..H6`** (cierre de la brecha **G-01**) y las fuentes se sincronizan con las versiones vigentes.
 > **Cambios de la v1.4 (resumen).** Cierre de los **10 defectos residuales `VR-01..VR-10`** de la última pasada de consistencia: **conjunto de permisos unificado** con el diccionario (`favicon`, `clipboardRead` y `clipboardWrite`, cada uno justificado, en §7.3 y en su fragmento de manifest); **catálogo de eventos a 24** (§2.5.2 y el `erDiagram` de §4.2); **tabla de errores de §5.1 sustituida por un índice código → causa** que remite a `diccionario_datos.md` §4.3 **sin repetir literales**; **retirada definitiva** de `windowsByApprovalId` y del campo `windowId` por solicitud (§2.3, §2.5.2 y riesgo R18), sustituidos por la entidad persistida `truekeate_approval_window` (§2.14 del diccionario); **conteo de diagramas Mermaid corregido a 15** en el texto y en la comprobación de CI (ADT-02); y bloques de «Fuentes»/«Documentos del corpus» sincronizados con las versiones vigentes.
 > **Cambios de la v1.3 (resumen).** Se añaden la **guarda de sesión de dApp activa** en el revelado/exportación y en el borrado de una cuenta importada (§3.8, regla 9; **R-09a/DEC-45**) y la **nueva §3.9** con las guardas y el **orden de comprobación del reset** (§3.9; **R-09b/DEC-46**): ambas se emiten como error tipado `-32000` y **citan `diccionario_datos.md` §4.3 como fuente única de los literales**. Se sincronizan las fuentes vinculantes a las versiones vigentes del corpus.
@@ -245,6 +246,7 @@ sequenceDiagram
 | Estado de la ventana recargado | Recargar `notification.html` **no** pierde la solicitud: la ventana se re-renderiza desde las entradas persistidas (la `pending` de menor `createdAt` es la «en curso»); si ya no está `pending`, muestra el estado resuelto y se cierra | **P-3.8 (promovida a invariante)** |
 | Cierre por ventana o pestaña | Cerrar `notification.html` con la X equivale a **rechazo** (`4001`) de la solicitud en curso, salvo que el plazo ya haya vencido, en cuyo caso prevalece `expired`; a continuación se muestra la siguiente pendiente. `chrome.tabs.onRemoved` marca `rejected`/`expired` y purga el badge | H-02, X-02, X-09, **P-21** |
 | Respuesta duplicada | El SW ignora cualquier segunda respuesta sobre una entrada que ya no está `pending` (nunca difunde dos veces) | X-06 |
+| **El popup no custodia estado (v1.6)** | Ninguna ventana de la extensión lee ni escribe `chrome.storage.local`: **toda** lectura de estado pasa por `wallet_getState` y toda mutacion por el metodo interno correspondiente (seccion 5.1.1). El unico custodio del estado persistido es el Service Worker, que ademas fija `setAccessLevel('TRUSTED_CONTEXTS')` | **RNF-14** |
 
 **Ciclo de vida del Service Worker** (máquina de estados del arranque y la suspensión):
 
@@ -429,7 +431,7 @@ export type ProviderEventName =
 
 #### 2.5.2 Tipos TypeScript clave
 
-> **Regla de frontera (ADT-16).** Toda peticion que cruza el limite popup ↔ SW usa una **union cerrada de metodos**: `ApprovalMethod` (los 6 aprobables) o `InternalMethod` (los 7 internos, seccion 5.1.1). Una cadena suelta `method: string` **no** es contrato valido en esa frontera: `TruekeateRpcMessage.method` se tipa como `ApprovalMethod | InternalMethod | PageMethod`, de modo que el «catalogo cerrado» es verificable **por tipos**, no solo por revision.
+> **Regla de frontera (ADT-16).** Toda peticion que cruza el limite popup ↔ SW usa una **union cerrada de metodos**: `ApprovalMethod` (los 6 aprobables) o `InternalMethod` (los **15** internos, seccion 5.1.1: 7 del contrato original y 8 de la ampliacion v1.6). Una cadena suelta `method: string` **no** es contrato valido en esa frontera: `TruekeateRpcMessage.method` se tipa como `ApprovalMethod | InternalMethod | PageMethod`, de modo que el «catalogo cerrado» es verificable **por tipos**, no solo por revision.
 
 ```ts
 // Alias base (diccionario de datos §1)
@@ -793,7 +795,9 @@ sequenceDiagram
 
 - **Ruta única**: `m/44'/60'/0'/0/i`, con el **índice del array** `truekeate_accounts` como índice de derivación. Por defecto 5 cuentas (índices 0..4) y «Añadir cuenta» deriva la siguiente (RF-04, DEC-11).
 - **La etiqueta de las derivadas vive en `truekeate_settings.accountLabels: Record<indice, string>`** (D-F/DEC-35); la de las importadas en `truekeate_imported_accounts[].label`. Por defecto `Cuenta N` / `Importada N`; máximo **32 caracteres**.
-- **Las cuentas derivadas nunca se eliminan**, solo se ocultan (`visible: false`); las importadas se eliminan solo con confirmación destructiva que enumera lo que se pierde (RF-06 Should, RNF-22).
+- **La visibilidad de las derivadas vive en `truekeate_settings.hiddenAccounts: number[]`** (v1.6: clave canonica de `diccionario_datos.md` seccion 2.10, junto a `accountLabels`), con los indices BIP-44 ocultos; la de las importadas, en su campo `visible`. El reset de la cartera la limpia con el resto del objeto de ajustes (RF-32).
+- **Las cuentas derivadas nunca se eliminan**, solo se ocultan (indice en `hiddenAccounts`); las importadas se eliminan solo con confirmación destructiva que enumera lo que se pierde (RF-06 Should, RNF-22).
+- **La UI no toca el almacén (v1.6, RNF-14)**: renombrar, ocultar, importar, derivar, elegir la activa, borrar una importada, resetear y aceptar el aviso se ejecutan con los metodos internos de la seccion 5.1.1 (`wallet_renameAccount`, `wallet_setAccountVisible`, `wallet_addDerivedAccount`, `wallet_setCurrentAccount`, `wallet_deleteImportedAccount`, `wallet_resetWallet` y `wallet_acceptDevNotice`), y el estado se lee con `wallet_getState`.
 - **Integridad al arrancar** (M13): se validan el checksum BIP-39 del mnemonic y EIP-55 de las direcciones; ante corrupción se muestra **«wallet dañada»** y no se derivan direcciones distintas en silencio (RNF-22).
 - **Material sensible (RNF-09, reescrito en ADT-09)**: el mnemonic y las claves privadas **nunca** salen hacia la pagina ni viajan por `window.postMessage`, y **nunca** se escriben en `truekeate_logs`. La afirmacion absoluta anterior («nunca salen del SW») era **falsa por diseno**: RF-50 (Must) exige revelarlos en el popup, asi que si salen del SW, pero **solo** hacia contextos de la extension (`sender.tab === undefined` y `sender.url` en la allowlist), con confirmacion explicita, ocultacion temporal (`type="password"` + boton «Mostrar»), ocultado por temporizador **y** por perdida de foco, descarte del estado y **politica de portapapeles de P-20**. Flujo completo en la seccion 3.8.
 
@@ -1084,7 +1088,9 @@ sequenceDiagram
 7. **Aviso de captura**: durante el revelado se muestra el aviso «evita capturas de pantalla o grabaciones» (amenaza declarada en la seccion 3.7, ADT-26); es un aviso, no un control tecnico.
 8. **Evidencia E2E obligatoria (P-20)**: debe existir un test E2E (`E2E: 25-recuperacion.spec.ts`) que, tras copiar el valor y provocar el ocultado —**por temporizador** y **por perdida de foco**, ambos casos—, **lea el contenido del portapapeles** y afirme que **ya no contiene la semilla** (cadena vacia o valor distinto). Es la unica forma de verificar la garantia de P-20: inspeccionar el DOM **no basta**. La evidencia se archiva segun la convencion de la seccion 7.4.
 
-9. **Guarda de sesion de dApp activa (R-09a / DEC-45)**: si la cuenta revelada —o, al revelar el **mnemonic**, cualquiera de las cuentas que este deriva— tiene una entrada **vigente** en `truekeate_connected_sites` (seccion 4.1, clave 7), la operacion se **bloquea** con el error tipado **`-32000`** y el literal de la causa «Cuenta en uso por una dApp conectada» de **`diccionario_datos.md` §4.3** (fuente unica de los literales), que nombra el `origen` de la dApp y la accion (revocar su permiso). La comprobacion se hace **en el popup al abrir la accion** y se **revalida en el SW** al resolver el secreto: sin revocar ese permiso (**CU-19**) **no se entrega ningun valor**. La misma guarda bloquea el **borrado de la cuenta importada** (RF-06, seccion 3.3).
+9. **Guarda de sesion de dApp activa (R-09a / DEC-45)**: si la cuenta revelada —o, al revelar el **mnemonic**, cualquiera de las cuentas que este deriva— tiene una entrada **vigente** en `truekeate_connected_sites` (seccion 4.1, clave 7), la operacion se **bloquea** con el error tipado **`-32000`** y el literal de la causa «Cuenta en uso por una dApp conectada» de **`diccionario_datos.md` §4.3** (fuente unica de los literales), que nombra el `origen` de la dApp y la accion (revocar su permiso). La comprobacion la hace **siempre el SW** al resolver el secreto (`wallet_revealSecret`, seccion 5.1.1), porque en la v1.6 el popup **no lee el almacen**: sin revocar ese permiso (**CU-19**) **no se entrega ningun valor**. La misma guarda bloquea el **borrado de la cuenta importada** (RF-06, seccion 3.3).
+
+**El valor solo llega por el canal interno (v1.6, RNF-14).** El popup pide el revelado con `wallet_revealSecret` y **no** obtiene el mnemonic ni las claves privadas de ninguna otra fuente: no lee `truekeate_mnemonic` ni `truekeate_imported_accounts` (no accede al almacen) y no importa `ethers`. La higiene de las reglas 1 a 8 se implementa en la vista (M46) sobre el valor ya recibido.
 
 **Exportacion (misma politica).** La exportacion de la clave privada de una cuenta importada sigue exactamente las reglas 1 a 9: confirmacion explicita, 30 s, doble disparador, descarte del estado, borrado del portapapeles y guarda de sesion de dApp activa. El `CA-RF-50` y la evidencia `Vitest: secretsExport.spec.ts` se mantienen; lo que anade la v1.1 es la **politica de portapapeles** y su test E2E, y la v1.3 la **guarda de R-09a**.
 
@@ -1093,6 +1099,8 @@ sequenceDiagram
 **Requisito:** RF-11 (Must) + `CA-RF-11`; caso de uso CU-30; modulo **M33** (`state/schema.ts`, que ya excluye `truekeate_logs` de la limpieza, ADR-11).
 
 **Guardas de estado (DEC-46).** El reset **no se inicia** si `truekeate_pending_requests` (seccion 4.1, clave 8) tiene entradas `pending`, ni si `truekeate_inflight_tx` (clave 12) tiene una transaccion en vuelo **vigente** (TTL de 180 s). El rechazo es un **error de validacion de UI** —no lo devuelve ningun metodo RPC— con error tipado **`-32000`** y el literal de la causa «Reset bloqueado» de **`diccionario_datos.md` §4.3**: la UI lo pinta con el **numero exacto** de solicitudes pendientes. **No se permite continuar.**
+
+**Quien comprueba las guardas (v1.6, RNF-14).** Las tres guardas y la limpieza las ejecuta **M33 dentro del Service Worker**, invocadas por el metodo interno `wallet_resetWallet { confirm: true }` (seccion 5.1.1): el popup solo aporta la confirmacion explicita del dialogo destructivo y pinta el error `-32000` que devuelva el SW. La UI **no** consulta `truekeate_pending_requests` ni `truekeate_inflight_tx` por su cuenta, porque no accede al almacen.
 
 ```mermaid
 flowchart TD
@@ -1361,7 +1369,7 @@ Ambos nombres exponen `request`, `on` y `removeListener`; un test verifica que *
 | `wallet_addEthereumChain` | **Sí** + permiso de host en runtime **siempre** | `null` | Denegación → `4001` y red no persistida (DEC-36) |
 | `wallet_revokePermissions` | **Si**. Dos caminos: **desde la dApp** entra en `truekeate_pending_requests` y se decide en `notification.html`; **desde el popup** la confirmacion es la propia UI de Revocar y **no** crea entrada en la cola | `null` | RF-26; cierra ADT-31 |
 
-**Metodos internos** (solo contextos de la extension; desde un content script responden `4200`): `wallet_generateMnemonic` (RF-01), `wallet_importMnemonic` (RF-02), `wallet_deriveAccounts` (RF-04), `wallet_importPrivateKey` (RF-05), `wallet_getNetworks` (RF-23), `wallet_getLogs` (RF-28) y `wallet_revealSecret` (RF-50). Su contrato completo, con parametros, retorno y errores, esta en la **seccion 5.1.1** (ADT-16).
+**Metodos internos** (solo contextos de la extension; desde un content script responden `4200`): los **7** del contrato original —`wallet_generateMnemonic` (RF-01), `wallet_importMnemonic` (RF-02), `wallet_deriveAccounts` (RF-04), `wallet_importPrivateKey` (RF-05), `wallet_getNetworks` (RF-23), `wallet_getLogs` (RF-28) y `wallet_revealSecret` (RF-50)— mas los **8** de la v1.6 —`wallet_getState`, `wallet_setCurrentAccount`, `wallet_addDerivedAccount`, `wallet_renameAccount`, `wallet_setAccountVisible`, `wallet_deleteImportedAccount`, `wallet_resetWallet` y `wallet_acceptDevNotice`—. Su contrato completo, con parametros, retorno y errores, esta en la **seccion 5.1.1** (ADT-16).
 
 **Errores EIP-1193: índice código → causa (VR-04).** `requerimientos.md` §2.1 fija el **catálogo de códigos y su significado**; los **literales** de los mensajes, la causa y la acción sugerida tienen su **fuente única** en `diccionario_datos.md` §4.3 (varios mensajes por código, uno por causa). Esta sección **no reproduce ningún literal**: es un índice que enumera, por código, las **causas** registradas en esa tabla, de modo que no puede divergir de la fuente única. **Todo** error que ve el usuario lleva `code`.
 
@@ -1380,23 +1388,38 @@ Ambos nombres exponen `request`, `on` y `removeListener`; un test verifica que *
 
 #### 5.1.1 Contrato de los metodos internos `wallet_*` (ADT-16)
 
-Los metodos internos se enumeraban «solo por nombre». Aqui se cierra su **firma exacta**, su retorno y sus errores; el contrato vive en `src/shared/protocol.ts` (M56) y su implementacion en M8/M9/M10/M28/M29/M43.
+Los metodos internos se enumeraban «solo por nombre». Aqui se cierra su **firma exacta**, su retorno y sus errores; el contrato vive en `src/shared/types.ts` (union `InternalMethod`, M55) y su implementacion en M8/M9/M10/M28/M29/M33 y M4/M3 (despacho). **La v1.6 lo amplia de 7 a 15 metodos**: los 8 nuevos son las operaciones de estado que el popup necesita para **no tocar el almacen** (RNF-14).
 
 ```ts
 // Contexto: SOLO paginas de la extension (sender.tab === undefined y sender.url en allowlist).
 // Desde un content script responden 4200 (RNF-10). Ningun metodo interno abre ventana.
 export type InternalMethod =
+  // Contrato original (H2, tareas 2.1 a 2.5 y 2.9)
   | 'wallet_generateMnemonic'   // RF-01
   | 'wallet_importMnemonic'     // RF-02
   | 'wallet_deriveAccounts'     // RF-04
   | 'wallet_importPrivateKey'   // RF-05
   | 'wallet_getNetworks'        // RF-23
   | 'wallet_getLogs'            // RF-28
-  | 'wallet_revealSecret';      // RF-50 (seccion 3.8)
+  | 'wallet_revealSecret'       // RF-50 (seccion 3.8)
+  // Ampliacion de la v1.6: estado y operaciones de UI (RNF-14)
+  | 'wallet_getState'               // RF-09/RF-10, RF-06, RNF-22
+  | 'wallet_setCurrentAccount'      // RF-06
+  | 'wallet_addDerivedAccount'      // RF-04 (tarea 2.4)
+  | 'wallet_renameAccount'          // RF-06 (DEC-35)
+  | 'wallet_setAccountVisible'      // RF-06
+  | 'wallet_deleteImportedAccount'  // RF-06 (R-09a/DEC-45)
+  | 'wallet_resetWallet'            // RF-11 (seccion 3.9)
+  | 'wallet_acceptDevNotice';       // RNF-23
 
 export interface InternalWalletRequest {
   type: 'TRUEKEATE_RPC'; method: InternalMethod; params?: unknown[]; origin: 'extension';
   tabId: null; frameId: null;
+}
+// Cuenta tal y como la devuelve el estado: el campo de la cuenta activa es `current`.
+export interface WalletStateAccount {
+  ref: AccountRef; address: Address; kind: 'derived' | 'imported';
+  index: number | null; label: string; visible: boolean; current: boolean;
 }
 export interface InternalWalletResultMap {
   wallet_generateMnemonic: { mnemonic: string; wordCount: 12 };                 // no persiste
@@ -1406,11 +1429,41 @@ export interface InternalWalletResultMap {
   wallet_getNetworks: { networks: StoredNetwork[]; activeChainId: ChainIdHex };
   wallet_getLogs: { entries: LogEntry[]; truncated: boolean; dropped: number };
   wallet_revealSecret: { kind: 'mnemonic' | 'privateKey'; value: string; hideAfterMs: 30000 };
+  wallet_getState: {
+    hasWallet: boolean;
+    integrity: { status: 'absent' | 'ok' | 'damaged'; label: string | null; problems: string[];
+                 mnemonicPresent: boolean; mnemonicValid: boolean; canDerive: boolean };
+    accounts: WalletStateAccount[];
+    currentAccountRef: AccountRef | null;
+    networks: StoredNetwork[];
+    currentChainId: ChainIdHex;
+    settings: TruekeateSettings;   // incluye accountLabels, hiddenAccounts y devNoticeAcceptedAt
+  };
+  wallet_setCurrentAccount: { currentAccountRef: AccountRef };
+  wallet_addDerivedAccount: { account: WalletStateAccount; derivedAccountCount: number };
+  wallet_renameAccount: { account: WalletStateAccount };
+  wallet_setAccountVisible: { account: WalletStateAccount };
+  wallet_deleteImportedAccount: { removed: Address; currentAccountRef: AccountRef | null };
+  wallet_resetWallet: { status: 'done'; removedKeys: string[]; preservedKeys: string[] };
+  wallet_acceptDevNotice: { devNoticeAcceptedAt: number | null };
 }
 export type InternalWalletResult<M extends InternalMethod> = InternalWalletResultMap[M];
 ```
 
-**Reglas del contrato interno (ADT-16).** (a) La union `InternalMethod` es **cerrada**: un metodo `wallet_*` que no figure en ella se responde `4200` y **no** se implementa sin editar este contrato. (b) Ningun metodo interno abre ventana ni crea entrada en `truekeate_pending_requests`; la aprobacion, cuando la hay (revelado), es **confirmacion explicita dentro del propio contexto** (seccion 3.8). (c) Todo error usa la tabla de `diccionario_datos.md` seccion 4.3 con `code` numerico obligatorio. (d) `wallet_getLogs` devuelve `dropped` para hacer visible el descarte por cuota (D-M/ADT-14).
+**Parametros y errores de los 8 metodos de la v1.6.** Los que llevan parametros reciben **un unico objeto** en `params[0]`, y **ninguno** abre la ventana de confirmacion: la confirmacion, cuando existe (reset), es el dialogo destructivo del propio popup (seccion 3.9). Todo error es un objeto EIP-1193 de la tabla de `diccionario_datos.md` seccion 4.3.
+
+| Metodo | `params[0]` | Retorno | Errores (causa de la seccion 4.3) |
+|---|---|---|---|
+| `wallet_getState` | — | Estado completo: `hasWallet`, `integrity` (M13), `accounts` (incluidas las ocultas, con `visible` y `current`), `currentAccountRef`, `networks`, `currentChainId` y `settings` | `-32603` `damagedWallet`: la cartera dañada se informa en `integrity` y no bloquea la lectura del estado |
+| `wallet_setCurrentAccount` | `{ ref }` | `{ currentAccountRef }` (canonica `idx:<n>` o `imp:<address>`) | `-32602` `unknownAccount` si la referencia no existe; `-32603` `storageQuotaExceeded` si no se puede escribir |
+| `wallet_addDerivedAccount` | — | `{ account, derivedAccountCount }`: deriva y **persiste** la siguiente cuenta BIP-44 (RF-04) | `-32000` `walletNotCreated` si no hay frase semilla; `-32603` interno si la derivacion falla; `-32603` `storageQuotaExceeded` |
+| `wallet_renameAccount` | `{ ref, label }` | `{ account }` con la etiqueta aplicada (derivadas en `accountLabels`; importadas en su `label`) | `-32602` `invalidLabel` (fuera de 1..32 caracteres o con caracteres de control); `-32602` `unknownAccount`; `-32603` `storageQuotaExceeded` |
+| `wallet_setAccountVisible` | `{ ref, visible }` | `{ account }` con la visibilidad aplicada (derivadas por `hiddenAccounts`; importadas por su campo `visible`) | `-32602` `unknownAccount`; `-32603` `storageQuotaExceeded` |
+| `wallet_deleteImportedAccount` | `{ address }` | `{ removed, currentAccountRef }` | `-32602` `invalidAddress` (forma `0x` + 40 hex); `-32000` `accountInUseByDapp` si una dApp tiene sesion vigente (R-09a / DEC-45); `-32602` `unknownAccount` si no es una importada existente |
+| `wallet_resetWallet` | `{ confirm: true }` | `{ status: 'done', removedKeys, preservedKeys }`; `truekeate_logs` NO se elimina (RF-32) | `4001` si falta `confirm: true` (cancelado, sin tocar el almacen); `-32000` `resetBlocked` con el numero de solicitudes `pending` si una guarda lo impide (seccion 3.9); `-32603` interno si la limpieza no se puede escribir |
+| `wallet_acceptDevNotice` | — | `{ devNoticeAcceptedAt }` (idempotente: conserva el instante mas antiguo) | `-32603` `storageQuotaExceeded` si no se puede registrar |
+
+**Reglas del contrato interno (ADT-16).** (a) La union `InternalMethod` es **cerrada**: un metodo `wallet_*` que no figure en ella se responde `4200` y **no** se implementa sin editar este contrato. (b) Ningun metodo interno abre ventana ni crea entrada en `truekeate_pending_requests`; la aprobacion, cuando la hay (revelado y reset), es **confirmacion explicita dentro del propio contexto** (secciones 3.8 y 3.9). (c) Todo error usa la tabla de `diccionario_datos.md` seccion 4.3 con `code` numerico obligatorio. (d) `wallet_getLogs` devuelve `dropped` para hacer visible el descarte por cuota (D-M/ADT-14). (e) **RNF-14**: el popup no lee ni escribe el almacen de la extension; toda lectura de estado pasa por `wallet_getState` y toda mutacion por el metodo interno correspondiente.
 
 ### 5.2 Páginas y ventanas de la extensión
 
@@ -1722,7 +1775,7 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
 
 | Permiso | Justificación (por qué el diseño lo usa de verdad) | Requisito |
 |---|---|---|
-| `storage` | Persistir cartera, sesiones, ajustes y cola de aprobaciones en `chrome.storage.local`. El SW **no tiene** `localStorage` | RNF-08, RF-25, RF-37 |
+| `storage` | Persistir cartera, sesiones, ajustes y cola de aprobaciones en `chrome.storage.local`. El SW **no tiene** `localStorage`. **v1.6 (RNF-14):** este permiso lo justifica **unicamente el Service Worker**, que es el custodio del estado; las ventanas de la extension no leen ni escriben el almacen y operan con los metodos internos de la seccion 5.1.1 | RNF-08, RF-25, RF-37, **RNF-14** |
 | `alarms` | **Vencimiento del plazo de aprobación aunque el SW esté dormido**: `setTimeout` no sobrevive a la suspensión | H-02/H-07, RF-37/RF-40/RF-41 |
 | `favicon` | **Icono de origen de la dApp en `notification.html`**: el origen solicitante se muestra con el favicon que sirve el **propio navegador** (`chrome-extension://<id>/_favicon/?pageUrl=…&size=32`). Es la única vía de obtenerlo sin descarga de red propia y sin aceptar un `data:` ni una URL remota propuesta por la dApp; si el permiso no estuviera declarado el favicon queda `null` y la UI usa el activo local del paquete (§3.8) | RF-35, **ADT-22/P-21** |
 | `clipboardRead` | **Política de portapapeles de R-09/P-20 (RF-50)**: al ocultarse el secreto revelado hay que **leer** el portapapeles (`navigator.clipboard.readText()`) para comparar su `sha256` con `clipboardHash` y borrarlo **solo** si todavía contiene la semilla o la clave; sin este permiso la comparación no puede hacerse y la extensión no destruye contenido ajeno | RF-50, RNF-09, **P-20/ADT-09** |
@@ -2156,6 +2209,8 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 **v1.3 — cierre de `R-09` (DEC-45/DEC-46).** Se anade la **regla 9** de la seccion 3.8 (**guarda de sesion de dApp activa**: bloquea el revelado/exportacion con `-32000`, revalidada en el SW, y bloquea tambien el borrado de la cuenta importada) y la **nueva seccion 3.9** (**guardas del reset** y orden de comprobacion estricto: cola vacia → sin transaccion en vuelo → confirmacion destructiva → limpieza, con la tabla de lo que se limpia y lo que se conserva —`truekeate_logs` sobrevive por RF-32— y el diagrama de flujo). Ambas causas citan el literal de **`diccionario_datos.md` §4.3** (fuente unica) y no lo reproducen. Se sincronizan las fuentes vinculantes (`requerimientos.md` v1.8, `casos_uso.md` v1.4, `diccionario_datos.md` v1.7, `estado_proyecto.md` v1.8 con DEC-01..DEC-46) y se unifica la clave `truekeate_rate_windows` (plural, forma canonica del diccionario §2.13) en las secciones 2.x y 5.x. **Residual cerrado:** `R-09` de `VEREDICTO_FASE2_V1.md` v1.2.
 
 **v1.4 — cierre de los 10 residuales de consistencia (`VR-01..VR-10`).** **(1) `VR-01`** `permissions` del manifest **unificado con `diccionario_datos.md`** en la tabla de §7.3, en el fragmento JSON del manifest, en el fragmento de `src/manifest.ts` (§7.5.4) y en **ADR-08**: `storage`, `alarms`, **`favicon`**, **`clipboardRead`** y **`clipboardWrite`**, cada uno con su fila de justificación (icono de origen de la dApp y política de portapapeles de `R-09`/`P-20`); el favicon deja de ser condicional. **(2) `VR-02`** catálogo de eventos citado como **24** en §2.5.2 y en el `erDiagram` de §4.2. **(3) `VR-04`** la tabla de errores de §5.1 (que reproducía y divergía de los literales) se sustituye por un **índice código → causa de 25 filas** que remite a `diccionario_datos.md` §4.3 sin reproducir ningún literal, y la nota de divergencia de la v1.1 se reescribe sin literal. **(4) `VR-05`** retirada definitiva de `windowsByApprovalId` y del campo `windowId` por solicitud (§2.3, §2.5.2 y riesgo R18), sustituidos por la clave persistida `truekeate_approval_window` (§2.14 del diccionario). **(5) `VR-09`** conteo de diagramas Mermaid corregido a **15** en el texto de §7.5.6, en el comentario de la comprobación de CI y en el historial, y bloques de «Fuentes» (encabezado) y «Documentos del corpus» (§10.3) sincronizados con las versiones vigentes (`requerimientos.md` v1.9, `casos_uso.md` v1.5, `diagramas.md` v1.2, `diccionario_datos.md` v1.8, `entornos_globales.md` v1.9, `estado_proyecto.md` v1.9). **Residuales cerrados:** `VR-01`, `VR-02`, `VR-04`, `VR-05` y `VR-09` de `VEREDICTO_FASE2_V1.md` **v1.3**.
+
+**v1.6 — ampliacion del contrato interno y cierre de la integracion de H2.** **(1)** §5.1.1 pasa de **7 a 15** metodos internos `wallet_*`: se anaden `wallet_getState`, `wallet_setCurrentAccount`, `wallet_addDerivedAccount`, `wallet_renameAccount`, `wallet_setAccountVisible`, `wallet_deleteImportedAccount`, `wallet_resetWallet` y `wallet_acceptDevNotice`, con su **`params[0]`**, su **retorno** y sus **errores por causa** (tabla nueva), y el codigo de ejemplo refleja la union cerrada, `WalletStateAccount` y `InternalWalletResultMap` completos. **(2)** §2.5.1 y §5.1 se sincronizan con los 15 metodos. **(3)** §2.3 gana el invariante **«el popup no custodia estado»** (RNF-14): ninguna ventana de la extension lee ni escribe `chrome.storage.local`; la lectura de estado es `wallet_getState` y toda mutacion pasa por su metodo interno. **(4)** §3.3 asienta **`truekeate_settings.hiddenAccounts: number[]`** como clave canonica de la visibilidad de las cuentas derivadas (RF-06), junto a `accountLabels`, y documenta que el reset la limpia con el resto del objeto. **(5)** §3.8 y §3.9 declaran que la guarda de sesion de dApp y las guardas del reset las comprueba **siempre el SW** (el popup ya no consulta el almacen) y que el valor revelado solo llega por `wallet_revealSecret`. **(6)** §7.3 precisa que el permiso `storage` lo justifica unicamente el Service Worker. Los literales de las causas nuevas («cartera dañada», «no hay cartera», «referencia inexistente», «importe inválido», «etiqueta inválida», «fallo del portapapeles» y «fallo de escritura de migración») se registran en **`diccionario_datos.md` §4.3 v1.9**, que sigue siendo la **fuente unica** de los mensajes.
 
 **Detalle por hallazgo (ADT-01..ADT-33).**
 

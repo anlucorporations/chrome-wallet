@@ -54,11 +54,20 @@ export const DAPP_URL = process.env.TK_DAPP_URL ?? 'http://localhost:5174/test.h
 /** `E2E_HEADLESS=false` abre el navegador visible; cualquier otro valor es headless. */
 const HEADLESS = process.env.E2E_HEADLESS !== 'false';
 
-/** Argumentos de Chrome que cargan la extensión desde `dist/` (nunca desde el perfil). */
+/**
+ * Argumentos de Chrome que cargan la extensión desde `dist/` (nunca desde el perfil).
+ *
+ * `--enable-clipboard-read-write` habilita la lectura del portapapeles sin diálogo: las pruebas
+ * de higiene del revelado (`CA-RF-50`) necesitan LEER lo que el popup copió para comprobar que
+ * al ocultarse queda vacío. `context.grantPermissions` NO sirve aquí: Chrome rechaza conceder
+ * permisos a orígenes opacos como `chrome-extension://`.
+ */
 const ARGUMENTOS_EXTENSION = [
   `--disable-extensions-except=${DIST_DIR}`,
   `--load-extension=${DIST_DIR}`,
   '--no-sandbox',
+  '--enable-clipboard-read-write',
+  '--enable-features=ClipboardReadWrite',
 ];
 
 // ---------------------------------------------------------------------------
@@ -283,6 +292,52 @@ export async function stopServiceWorker(
   const watch = await watchServiceWorker(context, extensionId, options.page);
   await watch.stop();
   return watch;
+}
+
+/**
+ * Abre el popup y acepta el aviso NO descartable de entorno de desarrollo (RNF-23) si aparece.
+ * Devuelve la página ya lista para operar: es el paso previo de todas las pruebas de H2.
+ */
+export async function openPopupReady(context: BrowserContext, extensionId: string): Promise<Page> {
+  const page = await openPopup(context, extensionId);
+  const dialogo = page.locator('.tk-dialog--notice');
+  const boton = page.getByRole('button', { name: 'He entendido, continuar' });
+  // Condición observable: el aviso está presente y bloquea la UI, o ya se aceptó antes.
+  await Promise.race([
+    boton.waitFor({ state: 'visible', timeout: 15_000 }),
+    page.locator('.tk-header').waitFor({ state: 'visible', timeout: 15_000 }),
+  ]);
+  if (await dialogo.isVisible()) {
+    await boton.click();
+    await expect(dialogo).toHaveCount(0);
+  }
+  return page;
+}
+
+/**
+ * Lee la matriz del QR de recepción tal y como la pinta el popup (rejilla de módulos con
+ * `tk-qr__module--dark`). Devuelve `null` si la figura no está presente.
+ *
+ * Es la fuente de verdad para contrastar «dirección mostrada = QR» sin depender del portapapeles.
+ */
+export async function readQrModules(page: Page): Promise<boolean[][] | null> {
+  return page.evaluate(() => {
+    const grid = document.querySelector('.tk-qr__grid');
+    if (grid === null) return null;
+    const modulos = [...grid.children];
+    const lado = Math.round(Math.sqrt(modulos.length));
+    if (lado * lado !== modulos.length) return null;
+    const matriz: boolean[][] = [];
+    for (let fila = 0; fila < lado; fila += 1) {
+      const filaModulos: boolean[] = [];
+      for (let columna = 0; columna < lado; columna += 1) {
+        const modulo = modulos[fila * lado + columna];
+        filaModulos.push(modulo?.classList.contains('tk-qr__module--dark') === true);
+      }
+      matriz.push(filaModulos);
+    }
+    return matriz;
+  });
 }
 
 /**
