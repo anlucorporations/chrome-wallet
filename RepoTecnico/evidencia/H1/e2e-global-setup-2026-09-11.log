@@ -14,20 +14,21 @@ $ npm run build
 
 vite v7.3.6 building client environment for production...
 transforming...
-✓ 219 modules transformed.
+✓ 230 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/src/connect.html                0.68 kB │ gzip:  0.43 kB
-dist/src/notification.html           0.72 kB │ gzip:  0.45 kB
-dist/src/index.html                  0.75 kB │ gzip:  0.43 kB
-dist/assets/base-B5SYnwbT.css       14.81 kB │ gzip:  3.47 kB
-dist/chunks/constants-DHnnyiYd.js    0.53 kB │ gzip:  0.39 kB │ map:    11.92 kB
-dist/connect.js                      1.15 kB │ gzip:  0.65 kB │ map:     3.30 kB
-dist/notification.js                 1.33 kB │ gzip:  0.74 kB │ map:     3.71 kB
-dist/index.js                       36.97 kB │ gzip: 12.15 kB │ map:   169.46 kB
-dist/background.js                 194.71 kB │ gzip: 72.96 kB │ map: 1,000.78 kB
-dist/chunks/base-GbSk7swv.js       222.48 kB │ gzip: 69.31 kB │ map: 1,052.64 kB
-✓ built in 2.21s
+dist/src/notification.html             0.72 kB │ gzip:   0.45 kB
+dist/src/index.html                    0.83 kB │ gzip:   0.45 kB
+dist/src/connect.html                  0.84 kB │ gzip:   0.46 kB
+dist/assets/base-CqPLG_tZ.css         16.95 kB │ gzip:   3.71 kB
+dist/notification.js                   1.33 kB │ gzip:   0.74 kB │ map:     3.71 kB
+dist/chunks/format-7NMUyVXo.js         1.61 kB │ gzip:   0.98 kB │ map:    20.64 kB
+dist/connect.js                        7.77 kB │ gzip:   3.07 kB │ map:    34.52 kB
+dist/chunks/walletState-BW0FF4au.js    9.71 kB │ gzip:   3.93 kB │ map:    54.53 kB
+dist/index.js                         34.99 kB │ gzip:  11.32 kB │ map:   153.47 kB
+dist/chunks/base-fw1gSSEG.js         222.48 kB │ gzip:  69.31 kB │ map: 1,052.64 kB
+dist/background.js                   384.31 kB │ gzip: 143.47 kB │ map: 1,813.96 kB
+✓ built in 3.66s
 [manifest] dist/manifest.json generado (version 1.0.0).
 
 ## Artefacto

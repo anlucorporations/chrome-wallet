@@ -95,6 +95,21 @@ export const BALANCE_POLL_MAX_ACCOUNTS = 10 as const;
 /** Ventana deslizante del límite de solicitudes aprobables por origen. */
 export const RATE_WINDOW_MS = 60_000 as const;
 
+/**
+ * Política CERRADA de reintentos del cliente RPC (M5, RNF-07 / tarea 3.4).
+ *
+ * `1 intento + 3 reintentos = 4 llamadas`, con backoff 1 s / 2 s / 4 s y timeout de 5 s por
+ * intento. Al agotarse, la página recibe `4900` y la UI queda «desconectado» con el
+ * almacén intacto. No es configurable desde la UI.
+ */
+export const RPC_ATTEMPTS = 4 as const;
+/** Número de REINTENTOS tras el primer intento (3): el total de llamadas es `RPC_ATTEMPTS`. */
+export const RPC_RETRIES = 3 as const;
+/** Backoff entre intentos, en ms: 1 s, 2 s y 4 s (índice `i` = reintento número `i + 1`). */
+export const RPC_BACKOFF_MS = [1_000, 2_000, 4_000] as const;
+/** Timeout de CADA intento contra el nodo, en ms. */
+export const RPC_TIMEOUT_MS = 5_000 as const;
+
 // ---------------------------------------------------------------------------
 // Cotas de payload y de log
 // ---------------------------------------------------------------------------
@@ -146,6 +161,19 @@ export const rateWindowTtlMs = 600_000 as const;
 
 /** *Debounce* máximo de escritura de la ventana de tasa de los métodos no aprobables. */
 export const RATE_PERSIST_DEBOUNCE_MS = 1_000 as const;
+
+/**
+ * Solicitudes por origen y ventana del *token bucket* de TODO el catálogo (H3, tarea 3.13).
+ *
+ * Es el MISMO límite que el de solicitudes aprobables (`pendingRequestsPerMinute = 6`), que el
+ * corpus fija en **6 solicitudes por ventana de 60 s** (`documento_tecnico.md` §2.3, invariante
+ * «*Token bucket* de todo el catálogo de H3»). Se deriva de aquel valor, de modo que el bucket de
+ * todo el catálogo y la cardinalidad de las aprobables tienen UNA sola fuente y no divergen.
+ */
+export const rateLimitWindowRequests: number = pendingRequestsPerMinute;
+
+/** Ventana del *token bucket* de todo el catálogo: 60 s (`RATE_WINDOW_MS`). */
+export const rateLimitWindowMs: number = RATE_WINDOW_MS;
 
 // ---------------------------------------------------------------------------
 // Identidad del provider (EIP-6963) y protocolo interno

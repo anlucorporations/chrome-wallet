@@ -1,0 +1,9 @@
+{
+  "fecha": "2026-09-11",
+  "flujoAliasYId": "provider: alias e ID estable",
+  "extensionIdDescubierto": "oiahebaliobknoeeonhgaacapjcpgblo",
+  "extensionIdDerivadoDeLaKey": "oiahebaliobknoeeonhgaacapjcpgblo",
+  "coincide": true,
+  "backgroundUrl": "chrome-extension://oiahebaliobknoeeonhgaacapjcpgblo/background.js",
+  "origenDeLaDapp": "http://localhost:5174"
+}

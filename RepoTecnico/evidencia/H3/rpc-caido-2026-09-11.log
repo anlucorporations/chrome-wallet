@@ -1,0 +1,8 @@
+# Evidencia 27-rpc-caido — 2026-09-11
+Anvil detenido (PIDs): 16284
+Anvil confirmado caído: http://127.0.0.1:8545 deja de responder (condición observada).
+eth_chainId con el nodo caído: {"error":{"code":4900,"message":"Sin conexión con la red local (Anvil).","data":{"reason":"rpc-error","detail":"Failed to fetch","method":"eth_chainId","attempts":4,"retries":3,"backoffMs":[1000,2000,4000],"timeoutMs":5000,"rpcUrl":"http://127.0.0.1:8545"}}} en 7130 ms
+UI: el popup muestra «Desconectado: sin respuesta del nodo local».
+Claves comparadas (sin truekeate_logs): 7; cambiadas: ninguna
+Anvil restaurado: OK (chainId 0x7a69)
+eth_chainId tras restaurar Anvil: {"result":"0x7a69"}

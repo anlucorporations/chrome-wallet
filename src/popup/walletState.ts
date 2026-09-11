@@ -2,7 +2,7 @@
  * M39 (soporte) — `src/popup/walletState.ts`
  * Estado y operaciones de cartera del popup, SIEMPRE por los métodos internos `wallet_*`.
  *
- * Reparto de responsabilidades (CONTRATO, `documento_tecnico.md` §5.1.1 v1.6):
+ * Reparto de responsabilidades (CONTRATO, `documento_tecnico.md` §5.1.1 v1.7):
  * - **El popup es solo UI** (RNF-14): no lee ni escribe el almacén de la extensión, no importa
  *   `ethers` y no custodia estado. Todas las lecturas y mutaciones viajan por
  *   `chrome.runtime.sendMessage` con los métodos internos del contrato, que el Service Worker
@@ -17,6 +17,7 @@ import type {
   AccountRef,
   Address,
   ChainIdHex,
+  ConnectedSiteView,
   StoredNetwork,
   TruekeateSettings,
 } from '../shared/types';
@@ -70,6 +71,12 @@ export interface WalletSnapshot {
   networks: StoredNetwork[];
   currentChainId: ChainIdHex | null;
   integrity: WalletIntegrity;
+  /**
+   * v1.7: sitios conectados de `truekeate_connected_sites` (§2.7) tal y como los publica
+   * `wallet_getState.connectedSites`: origen normalizado, cuenta compartida, red, alta, último
+   * uso, caducidad y `current` = sesión vigente. SIN secretos; los pinta «Sitios conectados» (M44).
+   */
+  connectedSites: ConnectedSiteView[];
   /** Atajo de `integrity.mnemonicPresent`. */
   mnemonicPresent: boolean;
   /** `true` cuando el SW informó de una cartera dañada (RNF-22). */
@@ -94,6 +101,8 @@ interface WalletStateResponse {
   networks: StoredNetwork[];
   currentChainId: ChainIdHex;
   settings: WalletSettings;
+  /** v1.7: puede faltar si el SW es anterior; la UI lo trata como lista vacía. */
+  connectedSites?: ConnectedSiteView[];
 }
 
 /** Estado del que no hay nada que leer (sin canal o sin respuesta coherente). */
@@ -151,6 +160,7 @@ export const readSnapshot = async (): Promise<SnapshotResult> => {
       networks: state.networks ?? [],
       currentChainId: state.currentChainId ?? null,
       integrity,
+      connectedSites: state.connectedSites ?? [],
       mnemonicPresent: integrity.mnemonicPresent,
       damaged,
       damagedReason: damaged

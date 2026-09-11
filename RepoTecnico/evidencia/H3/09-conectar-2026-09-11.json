@@ -1,0 +1,22 @@
+{
+  "flujo": "conectar: elección de la cuenta 2",
+  "fecha": "2026-09-11",
+  "origen": "http://localhost:5174",
+  "cuentasOfrecidas": 5,
+  "saldosVisibles": [
+    "10000,0000 ETH",
+    "10000,0000 ETH",
+    "10000,0000 ETH",
+    "10000,0000 ETH",
+    "10000,0000 ETH"
+  ],
+  "cuentaElegida": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "resultadoDelFlujo": "[\n  \"0x70997970C51812dc3A010C7d01b50e0d17dc79C8\"\n]",
+  "ttlMs": 86400000,
+  "trasRecargar": [
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  ],
+  "trasReiniciarElSW": [
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  ]
+}

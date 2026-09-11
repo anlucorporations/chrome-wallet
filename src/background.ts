@@ -30,7 +30,10 @@ import { APPROVAL_PORT_NAME, logLimit } from './shared/constants';
 import { STORAGE_KEYS, SCHEMA_VERSION, readStorage } from './background/state/schema';
 import { applyStorageAccessLevel } from './background/security/accessLevel';
 import { unsupportedMethodError, userRejectedError, internalError } from './background/rpc/errors';
-import { handleRpcMessage, type RpcResponse } from './background/rpc/router';
+import { handleRpcMessage, type RpcResponse, type RoutedMessage } from './background/rpc/router';
+import { reconcileRateWindows } from './background/rpc/rateLimit';
+import { seedDefaultNetwork } from './background/networks/catalog';
+import { applyConnectResponse, clearPendingConnects } from './background/connections';
 import { runMigrations } from './background/state/migrations';
 import { checkWalletIntegrity } from './background/crypto/integrity';
 import { isTruekeateMessageType } from './shared/protocol';
@@ -41,6 +44,7 @@ import type {
   LogCategory,
 } from './shared/types';
 import type { SenderLike } from './background/security/senderGuard';
+import type { ResponseTarget } from './background/security/senderGuard';
 
 // ---------------------------------------------------------------------------
 // Tipos mínimos de las APIs de extensión que usa el arranque
@@ -86,6 +90,31 @@ interface StorageLocalLike {
   set(items: Record<string, unknown>): Promise<void>;
   getBytesInUse(keys?: string | string[] | null): Promise<number>;
 }
+
+/**
+ * Superficie de `chrome.tabs` que usa el arranque (H3): entregar la respuesta de una lectura de
+ * página a su pestaña y, con `frameId !== 0`, SOLO a ese frame (DEC-40/ADT-07).
+ */
+interface TabsMessagingLike {
+  sendMessage(tabId: number, message: unknown, options?: { frameId?: number }): Promise<unknown>;
+}
+
+/** Devuelve `chrome.tabs` sin `any`, o `null` si la API no está disponible. */
+const tabsMessaging = (): TabsMessagingLike | null => {
+  const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
+  if (typeof chromeNs !== 'object' || chromeNs === null) {
+    return null;
+  }
+  const tabs: unknown = (chromeNs as { tabs?: unknown }).tabs;
+  if (typeof tabs !== 'object' || tabs === null) {
+    return null;
+  }
+  const candidate = tabs as { sendMessage?: unknown };
+  if (typeof candidate.sendMessage !== 'function') {
+    return null;
+  }
+  return tabs as TabsMessagingLike;
+};
 
 /** Registro del instante de arranque, para medir la cota de < 1 s de RNF-08. */
 const bootStartedAt = Date.now();
@@ -424,22 +453,47 @@ const autoLoadStatePhase = async (): Promise<AutoLoadedState> => {
 };
 
 /**
- * Fase 5 — reconciliación de plazos. En H2 es VACÍA por diseño: no existe todavía cola
- * persistida (`truekeate_pending_requests`), marca de «tx en vuelo» ni `alarms` de vencimiento
- * que rearmar; M16 la completa en H4.
+ * Fase 3 — red por defecto (M23, tarea 3.6): siembra `truekeate_networks` con **Anvil local**
+ * (`0x7a69`, `isDefault: true`, sin Sepolia) y fija `truekeate_chain_id` si falta o es inválido.
+ * Es idempotente y nunca rompe el arranque: un fallo de escritura se registra y se continúa.
+ */
+const seedDefaultNetworkPhase = async (): Promise<void> => {
+  try {
+    await seedDefaultNetwork();
+  } catch (error) {
+    console.warn('[truekeate] no se pudo sembrar la red por defecto', error);
+  }
+};
+
+/**
+ * Fase 6 — reconciliación de plazos. La cola persistida llega en H4 (M16): aquí no existe
+ * `truekeate_pending_requests` que purgar, ni huérfanas que resolver, ni `alarms` que rearmar.
  *
- * Lo que SÍ garantiza ya:
- * - Se ejecuta en cada arranque y es idempotente.
+ * Lo que SÍ hace ya en H3, además de ser idempotente:
+ * - Reconstruye la ventana de tasa por origen (M3.b / tarea 3.13): purga las entradas inactivas
+ *   (`rateWindowTtlMs`), reinicia las que tienen el reloj en el futuro y conserva el resto, de
+ *   modo que el *token bucket* **sobrevive a la suspensión** del SW.
  * - No usa `setTimeout` ni `setInterval` (prohibidos en el SW: no sobreviven a la suspensión).
  * - Devuelve su coste medido, que se persiste en `bootMs` de la entrada `sw_started`.
  */
 const runEmptyReconciliation = async (): Promise<{ pendingProcessed: number; elapsedMs: number }> => {
   const startedAt = Date.now();
-  // H2: no hay estado que purgar, huérfanas que resolver ni `alarms` que rearmar.
+  // H4: no hay cola que purgar, huérfanas que resolver ni `alarms` que rearmar.
   const pendingProcessed = 0;
+  try {
+    const rateWindows = await reconcileRateWindows();
+    if (rateWindows.purged > 0 || rateWindows.reset > 0) {
+      console.info(
+        `[truekeate] ventana de tasa reconciliada: ${rateWindows.purged} purgadas, ${rateWindows.reset} reiniciadas, ${rateWindows.retained} conservadas`,
+      );
+    }
+  } catch (error) {
+    // La reconciliación de la tasa NUNCA rompe el arranque: el bucket se reconstruye al usarse.
+    console.warn('[truekeate] no se pudo reconciliar truekeate_rate_windows', error);
+  }
   const elapsedMs = Date.now() - startedAt;
   if (elapsedMs > 1_000) {
-    console.warn('[truekeate] la reconciliación vacía superó 1 s:', elapsedMs);
+    console.warn('[truekeate] la reconciliación superó 1 s:', elapsedMs);
   }
   return { pendingProcessed, elapsedMs };
 };
@@ -505,7 +559,54 @@ const registerApprovalPortListener = (): void => {
 };
 
 /**
- * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3).
+ * Entrega la respuesta de una lectura de página a su pestaña y, con `frameId !== 0`, SOLO a ese
+ * frame (DEC-40/ADT-07). Si el emisor fue un contexto de la extensión, la respuesta viaja por el
+ * canal de `onMessage` (`sendResponse`) y no se envía ningún mensaje a pestañas.
+ *
+ * Devuelve `true` cuando encontró un destinatario por pestaña. Un fallo de entrega (pestaña sin
+ * content script o cerrada) se ignora: la respuesta ya se entregó por el canal de `onMessage`
+ * cuando procedía y no puede romper el listener.
+ */
+const deliverToPage = async (
+  target: ResponseTarget,
+  response: RpcResponse,
+): Promise<boolean> => {
+  if (target.tabId === null) {
+    return false;
+  }
+  const tabs = tabsMessaging();
+  if (tabs === null) {
+    return false;
+  }
+  const message = { type: 'TRUEKEATE_RESPONSE', ...response };
+  try {
+    if (target.frameId !== null && target.frameId !== 0) {
+      await tabs.sendMessage(target.tabId, message, { frameId: target.frameId });
+    } else {
+      await tabs.sendMessage(target.tabId, message);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Atiende `CONNECT_RESPONSE` (H3, tarea 3.10): `connect.html` entrega la elección del usuario y
+ * aquí se persiste la sesión del origen (`truekeate_connected_sites`) o se rechaza con `4001`.
+ * La promesa de `eth_requestAccounts` la resuelve `connections.ts` (M26.b).
+ */
+const handleConnectResponseMessage = async (message: unknown): Promise<void> => {
+  const record = asRecord(message);
+  if (record === null) {
+    return;
+  }
+  await applyConnectResponse(record);
+};
+
+/**
+ * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3) y
+ * `CONNECT_RESPONSE` → sesión por origen (M26).
  *
  * Se responde de forma ASÍNCRONA (`return true`) porque el despacho de los métodos internos
  * toca el almacén. Un mensaje que no pertenece al protocolo (ningún tipo `TRUEKEATE_*`) no se
@@ -523,9 +624,32 @@ const registerRpcMessageListener = (): void => {
       // No es un mensaje del protocolo: no se responde ni se retiene el canal.
       return undefined;
     }
+    if (record.type === 'CONNECT_RESPONSE') {
+      void handleConnectResponseMessage(message)
+        .then(() => {
+          sendResponse({ ok: true });
+        })
+        .catch((error: unknown) => {
+          sendResponse({
+            error: internalError({
+              reason: 'connect-response',
+              detail: error instanceof Error ? error.message : 'unhandled',
+            }),
+          });
+        });
+      return true;
+    }
     void handleRpcMessage(message, toSenderLike(sender))
-      .then((response: RpcResponse | undefined) => {
-        sendResponse(response);
+      .then(async (routed: RoutedMessage | undefined) => {
+        if (routed === undefined) {
+          // El router no reconoce el mensaje: se acusa recibo sin cuerpo.
+          sendResponse(undefined);
+          return;
+        }
+        // Respuesta por el canal de `onMessage` (popup / ventanas internas) y, además, entrega
+        // a la pestaña de origen cuando el emisor fue un content script (H3).
+        sendResponse(routed.response);
+        await deliverToPage(routed.target, routed.response);
       })
       .catch((error: unknown) => {
         // Última red de seguridad: jamás un error sin `code` hacia el popup.
@@ -553,11 +677,14 @@ export const bootstrap = async (): Promise<void> => {
   await applyStorageAccessLevel();
   // 2. Migraciones de esquema (M34), antes de leer estado.
   const migration = await runMigrationsPhase();
-  // 3. Integridad (M13): puede dejar la cartera «dañada».
+  // 3. Red por defecto (M23): Anvil se siembra en `truekeate_networks` con su `chainId` (`0x7a69`).
+  await seedDefaultNetworkPhase();
+  // 4. Integridad (M13): puede dejar la cartera «dañada».
   const integrity = await runIntegrityPhase();
-  // 4. Auto-carga del estado (M33/M28/M29).
+  // 5. Auto-carga del estado (M33/M28/M29).
   const autoLoaded = await autoLoadStatePhase();
-  // 5. Reconciliación de plazos (vacía en H2).
+  // 6. Reconciliación: la cola persistida llega en H4 (vacía aquí) y la ventana de tasa (M3.b) se
+  //    normaliza y se purga en cada arranque para sobrevivir a la suspensión del SW.
   const reconciliation = await runEmptyReconciliation();
 
   const bootMs = Date.now() - bootStartedAt;

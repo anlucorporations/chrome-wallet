@@ -60,9 +60,9 @@ export type ApprovalMethod =
   | 'wallet_revokePermissions';
 
 /**
- * Los **15** métodos internos `wallet_*` (contrato de `documento_tecnico.md` §5.1.1, ampliado
- * en la v1.6 con los 8 métodos de UI del hito H2). Solo se aceptan desde páginas de la
- * extensión; desde un content script → `4200`.
+ * Los **16** métodos internos `wallet_*` (contrato de `documento_tecnico.md` §5.1.1, ampliado
+ * en la v1.6 con los 8 métodos de UI del hito H2 y en la v1.7 con la entrega de la solicitud de
+ * conexión). Solo se aceptan desde páginas de la extensión; desde un content script → `4200`.
  *
  * Nota de discrepancia anotada: la tabla de `diccionario_datos.md` §4.3 enumera 6 de los 7
  * originales (omite `wallet_importMnemonic`, que sí existe en §5.1.1 y en la tabla de
@@ -85,7 +85,14 @@ export type InternalMethod =
   | 'wallet_setAccountVisible'
   | 'wallet_deleteImportedAccount'
   | 'wallet_resetWallet'
-  | 'wallet_acceptDevNotice';
+  | 'wallet_acceptDevNotice'
+  // --- Ampliación de la v1.7 (§5.1.1): entrega de la solicitud de conexión (§2.9) ---
+  /**
+   * `connect.html` pide al SW la solicitud `pending` que debe resolver —`{requestId, origin,
+   * accounts, currentAccountIndex, chainId, expiresAt}`— para no depender de una lectura del
+   * almacén (RNF-14) ni de la lista de cuentas del popup.
+   */
+  | 'wallet_getConnectRequest';
 
 /** Métodos de lectura del catálogo que NO requieren aprobación. */
 export type PageReadMethod =
@@ -284,6 +291,27 @@ export interface ConnectRequest {
   status: ApprovalStatus;
 }
 
+/**
+ * Vista de la solicitud de conexión que el SW entrega a `connect.html` con
+ * `wallet_getConnectRequest` (§5.1.1 v1.7): es el subconjunto de {@link ConnectRequest} que la
+ * ventana necesita para pintarse y para responder con `account` **y** `accountIndex` coherentes.
+ *
+ * No viaja ningún dato del emisor (`tabId`, `frameId`, `favicon` ni `status`): la ventana solo
+ * resuelve la elección del usuario y el SW sigue siendo el custodio del ciclo de vida.
+ */
+export interface ConnectRequestView {
+  requestId: Uuid;
+  /** Origen NORMALIZADO que pide la conexión (§2.7). */
+  origin: string;
+  /** Cuentas ofrecidas, en el orden canónico de `ConnectRequest.accounts` (§2.9). */
+  accounts: Address[];
+  /** Posición preseleccionada dentro de `accounts`. */
+  currentAccountIndex: number;
+  chainId: ChainIdHex;
+  /** `createdAt + CONNECT_TIMEOUT_MS`; superado, la solicitud ya no se entrega. */
+  expiresAt: number;
+}
+
 /** Ventana única de confirmación `truekeate_approval_window` (§2.14). */
 export interface ApprovalWindow {
   windowId: number | null;
@@ -409,6 +437,26 @@ export interface DappSession {
   /** `lastUsedAt + sessionTtlMs`; `null` = sin caducidad. */
   expiresAt: number | null;
   connected: boolean;
+}
+
+/**
+ * Vista de una sesión de dApp para la UI (`wallet_getState.connectedSites`, §5.1.1 v1.7).
+ *
+ * Es la forma canónica de `diccionario_datos.md` §2.7 —origen normalizado, cuenta compartida,
+ * red, alta, último uso y caducidad— **sin secretos** y sin datos internos de propagación
+ * (`tabIds` no se publica a la UI). `current` distingue la sesión **vigente** (entrada viva y no
+ * vencida) de la que ya caducó y solo espera su purga perezosa.
+ */
+export interface ConnectedSiteView {
+  origin: string;
+  account: Address;
+  chainId: ChainIdHex;
+  connectedAt: number;
+  lastUsedAt: number;
+  /** `lastUsedAt + sessionTtlMs`; `null` = sin caducidad (§2.7). */
+  expiresAt: number | null;
+  /** `true` = sesión VIGENTE en el instante de la lectura; `false` = vencida o desconectada. */
+  current: boolean;
 }
 
 /** Marca persistida de «transacción en vuelo» por cuenta (§2.12). */

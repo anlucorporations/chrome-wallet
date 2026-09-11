@@ -418,18 +418,20 @@ export const approvalWindowClosedError = (): Eip1193Error =>
   createEip1193Error('approvalWindowClosed');
 
 /** `4001` — exceso de cardinalidad o de tasa de solicitudes aprobables. */
-export const tooManyPendingRequestsError = (): Eip1193Error =>
-  createEip1193Error('tooManyPendingRequests');
+export const tooManyPendingRequestsError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('tooManyPendingRequests', {}, data);
 
 /** `4001` — *token bucket* agotado en cualquier método del catálogo (ADT-24 / D-Q). */
-export const rateLimitExceededError = (): Eip1193Error => createEip1193Error('rateLimitExceeded');
+export const rateLimitExceededError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('rateLimitExceeded', {}, data);
 
 /** `4001` — permiso de host denegado al dar de alta una red (ACU-27 / D-G). */
 export const hostPermissionDeniedError = (rpcUrl: string): Eip1193Error =>
   createEip1193Error('hostPermissionDenied', { rpcUrl });
 
 /** `4100` — origen sin sesión autorizada o emisor no autorizado. */
-export const unauthorizedOriginError = (): Eip1193Error => createEip1193Error('unauthorizedOrigin');
+export const unauthorizedOriginError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('unauthorizedOrigin', {}, data);
 
 /** `4200` — método fuera del catálogo (es el caso de `eth_sign`). */
 export const unsupportedMethodError = (): Eip1193Error => createEip1193Error('unsupportedMethod');
@@ -438,8 +440,9 @@ export const unsupportedMethodError = (): Eip1193Error => createEip1193Error('un
 export const methodNotAllowedInContextError = (): Eip1193Error =>
   createEip1193Error('methodNotAllowedInContext');
 
-/** `4900` — RPC local caído (RNF-07). */
-export const rpcUnavailableError = (): Eip1193Error => createEip1193Error('rpcUnavailable');
+/** `4900` — RPC local caído (RNF-07). `data` es solo diagnóstico (intentos y backoff). */
+export const rpcUnavailableError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('rpcUnavailable', {}, data);
 
 /** `4901` — `chainId` no dado de alta. */
 export const chainNotRegisteredError = (): Eip1193Error => createEip1193Error('chainNotRegistered');

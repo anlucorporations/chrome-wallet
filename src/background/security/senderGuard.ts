@@ -30,7 +30,8 @@ import {
   EXTENSION_ROUTE_NOTIFICATION,
   EXTENSION_ROUTE_POPUP,
 } from '../../shared/protocol';
-import { INTERNAL_METHODS } from '../rpc/catalog';
+// D-H3-C: la allowlist de internos se importa del módulo HOJA (sin ciclo con el catálogo).
+import { INTERNAL_METHODS } from '../rpc/internalMethods';
 import { methodNotAllowedInContextError, unauthorizedOriginError } from '../rpc/errors';
 
 /** Rutas internas permitidas como emisoras de mensajes (allowlist cerrada). */
@@ -214,14 +215,18 @@ export const isExtensionSender = (sender: SenderLike): boolean => {
 };
 
 /**
- * Nombres de los métodos internos `wallet_*`. Se derivan del catálogo (M4) para que la
- * allowlist del contrato §5.1.1 tenga una ÚNICA fuente y no pueda divergir.
+ * Nombres de los métodos internos `wallet_*`.
+ *
+ * La lista se importa del módulo **HOJA** `../rpc/internalMethods` (M4.a) y NO del catálogo (M4):
+ * ese era el origen del ciclo `catalog → sessions → senderGuard → catalog`, que hacía que la
+ * constante se capturara como `undefined` si `catalog` se evaluaba primero (defecto **D-H3-C**,
+ * `TypeError: Cannot read properties of undefined (reading 'includes')` → `-32603` en el router).
+ * Al no tener dependencias en tiempo de ejecución, la constante está inicializada antes que la de
+ * cualquier importador, sea cual sea el orden de importación: la allowlist del contrato §5.1.1
+ * sigue teniendo una ÚNICA fuente y la fragilidad es imposible por construcción.
  */
-export const INTERNAL_METHOD_NAMES: readonly string[] = INTERNAL_METHODS;
-
-/** ¿Es el método uno de los internos `wallet_*` del contrato de §5.1.1? */
 export const isInternalMethodName = (method: string): boolean =>
-  INTERNAL_METHOD_NAMES.includes(method);
+  (INTERNAL_METHODS as readonly string[]).includes(method);
 
 /**
  * Guarda principal del canal interno.

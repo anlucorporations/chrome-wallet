@@ -12,10 +12,14 @@
  *   `settings.encryptionEnabled` es siempre `false` (RE-02).
  * - **Cero criptografía**: crear, importar y derivar son métodos internos del SW (§5.1.1).
  * - **Validación inline antes de enviar** (RF-33) y mensaje con su `code` y su acción (§4.3).
+ * - **Saldos** (M47, `CA-RF-27`): los importes llegan ya leídos y formateados por
+ *   `useBalancePolling`, que los pide al Service Worker con `eth_getBalance`. Esta vista no hace
+ *   ninguna llamada por su cuenta.
  * - Toda la UI en español (RF-34) y con etiquetas accesibles (RNF-21).
  */
 
 import { useState, type JSX } from 'react';
+import type { AccountRef } from '../../shared/types';
 import { AccountCard } from '../components/AccountCard';
 import { DialogoDecision } from '../components/DialogoDecision';
 import { Field } from '../components/Field';
@@ -48,6 +52,10 @@ export interface AccountsViewProps {
   onChanged: () => Promise<void>;
   /** Informa de que la cartera dejó de existir (reset desde otra vista). */
   onWalletGone: () => void;
+  /** Saldos ya formateados por referencia de cuenta (M47); vacío mientras no haya datos. */
+  balances?: ReadonlyMap<AccountRef, string>;
+  /** Estado del polling en español, para el aviso de suspensión (RNF-07). */
+  balanceStatus?: string | null;
 }
 
 /** Vista de cuentas del popup. */
@@ -56,6 +64,8 @@ export function AccountsView({
   currentAccount,
   onChanged,
   onWalletGone,
+  balances,
+  balanceStatus = null,
 }: AccountsViewProps): JSX.Element {
   const [form, setForm] = useState<OpenForm>('none');
   const [mnemonicDraft, setMnemonicDraft] = useState('');
@@ -238,6 +248,13 @@ export function AccountsView({
           <span className="tk-badge">{visibleAccounts.length}</span>
         </div>
 
+        {/* Estado del polling de saldos (M47): «desconectado» si el nodo no responde (RNF-07). */}
+        {balanceStatus !== null ? (
+          <p className="tk-note" role="status">
+            {balanceStatus}
+          </p>
+        ) : null}
+
         {hiddenCount > 0 ? (
           <label className="tk-check" htmlFor="ver-ocultas">
             <input
@@ -258,7 +275,7 @@ export function AccountsView({
               key={account.ref}
               account={account}
               active={account.ref === currentAccount}
-              balance={null}
+              balance={balances?.get(account.ref) ?? null}
               onSelect={() => {
                 void handleSelect(account);
               }}

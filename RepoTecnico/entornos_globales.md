@@ -1,8 +1,9 @@
 # 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 2.0
+> **Fase:** 1 — Concepto · **Versión:** 2.1
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
-> **v1.9 (esta versión):** cierra los residuales de la última pasada de consistencia **`VR-01`** (permisos del manifest: `favicon`, `clipboardRead` y `clipboardWrite` declarados y justificados en §4, y el favicon deja de ser condicional) y **`VR-03`** (las constantes `PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS` y `EXTENSION_ID` se declaran en la tabla de §3, cerrando las referencias colgantes de `diccionario_datos.md` §2.12/§2.13/§3.9/§4.1.1 y §5). Detalle en §7.
+> **v2.1 (esta versión):** registra el comando de Anvil que **sí** funciona con el arnés E2E (**H3**, 2026-09-11) —`anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"`, **sin `--silent`**— con el aviso de que **`anvil --silent` no arranca** cuando se lanza mediante `Start-Process` con redirección de salida (el proceso muere con **exit 1** y toda la suite E2E falla con `ERR_CONNECTION_REFUSED` / `error sending request`), y con la recomendación de que el `global-setup` **aborte con un mensaje claro si Anvil no responde** (§2.1/§2.4). Detalle en §7.
+> **v1.9:** cierra los residuales de la última pasada de consistencia **`VR-01`** (permisos del manifest: `favicon`, `clipboardRead` y `clipboardWrite` declarados y justificados en §4, y el favicon deja de ser condicional) y **`VR-03`** (las constantes `PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS` y `EXTENSION_ID` se declaran en la tabla de §3, cerrando las referencias colgantes de `diccionario_datos.md` §2.12/§2.13/§3.9/§4.1.1 y §5). Detalle en §7.
 > **v1.7:** cierra los hallazgos **ADT-01, ADT-14, ADT-19, ADT-20, ADT-21, ADT-28, ADT-29 y ADT-30** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` con las decisiones **D-L, D-M, D-N, D-O, D-P y D-U**: pipeline MV3 real con los 7 scripts npm y las 3 páginas HTML (§1, §2.2); ruta vigente de las constantes del plazo en `src/background/approvals/timeout.ts` (ADT-28); los **8 tipos de mensaje** en §10 (ADT-29); `notifications` como permiso **opcional** ligado a RF-39 (ADT-30); `key` fija del manifest y UUID literal de EIP-6963 (ADT-19); alcance real de la inyección con `exclude_matches` y `use_dynamic_url` (ADT-20); cota de payload de **64 KiB**, cuota de **10 MB** sin `unlimitedStorage` y `REVEAL_HIDE_MS` (ADT-14, ADT-21). Detalle en §7.
 > **v1.6:** cierra los hallazgos **ACU-03, ACU-17, ACU-25 y ACU-27** de `casos_uso/AUDITORIA_CASOS_USO_V1.md` con las decisiones **D-A, D-B, D-C y D-G**: constantes `PROVIDER_NAME`/`PROVIDER_RDNS`/`SESSION_TTL_MS` en §3 con la distinción entre el `name` de EIP-6963 y `manifest.name`; literal único de build limpio `npm ci && npm run build` (§2.2); permiso de host en runtime y por red —también desde el popup— con el manifest en mínimos privilegios (§4); claves canónicas con prefijo completo. Detalle en §7.
 
@@ -59,6 +60,14 @@ anvil
 anvil --host 127.0.0.1 --port 8545 --chain-id 31337 `
       --http.corsdomain "chrome-extension://<ID>,http://localhost:5174,http://127.0.0.1:5174"
 
+# Comando VERIFICADO del arnés E2E (H3, 2026-09-11): es el que arranca correctamente cuando lo lanza la
+# suite. El comodín de CORS se admite SOLO en la máquina de desarrollo del arnés (ver aviso inferior).
+anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"
+
+# ⚠️ PROHIBIDO en el arnés: `anvil --silent` NO ARRANCA cuando se lanza con Start-Process y redirección
+#    de salida (el proceso muere con exit 1). Síntoma: TODA la suite E2E falla con «ERR_CONNECTION_REFUSED»
+#    / «error sending request», un fallo que se confunde con un defecto de la extensión.
+
 # Verificar que responde
 cast block-number --rpc-url http://127.0.0.1:8545
 cast chain-id     --rpc-url http://127.0.0.1:8545     # -> 31337
@@ -72,6 +81,8 @@ anvil --version
 ```
 
 > ⚠️ **No exponer el RPC local (H-41).** `--http.corsdomain "*"` permitiría a **cualquier** sitio visitado en el equipo llamar al JSON-RPC local (y facilita escenarios de *DNS rebinding* hacia `127.0.0.1`). Se usa siempre la **allowlist concreta** de arriba. El comodín solo sería aceptable en una máquina de desarrollo aislada y sin navegación a sitios de terceros, y en ningún caso se publica el puerto 8545 fuera de `127.0.0.1` (nada de `--host 0.0.0.0`).
+
+> ⚠️ **Comando del arnés y `--silent` (H3 / DEC-61).** El comando con **allowlist** de arriba (`chrome-extension://<ID>,http://localhost:5174,http://127.0.0.1:5174`) es la configuración **normativa del producto** (RE-04/H-41) y no cambia. Para la **suite E2E** se verificó en H3 (2026-09-11) que funciona `anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"`; ese comodín queda **acotado a la máquina de desarrollo del arnés** (aislada, sin navegación a terceros) y **nunca** se documenta ni se usa como configuración del producto. En ningún caso se añade **`--silent`**: con `Start-Process` y redirección de salida el proceso **muere con exit 1** y la suite entera falla con `ERR_CONNECTION_REFUSED` / `error sending request`, un síntoma que se confunde con un defecto de la extensión.
 
 > **Decisión P-02:** Anvil es la **única** red. No se incluye Sepolia. El cambio de red (RF-22/RF-23) se prueba añadiendo una segunda red local con `wallet_addEthereumChain` (por ejemplo `anvil --port 8546 --chain-id 31338`, con su propia allowlist de CORS).
 
@@ -141,6 +152,8 @@ cast block-number --rpc-url http://127.0.0.1:8545         # Anvil responde: devu
 ```
 
 Si Anvil no responde o la versión está fuera de rango, la suite E2E **no se ejecuta** y se marca como **no verificada** (nunca como satisfactoria).
+
+> **Recomendación vinculante (H3 / DEC-61).** El **`global-setup` debe abortar con un mensaje claro si Anvil no responde** (`cast chain-id` ≠ `31337`), en lugar de continuar: hoy `e2e/global-setup.ts` solo emite un **`AVISO`** y las pruebas con red se saltan o fallan más tarde con errores engañosos (`ERR_CONNECTION_REFUSED`, `error sending request`). El aborto explícito convierte un fallo de entorno en un diagnóstico inmediato y evita confundirlo con un defecto del producto.
 
 ### 2.5 Comandos git del proyecto
 
@@ -329,7 +342,9 @@ glab repo create chrome-wallet --private
 | 1.6 | Cierre de la auditoría de casos de uso (decisiones D-A, D-B, D-C y D-G): `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` en §3 con la nota de que el `name` de EIP-6963 **no** es `manifest.name` (ACU-03); `SESSION_TTL_MS = 86400000` respaldado por RF-25 (ACU-17); literal único de build limpio `npm ci && npm run build` —`npm install` deja de ser válido como literal— (ACU-26 / D-C); permiso de host en runtime y por red, también desde el popup, con el manifest en mínimos privilegios (§4, ACU-27 / D-G); claves canónicas con prefijo completo (ACU-25). |
 | **1.7** | Cierre de los hallazgos **ADT-01, ADT-14, ADT-19, ADT-20, ADT-21, ADT-28, ADT-29 y ADT-30** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (decisiones D-L, D-M, D-N, D-O, D-P y D-U): **pipeline MV3 real** con los 7 scripts npm (`dev`, `build`, `typecheck`, `test`, `coverage`, `test:e2e`, `lint:prohibited`), las 6 entradas y las 3 páginas HTML junto a `test.html` (§1, §2.2; ADT-01); **ruta vigente de las constantes del plazo** en `src/background/approvals/timeout.ts` y de las compartidas en `src/shared/constants.ts`, declarando **sustituida** `src/background/approvals.ts` (§3; ADT-28); **cota de payload 64 KiB** con `-32602` y previews redactadas en reposo, **cuota de 10 MB** sin `unlimitedStorage` con 1 reintento y `-32603`, y **`REVEAL_HIDE_MS = 30000`** (§3; ADT-14, ADT-21); **`key` fija** del manifest y **UUID literal** de EIP-6963 (§3, §4; ADT-19); **`notifications` como permiso opcional** de RF-39 y manifest del MVP sin declararlo (§4; ADT-30); **alcance real de la inyección** `<all_urls>` + `all_frames` con `exclude_matches`, `use_dynamic_url` y favicon saneado del navegador (§4; ADT-20); **§10 con los 8 tipos de mensaje** (ADT-29); verificación previa de Anvil reforzada antes de los E2E (§2.4). |
  **1.8** — cierre del residual **R-08** del veredicto de reevaluación: el modo de fallo observable de la cuota de `chrome.storage.local` incorpora su evidencia reproducible (`Vitest: storageQuota.spec.ts`).
- **1.9 (esta versión)** — cierre de los residuales **`VR-01`** y **`VR-03`** de la última pasada de consistencia: **permisos del manifest** ampliados a `["storage", "alarms", "favicon", "clipboardRead", "clipboardWrite"]` en el fragmento `jsonc` de §4 y en su tabla de justificación (una fila nueva por permiso, con motivo y requisito), con la nota del favicon reescrita como permiso **declarado** y no condicional, de modo que el conjunto es idéntico en los cuatro documentos; y **siete constantes nuevas** en la tabla de §3 (`PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS` y `EXTENSION_ID`) con su valor y módulo responsable, cerrando las referencias que `diccionario_datos.md` hacía a esta sección.
+ **1.9** — cierre de los residuales **`VR-01`** y **`VR-03`** de la última pasada de consistencia: **permisos del manifest** ampliados a `["storage", "alarms", "favicon", "clipboardRead", "clipboardWrite"]` en el fragmento `jsonc` de §4 y en su tabla de justificación (una fila nueva por permiso, con motivo y requisito), con la nota del favicon reescrita como permiso **declarado** y no condicional, de modo que el conjunto es idéntico en los cuatro documentos; y **siete constantes nuevas** en la tabla de §3 (`PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS` y `EXTENSION_ID`) con su valor y módulo responsable, cerrando las referencias que `diccionario_datos.md` hacía a esta sección.
+ **2.0 (H1 / DEC-47, DEC-49 y DEC-51)** — **prohibido** el esquema `chrome-extension://` en `matches`/`exclude_matches` (§4, patrón eliminado), **ficheros de fuente reales** con Poppins no variable y licencias OFL (§1/§2) y literal normativo de Forge `forge test --root contracts --match-contract EIP712VerifierTest` (§2/§8).
+ **2.1 (esta versión)** — **comando de Anvil verificado con el arnés E2E (H3, 2026-09-11)**: `anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"` **sin `--silent`** (§2.1), con el aviso de que **`anvil --silent` no arranca** cuando se lanza mediante `Start-Process` con redirección de salida (exit 1 → `ERR_CONNECTION_REFUSED` / `error sending request` en toda la suite) y con la **recomendación vinculante** de que el `global-setup` **aborte con un mensaje claro si Anvil no responde** en lugar de solo avisar (§2.4). Decisión **DEC-61** de `estado_proyecto.md` v2.2; sin cambios en permisos, constantes ni política de versiones.
 
 ---
 

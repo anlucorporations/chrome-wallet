@@ -1,30 +1,39 @@
 /**
  * M4 — `src/background/rpc/catalog.ts`
  * Catálogo RPC del Service Worker: CERRADO. Declara los métodos de las uniones cerradas
- * (`PageMethod`, `ApprovalMethod`, `InternalMethod`) y **registra los internos implementados**
- * con su metadato (nombre, contexto permitido y si abre la ventana única de confirmación).
+ * (`PageMethod`, `ApprovalMethod`, `InternalMethod`) y **registra los que ya están implementados**
+ * —los **16** internos (15 de H2 más `wallet_getConnectRequest` de la v1.7) y las **10 lecturas de
+ * página de H3**— con su metadato (nombre, contexto permitido y si pasa por la resolución de
+ * página).
  *
  * FUENTE NORMATIVA
- * - `documento_tecnico.md` §5.1.1: contrato AUTORITATIVO de los **15** métodos internos
- *   `wallet_*` (parámetros, retorno LITERAL y errores) desde la v1.6 del documento. El mapa
+ * - `documento_tecnico.md` §5.1.1: contrato AUTORITATIVO de los **16** métodos internos `wallet_*`
+ *   (parámetros, retorno LITERAL y errores) desde la v1.7 del documento. El mapa
  *   `InternalWalletResultMap` transcribe esa tabla sin abreviar ni añadir campos.
  * - `documento_tecnico.md` §2.5 (uniones cerradas) y `diccionario_datos.md` §4.2 (contextos
  *   permitidos por grupo de método) y §4.3 (métodos RPC soportados y catálogo de causas).
  *
  * REGLAS QUE ESTE MÓDULO HACE CUMPLIR
  * 1. `eth_sign` NO está en el catálogo y NUNCA se añadirá (DEC-22 / H-11a): responde `4200`.
- * 2. Los públicos EIP-1193 (lecturas y aprobables) siguen DECLARADOS pero **sin implementar**
- *    en H2: `getCatalogEntry` devuelve `undefined` y el router responde `4200`. Su
- *    implementación llega en H3 (lecturas y conexión) y H4/H5 (firma, redes y logs).
- * 3. Los `wallet_*` internos son invocables SOLO desde contextos de la extensión; el metadato
+ * 2. Las **10 lecturas de página** están IMPLEMENTADAS en H3 (`implemented: true` y
+ *    `resolve: true`): el router las despacha a `rpc/pageMethods.ts`, que es donde viven los
+ *    manejadores. Ver `documento_tecnico.md` §3.2 y `plan_desarrollo.md` §3.3.5 tareas 3.2, 3.3
+ *    y 3.7.
+ * 3. Los **6 aprobables de página** siguen DECLARADOS pero **sin implementar** en H3
+ *    (`implemented: false`): el router responde `4200` **sin lanzar de forma síncrona** y sin
+ *    abrir ventana ni crear entrada en la cola. Su implementación llega en H4/H5.
+ * 4. Los `wallet_*` internos son invocables SOLO desde contextos de la extensión; el metadato
  *    `context: 'extension'` es la fuente que el router consulta para responder `4200`
  *    (`methodNotAllowedInContext`) cuando la petición nace en una página.
- * 4. Ningún método interno abre la ventana única (P-21): `requiresApproval` es `false` en los
- *    quince. La aprobación del revelado es una **confirmación explícita dentro del propio
+ * 5. `wallet_revokePermissions` es el ÚNICO método con **doble contexto**: desde una página es un
+ *    APROBABLE (aún sin implementar → `4200`); desde el popup es la **revocación de la tarea 3.11**
+ *    (elimina el origen de `truekeate_connected_sites` y emite `accountsChanged []`).
+ * 6. Ningún método interno abre la ventana única (P-21): `requiresApproval` es `false` en los
+ *    dieciséis. La aprobación del revelado es una **confirmación explícita dentro del propio
  *    contexto** (§5.1.1 regla (b) y §3.8), no una `PendingRequest`.
  *
- * CONTRATO CONSUMIDO (los 15 manejadores son delegaciones FINAS; la lógica de cartera vive en
- * los módulos de H2). Toda la dependencia se reúne en `defaultInternalDeps`:
+ * CONTRATO CONSUMIDO (los 16 manejadores internos son delegaciones FINAS; la lógica de cartera vive
+ * en los módulos de H2). Toda la dependencia se reúne en `defaultInternalDeps`:
  *   - M8  `../crypto/mnemonic` → `generateMnemonic(): string` (genera y NO persiste)
  *   - M28 `../accounts`        → `importWalletFromMnemonic(input)` · `deriveNextAccount()`
  *                                · `importAccountByPrivateKey(input, label?)`
@@ -42,14 +51,24 @@
  *   - M29 `../settings`        → `acceptDevNotice()` (RNF-23, aviso no descartable)
  *   - M33 `../state/schema`    → `readStorage` (lecturas de redes/`chainId` y logs) y
  *     `resetWallet({ confirm })` (RF-11 / §3.9), con sus guardas de estado.
+ *   - M26 `../sessions` + M27 `../events` → revocación desde el popup (H3, tarea 3.11): el único
+ *     manejador que NO es una lectura pura, porque además de borrar la sesión propaga el evento.
+ *   - M26 `../sessions` (v1.7) → `listConnectedSites()`: `connectedSites` de `wallet_getState`.
+ *   - M26.b `../connections` (v1.7) → `readConnectRequestView()`: solicitud de `connect.html`.
+ *   - M26 `../sessions` + M27 `../events` (H3, cierre de `CA-RF-15`) → `applyActiveAccountToSessions()`
+ *     y `emitAccountsChanged()`: el cambio de cuenta activa actualiza las sesiones VIGENTES
+ *     (`D-H3-B`, opción (a)) y emite `accountsChanged` con la cuenta nueva a sus pestañas.
  */
 
 import type {
   AccountRef,
   Address,
   ChainIdHex,
+  ConnectedSiteView,
+  ConnectRequestView,
   InternalMethod,
   LogEntry,
+  ProviderEventName,
   StoredNetwork,
   TruekeateSettings,
   WalletMethod,
@@ -63,6 +82,9 @@ import {
   type ResetWalletOutcome,
 } from '../state/schema';
 import type { TrustedSenderContext } from '../security/senderGuard';
+// M4.a (D-H3-C): la lista de los 16 internos vive en un módulo HOJA para que la guarda de emisor
+// (M20) no dependa del orden de evaluación; aquí se importa y se REEXPORTA (una sola declaración).
+import { INTERNAL_METHODS } from './internalMethods';
 import { generateMnemonic } from '../crypto/mnemonic';
 import { checkWalletIntegrity } from '../crypto/integrity';
 import { resolveSecret } from '../crypto/secrets';
@@ -70,6 +92,7 @@ import type { RevealContextLike, RevealTarget, SecretResult } from '../crypto/se
 import {
   asWalletStateAccount,
   deriveNextAccount,
+  getCurrentAddress,
   getWalletStateView,
   importAccountByPrivateKey,
   importWalletFromMnemonic,
@@ -86,6 +109,14 @@ import type {
   WalletStateView,
 } from '../accounts';
 import { acceptDevNotice, type SettingsWriteResult } from '../settings';
+import { defaultEventsDeps, emitAccountsChanged, emitProviderEvent } from '../events';
+import {
+  applyActiveAccountToSessions,
+  readSessions,
+  listConnectedSites,
+  revokeSession,
+} from '../sessions';
+import { forgetPendingConnectsForOrigin, readConnectRequestView } from '../connections';
 import {
   internalError,
   invalidAddressError,
@@ -124,26 +155,22 @@ export const PAGE_APPROVAL_METHODS = [
   'wallet_revokePermissions',
 ] as const satisfies readonly WalletMethod[];
 
-/** Métodos internos `wallet_*`: solo desde contextos de la extensión. */
-export const INTERNAL_METHODS = [
-  // Contrato original de §5.1.1 (H2, tareas 2.1 a 2.5 y 2.9).
-  'wallet_generateMnemonic',
-  'wallet_importMnemonic',
-  'wallet_deriveAccounts',
-  'wallet_importPrivateKey',
-  'wallet_getNetworks',
-  'wallet_getLogs',
-  'wallet_revealSecret',
-  // Ampliación de la v1.6 de §5.1.1: estado y operaciones de UI (RNF-14).
-  'wallet_getState',
-  'wallet_setCurrentAccount',
-  'wallet_addDerivedAccount',
-  'wallet_renameAccount',
-  'wallet_setAccountVisible',
-  'wallet_deleteImportedAccount',
-  'wallet_resetWallet',
-  'wallet_acceptDevNotice',
-] as const satisfies readonly InternalMethod[];
+/**
+ * Métodos internos `wallet_*`: solo desde contextos de la extensión. La lista se DECLARA en el
+ * módulo hoja `./internalMethods` (M4.a) y aquí se REEXPORTA, porque esa separación es la que
+ * elimina el ciclo `catalog → sessions → senderGuard → catalog` que hacía frágil la guarda de
+ * emisor según el orden de evaluación (defecto D-H3-C). Sigue habiendo UNA sola declaración.
+ */
+export { INTERNAL_METHODS };
+
+/**
+ * Los `wallet_*` que el POPUP puede invocar aunque sean aprobables desde una página. Hoy solo la
+ * revocación de la tarea 3.11 (`CA-RF-26`): "Sitios conectados" → "Revocar" borra la sesión del
+ * origen sin pasar por la cola de aprobaciones (el popup es contexto de la extensión).
+ */
+export const EXTENSION_INVOKABLE_INTERNAL_METHODS = [
+  'wallet_revokePermissions',
+] as const satisfies readonly WalletMethod[];
 
 /** Métodos DECLARADOS por el catálogo. `eth_sign` no aparece (DEC-22 / H-11a). */
 export const CATALOG_METHODS: readonly WalletMethod[] = [
@@ -160,7 +187,7 @@ export const CATALOG_METHODS: readonly WalletMethod[] = [
 export type CatalogMethodKind = 'read' | 'approval' | 'internal';
 
 /** Contexto desde el que el método es invocable. */
-export type CatalogContext = 'page' | 'extension';
+export type CatalogContext = 'page' | 'extension' | 'any';
 
 /** Definición de un método del catálogo. */
 export interface CatalogEntry {
@@ -171,9 +198,14 @@ export interface CatalogEntry {
   requiresApproval: boolean;
   /** `true` cuando su implementación vive ya en el Service Worker. */
   implemented: boolean;
+  /**
+   * `true` cuando el router debe construir el contexto de página y despachar por
+   * `rpc/pageMethods.ts` (los 10 métodos de lectura de H3). Los internos van a `false`.
+   */
+  resolve: boolean;
 }
 
-/** Entradas de los 15 internos: implementados en H2 y solo desde contextos de la extensión. */
+/** Entradas de los 16 internos: implementados y solo desde contextos de la extensión. */
 const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.freeze({
   wallet_generateMnemonic: {
     method: 'wallet_generateMnemonic',
@@ -181,6 +213,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_importMnemonic: {
     method: 'wallet_importMnemonic',
@@ -188,6 +221,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_deriveAccounts: {
     method: 'wallet_deriveAccounts',
@@ -195,6 +229,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_importPrivateKey: {
     method: 'wallet_importPrivateKey',
@@ -202,6 +237,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_getNetworks: {
     method: 'wallet_getNetworks',
@@ -209,6 +245,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_getLogs: {
     method: 'wallet_getLogs',
@@ -216,6 +253,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   // El revelado exige confirmación explícita, pero DENTRO del contexto de la extensión
   // (§5.1.1 regla (b) y §3.8): no abre `notification.html` ni crea `PendingRequest`.
@@ -225,6 +263,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   // --- Ampliación de la v1.6 (§5.1.1): estado y operaciones de UI (RNF-14) ---
   // Los ocho son `context: 'extension'`: el popup es la única superficie que los invoca y el
@@ -235,6 +274,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_setCurrentAccount: {
     method: 'wallet_setCurrentAccount',
@@ -242,6 +282,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_addDerivedAccount: {
     method: 'wallet_addDerivedAccount',
@@ -249,6 +290,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_renameAccount: {
     method: 'wallet_renameAccount',
@@ -256,6 +298,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_setAccountVisible: {
     method: 'wallet_setAccountVisible',
@@ -263,6 +306,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_deleteImportedAccount: {
     method: 'wallet_deleteImportedAccount',
@@ -270,6 +314,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   // El reset exige `confirm: true`, pero la confirmación es el diálogo DESTRUCTIVO del popup
   // (§3.9 paso 3): no abre la ventana única ni crea `PendingRequest`.
@@ -279,6 +324,7 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
   },
   wallet_acceptDevNotice: {
     method: 'wallet_acceptDevNotice',
@@ -286,15 +332,90 @@ const INTERNAL_ENTRIES: Readonly<Record<InternalMethod, CatalogEntry>> = Object.
     context: 'extension',
     requiresApproval: false,
     implemented: true,
+    resolve: false,
+  },
+  // v1.7: entrega a `connect.html` de la solicitud `pending` de `truekeate_connect_request`
+  // (§2.9). Es `context: 'extension'` porque la ventana de conexión es una página del paquete.
+  wallet_getConnectRequest: {
+    method: 'wallet_getConnectRequest',
+    kind: 'internal',
+    context: 'extension',
+    requiresApproval: false,
+    implemented: true,
+    resolve: false,
   },
 });
 
-/** Métodos IMPLEMENTADOS hoy: los 15 internos de §5.1.1 (contrato v1.6). */
-export const supportedMethods: readonly WalletMethod[] = Object.freeze([...INTERNAL_METHODS]);
+/**
+ * Entradas de las 10 LECTURAS de página: IMPLEMENTADAS en H3 (`resolve: true`).
+ *
+ * `eth_accounts` y `eth_requestAccounts` son, además, los dos únicos métodos que consultan
+ * `truekeate_connected_sites`; ninguno de los dos crea la sesión por sí mismo (`eth_accounts` no
+ * abre NUNCA ventana y `eth_requestAccounts` solo la abre sin sesión vigente).
+ */
+const PAGE_READ_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.freeze(
+  Object.fromEntries(
+    PAGE_READ_METHODS.map((method) => [
+      method,
+      {
+        method,
+        kind: 'read' as const,
+        context: 'any' as const,
+        requiresApproval: false,
+        implemented: true,
+        resolve: true,
+      },
+    ]),
+  ),
+);
+
+/**
+ * Entradas de los 6 APROBABLES de página: declarados y **sin implementar** en H3. El router
+ * responde `4200` con la causa `unsupportedMethod` **sin lanzar de forma síncrona**.
+ */
+const PAGE_APPROVAL_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.freeze(
+  Object.fromEntries(
+    PAGE_APPROVAL_METHODS.map((method) => [
+      method,
+      {
+        method,
+        kind: 'approval' as const,
+        context: 'page' as const,
+        requiresApproval: true,
+        implemented: false,
+        resolve: false,
+      },
+    ]),
+  ),
+);
+
+/**
+ * Entrada ESPECIAL de `wallet_revokePermissions`: es aprobable desde una página (aún sin
+ * implementar → `4200`) y, desde el popup, la revocación de la tarea 3.11. El contexto es `any`
+ * porque ese doble uso es deliberado; la implementación real se registra abajo.
+ */
+const REVOKE_ENTRY: CatalogEntry = {
+  method: 'wallet_revokePermissions',
+  kind: 'approval',
+  context: 'any',
+  requiresApproval: true,
+  implemented: true,
+  resolve: false,
+};
+
+/** Métodos IMPLEMENTADOS hoy: los 16 internos y las 10 lecturas de página (H3). */
+export const supportedMethods: readonly WalletMethod[] = Object.freeze([
+  ...PAGE_READ_METHODS,
+  ...INTERNAL_METHODS,
+  'wallet_revokePermissions',
+]);
 
 /** Mapa de métodos implementados: lo consulta el router (M3) antes de despachar. */
 export const CATALOG: Readonly<Partial<Record<WalletMethod, CatalogEntry>>> = Object.freeze({
+  ...PAGE_READ_ENTRIES,
+  ...PAGE_APPROVAL_ENTRIES,
   ...INTERNAL_ENTRIES,
+  wallet_revokePermissions: REVOKE_ENTRY,
 });
 
 /** ¿Está el método declarado en el catálogo (aunque aún no implementado)? */
@@ -314,21 +435,38 @@ export const isPageMethod = (method: string): boolean =>
 export const isSupportedMethod = (method: string): method is WalletMethod =>
   (supportedMethods as readonly string[]).includes(method);
 
+/** ¿Pasa el método por la resolución de página (lecturas de H3)? */
+export const requiresPageResolution = (method: string): boolean =>
+  getCatalogEntry(method)?.resolve === true;
+
+/** ¿Es `wallet_*` invocable desde el popup aunque sea aprobable desde una página? */
+export const isExtensionInvokable = (method: string): boolean =>
+  (EXTENSION_INVOKABLE_INTERNAL_METHODS as readonly string[]).includes(method);
+
 /** ¿Está `eth_sign` presente en algún punto del catálogo? Debe ser SIEMPRE `false`. */
 export const exposesEthSign = (): boolean =>
   (CATALOG_METHODS as readonly string[]).includes('eth_sign');
 
-/** Devuelve la entrada del catálogo o `undefined` (y entonces el router responde `4200`). */
+/**
+ * Devuelve la entrada del catálogo SOLO si el método está declarado **e implementado**; para un
+ * método declarado sin implementación (los 6 aprobables en H3) devuelve `undefined`, que es la
+ * señal con la que el router responde `4200` **sin lanzar de forma síncrona**.
+ */
 export const getCatalogEntry = (method: string): CatalogEntry | undefined =>
   isSupportedMethod(method) ? CATALOG[method] : undefined;
+
+/** Entrada DECLARADA (aunque no esté implementada todavía); `undefined` fuera del catálogo. */
+export const getDeclaredEntry = (method: string): CatalogEntry | undefined =>
+  isCatalogMethod(method) ? CATALOG[method] : undefined;
 
 // ---------------------------------------------------------------------------
 // Contrato de retorno de §5.1.1 (transcripción literal)
 // ---------------------------------------------------------------------------
 
 /**
- * Retorno de cada método interno, copiado LITERALMENTE de `documento_tecnico.md` §5.1.1 (v1.6).
- * Es el contrato que el popup (M39/M40/M46) puede consumir sin mirar la implementación.
+ * Retorno de cada método interno, copiado LITERALMENTE de `documento_tecnico.md` §5.1.1 (v1.7).
+ * Es el contrato que el popup (M39/M40/M46) y `connect.html` (M48) consumen sin mirar la
+ * implementación.
  */
 export interface InternalWalletResultMap {
   /** No persiste nada: las 12 palabras se muestran y se descartan. */
@@ -353,6 +491,11 @@ export interface InternalWalletResultMap {
     networks: StoredNetwork[];
     currentChainId: ChainIdHex;
     settings: TruekeateSettings;
+    /**
+     * v1.7: sitios conectados de `truekeate_connected_sites` (§2.7) SIN secretos, con el origen
+     * normalizado y `current` = sesión vigente. Es el dato que pinta «Sitios conectados» (M44).
+     */
+    connectedSites: ConnectedSiteView[];
   };
   /** `-32602` si `ref` no apunta a ninguna cuenta existente. */
   wallet_setCurrentAccount: { currentAccountRef: AccountRef };
@@ -373,6 +516,9 @@ export interface InternalWalletResultMap {
   };
   /** Instante registrado de la aceptación del aviso (RNF-23). */
   wallet_acceptDevNotice: { devNoticeAcceptedAt: number | null };
+  // --- Ampliación de la v1.7 de §5.1.1: entrega de la solicitud de conexión (§2.9) ---
+  /** `4001` si el `requestId` no existe, ya se resolvió o ha vencido (sin ventana que abrir). */
+  wallet_getConnectRequest: ConnectRequestView;
 }
 
 /**
@@ -394,7 +540,7 @@ export interface WalletIntegrityView {
 export type InternalWalletResult<M extends InternalMethod> = InternalWalletResultMap[M];
 
 // ---------------------------------------------------------------------------
-// Contrato consumido de los módulos de H2 (M8/M12/M13/M28/M29/M33)
+// Contrato consumido de los módulos de H2 (M8/M12/M13/M28/M29/M33) y de H3 (M26/M27)
 // ---------------------------------------------------------------------------
 
 /** M8 — generación de la frase BIP-39 (128 bits de entropía), SIN persistirla. */
@@ -466,7 +612,72 @@ export interface ResetApi {
   resetWallet(options: ResetWalletOptions): Promise<ResetWalletOutcome>;
 }
 
-/** Dependencias inyectables del despacho interno (costura única con los módulos de H2). */
+/**
+ * M26/M27 — revocación desde el popup (H3, tarea 3.11). Es la única dependencia de H3 que añade
+ * el despacho interno: leer la sesión del origen, borrarla y propagar `accountsChanged []`.
+ */
+export interface RevocationApi {
+  /** Elimina el origen del mapa y devuelve las pestañas asociadas. */
+  revokeSession(
+    origin: string,
+    options?: { storage?: unknown; tabId?: number | null },
+  ): Promise<{ origin: string; revoked: boolean; tabIds: number[] } | null>;
+  /** M27: propaga un evento del provider a las pestañas indicadas (o a todas). */
+  emitEvent(
+    eventName: ProviderEventName,
+    data: unknown,
+    options?: { tabIds?: readonly number[] },
+  ): Promise<number>;
+  /** Descarta las solicitudes de conexión pendientes de ese origen (M26.b). */
+  forgetPendingForOrigin(origin: string): void;
+  /**
+   * M26 (v1.7): sesiones persistidas en la forma canónica de la UI (`ConnectedSiteView`), con el
+   * origen normalizado y SIN secretos. Es la fuente de `wallet_getState.connectedSites`.
+   */
+  listSessions(): Promise<ConnectedSiteView[]>;
+}
+
+/**
+ * M26.b — entrega de la solicitud de conexión a `connect.html` (v1.7). `connect.html` es una
+ * ventana de la extensión y tiene prohibido leer `truekeate_connect_request` (RNF-14): el SW le
+ * publica la solicitud completa por el canal interno, que es el mecanismo que ya existe entre el
+ * popup y el Service Worker.
+ */
+export interface ConnectRequestApi {
+  /** La solicitud `pending` y vigente, o `null` si no existe, ya se resolvió o venció. */
+  getConnectRequest(requestId: string): Promise<ConnectRequestView | null>;
+}
+
+/**
+ * M26/M27 — **cambio de la cuenta activa** desde el popup: el cierre de `CA-RF-15`
+ * (defectos `D-H3-A` y `D-H3-B`).
+ *
+ * Semántica fijada (`D-H3-B`, opción (a), la de MetaMask): mientras una sesión por origen siga
+ * vigente, la dApp comparte la cuenta ACTIVA del popup. Por eso, al cambiar de cuenta,
+ * `handleSetCurrentAccount` persiste la referencia y después:
+ *   1. actualiza `account` en cada sesión vigente de `truekeate_connected_sites` (M26), y
+ *   2. emite `accountsChanged` con la cuenta NUEVA a las pestañas conectadas (M27),
+ * de modo que `eth_accounts` y la caché `selectedAddress` de la dApp coinciden con el popup.
+ *
+ * Es una dependencia propia —y no parte de `RevocationApi`— porque su ciclo de vida es distinto:
+ * la revocación BORRA la sesión y emite la lista VACÍA; este camino CONSERVA la sesión, cambia la
+ * cuenta compartida y emite la cuenta nueva.
+ */
+export interface ActiveAccountSyncApi {
+  /**
+   * Propaga la cuenta activa ya persistida. Devuelve la dirección activa (`null` si la cartera no
+   * tiene ninguna) y el resumen de lo propagado: orígenes cuya cuenta cambió y pestañas que
+   * recibieron el evento. Nunca lanza por un fallo de entrega (una pestaña cerrada no rompe un
+   * cambio de cuenta que ya está persistido).
+   */
+  syncActiveAccount(): Promise<{
+    account: Address | null;
+    origins: string[];
+    tabIds: number[];
+  }>;
+}
+
+/** Dependencias inyectables del despacho interno (costura única con los módulos de H2 y H3). */
 export interface InternalHandlerDeps {
   readonly mnemonic: MnemonicApi;
   readonly accounts: AccountsApi;
@@ -474,6 +685,10 @@ export interface InternalHandlerDeps {
   readonly integrity: IntegrityApi;
   readonly settings: SettingsApi;
   readonly state: ResetApi;
+  readonly revocation: RevocationApi;
+  readonly connections: ConnectRequestApi;
+  /** M26/M27: propagación del cambio de cuenta activa (`CA-RF-15`). */
+  readonly activeAccount: ActiveAccountSyncApi;
 }
 
 // ---------------------------------------------------------------------------
@@ -571,7 +786,7 @@ const asBoolean = (value: unknown, reason: string): boolean => {
 };
 
 // ---------------------------------------------------------------------------
-// Manejadores de los 15 métodos internos (§5.1.1, contrato v1.6)
+// Manejadores de los 16 métodos internos (§5.1.1, contrato v1.7)
 // ---------------------------------------------------------------------------
 
 /** Firma común de un manejador interno. */
@@ -714,16 +929,20 @@ const handleRevealSecret: InternalHandler = async (params, context, deps) => {
 // ---------------------------------------------------------------------------
 
 /**
- * `wallet_getState` (contrato v1.6): estado COMPLETO que el popup necesita para pintarse, de
- * modo que la UI no toque el almacén (RNF-14). Reúne, sin duplicar lógica:
+ * `wallet_getState` (contrato v1.6, ampliado en la v1.7): estado COMPLETO que el popup necesita
+ * para pintarse, de modo que la UI no toque el almacén (RNF-14). Reúne, sin duplicar lógica:
  * - M28 (`getWalletStateView`): cartera, cuentas con `visible`/`current`, activa y ajustes;
  * - M13 (`checkWalletIntegrity`): integridad y presencia de la frase (RNF-22);
- * - M33 (`readStorage`): redes dadas de alta y `chainId` activo.
+ * - M33 (`readStorage`): redes dadas de alta y `chainId` activo;
+ * - M26 (`listSessions`, v1.7): `connectedSites` —los sitios de `truekeate_connected_sites` en la
+ *   forma canónica de §2.7, con el origen normalizado, `current` = sesión vigente y **sin
+ *   secretos**—, que es lo que pinta «Sitios conectados» (M44).
  */
 const handleGetState: InternalHandler = async (_params, _context, deps) => {
   const view = await deps.accounts.getWalletStateView();
   const integrity = await deps.integrity.checkWalletIntegrity();
   const stored = await readStorage([STORAGE_KEYS.networks, STORAGE_KEYS.chainId]);
+  const connectedSites = await deps.revocation.listSessions();
   return {
     hasWallet: view.hasWallet,
     integrity: {
@@ -739,16 +958,58 @@ const handleGetState: InternalHandler = async (_params, _context, deps) => {
     networks: asNetworks(stored[STORAGE_KEYS.networks]),
     currentChainId: asChainId(stored[STORAGE_KEYS.chainId]),
     settings: view.settings,
+    connectedSites,
   } satisfies InternalWalletResultMap['wallet_getState'];
 };
 
 /**
- * `wallet_setCurrentAccount`: fija la cuenta activa (`truekeate_current_account`).
+ * `wallet_getConnectRequest` (contrato v1.7): entrega a la ventana `connect.html` la solicitud
+ * `pending` de `truekeate_connect_request` (§2.9) en la forma `ConnectRequestView` —`requestId`,
+ * `origin` normalizado, `accounts` en el orden canónico, `currentAccountIndex`, `chainId` y
+ * `expiresAt`—, de modo que la ventana NO lee el almacén (RNF-14) y calcula su `accountIndex`
+ * sobre la MISMA lista que el SW validará.
+ *
+ * Parámetros: `[{ requestId }]`. Si el identificador falta, no existe, ya se resolvió o ha
+ * vencido, se responde `4001` (la causa ya registrada para una conexión cancelada o vencida,
+ * `diccionario_datos.md` §4.3) sin abrir ninguna ventana ni tocar el almacén: la ventana pinta
+ * ese error y deja «Conectar» deshabilitado.
+ */
+const handleGetConnectRequest: InternalHandler = async (params, _context, deps) => {
+  const payload = asPayload(params[0]);
+  const requestId = payload.requestId;
+  if (typeof requestId !== 'string' || requestId.trim().length === 0) {
+    throw userRejectedError({ reason: 'unknown-connect-request' });
+  }
+  const request = await deps.connections.getConnectRequest(requestId);
+  if (request === null) {
+    throw userRejectedError({ reason: 'connect-request-unavailable' });
+  }
+  return request satisfies InternalWalletResultMap['wallet_getConnectRequest'];
+};
+
+/**
+ * `wallet_setCurrentAccount`: fija la cuenta activa (`truekeate_current_account`) **y la propaga a
+ * las dApps conectadas** (`CA-RF-15`, cierre de `D-H3-A`/`D-H3-B`).
+ *
  * Parámetros: `[{ ref }]`. Referencia inexistente → `-32602 unknownAccount`.
+ *
+ * ORDEN (deliberado): primero PERSISTE la referencia con M28 —si la referencia no existe, la
+ * operación falla sin tocar nada más— y solo después propaga. La propagación es BEST-EFFORT: una
+ * pestaña cerrada o sin content script no puede convertir un cambio de cuenta ya persistido en un
+ * error para el popup, así que un fallo de entrega se avisa por consola y la respuesta sigue
+ * siendo `{ currentAccountRef }` (§5.1.1). Los únicos eventos que este flujo produce son
+ * `accountsChanged` con la cuenta nueva (M27); **no** se emite `connect` (la sesión ya existía y no
+ * se ha vuelto a autorizar), ni `disconnect` (la sesión sigue viva), ni `message` (ningún método lo
+ * produce en H3).
  */
 const handleSetCurrentAccount: InternalHandler = async (params, _context, deps) => {
   const payload = asPayload(params[0]);
   const result = unwrapAccounts(await deps.accounts.setCurrentAccount(asAccountRef(payload.ref)));
+  try {
+    await deps.activeAccount.syncActiveAccount();
+  } catch (error) {
+    console.warn('[truekeate] no se pudo propagar el cambio de cuenta activa', error);
+  }
   return {
     currentAccountRef: result.currentAccount,
   } satisfies InternalWalletResultMap['wallet_setCurrentAccount'];
@@ -868,6 +1129,43 @@ const handleAcceptDevNotice: InternalHandler = async (_params, _context, deps) =
   } satisfies InternalWalletResultMap['wallet_acceptDevNotice'];
 };
 
+/**
+ * `wallet_revokePermissions` **desde el popup** (H3, tarea 3.11 / `CA-RF-26`): «Sitios
+ * conectados» → «Revocar».
+ *
+ * - Elimina el origen de `truekeate_connected_sites` (M26): un `eth_accounts` posterior → `[]`.
+ * - Emite `accountsChanged []` (M27) a las pestañas de ese origen; un `eth_accounts` posterior
+ *   devuelve `[]`.
+ * - **NO crea ninguna entrada en la cola de aprobaciones**: el emisor es contexto de la extensión.
+ * - Descarta la solicitud de conexión pendiente de ese origen, si la hubiera.
+ *
+ * Parámetros: `[{ origin }]`. El origen se NORMALIZA siempre (minúsculas, sin barra final).
+ */
+const handleRevokePermissions: InternalHandler = async (params, _context, deps) => {
+  const payload = asPayload(params[0]);
+  const rawOrigin = payload.origin;
+  if (typeof rawOrigin !== 'string' || rawOrigin.trim().length === 0) {
+    throw internalError({ reason: 'invalid-revoke-origin' });
+  }
+  const revoked = await deps.revocation.revokeSession(rawOrigin);
+  if (revoked === null) {
+    throw internalError({ reason: 'invalid-revoke-origin' });
+  }
+  deps.revocation.forgetPendingForOrigin(revoked.origin);
+  if (revoked.revoked) {
+    // `accountsChanged []` a las pestañas del origen revocado. Si la sesión no registró ninguna
+    // pestaña (p. ej. creada por `eth_requestAccounts` sin `tabId`), se emite a TODAS: el evento
+    // no lleva ninguna dirección y una pestaña de ese origen con el evento perdido seguiría
+    // mostrando la cuenta revocada (`CA-RF-26`).
+    await deps.revocation.emitEvent(
+      'accountsChanged',
+      [],
+      revoked.tabIds.length > 0 ? { tabIds: revoked.tabIds } : {},
+    );
+  }
+  return { origin: revoked.origin, revoked: revoked.revoked };
+};
+
 /** Registro CERRADO de manejadores: una entrada por método de la unión `InternalMethod`. */
 const INTERNAL_HANDLERS: Readonly<Record<InternalMethod, InternalHandler>> = Object.freeze({
   wallet_generateMnemonic: handleGenerateMnemonic,
@@ -885,6 +1183,15 @@ const INTERNAL_HANDLERS: Readonly<Record<InternalMethod, InternalHandler>> = Obj
   wallet_deleteImportedAccount: handleDeleteImportedAccount,
   wallet_resetWallet: handleResetWallet,
   wallet_acceptDevNotice: handleAcceptDevNotice,
+  wallet_getConnectRequest: handleGetConnectRequest,
+});
+
+/**
+ * Manejadores invocables desde el POPUP que NO pertenecen a `InternalMethod`. Hoy solo la
+ * revocación (tarea 3.11): desde una página el mismo nombre es un aprobable `4200`.
+ */
+const EXTENSION_HANDLERS: Readonly<Record<string, InternalHandler>> = Object.freeze({
+  wallet_revokePermissions: handleRevokePermissions,
 });
 
 // ---------------------------------------------------------------------------
@@ -892,7 +1199,7 @@ const INTERNAL_HANDLERS: Readonly<Record<InternalMethod, InternalHandler>> = Obj
 // ---------------------------------------------------------------------------
 
 /**
- * Dependencias por defecto: ÚNICO punto de acoplamiento con los módulos de H2. Si un módulo
+ * Dependencias por defecto: ÚNICO punto de acoplamiento con los módulos de H2 y H3. Si un módulo
  * publica otro nombre de export, el ajuste se hace SOLO aquí.
  */
 export const defaultInternalDeps: InternalHandlerDeps = {
@@ -911,15 +1218,59 @@ export const defaultInternalDeps: InternalHandlerDeps = {
   integrity: { checkWalletIntegrity },
   settings: { acceptDevNotice },
   state: { resetWallet },
+  revocation: {
+    revokeSession: async (origin) => revokeSession(origin),
+    emitEvent: async (eventName, data, options) =>
+      emitProviderEvent(eventName, data, {
+        ...(options?.tabIds === undefined ? {} : { tabIds: options.tabIds }),
+        deps: defaultEventsDeps(),
+      }),
+    forgetPendingForOrigin: (origin) => {
+      forgetPendingConnectsForOrigin(origin);
+    },
+    // v1.7: la lista que pinta «Sitios conectados»; es LECTURA PURA (no purga ni renueva nada).
+    listSessions: async () => listConnectedSites(),
+  },
+  // M26.b (v1.7): solicitud de conexión completa para `connect.html`.
+  connections: {
+    getConnectRequest: async (requestId) => readConnectRequestView(requestId),
+  },
+  // M26/M27 (D-H3-A / D-H3-B): cambio de la cuenta activa → sesiones vigentes + `accountsChanged`.
+  activeAccount: {
+    syncActiveAccount: async () => {
+      const account = await getCurrentAddress();
+      if (account === null) {
+        // Cartera sin cuentas: no hay nada que compartir ni que emitir.
+        return { account: null, origins: [], tabIds: [] };
+      }
+      const synced = await applyActiveAccountToSessions(account);
+      if (synced.tabIds.length > 0) {
+        // El evento viaja SOLO a las pestañas de las sesiones vigentes: emitirlo a todas
+        // publicaría la dirección en orígenes sin sesión (RNF-11).
+        await emitAccountsChanged([account], { tabIds: synced.tabIds, deps: defaultEventsDeps() });
+      }
+      return { account, origins: synced.origins, tabIds: synced.tabIds };
+    },
+  },
 };
 
 /**
- * Despacha un método interno de §5.1.1. Lanza SIEMPRE objetos EIP-1193 del catálogo (M6);
- * el router (M3) es quien los convierte en la forma de respuesta del protocolo.
+ * Despacha un método interno de §5.1.1 (o la revocación del popup). Lanza SIEMPRE objetos
+ * EIP-1193 del catálogo (M6); el router (M3) es quien los convierte en la forma de respuesta del
+ * protocolo.
  */
 export const invokeInternalMethod = async (
-  method: InternalMethod,
+  method: InternalMethod | 'wallet_revokePermissions',
   params: unknown[],
   context: TrustedSenderContext,
   deps: InternalHandlerDeps = defaultInternalDeps,
-): Promise<unknown> => INTERNAL_HANDLERS[method](params, context, deps);
+): Promise<unknown> => {
+  if (isInternalMethod(method)) {
+    return INTERNAL_HANDLERS[method](params, context, deps);
+  }
+  const extensionHandler = EXTENSION_HANDLERS[method];
+  if (extensionHandler === undefined) {
+    throw unsupportedMethodError();
+  }
+  return extensionHandler(params, context, deps);
+};

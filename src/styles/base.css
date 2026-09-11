@@ -958,3 +958,166 @@ textarea.tk-input {
     color: var(--tk-text-primary);
   }
 }
+
+/* --------------------------------------------------------------------------
+   H3 — Ventana de conexión (M48/M49) y sitios conectados (M44)
+
+   Solo tokens de `tokens.css` (RNF-18). La fila seleccionada usa las MISMAS medidas que la
+   tarjeta de cuenta del catálogo: borde de 2 px del acento y fondo teñido (identidad_visual.md
+   §5.2). El área táctil de 44 px la garantiza la regla global de controles y el radio se
+   exceptúa de ella porque su caja nativa es de 18 px.
+   -------------------------------------------------------------------------- */
+
+.tk-connect__heading {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tk-connect__origin {
+  padding: 8px 10px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-navy-800);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.tk-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-connect__accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-connect-row {
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-connect-row--selected {
+  border: 2px solid var(--tk-accent);
+  background: var(--tk-surface-selected);
+}
+
+.tk-connect-row__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tk-touch-target);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.tk-connect-row__radio {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+}
+
+.tk-connect-row__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tk-connect-row__name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--tk-font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tk-text-primary);
+}
+
+.tk-connect-row__kind {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--tk-text-secondary);
+  text-transform: lowercase;
+}
+
+.tk-connect-row__address {
+  overflow: hidden;
+  color: var(--tk-navy-800);
+  font-size: 12px;
+  text-overflow: ellipsis;
+}
+
+.tk-connect-row__balance {
+  flex: 0 0 auto;
+  color: var(--tk-text-secondary);
+  font-size: 12px;
+  text-align: right;
+}
+
+.tk-connect__balances {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-connect__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* Sitios conectados: origen, cuenta compartida, último uso y revocación. */
+.tk-sites {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-site {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-site__origin {
+  color: var(--tk-navy-800);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.tk-site__meta {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-site button {
+  align-self: flex-start;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tk-connect__origin,
+  .tk-connect-row__address,
+  .tk-site__origin {
+    color: var(--tk-text-primary);
+  }
+}

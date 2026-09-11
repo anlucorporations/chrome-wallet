@@ -25,6 +25,23 @@ export default defineConfig({
   testDir: 'e2e',
   globalSetup: './e2e/global-setup.ts',
 
+  /**
+   * Servidor de la dApp de pruebas (`test.html` en `http://localhost:5174/test.html`).
+   *
+   * Es OBLIGATORIO declararlo aquí (y no arrancarlo a mano): los E2E que abren la dApp fallaban
+   * con `net::ERR_CONNECTION_REFUSED` en cuanto el servidor no estaba levantado, que es un fallo
+   * del arnés y no del producto. Con `webServer`, Playwright lo arranca si no está, espera a que
+   * responda y lo reutiliza si ya lo estaba (`reuseExistingServer`), y lo apaga al terminar.
+   */
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:5174/test.html',
+    reuseExistingServer: true,
+    timeout: 120_000,
+    stdout: 'ignore',
+    stderr: 'pipe',
+  },
+
   // Un unico worker y sin paralelismo: un contexto persistente por prueba, jamas compartido.
   fullyParallel: false,
   workers: 1,

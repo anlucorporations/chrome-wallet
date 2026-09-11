@@ -14,24 +14,31 @@
  *      internos deja fuera a todo emisor que no sea una página de la extensión.
  *   3. **Unión CERRADA** (M56) + **catálogo** (M4): un `method` que no pertenezca a
  *      `PageMethod | ApprovalMethod | InternalMethod`, o que no esté implementado, responde
- *      `4200 Unsupported method`. Así `eth_sign` responde `4200` sin existir en el catálogo.
+ *      `4200 Unsupported method`. Así `eth_sign` responde `4200` sin existir en el catálogo y los
+ *      6 aprobables responden `4200` **sin lanzar de forma síncrona** mientras la cola no existe.
  *   4. **Allowlist de contextos** por metadato del catálogo: los `wallet_*` internos solo se
  *      aceptan desde el popup (contexto `extension`); desde una página se responde `4200`
- *      con la causa `methodNotAllowedInContext`.
- *   5. **Despacho** del método interno (M4 → M8/M9/M10/M12/M13/M28/M29/M33, los **15** de
- *      §5.1.1 v1.6) y conversión de CUALQUIER excepción en un objeto EIP-1193 del catálogo de
- *      M6 (nunca un error sin `code`).
+ *      con la causa `methodNotAllowedInContext`. La revocación del popup
+ *      (`wallet_revokePermissions`) es la única excepción declarada.
+ *   5. ***Token bucket*** **por origen** (H3, tarea 3.13): la ventana de 6 solicitudes/60 s cubre
+ *      **TODO** el catálogo —también las lecturas— y está **persistida** en
+ *      `truekeate_rate_windows`, de modo que sobrevive a la suspensión del SW. Al exceder se
+ *      responde `4001` **sin abrir ventana** y sin llamar al nodo.
+ *   6. **Despacho**: los **internos** (M4 → M8/M9/M10/M12/M13/M28/M29/M33) y las **10 lecturas de
+ *      página** de H3 (M4 → `rpc/pageMethods.ts` → M5/M26/M27). CUALQUIER excepción se convierte
+ *      en un objeto EIP-1193 del catálogo de M6 (nunca un error sin `code`).
  *
- * Lo que NO hace todavía (hitos siguientes): *token bucket* y cardinalidad (H3/H5), ventana de
- * aprobación (H4), sesiones por origen (H3) y llamadas al nodo (H3). Los métodos públicos
- * EIP-1193 siguen declarados en el catálogo y SIN implementar: responden `4200`.
+ * Fuera de H3: la cola de aprobaciones (H4) y las firmas, redes y logs (H4/H5). El router ya NO
+ * tiene ningún método público sin implementar salvo los 6 aprobables, que responden `4200`.
  */
 
 import type { Eip1193Error, InternalMethod, WalletMethod } from '../../shared/types';
 import { isTruekeateMessageType } from '../../shared/protocol';
 import {
   guardSender,
+  responseTargetFor,
   type DeclaredContext,
+  type ResponseTarget,
   type SenderLike,
   type TrustedSenderContext,
 } from '../security/senderGuard';
@@ -44,11 +51,27 @@ import {
   type InternalHandlerDeps,
 } from './catalog';
 import {
+  invokePageMethod,
+  type ConnectOutcome,
+  type EventsApi,
+  type OpenConnectInput,
+  type PageCallContext,
+  type PageHandlerDeps,
+  type RpcClientApi,
+  type SessionsApi,
+} from './pageMethods';
+import {
   internalError,
   isEip1193Error,
   methodNotAllowedInContextError,
+  rateLimitExceededError,
   unsupportedMethodError,
 } from './errors';
+import { decideRateLimit, type RateLimitDecision } from './rateLimit';
+import { getBalanceWei, rpcSend } from './client';
+import { emitProviderEvent, defaultEventsDeps } from '../events';
+import { readSessions, revokeSession, touchSession, currentSessionFor } from '../sessions';
+import { openConnectWindow } from '../connections';
 
 // Reexportación de la comprobación de nomenclatura canónica: el rechazo de una clave que no
 // empieza por `truekeate_` se responde como error interno `-32603` (M33/M34, ACU-25).
@@ -71,6 +94,8 @@ export type RouterResult =
       ok: true;
       result: unknown;
       context: TrustedSenderContext;
+      /** Destino EXACTO de la respuesta: con `frameId !== 0`, SOLO a ese frame (DEC-40). */
+      target: ResponseTarget;
       /** `params` ya recortados y redactados por M22: es lo ÚNICO registrable. */
       redactedParams: unknown;
     }
@@ -78,15 +103,19 @@ export type RouterResult =
       ok: false;
       error: Eip1193Error;
       context: TrustedSenderContext | null;
+      target: ResponseTarget;
       redactedParams: unknown;
     };
+
+/** Destino neutro cuando la guarda rechazó la petición antes de tener contexto confiable. */
+const NO_TARGET: ResponseTarget = { tabId: null, frameId: null };
 
 /** Convierte el resultado del router en la forma de respuesta del protocolo. */
 export const toRpcResponse = (result: RouterResult): RpcResponse =>
   result.ok ? { result: result.result } : { error: result.error };
 
 // ---------------------------------------------------------------------------
-// Dependencias del router (inyectables para las pruebas de H2)
+// Dependencias del router (inyectables para las pruebas)
 // ---------------------------------------------------------------------------
 
 /**
@@ -96,24 +125,89 @@ export const toRpcResponse = (result: RouterResult): RpcResponse =>
  */
 export type RedactParams = (method: string, params: unknown) => unknown;
 
-/** Invocador del catálogo cerrrado (M4). */
+/** Invocador del catálogo cerrado de métodos internos (M4). */
 export type InternalInvoker = (
-  method: InternalMethod,
+  method: InternalMethod | 'wallet_revokePermissions',
   params: unknown[],
   context: TrustedSenderContext,
   deps?: InternalHandlerDeps,
 ) => Promise<unknown>;
 
-/** Dependencias del router: dos puntos de extensión, ambos con su valor real por defecto. */
+/** Invocador de las 10 lecturas de página (M4.b). */
+export type PageInvoker = (
+  method: string,
+  params: unknown[],
+  call: PageCallContext,
+  deps: PageHandlerDeps,
+) => Promise<unknown>;
+
+/** Decisor del *token bucket* por origen (H3, tarea 3.13). */
+export type RateLimitDecider = (input: {
+  origin: string;
+  now?: number;
+  storage?: unknown;
+}) => Promise<RateLimitDecision>;
+
+/** Dependencias del router: puntos de extensión, todos con su valor real por defecto. */
 export interface RouterDeps {
   readonly redactParams: RedactParams;
   readonly invokeInternal: InternalInvoker;
+  readonly invokePage: PageInvoker;
+  readonly decideRateLimit: RateLimitDecider;
+  readonly page: PageHandlerDeps;
+  /** Reloj inyectable (las pruebas fijan `now` sin depender del reloj real). */
+  readonly now: () => number;
 }
 
-/** Dependencias reales: M22 (redacción) y M4 (catálogo de internos). */
+/** M5 — cliente RPC único, con su política cerrada de reintentos. */
+const rpcClient: RpcClientApi = {
+  send: async (method, params) => rpcSend(method, params),
+  getBalance: async (address) => BigInt(await getBalanceWei(address)),
+};
+
+/** M26 — sesiones por origen (`truekeate_connected_sites`). */
+const sessionsApi: SessionsApi = {
+  touchSession: async (origin, options) => touchSession(origin, options ?? {}),
+  currentSessionFor: (sessions, origin, now) =>
+    currentSessionFor(sessions as never, origin, now) as never,
+  readSessions: async (storage) => (await readSessions(storage)) as Record<string, unknown>,
+  revokeSession: async (origin, options) => revokeSession(origin, options ?? {}),
+};
+
+/** M27 — propagación de eventos a las pestañas. */
+const eventsApi: EventsApi = {
+  emitEvent: async (eventName, data, options) =>
+    emitProviderEvent(eventName, data, {
+      tabIds: options?.tabIds,
+      frameId: options?.frameId ?? null,
+      deps: defaultEventsDeps(),
+    }),
+};
+
+/** M26.b — apertura de `connect.html` y espera de la elección del usuario. */
+const openConnect = async (input: OpenConnectInput): Promise<ConnectOutcome> =>
+  openConnectWindow({
+    origin: input.origin,
+    tabId: input.tabId,
+    frameId: input.frameId ?? null,
+    now: input.now,
+    storage: input.storage,
+  });
+
+/** Dependencias reales: M22 (redacción), M4/M4.b (catálogos), M3.b (tasa) y M5/M26/M27. */
 export const defaultRouterDeps: RouterDeps = {
   redactParams,
   invokeInternal: invokeInternalMethod,
+  invokePage: invokePageMethod,
+  decideRateLimit: async (input) =>
+    decideRateLimit({ origin: input.origin, now: input.now }),
+  page: {
+    rpc: rpcClient,
+    sessions: sessionsApi,
+    events: eventsApi,
+    openConnect,
+  },
+  now: () => Date.now(),
 };
 
 // ---------------------------------------------------------------------------
@@ -144,7 +238,8 @@ const redactSafely = (method: string, params: unknown[], deps: RouterDeps): unkn
 /**
  * Único punto de entrada del router.
  *
- * Devuelve siempre la forma `RouterResult`; el llamador (M2) la traduce con `toRpcResponse`.
+ * Devuelve siempre la forma `RouterResult`; el llamador (M2) la traduce con `toRpcResponse` y
+ * entrega la respuesta con `target` (SOLO al frame de origen cuando `frameId !== 0`).
  * Ninguna excepción escapa: cualquier fallo se convierte en un error EIP-1193 tipado.
  */
 export const handleRPCRequest = async (
@@ -157,53 +252,88 @@ export const handleRPCRequest = async (
   // 1. Redacción ANTES de cualquier traza o persistencia (H-42 / RNF-09).
   const redactedParams = redactSafely(method, params, deps);
 
-  // Contexto confiable del emisor: se conserva aunque el despacho falle, porque H3/H4 lo
-  // necesitan para entregar la respuesta SOLO al frame correcto (D-J / ADT-07).
+  // Contexto confiable del emisor: se conserva aunque el despacho falle, porque el destino de la
+  // respuesta (D-J / ADT-07) y la resolución de página (H3) lo necesitan.
   let context: TrustedSenderContext | null = null;
+  let target: ResponseTarget = NO_TARGET;
 
   try {
     // 2. Guardas de emisor, de origen y de allowlist de métodos internos (M20).
     const guardedMethod: WalletMethod | undefined = isCatalogMethod(method) ? method : undefined;
     const guard = guardSender(sender, declared, guardedMethod);
     if (!guard.ok) {
-      return { ok: false, error: guard.error, context: null, redactedParams };
+      return { ok: false, error: guard.error, context: null, target: NO_TARGET, redactedParams };
     }
     context = guard.context;
+    target = responseTargetFor(guard.context);
 
-    // 3. Unión cerrada (M56) + catálogo cerrado (M4): fuera del catálogo o sin implementar → 4200.
+    // 3. Unión cerrada (M56) + catálogo cerrado (M4): fuera del catálogo → 4200.
     if (!isCatalogMethod(method)) {
-      return { ok: false, error: unsupportedMethodError(), context, redactedParams };
+      return { ok: false, error: unsupportedMethodError(), context, target, redactedParams };
     }
     const entry = getCatalogEntry(method);
     if (entry === undefined) {
-      // Declarado pero no implementado: es el caso de TODO el catálogo público en H2.
-      return { ok: false, error: unsupportedMethodError(), context, redactedParams };
+      // Declarado pero sin implementación: es el caso de los 6 aprobables en H3. Se responde
+      // `4200` SIN lanzar de forma síncrona y sin abrir ventana ni crear entrada en la cola.
+      return { ok: false, error: unsupportedMethodError(), context, target, redactedParams };
     }
 
-    // 4. Allowlist de contextos: `wallet_*` internos SOLO desde páginas de la extensión.
-    if (entry.context === 'extension' && !context.isExtensionContext) {
-      return { ok: false, error: methodNotAllowedInContextError(), context, redactedParams };
+    // 4. Allowlist de contextos: los `wallet_*` internos SOLO desde páginas de la extensión. La
+    //    revocación (`wallet_revokePermissions`, tarea 3.11) es la única excepción declarada,
+    //    porque desde una PÁGINA es un aprobable que H4 implementará (y aquí responde `4200`).
+    const extensionOnly = isInternalMethod(method) || method === 'wallet_revokePermissions';
+    if (extensionOnly && !context.isExtensionContext) {
+      return {
+        ok: false,
+        error: method === 'wallet_revokePermissions'
+          ? unsupportedMethodError()
+          : methodNotAllowedInContextError(),
+        context,
+        target,
+        redactedParams,
+      };
     }
 
-    // 5. Despacho. En H2 solo los internos están implementados; el catálogo público lo estará
-    //    en H3 (lecturas y conexión) y H4/H5 (firma, redes y logs).
-    if (entry.kind !== 'internal' || !isInternalMethod(method)) {
-      return { ok: false, error: unsupportedMethodError(), context, redactedParams };
+    // 5. *Token bucket* por origen (H3, tarea 3.13): cubre TODO el catálogo, lecturas incluidas.
+    //    Los contextos de la extensión están exentos y no escriben nada.
+    const rate = await deps.decideRateLimit({ origin: context.origin, now: deps.now() });
+    if (!rate.allowed) {
+      return { ok: false, error: rateLimitExceededError(), context, target, redactedParams };
     }
 
     // Defensa en profundidad (RNF-09): el revelado NUNCA sale de un contexto no confiable.
     if (method === 'wallet_revealSecret' && !context.isExtensionContext) {
-      return { ok: false, error: methodNotAllowedInContextError(), context, redactedParams };
+      return { ok: false, error: methodNotAllowedInContextError(), context, target, redactedParams };
     }
 
-    const result = await deps.invokeInternal(method, params, context);
-    return { ok: true, result, context, redactedParams };
+    // 6. Despacho: lecturas de página (M4.b) o internos (M4).
+    if (entry.resolve) {
+      const call: PageCallContext = {
+        context,
+        origin: context.origin,
+        tabId: context.tabId,
+        frameId: context.frameId,
+        now: deps.now(),
+        params,
+        storage: undefined,
+      };
+      const result = await deps.invokePage(method, params, call, deps.page);
+      return { ok: true, result, context, target, redactedParams };
+    }
+
+    const result = await deps.invokeInternal(
+      method as InternalMethod | 'wallet_revokePermissions',
+      params,
+      context,
+    );
+    return { ok: true, result, context, target, redactedParams };
   } catch (error) {
     // Toda excepción se convierte en un error EIP-1193 tipado (nunca un error sin `code`).
     return {
       ok: false,
       error: toEip1193Error(error, method),
       context,
+      target,
       redactedParams,
     };
   }
@@ -225,6 +355,14 @@ const asRecord = (value: unknown): Record<string, unknown> | null =>
     ? (value as Record<string, unknown>)
     : null;
 
+/** Resultado del despacho de un mensaje crudo: respuesta + destino exacto (H3). */
+export interface RoutedMessage {
+  response: RpcResponse;
+  target: ResponseTarget;
+  /** Contexto confiable, para el registro y la apertura de ventanas (H3/H4). */
+  context: TrustedSenderContext | null;
+}
+
 /**
  * Procesa un mensaje crudo de `chrome.runtime.onMessage`.
  *
@@ -233,14 +371,15 @@ const asRecord = (value: unknown): Record<string, unknown> | null =>
  * - `TRUEKEATE_RPC` se enruta por `handleRPCRequest` con el `sender` REAL que entrega Chrome;
  *   el `origin`, `tabId` y `frameId` declarados se conservan SOLO como dato no fiable.
  * - Los demás tipos del protocolo (`SIGN_RESPONSE`, `CONNECT_RESPONSE`, `RESUME`) pertenecen a
- *   H4/H5 (`RESUME` viaja además por el puerto `truekeate_approval`): se responden con `4200`
- *   para no dejar colgada a ninguna superficie, igual que hacía el arranque de H1.
+ *   H4/H5 y a la conexión de H3: `CONNECT_RESPONSE` lo atiende M2 (necesita resolver la promesa
+ *   de `eth_requestAccounts`), y el resto se responde con `4200` para no dejar colgada a ninguna
+ *   superficie.
  */
 export const handleRpcMessage = async (
   message: unknown,
   sender: SenderLike,
   deps: RouterDeps = defaultRouterDeps,
-): Promise<RpcResponse | undefined> => {
+): Promise<RoutedMessage | undefined> => {
   const record = asRecord(message);
   if (record === null) {
     return undefined;
@@ -250,7 +389,11 @@ export const handleRpcMessage = async (
     return undefined;
   }
   if (type !== 'TRUEKEATE_RPC') {
-    return { error: unsupportedMethodError() };
+    return {
+      response: { error: unsupportedMethodError() },
+      target: NO_TARGET,
+      context: null,
+    };
   }
   const result = await handleRPCRequest(
     {
@@ -265,11 +408,15 @@ export const handleRpcMessage = async (
     },
     deps,
   );
-  return toRpcResponse(result);
+  return {
+    response: toRpcResponse(result),
+    target: result.target,
+    context: result.context,
+  };
 };
 
 // ---------------------------------------------------------------------------
-// Punto de extensión reservado para H3..H5
+// Punto de extensión reservado para H4/H5
 // ---------------------------------------------------------------------------
 
 /** Firma tipada del método del catálogo, para cuando M4 los implemente. */
@@ -280,7 +427,7 @@ export type CatalogInvoker = (
 ) => Promise<unknown>;
 
 /**
- * Punto de extensión reservado para H3..H5: cada hito rellena el catálogo (M4) sin cambiar la
+ * Punto de extensión reservado para H4/H5: cada hito rellena el catálogo (M4) sin cambiar la
  * forma del router. Se declara aquí para que el contrato quede fijado desde H1.
  */
 export const createCatalogInvoker = (

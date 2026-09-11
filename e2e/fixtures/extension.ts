@@ -23,6 +23,7 @@
  */
 
 import { chromium, expect, test as base, type BrowserContext, type Page, type Worker } from '@playwright/test';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -452,3 +453,306 @@ export const test = base.extend<ExtensionFixtures>({
     await use(await getBackgroundWorker(context));
   },
 });
+
+// ---------------------------------------------------------------------------
+// H3 · Ayudas del hito (tareas 3.16 y 3.15): dApp, eventos, polling y Anvil
+// ---------------------------------------------------------------------------
+
+/** Endpoint JSON-RPC de Anvil (`entornos_globales.md` §3). */
+export const ANVIL_RPC_URL = 'http://127.0.0.1:8545';
+
+/** `chainId` de Anvil en hexadecimal. */
+export const ANVIL_CHAIN_ID_HEX = '0x7a69';
+
+/** Origen de la dApp de pruebas: es la clave canónica de la sesión (§2.7). */
+export const DAPP_ORIGIN = 'http://localhost:5174';
+
+/** Evento del provider capturado en la página de la dApp. */
+export interface EventoDeLaDapp {
+  eventName: string;
+  data: unknown;
+}
+
+/** Claves que la extensión escribe durante una prueba (se excluyen de las comparaciones). */
+export const CLAVES_VOLATILES = ['truekeate_logs', 'truekeate_schema_version'] as const;
+
+/** Registra escuchas del provider en la dApp para CAPTURAR los eventos EIP-1193 que recibe. */
+export async function registrarEventosDeLaDapp(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const global = window as unknown as {
+      __tkEventos?: EventoDeLaDapp[];
+      truekeate?: { on(nombre: string, cb: (dato: unknown) => void): unknown };
+    };
+    global.__tkEventos = [];
+    const provider = global.truekeate;
+    if (provider === undefined || typeof provider.on !== 'function') {
+      return 0;
+    }
+    const nombres = ['accountsChanged', 'chainChanged', 'connect', 'disconnect', 'message'];
+    for (const nombre of nombres) {
+      provider.on(nombre, (dato) => {
+        global.__tkEventos?.push({ eventName: nombre, data: dato });
+      });
+    }
+    return nombres.length;
+  });
+}
+
+/** Eventos capturados por {@link registrarEventosDeLaDapp}, en orden de llegada. */
+export async function leerEventosDeLaDapp(page: Page): Promise<EventoDeLaDapp[]> {
+  return page.evaluate(() => {
+    const global = window as unknown as { __tkEventos?: EventoDeLaDapp[] };
+    return global.__tkEventos ?? [];
+  });
+}
+
+/** Texto del historial de `test.html` (`#registro`), que anota cada flujo. */
+export async function leerRegistroDeLaDapp(page: Page): Promise<string> {
+  return page.evaluate(() => document.getElementById('registro')?.textContent ?? '');
+}
+
+/** Contadores OBSERVABLES del polling de saldos publicados por el popup (M47 / CA-RF-27). */
+export interface ContadoresDePolling {
+  /** `data-polling-requests`: `eth_getBalance` emitidos. `null` si la vista está cerrada. */
+  requests: number | null;
+  /** `data-polling-cycles`: ciclos completados. `null` si la vista está cerrada. */
+  cycles: number | null;
+}
+
+/** Lee los contadores del polling de la vista de Cuentas del popup. */
+export async function leerContadoresDePolling(page: Page): Promise<ContadoresDePolling> {
+  return page.evaluate(() => {
+    const panel = document.getElementById('panel-accounts');
+    const numero = (nombre: string): number | null => {
+      const valor = panel?.getAttribute(nombre) ?? null;
+      return valor === null ? null : Number(valor);
+    };
+    return { requests: numero('data-polling-requests'), cycles: numero('data-polling-cycles') };
+  });
+}
+
+// --- Control del proceso Anvil (solo para `27-rpc-caido.spec.ts`) ------------------------------
+
+/** PIDs de los procesos `anvil.exe` en ejecución. */
+export function anvilPids(): number[] {
+  const listado = spawnSync('tasklist', ['/FI', 'IMAGENAME eq anvil.exe', '/FO', 'CSV', '/NH'], {
+    encoding: 'utf8',
+  });
+  const pids: number[] = [];
+  for (const linea of (listado.stdout ?? '').split(/\r?\n/)) {
+    const celdas = linea.split('","').map((celda) => celda.replace(/"/g, '').trim());
+    const pid = Number.parseInt(celdas[1] ?? '', 10);
+    if (Number.isFinite(pid) && pid > 0) pids.push(pid);
+  }
+  return pids;
+}
+
+/**
+ * Detiene Anvil (solo para la prueba de RPC caído) y devuelve los PIDs que había.
+ * Se mata POR PID: nunca se tocan procesos ajenos al puerto del proyecto.
+ */
+export function detenerAnvil(): number[] {
+  const pids = anvilPids();
+  for (const pid of pids) {
+    spawnSync('taskkill', ['/PID', String(pid), '/F'], { encoding: 'utf8' });
+  }
+  return pids;
+}
+
+/** Ruta absoluta del binario de Anvil (por `PATH`), o `anvil.exe` si `where` no lo encuentra. */
+export function anvilBinario(): string {
+  const encontrado = spawnSync('where', ['anvil'], { encoding: 'utf8' });
+  const primera = (encontrado.stdout ?? '')
+    .split(/\r?\n/)
+    .map((linea) => linea.trim())
+    .filter((linea) => linea.length > 0)[0];
+  return primera ?? 'anvil.exe';
+}
+
+/** Arranca Anvil desacoplado del proceso de pruebas, con los mismos argumentos del proyecto. */
+export function arrancarAnvil(): void {
+  const hijo = spawn(
+    anvilBinario(),
+    ['--host', '127.0.0.1', '--port', '8545', '--chain-id', '31337', '--silent'],
+    { detached: true, stdio: 'ignore' },
+  );
+  hijo.unref();
+}
+
+/** Consulta JSON-RPC DIRECTA al nodo: contraste externo de lo que responde el provider. */
+export async function consultarAlNodo(
+  method: string,
+  params: readonly unknown[] = [],
+): Promise<unknown> {
+  const respuesta = await fetch(ANVIL_RPC_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params: [...params] }),
+    signal: AbortSignal.timeout(5_000),
+  });
+  const cuerpo = (await respuesta.json()) as { result?: unknown };
+  return cuerpo.result;
+}
+
+/** ¿Responde Anvil con `chainId 0x7a69`? Condición observable, sin esperas fijas. */
+export async function anvilResponde(): Promise<boolean> {
+  try {
+    const respuesta = await fetch(ANVIL_RPC_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }),
+      signal: AbortSignal.timeout(2_000),
+    });
+    const cuerpo = (await respuesta.json()) as { result?: unknown };
+    return cuerpo.result === ANVIL_CHAIN_ID_HEX;
+  } catch {
+    return false;
+  }
+}
+
+/** Espera a que Anvil vuelva a responder (o devuelve `false` al agotar el plazo). */
+export async function esperarAnvil(timeoutMs = 20_000): Promise<boolean> {
+  const limite = Date.now() + timeoutMs;
+  while (Date.now() < limite) {
+    if (await anvilResponde()) return true;
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 250);
+    });
+  }
+  return false;
+}
+
+// --- Flujo de conexión de la dApp (`eth_requestAccounts` + `connect.html`) -----------------------
+
+/** Opciones del flujo de conexión. */
+export interface OpcionesDeConexion {
+  /** Índice (0-based) de la cuenta que se elige en `connect.html`. */
+  indice?: number;
+  /** `true` para rechazar la conexión en la ventana (`4001`). */
+  rechazar?: boolean;
+}
+
+/** Desenlace del flujo de conexión tal y como lo pinta `test.html`. */
+export interface DesenlaceDeConexion {
+  /** Ventana `connect.html` que abrió el Service Worker. */
+  ventana: Page;
+  /** Texto del resultado del flujo en la dApp. */
+  resultado: string;
+  /** `true` si el flujo terminó en éxito (`resultado--ok`). */
+  ok: boolean;
+}
+
+/**
+ * Ejecuta el flujo completo de conexión: pulsa «Conectar» en `test.html`, espera la ventana
+ * `connect.html` que abre el Service Worker, elige la cuenta (o rechaza) y devuelve lo que la
+ * dApp recibió. No usa esperas fijas: todo son condiciones observables (ventana, filas, clase del
+ * resultado).
+ */
+export async function conectarDapp(
+  context: BrowserContext,
+  dapp: Page,
+  opciones: OpcionesDeConexion = {},
+): Promise<DesenlaceDeConexion> {
+  const esperaVentana = context.waitForEvent('page', { timeout: 20_000 });
+  await dapp.click('#btn-conectar');
+  const ventana = await esperaVentana;
+  await ventana.waitForLoadState('domcontentloaded');
+
+  const filas = ventana.locator('.tk-connect-row');
+  await expect(filas.first()).toBeVisible({ timeout: 15_000 });
+  if (opciones.indice !== undefined) {
+    await filas.nth(opciones.indice).locator('input[type="radio"]').check();
+    await expect(filas.nth(opciones.indice)).toHaveClass(/tk-connect-row--selected/);
+  }
+  await ventana
+    .getByRole('button', { name: opciones.rechazar === true ? 'Rechazar' : 'Conectar' })
+    .click();
+
+  const fila = dapp.locator('#resultado-conectar');
+  await expect(fila).toHaveClass(/resultado--(ok|error)/, { timeout: 20_000 });
+  const clase = (await fila.getAttribute('class')) ?? '';
+  return {
+    ventana,
+    resultado: (await fila.locator('.resultado__cuerpo').textContent()) ?? '',
+    ok: clase.includes('resultado--ok'),
+  };
+}
+
+/** Envía una petición del catálogo DESDE una página de la extensión (contexto `extension`). */
+export async function llamarDesdeLaExtension(
+  extensionPage: Page,
+  method: string,
+  params: readonly unknown[] = [],
+): Promise<unknown> {
+  return extensionPage.evaluate(
+    async ({ metodo, parametros }) =>
+      chrome.runtime.sendMessage({
+        type: 'TRUEKEATE_RPC',
+        method: metodo,
+        params: parametros,
+        origin: 'extension',
+        tabId: null,
+        frameId: null,
+      }),
+    { metodo: method, parametros: [...params] },
+  );
+}
+
+// --- Lecturas de la dApp a través del provider inyectado ----------------------------------------
+
+/** Espera a que el provider esté publicado en la página (condición observable, sin esperas fijas). */
+export async function esperarProvider(page: Page, timeoutMs = 15_000): Promise<void> {
+  await page.waitForFunction(
+    () => typeof (window as unknown as { truekeate?: unknown }).truekeate === 'object',
+    undefined,
+    { timeout: timeoutMs },
+  );
+}
+
+/** Resultado de una petición de la página: discriminado, con el `code` del error si falla. */
+export type ResultadoDeLaDapp =
+  | { ok: true; valor: unknown }
+  | { ok: false; code: unknown; message: string };
+
+/**
+ * Petición del catálogo hecha desde la PÁGINA a través de `window.truekeate.request`.
+ *
+ * El rechazo se captura DENTRO de la página y se devuelve tipado: así un `4001`
+ * (`rateLimitExceeded`) o un `4200` se ven con su código en el informe de Playwright en lugar de
+ * como un `page.evaluate: Object` opaco.
+ */
+export async function pedirALaDapp(
+  page: Page,
+  method: string,
+  params: readonly unknown[] = [],
+): Promise<ResultadoDeLaDapp> {
+  return page.evaluate(
+    async ({ metodo, parametros }) => {
+      const provider = (
+        window as unknown as { truekeate: { request(args: unknown): Promise<unknown> } }
+      ).truekeate;
+      try {
+        return { ok: true as const, valor: await provider.request({ method: metodo, params: parametros }) };
+      } catch (error) {
+        const fallo = error as { code?: unknown; message?: unknown };
+        return {
+          ok: false as const,
+          code: fallo?.code ?? null,
+          message: typeof fallo?.message === 'string' ? fallo.message : String(error),
+        };
+      }
+    },
+    { metodo: method, parametros: [...params] },
+  );
+}
+
+/** Cuentas autorizadas de la dApp (`eth_accounts`); `[]` si el origen no tiene sesión. */
+export async function cuentasDeLaDapp(page: Page): Promise<string[]> {
+  const resultado = await pedirALaDapp(page, 'eth_accounts');
+  if (!resultado.ok) {
+    throw new Error(
+      `[e2e] eth_accounts falló en la dApp con code=${String(resultado.code)}: ${resultado.message}`,
+    );
+  }
+  return Array.isArray(resultado.valor) ? (resultado.valor as string[]) : [];
+}

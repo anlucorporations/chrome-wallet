@@ -7,8 +7,9 @@
     <title>TrueKeate Wallet — dApp de pruebas</title>
     <link rel="icon" href="brand/truekeate-logo.ico" />
     <style>
-      /* ÚNICA fuente de color: los tokens de marca (RNF-18). Este bloque NO define
-         literales de color propios. */
+      /* ÚNICA fuente de color de esta página: el bloque de tokens de marca de
+         `src/styles/tokens.css` (RNF-18). `test.html` vive fuera de `src/` y se sirve suelto,
+         así que repite los tokens MEDIDOS en lugar de depender de un empaquetado. */
       :root {
         --tk-navy-800: #1d2b57;
         --tk-blue-600: #2e4a7d;
@@ -32,8 +33,10 @@
           #e3c797 100%
         );
         --tk-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        --tk-font-display: 'Poppins', 'Montserrat', system-ui, sans-serif;
         --tk-font-mono: 'JetBrains Mono', ui-monospace, 'Roboto Mono', monospace;
         --tk-radius: 12px;
+        --tk-radius-sm: 8px;
         --tk-shadow-card: 0 2px 8px rgba(29, 43, 87, 0.1);
       }
 
@@ -53,6 +56,7 @@
 
       h1,
       h2 {
+        font-family: var(--tk-font-display);
         font-weight: 700;
       }
 
@@ -110,10 +114,18 @@
         min-height: 44px;
         padding: 10px 14px;
         border: 1.5px solid var(--tk-gold-500);
-        border-radius: 8px;
+        border-radius: var(--tk-radius-sm);
         background: transparent;
         color: var(--tk-navy-800);
-        font: 600 14px var(--tk-font-body);
+        font: 600 14px var(--tk-font-display);
+        cursor: pointer;
+      }
+
+      button:hover:enabled {
+        border-color: var(--tk-teal-500);
+      }
+
+      button:disabled {
         cursor: not-allowed;
         opacity: 0.6;
       }
@@ -149,16 +161,66 @@
         margin: 0 auto 20px;
       }
 
+      .resultados {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .resultado {
+        padding: 10px 12px;
+        background: var(--tk-gray-100);
+        border-left: 3px solid var(--tk-gray-300);
+        border-radius: var(--tk-radius-sm);
+        font-size: 14px;
+      }
+
+      .resultado--ok {
+        border-left-color: var(--tk-success);
+      }
+
+      .resultado--error {
+        border-left-color: var(--tk-danger-dark);
+      }
+
+      .resultado__tiempo {
+        float: right;
+        font-family: var(--tk-font-mono);
+        font-size: 12px;
+        color: var(--tk-gray-600);
+      }
+
+      .resultado__cuerpo {
+        display: block;
+        margin-top: 4px;
+        font-family: var(--tk-font-mono);
+        font-size: 12px;
+        color: var(--tk-gray-900);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .pendiente {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--tk-danger-dark);
+      }
+
       .log {
         margin: 10px 0 0;
         padding: 10px 12px;
         min-height: 64px;
         background: var(--tk-gray-100);
-        border-radius: 8px;
+        border-radius: var(--tk-radius-sm);
         font-family: var(--tk-font-mono);
         font-size: 12px;
         color: var(--tk-gray-900);
         white-space: pre-wrap;
+        word-break: break-word;
       }
     </style>
   </head>
@@ -170,49 +232,79 @@
     <div class="encabezado">
       <h1>dApp de pruebas de TrueKeate Wallet</h1>
       <p>
-        Página de humo del hito H1: detecta el provider inyectado y lista los flujos que se
-        implementan en los hitos H3, H4 y H5.
+        Cuatro flujos operativos —detectar el provider, conectar, consultar saldo y escuchar
+        eventos— y cuatro flujos marcados «pendiente de hito» (envío, firma EIP-712, firma de
+        texto y cambio de red). Cada flujo operativo muestra su resultado aquí mismo en menos de
+        5000 ms.
       </p>
     </div>
 
     <section class="panel" aria-labelledby="titulo-deteccion">
-      <h2 id="titulo-deteccion">Detección del provider</h2>
+      <h2 id="titulo-deteccion">Flujo 1 · Detectar el provider</h2>
       <p class="estado" id="estado">
         <span class="estado__punto" aria-hidden="true"></span>
         <span id="estado-texto">Comprobando…</span>
       </p>
       <p class="detalle" id="detalle">—</p>
+      <div class="acciones">
+        <button id="btn-detectar" type="button">Volver a detectar</button>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="titulo-flujos">
-      <h2 id="titulo-flujos">Flujos pendientes de implementar</h2>
+      <h2 id="titulo-flujos">Flujos 2 a 4 · Operativos</h2>
       <div class="acciones">
-        <button type="button" disabled>Conectar (eth_requestAccounts)</button>
-        <button type="button" disabled>Consultar saldo (eth_getBalance)</button>
-        <button type="button" disabled>Enviar transacción (eth_sendTransaction)</button>
-        <button type="button" disabled>Firmar EIP-712 (eth_signTypedData_v4)</button>
-        <button type="button" disabled>Firmar texto (personal_sign)</button>
-        <button type="button" disabled>Cambiar de red (wallet_switchEthereumChain)</button>
-        <button type="button" disabled>Escuchar eventos (accountsChanged, chainChanged)</button>
+        <button id="btn-conectar" type="button">Conectar (eth_requestAccounts)</button>
+        <button id="btn-saldo" type="button">Consultar saldo (eth_getBalance)</button>
+        <button id="btn-eventos" type="button">
+          Escuchar eventos (accountsChanged, chainChanged)
+        </button>
+      </div>
+      <ul class="resultados" id="resultados" role="list"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="titulo-pendientes">
+      <h2 id="titulo-pendientes">Flujos pendientes de hito</h2>
+      <div class="acciones">
+        <button type="button" disabled>
+          Enviar transacción (eth_sendTransaction)
+          <span class="pendiente">pendiente de hito (H4)</span>
+        </button>
+        <button type="button" disabled>
+          Firmar EIP-712 (eth_signTypedData_v4)
+          <span class="pendiente">pendiente de hito (H4)</span>
+        </button>
+        <button type="button" disabled>
+          Firmar texto (personal_sign)
+          <span class="pendiente">pendiente de hito (H4)</span>
+        </button>
+        <button type="button" disabled>
+          Cambiar de red (wallet_switchEthereumChain)
+          <span class="pendiente">pendiente de hito (H5)</span>
+        </button>
       </div>
       <p class="detalle">
-        Todos los botones están deshabilitados: el catálogo RPC de H1 está cerrado y vacío,
-        así que cualquier método responde 4200 «El método solicitado no está soportado por
-        TrueKeate Wallet.».
+        Estos cuatro flujos están deshabilitados y etiquetados «pendiente de hito»: el envío, la
+        firma EIP-712 y la firma de texto llegan en H4 (ventana única de confirmación) y el cambio
+        de red en H5. Mientras no existan, el catálogo responde 4200 y esta página no los ofrece.
       </p>
     </section>
 
     <section class="panel" aria-labelledby="titulo-registro">
-      <h2 id="titulo-registro">Registro de la página</h2>
+      <h2 id="titulo-registro">Historial de la página</h2>
       <pre class="log" id="registro" role="status">—</pre>
     </section>
 
     <script>
-      // Comprobación de la publicación del provider: los DOS nombres y su identidad.
       (function () {
         'use strict';
 
+        /** Plazo máximo de cada flujo: su resultado debe verse en menos de 5000 ms. */
+        var LIMITE_MS = 5000;
+
         var lineas = [];
+        var cuentas = [];
+        var seleccionada = null;
 
         function anotar(texto) {
           lineas.push(texto);
@@ -240,6 +332,12 @@
           }
         }
 
+        function proveedor() {
+          return typeof window.truekeate === 'object' && window.truekeate !== null
+            ? window.truekeate
+            : null;
+        }
+
         function describirProvider(provider) {
           if (!provider) {
             return 'ausente';
@@ -250,58 +348,248 @@
           return 'métodos presentes: ' + (metodos.join(', ') || 'ninguno');
         }
 
-        var truekeate = window.truekeate;
-        var codecrypto = window.codecrypto;
-        var mismoObjeto = truekeate !== undefined && truekeate === codecrypto;
-
-        anotar('window.truekeate: ' + (truekeate === undefined ? 'ausente' : 'presente'));
-        anotar('window.codecrypto: ' + (codecrypto === undefined ? 'ausente' : 'presente'));
-        anotar('window.truekeate === window.codecrypto: ' + String(mismoObjeto));
-
-        if (truekeate !== undefined) {
-          var descriptor = Object.getOwnPropertyDescriptor(window, 'truekeate');
-          var noConfigurable = descriptor ? descriptor.configurable === false : false;
-          anotar('configurable de window.truekeate: ' + String(descriptor && descriptor.configurable));
-          anotar('isTrueKeate: ' + String(truekeate.isTrueKeate === true));
-          anotar(describirProvider(truekeate));
-
-          if (mismoObjeto && noConfigurable) {
-            textoEstado('provider detectado: TrueKeate', true);
-            mostrarDetalle(
-              'window.truekeate y window.codecrypto son el MISMO objeto, definido con ' +
-                'Object.defineProperty no configurable.\n' +
-                describirProvider(truekeate),
-            );
-          } else if (mismoObjeto) {
-            textoEstado('provider detectado, pero el alias no está congelado', false);
-            mostrarDetalle(describirProvider(truekeate));
-          } else {
-            textoEstado('el alias window.codecrypto no apunta al mismo objeto', false);
-            mostrarDetalle(describirProvider(truekeate));
+        /** Fila de resultado de un flujo; se reutiliza en cada pulsación. */
+        function fila(id, titulo) {
+          var existente = document.getElementById(id);
+          if (existente) {
+            existente.querySelector('.resultado__tiempo').textContent = '';
+            existente.querySelector('.resultado__cuerpo').textContent = '';
+            existente.className = 'resultado';
+            return existente;
           }
-        } else {
-          textoEstado('no se ha detectado el provider (¿está cargada la extensión?)', false);
-          mostrarDetalle(
-            'Carga dist/ en chrome://extensions, recarga esta página y vuelve a intentarlo.',
-          );
+          var lista = document.getElementById('resultados');
+          var item = document.createElement('li');
+          item.id = id;
+          item.className = 'resultado';
+          var cabecera = document.createElement('strong');
+          cabecera.textContent = titulo;
+          var tiempo = document.createElement('span');
+          tiempo.className = 'resultado__tiempo';
+          var cuerpo = document.createElement('span');
+          cuerpo.className = 'resultado__cuerpo';
+          item.appendChild(tiempo);
+          item.appendChild(cabecera);
+          item.appendChild(cuerpo);
+          if (lista) {
+            lista.appendChild(item);
+          }
+          return item;
         }
 
-        // Comprobación EIP-6963: listener SÍNCRONO y re-anuncio del provider.
-        window.addEventListener('eip6963:announceProvider', function (evento) {
-          var detail = evento && evento.detail ? evento.detail : null;
-          if (!detail || !detail.info) {
+        function pintarFila(item, esOk, cuerpo, ms) {
+          item.className = esOk ? 'resultado resultado--ok' : 'resultado resultado--error';
+          item.querySelector('.resultado__tiempo').textContent = Math.round(ms) + ' ms';
+          item.querySelector('.resultado__cuerpo').textContent = cuerpo;
+        }
+
+        function json(valor) {
+          try {
+            return JSON.stringify(valor, null, 2);
+          } catch (error) {
+            return String(valor);
+          }
+        }
+
+        /** Describe un error EIP-1193 con su código; nunca deja el mensaje sin código. */
+        function describirError(error) {
+          if (error && typeof error.code === 'number') {
+            return 'Error ' + error.code + ': ' + String(error.message || '') +
+              (error.data ? '\n' + json(error.data) : '');
+          }
+          return 'Error sin código: ' + String((error && error.message) || error);
+        }
+
+        /** Recorta una promesa al plazo del flujo: sin respuesta en 5000 ms es un fallo. */
+        function conLimite(promesa) {
+          return new Promise(function (resolver, rechazar) {
+            var temporizador = setTimeout(function () {
+              rechazar(new Error('Sin respuesta en ' + LIMITE_MS + ' ms'));
+            }, LIMITE_MS);
+            promesa.then(
+              function (valor) {
+                clearTimeout(temporizador);
+                resolver(valor);
+              },
+              function (error) {
+                clearTimeout(temporizador);
+                rechazar(error);
+              },
+            );
+          });
+        }
+
+        // ---------------------------------------------------------------- Flujo 1: detectar
+        function detectar() {
+          var inicio = performance.now();
+          var truekeate = proveedor();
+          var codecrypto = window.codecrypto;
+          var mismoObjeto = truekeate !== null && truekeate === codecrypto;
+          var descriptor = Object.getOwnPropertyDescriptor(window, 'truekeate');
+          var noConfigurable = descriptor ? descriptor.configurable === false : false;
+
+          anotar('window.truekeate: ' + (truekeate === null ? 'ausente' : 'presente'));
+          anotar('window.codecrypto: ' + (codecrypto === undefined ? 'ausente' : 'presente'));
+          anotar('window.truekeate === window.codecrypto: ' + String(mismoObjeto));
+
+          var cuerpo =
+            'window.truekeate === window.codecrypto: ' + String(mismoObjeto) + '\n' +
+            'propiedad no configurable: ' + String(noConfigurable) + '\n' +
+            'isTrueKeate: ' + String(truekeate !== null && truekeate.isTrueKeate === true) + '\n' +
+            describirProvider(truekeate);
+
+          if (truekeate !== null && mismoObjeto && noConfigurable) {
+            textoEstado('provider detectado: TrueKeate', true);
+          } else if (truekeate !== null && mismoObjeto) {
+            textoEstado('provider detectado, pero el alias no está congelado', false);
+          } else if (truekeate !== null) {
+            textoEstado('el alias window.codecrypto no apunta al mismo objeto', false);
+          } else {
+            textoEstado('no se ha detectado el provider (¿está cargada la extensión?)', false);
+            cuerpo +=
+              '\nCarga dist/ en chrome://extensions, recarga esta página y vuelve a intentarlo.';
+          }
+          mostrarDetalle(cuerpo);
+          anotar('flujo detectar: ' + Math.round(performance.now() - inicio) + ' ms');
+
+          // EIP-6963: el listener debe registrarse ANTES de pedir el anuncio.
+          window.addEventListener('eip6963:announceProvider', function (evento) {
+            var detail = evento && evento.detail ? evento.detail : null;
+            if (!detail || !detail.info) {
+              return;
+            }
+            anotar(
+              'EIP-6963: name=' + detail.info.name + ' rdns=' + detail.info.rdns +
+                ' uuid=' + detail.info.uuid,
+            );
+          });
+          window.dispatchEvent(new Event('eip6963:requestProvider'));
+        }
+
+        // ---------------------------------------------------------------- Flujo 2: conectar
+        function conectar() {
+          var item = fila('resultado-conectar', 'Conectar · eth_requestAccounts');
+          var provider = proveedor();
+          if (provider === null) {
+            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
             return;
           }
-          anotar(
-            'EIP-6963: name=' +
-              detail.info.name +
-              ' rdns=' +
-              detail.info.rdns +
-              ' uuid=' +
-              detail.info.uuid,
-          );
-        });
-        window.dispatchEvent(new Event('eip6963:requestProvider'));
+          var inicio = performance.now();
+          conLimite(provider.request({ method: 'eth_requestAccounts' }))
+            .then(function (resultado) {
+              cuentas = Array.isArray(resultado) ? resultado : [];
+              seleccionada = cuentas.length > 0 ? cuentas[0] : null;
+              pintarFila(item, true, json(resultado), performance.now() - inicio);
+              anotar('eth_requestAccounts → ' + json(resultado));
+            })
+            .catch(function (error) {
+              pintarFila(item, false, describirError(error), performance.now() - inicio);
+              anotar('eth_requestAccounts falló: ' + describirError(error));
+            });
+        }
+
+        // --------------------------------------------------------- Flujo 3: consultar saldo
+        function formatearEth(weiHex) {
+          try {
+            var wei = BigInt(weiHex);
+            var base = 10n ** 18n;
+            var entero = (wei / base).toString();
+            var resto = (wei % base).toString().padStart(18, '0').slice(0, 4);
+            return entero + ',' + resto + ' ETH';
+          } catch (error) {
+            return 'no se pudo formatear el saldo';
+          }
+        }
+
+        function consultarSaldo() {
+          var item = fila('resultado-saldo', 'Consultar saldo · eth_getBalance');
+          var provider = proveedor();
+          if (provider === null) {
+            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
+            return;
+          }
+          var inicio = performance.now();
+
+          var direccion = Promise.resolve(seleccionada);
+          if (seleccionada === null) {
+            // Sin conexión previa se pregunta por las cuentas autorizadas (no abre ventana).
+            direccion = conLimite(provider.request({ method: 'eth_accounts' })).then(function (lista) {
+              cuentas = Array.isArray(lista) ? lista : [];
+              seleccionada = cuentas.length > 0 ? cuentas[0] : null;
+              return seleccionada;
+            });
+          }
+
+          direccion
+            .then(function (cuenta) {
+              if (cuenta === null) {
+                pintarFila(
+                  item,
+                  false,
+                  'No hay ninguna cuenta autorizada: usa antes «Conectar (eth_requestAccounts)».',
+                  performance.now() - inicio,
+                );
+                return null;
+              }
+              return conLimite(
+                provider.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] }),
+              ).then(function (wei) {
+                pintarFila(
+                  item,
+                  true,
+                  'Cuenta ' + cuenta + '\nSaldo ' + String(wei) + ' (' + formatearEth(wei) + ')',
+                  performance.now() - inicio,
+                );
+                anotar('eth_getBalance(' + cuenta + ') → ' + json(wei));
+              });
+            })
+            .catch(function (error) {
+              pintarFila(item, false, describirError(error), performance.now() - inicio);
+              anotar('eth_getBalance falló: ' + describirError(error));
+            });
+        }
+
+        // ---------------------------------------------------------- Flujo 4: escuchar eventos
+        function escucharEventos() {
+          var item = fila('resultado-eventos', 'Escuchar eventos · accountsChanged y chainChanged');
+          var provider = proveedor();
+          if (provider === null) {
+            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
+            return;
+          }
+          var inicio = performance.now();
+          if (item.dataset.suscrito === 'true') {
+            pintarFila(item, true, 'La suscripción ya estaba activa; se mantiene.', performance.now() - inicio);
+            return;
+          }
+          function alCambiarCuentas(lista) {
+            anotar('evento accountsChanged → ' + json(lista));
+          }
+          function alCambiarRed(chainId) {
+            anotar('evento chainChanged → ' + json(chainId));
+          }
+          try {
+            provider.on('accountsChanged', alCambiarCuentas);
+            provider.on('chainChanged', alCambiarRed);
+            item.dataset.suscrito = 'true';
+            pintarFila(
+              item,
+              true,
+              'Suscripción activa a accountsChanged y chainChanged. Los eventos recibidos se ' +
+                'añaden al historial de la página.',
+              performance.now() - inicio,
+            );
+            anotar('flujo eventos: suscripción registrada');
+          } catch (error) {
+            pintarFila(item, false, describirError(error), performance.now() - inicio);
+          }
+        }
+
+        // ------------------------------------------------------------------------ Arranque
+        document.getElementById('btn-detectar').addEventListener('click', detectar);
+        document.getElementById('btn-conectar').addEventListener('click', conectar);
+        document.getElementById('btn-saldo').addEventListener('click', consultarSaldo);
+        document.getElementById('btn-eventos').addEventListener('click', escucharEventos);
+        detectar();
       })();
     </script>
   </body>

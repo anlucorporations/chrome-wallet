@@ -233,3 +233,30 @@ describe('ID estable de la extensión derivado de la `key` (D-N / ADT-19)', () =
     expect(fuente).toContain(EXTENSION_ID);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Ampliación H3 (tarea 3.15): identidad EIP-6963 que publica el provider
+// ---------------------------------------------------------------------------
+
+describe('H3 · la identidad del anuncio sale de las constantes congeladas (CA-RF-45)', () => {
+  it('`providerInfo` publica exactamente los 4 campos vinculantes de RT-13', async () => {
+    const { providerInfo } = await import('../inject/provider');
+    const info = providerInfo('data:image/png;base64,AAAA');
+    expect(info).toEqual({
+      uuid: PROVIDER_UUID,
+      name: PROVIDER_NAME,
+      icon: 'data:image/png;base64,AAAA',
+      rdns: PROVIDER_RDNS,
+    });
+    // Ni un campo de más: el `detail` del anuncio es `{ info, provider }` y nada más.
+    expect(Object.keys(info).sort()).toEqual(['icon', 'name', 'rdns', 'uuid']);
+  });
+
+  it('el entry publica el provider y su alias con el MISMO descriptor no configurable', () => {
+    const fuente = readFileSync(join(SRC_DIR, 'inject', 'index.ts'), 'utf8');
+    expect(fuente).toContain('Object.defineProperty(window, PROVIDER_WINDOW_KEY');
+    expect(fuente).toContain('Object.defineProperty(window, PROVIDER_WINDOW_ALIAS');
+    expect(fuente).toContain('writable: false');
+    expect(fuente).toContain('configurable: false');
+  });
+});

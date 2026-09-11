@@ -3,14 +3,18 @@
  * Contenedor del popup 380×600: encabezado de marca, pestañas, estado global de la UI y los
  * estados de carga, vacío («sin cartera»), error y «wallet dañada» (RNF-22).
  *
- * Pestañas (alcance de H2): **Cuentas** (M40), **Recibir** (M41) y **Seguridad** (M46). Las
- * pestañas de red, sitios conectados y actividad llegan en H3/H5: no se declaran para no ofrecer
- * algo que no existe.
+ * Pestañas (H2 + H3): **Cuentas** (M40), **Recibir** (M41), **Sitios** (M44, tarea 3.11) y
+ * **Seguridad** (M46). Las pestañas de red y de actividad llegan en H5: no se declaran para no
+ * ofrecer algo que no existe.
  *
  * Responsabilidades de este contenedor:
  * - **Auto-carga y restauración** (RF-09/RF-10, tarea 2.13): al abrir el popup se pide el estado
  *   al Service Worker con `wallet_getState` y se restaura la cuenta activa; nunca se pide la
  *   frase y **nunca** se lee el almacén desde aquí (RNF-14).
+ * - **Polling de saldos** (M47, tarea 3.12 / `CA-RF-27`): mientras la vista de Cuentas está
+ *   abierta se hace **1 `eth_getBalance` por cuenta visible cada 5 s**; el ciclo para al cambiar
+ *   de pestaña (la vista se cierra) o de cuenta activa y se suspende —sin perder los saldos ya
+ *   leídos— si el nodo no responde.
  * - **Sin contraseña** (P-03 / RE-02): no hay ningún prompt de contraseña y
  *   `settings.encryptionEnabled` es siempre `false`.
  * - **Aviso no descartable del primer arranque** (RNF-23, tarea 2.15): mientras no esté aceptado
@@ -23,7 +27,13 @@ import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
 import { AccountsView } from './views/AccountsView';
 import { ReceiveView } from './views/ReceiveView';
 import { SecurityView } from './views/SecurityView';
+import { SitesView } from './views/SitesView';
 import { StatusMessage } from './components/StatusMessage';
+import {
+  balanceStatusLabel,
+  useBalancePolling,
+  type BalanceTarget,
+} from './hooks/useBalancePolling';
 import { acceptDevNotice, readSnapshot, type AccountRow, type WalletSnapshot } from './walletState';
 import { popupErrorOf, type PopupError } from './popupErrors';
 import '../styles/tokens.css';
@@ -35,8 +45,8 @@ export const TAGLINE = 'PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS';
 /** Ruta pública del isologo de 96 px. */
 const MARK_SRC = 'brand/truekeate-mark-96.png';
 
-/** Pestañas del popup en H2. */
-type TabId = 'accounts' | 'receive' | 'security';
+/** Pestañas del popup: las de H2 más «Sitios» (tarea 3.11). */
+type TabId = 'accounts' | 'receive' | 'sites' | 'security';
 
 /** Definición de una pestaña. */
 interface TabDefinition {
@@ -44,10 +54,11 @@ interface TabDefinition {
   label: string;
 }
 
-/** Las tres pestañas, en orden de tabulación. */
+/** Las cuatro pestañas, en orden de tabulación. */
 const TABS: readonly TabDefinition[] = [
   { id: 'accounts', label: 'Cuentas' },
   { id: 'receive', label: 'Recibir' },
+  { id: 'sites', label: 'Sitios' },
   { id: 'security', label: 'Seguridad' },
 ];
 
@@ -129,6 +140,28 @@ export function App(): JSX.Element {
     const ref = snapshot.currentAccount;
     return accounts.find((account) => account.ref === ref) ?? accounts[0] ?? null;
   }, [accounts, snapshot]);
+
+  /** Cuentas VISIBLES: son las únicas que consume el polling de saldos (CA-RF-27). */
+  const visibleAccounts = useMemo(
+    () => accounts.filter((account) => account.visible),
+    [accounts],
+  );
+
+  const balanceTargets: readonly BalanceTarget[] = useMemo(
+    () => visibleAccounts.map((account) => ({ ref: account.ref, address: account.address })),
+    [visibleAccounts],
+  );
+
+  /**
+   * Polling de saldos (M47): arranca al abrir la vista de Cuentas y para al cerrarla o al cambiar
+   * de cuenta activa. El contador `requestCount` es el que verifica «1 RPC por cuenta visible y
+   * ciclo» y `status` el que pinta «desconectado» cuando el nodo no responde.
+   */
+  const polling = useBalancePolling({
+    accounts: balanceTargets,
+    currentAccount: currentAccount?.ref ?? null,
+    enabled: phase === 'ready' && tab === 'accounts',
+  });
 
   const handleChanged = async (): Promise<void> => {
     await refresh();
@@ -214,7 +247,19 @@ export function App(): JSX.Element {
               </div>
             </nav>
 
-            <main className="tk-main" id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
+            {/*
+              Los contadores del polling (M47) se publican como atributos de datos: son la
+              evidencia observable de «1 eth_getBalance por cuenta visible y ciclo» (CA-RF-27) y
+              permiten comprobarla sin instrumentar el canal ni exponer nada en `window`.
+            */}
+            <main
+              className="tk-main"
+              id={`panel-${tab}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${tab}`}
+              data-polling-requests={tab === 'accounts' ? polling.requestCount : undefined}
+              data-polling-cycles={tab === 'accounts' ? polling.cycleCount : undefined}
+            >
               {tab === 'accounts' ? (
                 <AccountsView
                   accounts={accounts}
@@ -223,9 +268,12 @@ export function App(): JSX.Element {
                   onWalletGone={() => {
                     void refresh();
                   }}
+                  balances={polling.balances}
+                  balanceStatus={balanceStatusLabel(polling.status)}
                 />
               ) : null}
               {tab === 'receive' ? <ReceiveView account={currentAccount} /> : null}
+              {tab === 'sites' ? <SitesView accounts={accounts} /> : null}
               {tab === 'security' ? (
                 <SecurityView
                   accounts={accounts}

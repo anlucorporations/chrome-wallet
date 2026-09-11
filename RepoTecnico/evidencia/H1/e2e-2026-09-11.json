@@ -100,12 +100,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1320,
+                      "duration": 1880,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:09.986Z",
+                      "startTime": "2026-09-11T19:57:35.572Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -134,12 +134,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2586,
+                      "duration": 3107,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:11.355Z",
+                      "startTime": "2026-09-11T19:57:37.542Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -168,12 +168,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1476,
+                      "duration": 1957,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:13.966Z",
+                      "startTime": "2026-09-11T19:57:40.689Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -202,12 +202,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6994,
+                      "duration": 2771,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:15.459Z",
+                      "startTime": "2026-09-11T19:57:42.672Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -244,12 +244,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2583,
+                      "duration": 2709,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:22.476Z",
+                      "startTime": "2026-09-11T19:57:45.467Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -278,12 +278,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2855,
+                      "duration": 3578,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:25.087Z",
+                      "startTime": "2026-09-11T19:57:48.203Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -329,12 +329,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2420,
+                      "duration": 3307,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:27.988Z",
+                      "startTime": "2026-09-11T19:57:51.863Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -363,12 +363,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2874,
+                      "duration": 4132,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:30.429Z",
+                      "startTime": "2026-09-11T19:57:55.202Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -397,12 +397,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3369,
+                      "duration": 3746,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:33.325Z",
+                      "startTime": "2026-09-11T19:57:59.361Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -448,12 +448,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2776,
+                      "duration": 3010,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:36.730Z",
+                      "startTime": "2026-09-11T19:58:03.148Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -482,12 +482,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2529,
+                      "duration": 7647,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:39.534Z",
+                      "startTime": "2026-09-11T19:58:06.185Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -533,12 +533,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2610,
+                      "duration": 2701,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:42.110Z",
+                      "startTime": "2026-09-11T19:58:13.863Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -567,12 +567,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2716,
+                      "duration": 7197,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:44.747Z",
+                      "startTime": "2026-09-11T19:58:16.588Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -601,12 +601,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2294,
+                      "duration": 2439,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:47.484Z",
+                      "startTime": "2026-09-11T19:58:23.807Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -652,12 +652,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2577,
+                      "duration": 2957,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:49.843Z",
+                      "startTime": "2026-09-11T19:58:26.297Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -686,12 +686,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7226,
+                      "duration": 2843,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:52.443Z",
+                      "startTime": "2026-09-11T19:58:29.280Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -720,12 +720,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1929,
+                      "duration": 2680,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:53:59.685Z",
+                      "startTime": "2026-09-11T19:58:32.150Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -736,6 +736,949 @@
               "id": "58e90238425057d68b5f-bdd5de0aa04ad16ce1c4",
               "file": "06-reset.spec.ts",
               "line": 159,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "07-provider.spec.ts",
+      "file": "07-provider.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "07 · Provider, alias e identidad EIP-6963",
+          "file": "07-provider.spec.ts",
+          "line": 68,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2109,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:81:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:81:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:34.916Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-ad380f9dab688c112973",
+              "file": "07-provider.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "el ID de la extensión es el derivado de la `key` del manifest (estable entre ejecuciones)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1772,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:38.389Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-f1f4b7165d4448c18a44",
+              "file": "07-provider.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2083,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:154:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:154:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:40.226Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-9ee6406e0ea617ad3a09",
+              "file": "07-provider.spec.ts",
+              "line": 150,
+              "column": 3
+            },
+            {
+              "title": "el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2169,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:223:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:223:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:43.439Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-a01a0bef01c83cc586d1",
+              "file": "07-provider.spec.ts",
+              "line": 220,
+              "column": 3
+            },
+            {
+              "title": "la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2043,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:254:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\07-provider.spec.ts:254:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:46.569Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-8f6c53474d688d2032bd",
+              "file": "07-provider.spec.ts",
+              "line": 251,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "08-eventos.spec.ts",
+      "file": "08-eventos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "08 · Eventos del provider en dos pestañas",
+          "file": "08-eventos.spec.ts",
+          "line": 70,
+          "column": 6,
+          "specs": [
+            {
+              "title": "`accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2106,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\08-eventos.spec.ts:82:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\08-eventos.spec.ts:82:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:49.685Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "fb525c86bc7f773ec8db-739318e3ebc842e3eaae",
+              "file": "08-eventos.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1964,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\08-eventos.spec.ts:171:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\08-eventos.spec.ts:171:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:52.803Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "fb525c86bc7f773ec8db-80caf9d93bcbf19e4b9a",
+              "file": "08-eventos.spec.ts",
+              "line": 162,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "09-conectar.spec.ts",
+      "file": "09-conectar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "09 · Conexión de la dApp: test negativo, elección y sesión de 24 h",
+          "file": "09-conectar.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2875,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:58:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:58:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:58:55.925Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-25fdfd58a9e2831d9984",
+              "file": "09-conectar.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2625,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:83:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:83:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:59:00.547Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-d76beb83fee608b0cc81",
+              "file": "09-conectar.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "rechazar en connect.html responde 4001 y NO persiste ninguna sesión",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2193,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:176:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\09-conectar.spec.ts:176:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:59:04.221Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-41faa8516fbe96dc63da",
+              "file": "09-conectar.spec.ts",
+              "line": 172,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "13-revocar.spec.ts",
+      "file": "13-revocar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "13 · Revocación de la sesión de una dApp desde el popup",
+          "file": "13-revocar.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2756,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\13-revocar.spec.ts:59:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\13-revocar.spec.ts:59:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:59:07.521Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3ed4d9ff14d9e1f9a560-36608fe2437baf4cf140",
+              "file": "13-revocar.spec.ts",
+              "line": 53,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "14-polling.spec.ts",
+      "file": "14-polling.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "14 · Polling de saldos: 1 RPC por cuenta visible y ciclo",
+          "file": "14-polling.spec.ts",
+          "line": 42,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el contador real del popup marca 5 RPC por ciclo, arranca y para con la vista",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 15040,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T19:59:11.620Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4657fe22830468aabb47-0e60729a0f4154d0e737",
+              "file": "14-polling.spec.ts",
+              "line": 45,
               "column": 3
             }
           ]
@@ -768,15 +1711,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2368,
+                      "duration": 3936,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:01.646Z",
+                      "startTime": "2026-09-11T19:59:26.752Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -802,15 +1745,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2581,
+                      "duration": 3901,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:04.035Z",
+                      "startTime": "2026-09-11T19:59:30.718Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -836,15 +1779,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2435,
+                      "duration": 3913,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:06.635Z",
+                      "startTime": "2026-09-11T19:59:34.671Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -887,15 +1830,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3111,
+                      "duration": 9756,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:09.113Z",
+                      "startTime": "2026-09-11T19:59:38.658Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -921,15 +1864,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3004,
+                      "duration": 4326,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:12.243Z",
+                      "startTime": "2026-09-11T19:59:48.458Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -955,15 +1898,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 10,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3208,
+                      "duration": 10016,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:54:15.276Z",
+                      "startTime": "2026-09-11T19:59:52.815Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -979,15 +1922,162 @@
           ]
         }
       ]
+    },
+    {
+      "title": "27-rpc-caido.spec.ts",
+      "file": "27-rpc-caido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "27 · RPC caído: 4900, UI desconectada y almacén intacto",
+          "file": "27-rpc-caido.spec.ts",
+          "line": 44,
+          "column": 6,
+          "specs": [
+            {
+              "title": "con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14356,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T20:00:02.918Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "182a99c337fecc3e1567-c12b6628ace64f24024b",
+              "file": "27-rpc-caido.spec.ts",
+              "line": 47,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "28-iframe-hostil.spec.ts",
+      "file": "28-iframe-hostil.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "28 · Iframe cross-origin: aislamiento de la sesión del top",
+          "file": "28-iframe-hostil.spec.ts",
+          "line": 54,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el iframe de otro origen recibe [] y nunca la cuenta del top",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2076,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\28-iframe-hostil.spec.ts:80:13",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\28-iframe-hostil.spec.ts:80:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-11T20:00:17.324Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "85427a82b9268cb0c225-9244b17ed068b10e0255",
+              "file": "28-iframe-hostil.spec.ts",
+              "line": 57,
+              "column": 3
+            }
+          ]
+        }
+      ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-11T16:53:01.185Z",
-    "duration": 77505.82100000001,
-    "expected": 23,
+    "startTime": "2026-09-11T19:57:19.669Z",
+    "duration": 180003.16199999998,
+    "expected": 26,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 11,
     "flaky": 0
   }
 }

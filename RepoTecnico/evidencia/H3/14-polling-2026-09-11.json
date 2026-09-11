@@ -1,0 +1,22 @@
+{
+  "flujo": "polling: contador real por ciclo",
+  "fecha": "2026-09-11",
+  "cuentasVisibles": 5,
+  "instantaneaInicial": {
+    "requests": 5,
+    "cycles": 1,
+    "medidoEn": 1789157015727
+  },
+  "instantaneaSiguiente": {
+    "requests": 10,
+    "cycles": 2,
+    "medidoEn": 1789157020832
+  },
+  "rpcPorCiclo": 5,
+  "periodoObservadoMs": 5105,
+  "trasCerrarYReabrirLaVista": {
+    "requests": 15,
+    "cycles": 3
+  },
+  "ciclosConLaVistaCerrada": 0
+}

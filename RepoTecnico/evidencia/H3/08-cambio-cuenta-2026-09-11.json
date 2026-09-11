@@ -1,0 +1,154 @@
+{
+  "flujo": "CA-RF-15: cambio de cuenta activa desde el popup",
+  "fecha": "2026-09-11",
+  "origen": "http://localhost:5174",
+  "peticion": "wallet_setCurrentAccount { ref: 'idx:1' }",
+  "respuestaDelSw": {
+    "currentAccountRef": "idx:1"
+  },
+  "cuentaAnterior": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "cuentaNueva": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "accountsChangedPestanaA": [
+    {
+      "eventName": "accountsChanged",
+      "data": [
+        "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      ]
+    }
+  ],
+  "accountsChangedPestanaB": [
+    {
+      "eventName": "accountsChanged",
+      "data": [
+        "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      ]
+    }
+  ],
+  "accountsChangedPestanaCNoConectada": [],
+  "selectedAddressTrasElEvento": {
+    "A": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "B": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  },
+  "ethAccountsTrasElCambio": {
+    "A": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    ],
+    "B": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    ]
+  },
+  "sesionPersistida": {
+    "account": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "chainId": "0x7a69",
+    "connected": true,
+    "connectedAt": 1789156978580,
+    "expiresAt": 1789243382265,
+    "lastUsedAt": 1789156982265,
+    "origin": "http://localhost:5174",
+    "tabIds": [
+      58284372,
+      58284373
+    ]
+  },
+  "walletGetState": {
+    "hasWallet": true,
+    "integrity": {
+      "status": "ok",
+      "label": null,
+      "problems": [],
+      "mnemonicPresent": true,
+      "mnemonicValid": true,
+      "canDerive": true
+    },
+    "accounts": [
+      {
+        "ref": "idx:0",
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "kind": "derived",
+        "index": 0,
+        "label": "Cuenta 1",
+        "visible": true,
+        "current": false
+      },
+      {
+        "ref": "idx:1",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "kind": "derived",
+        "index": 1,
+        "label": "Cuenta 2",
+        "visible": true,
+        "current": true
+      },
+      {
+        "ref": "idx:2",
+        "address": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        "kind": "derived",
+        "index": 2,
+        "label": "Cuenta 3",
+        "visible": true,
+        "current": false
+      },
+      {
+        "ref": "idx:3",
+        "address": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "kind": "derived",
+        "index": 3,
+        "label": "Cuenta 4",
+        "visible": true,
+        "current": false
+      },
+      {
+        "ref": "idx:4",
+        "address": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "kind": "derived",
+        "index": 4,
+        "label": "Cuenta 5",
+        "visible": true,
+        "current": false
+      }
+    ],
+    "currentAccountRef": "idx:1",
+    "networks": [
+      {
+        "chainId": "0x7a69",
+        "chainIdDecimal": 31337,
+        "decimals": 18,
+        "isDefault": true,
+        "isTestnet": true,
+        "name": "Anvil Local",
+        "rpcUrl": "http://127.0.0.1:8545",
+        "symbol": "ETH"
+      }
+    ],
+    "currentChainId": "0x7a69",
+    "settings": {
+      "derivedAccountCount": 5,
+      "accountLabels": {},
+      "balancePollMs": 5000,
+      "balancePollMaxAccounts": 10,
+      "logLimit": 500,
+      "logMaxPerOrigin": 200,
+      "sessionTtlMs": 86400000,
+      "pendingRequestsMax": 8,
+      "pendingRequestsMaxPerOrigin": 1,
+      "pendingRequestsPerMinute": 6,
+      "language": "es",
+      "encryptionEnabled": false,
+      "requirePasswordOnOpen": false,
+      "schemaVersion": "1.4",
+      "hiddenAccounts": [],
+      "devNoticeAcceptedAt": 1789156981518
+    },
+    "connectedSites": [
+      {
+        "origin": "http://localhost:5174",
+        "account": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "chainId": "0x7a69",
+        "connectedAt": 1789156978580,
+        "lastUsedAt": 1789156982265,
+        "expiresAt": 1789243382265,
+        "current": true
+      }
+    ]
+  }
+}
