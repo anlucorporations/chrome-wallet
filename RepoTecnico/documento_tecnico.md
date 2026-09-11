@@ -1,19 +1,20 @@
 # Documento Técnico — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.3 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.4 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Cambios de la v1.4 (resumen).** Cierre de los **10 defectos residuales `VR-01..VR-10`** de la última pasada de consistencia: **conjunto de permisos unificado** con el diccionario (`favicon`, `clipboardRead` y `clipboardWrite`, cada uno justificado, en §7.3 y en su fragmento de manifest); **catálogo de eventos a 24** (§2.5.2 y el `erDiagram` de §4.2); **tabla de errores de §5.1 sustituida por un índice código → causa** que remite a `diccionario_datos.md` §4.3 **sin repetir literales**; **retirada definitiva** de `windowsByApprovalId` y del campo `windowId` por solicitud (§2.3, §2.5.2 y riesgo R18), sustituidos por la entidad persistida `truekeate_approval_window` (§2.14 del diccionario); **conteo de diagramas Mermaid corregido a 15** en el texto y en la comprobación de CI (ADT-02); y bloques de «Fuentes»/«Documentos del corpus» sincronizados con las versiones vigentes.
 > **Cambios de la v1.3 (resumen).** Se añaden la **guarda de sesión de dApp activa** en el revelado/exportación y en el borrado de una cuenta importada (§3.8, regla 9; **R-09a/DEC-45**) y la **nueva §3.9** con las guardas y el **orden de comprobación del reset** (§3.9; **R-09b/DEC-46**): ambas se emiten como error tipado `-32000` y **citan `diccionario_datos.md` §4.3 como fuente única de los literales**. Se sincronizan las fuentes vinculantes a las versiones vigentes del corpus.
 > **Cambios de la v1.1 (resumen).** Se especifican el **build/empaquetado MV3** (§7.5) y el **arnés de pruebas E2E** (§7.4), que eran los dos bloqueantes del hito H1; se añade el flujo de **revelado y exportación (RF-50)** con su política de portapapeles (§3.8); se corrigen los **3 diagramas Mermaid** que no parseaban y se añade su comprobación de CI (§7.5); se resuelven las decisiones del usuario **P-20** (portapapeles), **P-21** (una sola ventana de confirmación global) y **P-22** (`wallet_addEthereumChain` no activa la red); y se cierran las decisiones de consolidación **D-H..D-U**.
 > **Producto:** **TrueKeate Wallet** — extensión de navegador Chrome/Edge **Manifest V3** (wallet Ethereum no custodial) + **dApp de pruebas** (`test.html`) sobre **Foundry Anvil** local.
 > **Autores:** el equipo de proyecto (arquitecto de software senior); el rol humano de **responsable de seguridad** es el autor del proyecto (`requerimientos.md` §4.4).
-> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.8 y los casos de uso de `casos_uso/casos_uso.md` v1.4. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
+> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.9 y los casos de uso de `casos_uso/casos_uso.md` v1.5. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
 > **Fuentes obligatorias leídas (estado actual del disco):**
-> `RepoTecnico/requerimientos.md` **v1.8** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 catálogo de códigos y su significado; `diccionario_datos.md` §4.3 como fuente única de los literales de mensaje; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
-> `RepoTecnico/casos_uso/casos_uso.md` **v1.4** (36 CU, Gherkin/EARS y matriz de trazabilidad; guardas de estado en CU-06, CU-07 y CU-30) ·
-> `RepoTecnico/casos_uso/diagramas.md` **v1.1** (figuras UML de los 36 CU) ·
-> `RepoTecnico/diccionario_datos.md` **v1.7** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 como fuente única de los literales de error**, guarda del revelado/borrado en §3.10 y guardas del reset en §3.11) ·
-> `RepoTecnico/entornos_globales.md` **v1.8** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
+> `RepoTecnico/requerimientos.md` **v1.9** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 catálogo de códigos y su significado; `diccionario_datos.md` §4.3 como fuente única de los literales de mensaje; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
+> `RepoTecnico/casos_uso/casos_uso.md` **v1.5** (36 CU, Gherkin/EARS y matriz de trazabilidad; guardas de estado en CU-06, CU-07 y CU-30) ·
+> `RepoTecnico/casos_uso/diagramas.md` **v1.2** (figuras UML de los 36 CU) ·
+> `RepoTecnico/diccionario_datos.md` **v1.8** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 como fuente única de los literales de error**, guarda del revelado/borrado en §3.10 y guardas del reset en §3.11) ·
+> `RepoTecnico/entornos_globales.md` **v1.9** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
 > `RepoTecnico/identidad_visual.md` **v1.4** (tokens, tipografía, medidas, componentes, matriz de contraste) ·
-> `RepoTecnico/estado_proyecto.md` **v1.8** (decisiones **DEC-01..DEC-46**) ·
+> `RepoTecnico/estado_proyecto.md` **v1.9** (decisiones **DEC-01..DEC-46**) ·
 > `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos **H-01..H-42**, remediados) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos **ACU-01..ACU-30**, remediados).
 > **Regla de no regresión:** ningún defecto ya corregido por `H-01..H-42` ni por `ACU-01..ACU-30` se reintroduce en este documento; los invariantes que los cierran están recogidos en §2.3, §2.5, §3.7, §4.3 y §7.3.
 > **Convenciones:** todo en español; identificadores de código, métodos RPC, nombres de archivo y claves de storage en su **forma original**; las claves de `chrome.storage.local` se citan **siempre con el prefijo completo** `truekeate_` (ACU-25).
@@ -234,7 +235,7 @@ sequenceDiagram
 | Puerto de larga vida | `chrome.runtime.connect({ name: 'truekeate_approval' })`; ante desconexión, reconexión con backoff **1 s, 2 s, 4 s, 8 s, 16 s, máx. 30 s** y mensaje `RESUME { approvalId }`; el SW contesta desde el registro persistido o con `4001` si la entrada ya no está `pending`. **El puerto es un canal de transporte, no un *keep-alive***: **no** impide que el navegador suspenda el SW a los ~30 s sin actividad | H-02, ACU-08, **ADT-15/R16** |
 | Origen solo desde `sender` | El `origin` se deriva **exclusivamente** de `sender.origin` (normalizado). Si `sender.frameId !== 0` **queda prohibido** caer a `sender.tab.url`, porque en un iframe cross-origin `sender.tab.url` es el origen del **top** y un iframe hostil heredaría la sesión del anfitrión (D-J) | **ADT-07/D-J** |
 | Reconciliación al arrancar | En cada arranque el SW: aplica `setAccessLevel`, **purga** entradas con `status !== 'pending'` o `expiresAt <= now`, **responde `4001` a las huérfanas**, **rearma** los `alarms` de las que siguen `pending` desde su `expiresAt` persistido y escribe **1 entrada** `sw_reconcile`. Reconstruye además la marca persistida de «tx en vuelo» por cuenta y la ventana de tasa por origen (D-R). Cota: **< 1 s** con 50 pendientes y reloj inyectado (RNF-08) | H-02, ACU-21, **ADT-23/D-R** |
-| Estado volátil admisible | Solo índices de transporte **reconstruibles**: `portsByApprovalId`, `windowsByApprovalId`, `expiryAlarms`, `rmwLock`. Ninguno es fuente de verdad. La cola FIFO por cuenta y la ventana de tasa **dejan de ser volátiles**: su marca se persiste (D-R) | H-02, **ADT-23/D-R** |
+| Estado volátil admisible | Solo índices de transporte **reconstruibles**: `portsByApprovalId`, `expiryAlarms`, `rmwLock`. Ninguno es fuente de verdad; el estado de la **ventana única** no vive en memoria, sino **persistido** en la clave `truekeate_approval_window` (§2.14 del diccionario, ADT-22/P-21), y la reconciliación lo contrasta con `chrome.windows.getAll({ populate: true })`. La cola FIFO por cuenta y la ventana de tasa **dejan de ser volátiles**: su marca se persiste (D-R) | H-02, **ADT-23/D-R** |
 | Serialización por cuenta | **Máximo 1 transacción en vuelo por `from`**, garantizado por la marca persistida `truekeate_inflight_tx` (`Record<Address, { approvalId: string; txHash?: Hex; startedAt: number }>`) que la reconciliación reconstruye; el `nonce` definitivo se recalcula al aprobar con `getTransactionCount(account, 'pending')` junto con `getFeeData()`; `nonceInformativo` es solo informativo | H-10, **ADT-23/D-R** |
 | Cardinalidad y tasa | `pendingRequestsMax = 8` globales, `pendingRequestsMaxPerOrigin = 1`, `pendingRequestsPerMinute = 6`. Al exceder: `4001` **inmediato**, sin persistir, sin abrir ventana y sin contar para el badge | H-18, X-08 |
 | *Token bucket* de todo el catálogo | El limitador de tasa por origen (**6 solicitudes por ventana de 60 s**) se aplica a **todo** el catálogo RPC, no solo a los métodos aprobables: también `eth_getBalance`, `eth_estimateGas`, `eth_blockNumber`, `eth_chainId`, `eth_gasPrice`, `eth_feeHistory`, `eth_getTransactionByHash` y `eth_getTransactionReceipt`. La ventana se persiste en `truekeate_rate_windows` (`Record<origin, number[]>` con las marcas `ts` de la ventana vigente) y **sobrevive a la suspensión**; al exceder, `4001` con el mensaje de tasa y **sin abrir ventana** | **ADT-24/D-Q** |
@@ -461,8 +462,7 @@ export interface PendingRequest {
   status: ApprovalStatus;                   // solo 'pending' bloquea la cola
   resolvedAt?: number;
   errorCode?: number;                       // código EIP-1193 emitido al resolver
-  windowId?: number;
-}
+}                                           // sin `windowId`: la ventana única se persiste en `truekeate_approval_window` (§2.14 del diccionario, ADT-22/P-21)
 
 export interface TxPreview {
   from: Address;
@@ -548,7 +548,7 @@ export type LogEventName =
 export interface LogEntry {
   id: string; ts: number; level: LogLevel;
   category: LogCategory;                    // 5 valores, independiente de `event`
-  event: LogEventName;                      // catálogo cerrado de 23 valores
+  event: LogEventName;                      // catálogo cerrado de 24 valores
   message: string; origin: string;          // origen normalizado o 'extension'
   method: string; data: unknown;            // REDACTADO (M22)
   txHash?: Hex; txStatus?: 'pending' | 'confirmed' | 'failed';
@@ -604,7 +604,7 @@ declare global {
 | ADR-05 | **`eth_sign` fuera del catálogo** (`4200`) y `personal_sign` como única firma de texto | DEC-22, H-11a | M4 (catálogo y enum `method`) y M6 |
 | ADR-06 | **Vista previa con decodificación y avisos de riesgo** obligatoria antes de firmar | DEC-23, H-11b, H-40 | M19/M51/M52/M53/M54; `TxPreview.riskWarnings` |
 | ADR-07 | **Un solo objeto provider con alias**: `window.codecrypto = window.truekeate` | DEC-21, H-15 | M35/M37; test que verifica ambos nombres |
-| ADR-08 | **Manifest en minimos privilegios**: `storage` y `alarms` en `permissions`; **`notifications` pasa a `optional_permissions`** (solo se pide al llegar RF-39, D-P/ADT-30); `host_permissions` solo el RPC local; el resto en runtime | H-36, RT-04, **ADT-30/D-P** | M1/M25; retirados `tabs`, `activeTab`, `scripting`. **Nota de cita (ADT-33):** DEC-36 solo regula el **permiso de host en runtime**, no la regla general de minimos privilegios |
+| ADR-08 | **Manifest en minimos privilegios**: `storage`, `alarms`, `favicon`, `clipboardRead` y `clipboardWrite` en `permissions`; **`notifications` pasa a `optional_permissions`** (solo se pide al llegar RF-39, D-P/ADT-30); `host_permissions` solo el RPC local; el resto en runtime | H-36, RT-04, **ADT-30/D-P** | M1/M25; retirados `tabs`, `activeTab`, `scripting`. **Nota de cita (ADT-33):** DEC-36 solo regula el **permiso de host en runtime**, no la regla general de minimos privilegios |
 | ADR-09 | **Permiso de host en runtime siempre** al dar de alta una red, también desde el popup | DEC-36 (D-G) | M25; denegación → `4001` y la red **no** se persiste |
 | ADR-10 | **Sesión por origen con caducidad de 24 h renovables** (`expiresAt = lastUsedAt + sessionTtlMs`) | DEC-31 (D-B), RF-25 | M26; clave = origen normalizado con puerto |
 | ADR-11 | **`truekeate_logs` en `chrome.storage.local`, escrito siempre por el SW** y excluido de `resetWallet` | H-09, RF-32 | M30/M32/M33 |
@@ -1279,7 +1279,7 @@ erDiagram
         number ts "epoch ms"
         string level "info success warn error"
         string category "call event tx sign system"
-        string event "23 valores del catalogo"
+        string event "24 valores del catalogo"
         string origin "origen o extension"
         string message "sin datos sensibles"
         string data "params REDACTADOS"
@@ -1361,31 +1361,20 @@ Ambos nombres exponen `request`, `on` y `removeListener`; un test verifica que *
 
 **Metodos internos** (solo contextos de la extension; desde un content script responden `4200`): `wallet_generateMnemonic` (RF-01), `wallet_importMnemonic` (RF-02), `wallet_deriveAccounts` (RF-04), `wallet_importPrivateKey` (RF-05), `wallet_getNetworks` (RF-23), `wallet_getLogs` (RF-28) y `wallet_revealSecret` (RF-50). Su contrato completo, con parametros, retorno y errores, esta en la **seccion 5.1.1** (ADT-16).
 
-**Errores EIP-1193** (`requerimientos.md` §2.1 fija el **catálogo de códigos y su significado**; los literales de los mensajes tienen su **fuente única** en `diccionario_datos.md` §4.3, con **varios mensajes por código**, uno por causa; **todo** error que ve el usuario lleva `code`):
+**Errores EIP-1193: índice código → causa (VR-04).** `requerimientos.md` §2.1 fija el **catálogo de códigos y su significado**; los **literales** de los mensajes, la causa y la acción sugerida tienen su **fuente única** en `diccionario_datos.md` §4.3 (varios mensajes por código, uno por causa). Esta sección **no reproduce ningún literal**: es un índice que enumera, por código, las **causas** registradas en esa tabla, de modo que no puede divergir de la fuente única. **Todo** error que ve el usuario lleva `code`.
 
-| Código | Causa | Mensaje (español) | Acción sugerida |
-|---|---|---|---|
-| `4001` | Rechazo explícito del usuario | «Operación cancelada por el usuario.» | Volver a solicitarla desde la dApp |
-| `4001` | Vencimiento del plazo (120 s firma / 60 s conexión) | «El usuario no respondió en el plazo establecido (120 s); la solicitud ha caducado.» | Reintentar cuando el usuario esté disponible |
-| `4001` | Cierre de la ventana sin decidir | «La ventana de confirmación se cerró sin respuesta; la solicitud se ha cancelado.» | Volver a solicitarla |
-| `4001` | Exceso de cardinalidad o de tasa | «Hay demasiadas solicitudes pendientes para este origen; espera a que se resuelva la actual.» | Esperar y reintentar |
-| `4001` | Permiso de host denegado al dar de alta una red | «No se concedió el permiso de acceso a `<rpcUrl>`; la red no se ha añadido.» | Repetir el alta y aceptar el permiso |
-| `4100` | Origen sin sesión autorizada o emisor no autorizado | «Esta dApp no tiene permiso para usar la cartera.» | Conectar con `eth_requestAccounts` |
-| `4200` | Método fuera del catálogo (`eth_sign`) | «El método solicitado no está soportado por TrueKeate Wallet.» | Usar `personal_sign` o `eth_signTypedData_v4` |
-| `4200` | Método interno invocado desde un contexto no permitido | «El método solicitado no está permitido en este contexto.» | Invocarlo desde el popup |
-| `4900` | RPC local caído | «Sin conexión con la red local (Anvil).» | Arrancar Anvil en `127.0.0.1:8545` |
-| `4901` | `chainId` no dado de alta | «La red solicitada no está dada de alta.» | Darla de alta con `wallet_addEthereumChain` |
-| `-32602` | Mnemonic inválido (nº de palabras o checksum) | «La frase de recuperación no es válida: revisa las 12 palabras y su checksum.» | Revisar la frase |
-| `-32602` | Clave privada inválida | «La clave privada no es válida: debe ser `0x` + 64 caracteres hexadecimales de la curva secp256k1.» | Revisar la clave |
-| `-32602` | Dirección malformada (checksum EIP-55) | «La dirección no es válida: revisa el formato `0x` + 40 caracteres hexadecimales.» | Revisar la dirección |
-| `-32602` | Cuenta ya existente en la cartera | «Esa cuenta ya está en la cartera.» | Usar otra cuenta |
-| `-32000` | Saldo insuficiente para valor + comisión | «Saldo insuficiente para cubrir el valor y la comisión estimada.» | Reducir el importe o recargar la cuenta |
-| `-32000` | Nonce inválido rechazado por el nodo | «La red rechazó la transacción: nonce inválido.» | Reintentar (el SW recalcula el nonce al firmar) |
-| `-32000` | `estimateGas` fallido o revert previo a firmar | «La estimación de gas falló: `<motivo>`. El envío se ha bloqueado.» | Corregir la llamada |
-| `-32603` | Fallo no clasificado del SW | «Error interno de la cartera.» | Exportar los logs en JSON y reportarlo |
-| `-32603` | Identificador duplicado en la cola | «Ya existe una solicitud con ese identificador.» | Regenerar la solicitud |
+| Código | Causas registradas en `diccionario_datos.md` §4.3 (sin sus literales) | Filas |
+|---|---|---|
+| `4001` | rechazo explícito del usuario · vencimiento del plazo (120 s firma / 60 s conexión) · cierre de la ventana de confirmación sin decidir · exceso de cardinalidad o de tasa de solicitudes aprobables · *token bucket* agotado en cualquier método del catálogo · permiso de host denegado al dar de alta una red | 6 |
+| `4100` | origen sin sesión autorizada o emisor no autorizado | 1 |
+| `4200` | método fuera del catálogo (`eth_sign`) · método interno invocado desde un contexto no permitido | 2 |
+| `4900` | RPC local caído | 1 |
+| `4901` | `chainId` no dado de alta | 1 |
+| `-32602` | mnemonic inválido · clave privada inválida · dirección malformada (checksum EIP-55) · cuenta ya existente · payload por encima de 64 KiB | 5 |
+| `-32000` | saldo insuficiente · nonce inválido · `estimateGas` fallido o revert previo a firmar · cuenta en uso por una dApp conectada · reset bloqueado | 5 |
+| `-32603` | fallo no clasificado del SW · identificador duplicado en la cola · cuota de `chrome.storage.local` agotada · difusión interrumpida por suspensión del SW | 4 |
 
-**Nota de divergencia (resuelta en la v1.1).** `CU-11/E1` citaba para la estimacion fallida el mensaje de nonce/gas de `requerimientos.md` seccion 2.1; la **fuente de verdad** es la tabla de `diccionario_datos.md` seccion 4.3, que tiene fila propia para `estimateGas` («La estimacion de gas fallo: <motivo>. El envio se ha bloqueado.»). **El pendiente P-3.2 queda cerrado** como correccion de cita (D-I/ADT-03).
+**Total: 25 filas** — exactamente las 25 causas de `diccionario_datos.md` §4.3. El índice cita la **causa** y el **código**; el mensaje en español y la acción sugerida se leen **solo** en la fuente única (regla de cita ADT-03/ADT-11 y RNF-06).
 
 #### 5.1.1 Contrato de los metodos internos `wallet_*` (ADT-16)
 
@@ -1692,7 +1681,7 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
   "minimum_chrome_version": "114",
   "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
   "action": { "default_popup": "index.html", "default_icon": { "16": "icons/icon-16.png" } },
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "favicon", "clipboardRead", "clipboardWrite"],
   "optional_permissions": ["notifications"],
   "host_permissions": [
     "http://127.0.0.1:8545/*",
@@ -1727,6 +1716,9 @@ wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"
 |---|---|---|
 | `storage` | Persistir cartera, sesiones, ajustes y cola de aprobaciones en `chrome.storage.local`. El SW **no tiene** `localStorage` | RNF-08, RF-25, RF-37 |
 | `alarms` | **Vencimiento del plazo de aprobación aunque el SW esté dormido**: `setTimeout` no sobrevive a la suspensión | H-02/H-07, RF-37/RF-40/RF-41 |
+| `favicon` | **Icono de origen de la dApp en `notification.html`**: el origen solicitante se muestra con el favicon que sirve el **propio navegador** (`chrome-extension://<id>/_favicon/?pageUrl=…&size=32`). Es la única vía de obtenerlo sin descarga de red propia y sin aceptar un `data:` ni una URL remota propuesta por la dApp; si el permiso no estuviera declarado el favicon queda `null` y la UI usa el activo local del paquete (§3.8) | RF-35, **ADT-22/P-21** |
+| `clipboardRead` | **Política de portapapeles de R-09/P-20 (RF-50)**: al ocultarse el secreto revelado hay que **leer** el portapapeles (`navigator.clipboard.readText()`) para comparar su `sha256` con `clipboardHash` y borrarlo **solo** si todavía contiene la semilla o la clave; sin este permiso la comparación no puede hacerse y la extensión no destruye contenido ajeno | RF-50, RNF-09, **P-20/ADT-09** |
+| `clipboardWrite` | **Borrado del portapapeles al ocultar y borrado incondicional de respaldo**: permite escribir (`writeText('')`) **sin gesto del usuario** en el instante del `blur`/cierre y cuando la lectura falla; es la única vía de que la semilla o la clave no sobrevivan en el portapapeles | RF-50, RNF-09, **P-20/ADT-09** |
 | `notifications` (**`optional_permissions`**) | Avisar de cada solicitud pendiente. Es el unico permiso de UI de sistema que el diseno usaria, pero **pertenece a RF-39, que esta en el ciclo posterior**: se declara como **opcional** y solo se solicita con `chrome.permissions.request` al implementar RF-39 (D-P/ADT-30). El MVP **no** lo necesita y no debe pedirlo | RF-39 (ciclo posterior) |
 | `key` (no es un permiso, es identidad) | Congela el **ID de la extension** entre equipos: sin ella el ID cambia en cada instalacion y la allowlist CORS de Anvil (RE-04) y la suite E2E dejan de ser reproducibles (D-N/ADT-19) | RE-04, RT-04, RNF-24 |
 | `exclude_matches` | Excluye `chrome-extension://*` (nunca se inyecta en otra extension, incluida la propia) y los origenes de **otras wallets** conocidas, donde el provider no aporta nada y solo genera ruido o colisiones de alias | RNF-10, **ADT-20/D-O** |
@@ -1937,7 +1929,7 @@ export const manifest = {
   icons: { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' },
   action: { default_popup: 'index.html', default_icon: { 16: 'icons/icon-16.png' } },
   background: { service_worker: 'background.js', type: 'module' },
-  permissions: ['storage', 'alarms'],
+  permissions: ['storage', 'alarms', 'favicon', 'clipboardRead', 'clipboardWrite'],
   optional_permissions: ['notifications'],
   host_permissions: ['http://127.0.0.1:8545/*', 'http://localhost:8545/*'],
   optional_host_permissions: ['http://127.0.0.1/*', 'http://localhost/*', 'https://*/*'],
@@ -1969,12 +1961,12 @@ El paquete que se carga en `chrome://extensions` es **la carpeta `dist/` entera*
 
 #### 7.5.6 Comprobación de CI de los diagramas Mermaid (ADT-02/D-H)
 
-**Problema que cierra.** 3 de los 13 diagramas no parseaban por dos causas concretas, ya corregidas en la v1.1: (a) el carácter `;` dentro del **texto de un mensaje** de `sequenceDiagram` (secciones 2.3, 3.1 y 3.5) y (b) la ambigüedad de la etiqueta de transición en `stateDiagram-v2` cuando contiene `:`. La regla de estilo queda **fijada**: en `sequenceDiagram` **no** se usa `;` dentro del texto de un mensaje; en `stateDiagram-v2` las etiquetas usan texto plano sin `:` ni comillas.
+**Problema que cierra.** 3 de los **15** diagramas Mermaid que hoy contiene este documento (eran 13 en la v1.0) no parseaban por dos causas concretas, ya corregidas en la v1.1: (a) el carácter `;` dentro del **texto de un mensaje** de `sequenceDiagram` (secciones 2.3, 3.1 y 3.5) y (b) la ambigüedad de la etiqueta de transición en `stateDiagram-v2` cuando contiene `:`. La regla de estilo queda **fijada**: en `sequenceDiagram` **no** se usa `;` dentro del texto de un mensaje; en `stateDiagram-v2` las etiquetas usan texto plano sin `:` ni comillas.
 
 **Comprobación obligatoria en CI.** `scripts/check-mermaid.mjs` extrae **todos** los bloques ````mermaid` de los ficheros Markdown de `RepoTecnico/` y ejecuta `mermaid.parse()` (mermaid 11 con jsdom) sobre cada uno; si **alguno** falla, el comando termina con **exit 1** y el hito no se cierra. El script se invoca con `npm run check:mermaid` y forma parte de la puerta de salida de todos los hitos (sección 9).
 
 ```powershell
-npm run check:mermaid    # mermaid.parse() sobre los 13 bloques: 13/13 y exit 0
+npm run check:mermaid    # mermaid.parse() sobre los 15 bloques: 15/15 y exit 0
 ```
 
 ## 8. Riesgos técnicos y decisiones pendientes
@@ -2000,7 +1992,7 @@ npm run check:mermaid    # mermaid.parse() sobre los 13 bloques: 13/13 y exit 0
 | R15 | **Deriva documental** entre los cinco documentos del corpus | Media | Medio | ADR-19 (nomenclatura congelada) y la regla de que toda edicion refresca conteos, tabla de artefactos e historial en el mismo turno (H-03) | Revision cruzada doc a doc (`grep` de identificadores) ejecutada antes de cerrar cada hito; 0 identificadores inexistentes |
 | **R16** | **Vida del puerto y suspension del Service Worker**: se asume que el puerto de larga vida mantiene vivo el SW, pero MV3 lo termina a los **~30 s** sin actividad y el puerto se cierra con el | Alta | Medio | **Corregido** en la seccion 2.3: el puerto es solo canal; la verdad vive en `chrome.storage.local`, los `chrome.alarms` y la reconciliacion al arrancar. El diseno **acepta** la suspension y no depende del puerto | E2E con suspension forzada del SW via CDP en mitad de una aprobacion (seccion 7.4.1.c): la cola se reconstruye en < 1 s y no hay doble difusion. Evidencia: `RepoTecnico/evidencia/<fase>/sw-suspend-<fecha>.json` |
 | **R17** | **Alarmas retardadas o perdidas** ante cierre o reinicio del navegador: un `chrome.alarms` puede no dispararse si el navegador estuvo cerrado | Media | Medio | La reconciliacion al arrancar **no depende** del disparo del alarm: compara `expiresAt` con el reloj actual y resuelve con `4001` lo vencido. El alarm es el camino rapido, la reconciliacion es la red de seguridad | `Vitest: approvalReconcile.spec.ts` con entradas cuyo `expiresAt` ya paso y **sin** disparar el alarm: todas quedan resueltas con `4001`; E2E que cierra y reabre el contexto persistente |
-| **R18** | **Ventana huerfana o colision de dos ventanas de confirmacion**: dos `notification.html` compitiendo, o una ventana huerfana tras suspenderse el SW | Media | Alto | **P-21**: una **sola** ventana global con contador de pendientes. La ventana se localiza por `windowsByApprovalId` y, si se pierde el `windowId`, por re-descubrimiento de URL; las entradas resueltas no reabren ventana | E2E `18-concurrencia.spec.ts`: dos solicitudes simultaneas producen **exactamente una** ventana, contador = 2, y al aprobar la primera se muestra la segunda en la **misma** ventana. Evidencia: captura `RepoTecnico/evidencia/<fase>/18-concurrencia-<fecha>.png` |
+| **R18** | **Ventana huerfana o colision de dos ventanas de confirmacion**: dos `notification.html` compitiendo, o una ventana huerfana tras suspenderse el SW | Media | Alto | **P-21**: una **sola** ventana global con contador de pendientes. La ventana se localiza por su estado **persistido** en `truekeate_approval_window` (§2.14 del diccionario) y, si se pierde el `windowId` de `chrome.windows`, por re-descubrimiento de URL; las entradas resueltas no reabren ventana | E2E `18-concurrencia.spec.ts`: dos solicitudes simultaneas producen **exactamente una** ventana, contador = 2, y al aprobar la primera se muestra la segunda en la **misma** ventana. Evidencia: captura `RepoTecnico/evidencia/<fase>/18-concurrencia-<fecha>.png` |
 | **R19** | **Bundle de `ethers`, CSP y tamano del paquete**: el bundle de `ethers` es grande, MV3 impone CSP sin `unsafe-eval` y el tamano del paquete afecta a la carga | Media | Medio | `ethers` v6 se empaqueta **localmente** (sin CDN: RT-02, RT-05, RNF-20) y **solo** en `background.js` (ADR-01/RNF-14: cero `ethers` en UI). El SW y las paginas se construyen con `format: 'es'` e import dinamico para compartir *chunks*; la CSP se asume por defecto y **no** se usa evaluacion de cadenas | Medicion del tamano de `dist/` en cada build (presupuesto: `background.js` + chunks < 1,5 MB sin comprimir) y `grep` de `http://`/`https://` remotos en `dist/` = 0; 0 errores de CSP en la consola del SW durante la suite E2E |
 
 ### 8.2 Decisiones de diseño pendientes de la Fase 3
@@ -2032,7 +2024,7 @@ Ninguna de estas decisiones está resuelta en el corpus; se declaran aquí **en 
 |---|---|---|---|---|
 | **H1 — Onboarding y persistencia** | Cartera operativa en frío, sin contraseña, con 5 cuentas derivadas y estado restaurable | M1, M8, M9, M10, M13, M28, M29, M33, M34, M57, M58..M61, M62, M64, M39, M40, M41 | RF-01, RF-02, RF-03, RF-04, RF-05, RF-07, RF-09, RF-10, RF-11, RF-33, RF-49, **RF-50** (+ RNF-13, RNF-18, RNF-22, RNF-23) | `Vitest: mnemonic/derivation/importPrivateKey/secretsExport/validation` + `E2E: 01-onboarding, 02-cuentas, 03-recibir, 05-persistencia, 06-reset` |
 | **H2 — Provider y lectura** | Provider inyectado con alias, eventos y lecturas contra Anvil | M35, M36, M37, M38, M2, M3, M4, M5, M6, M55, M56, M47 | RF-13, RF-14, RF-15, RF-18, RF-24, RF-27, RF-45 (+ RF-44 Should) | `Vitest: inject/naming/errors/eip1193/polling` + `E2E: 07-provider, 08-eventos, 14-polling` |
-| **H3 — Firma, aprobación y tiempo límite** | Toda operación sensible pasa por la cola persistida con vista previa decodificada y plazo con dueño único | M14, M15, M16, M17, M18, M19, M11, M7, M50..M54 | RF-08, RF-19, RF-20, RF-21, RF-35, RF-37, RF-41, RF-42, RF-43 (+ RF-40 Should, **mecanismo estructural**) | `Vitest: approvalQueue/approvalTimeout/approvalReconcile/calldata/typedData/personalSign/eip1559/eip155` + `E2E: 10-aprobar-tx, 11-firmar-eip712, 11-firmar-mensaje, 18-concurrencia` + `Forge: EIP712Verifier.t.sol` |
+| **H3 — Firma, aprobación y tiempo límite** | Toda operación sensible pasa por la cola persistida con vista previa decodificada y plazo con dueño único | M14, M15, M16, M17, M18, M19, M11, M7, M50..M54 | RF-08, RF-19, RF-20, RF-21, RF-35, RF-37, RF-41, RF-42, RF-43 (+ RF-40 Should, **mecanismo estructural**) | `Vitest: approvalQueue/approvalTimeout/approvalReconcile/calldata/typedData/personalSign/eip1559/eip155` + `E2E: 10-aprobar-tx, 11-firmar-eip712, 11-firmar-mensaje, 18-concurrencia` + `Comando: forge test --match-contract EIP712VerifierTest` |
 | **H4 — Redes, logs y UI** | Conexión de dApps, sesiones con TTL, cambio y alta de redes, observabilidad y dApp de pruebas completa | M26, M23, M24, M25, M30, M31, M32, M22, M20, M21, M42, M43, M44, M45, M46, M48, M49, `test.html` | RF-16, RF-17, RF-22, RF-23, RF-25, RF-26, RF-28, RF-29, RF-30, RF-31, RF-46 (+ RF-32, RF-47 Should) | `Vitest: accounts/sessions/networks/logger/logRedaction/manifest` + `E2E: 09-conectar, 12-redes, 13-revocar, 15-logs, 22-dapp` |
 | **H5 — Identidad visual, accesibilidad y suite completa** | Identidad aplicada en las tres ventanas y la dApp, accesibilidad verificada, build limpio en ambas plataformas y ensayo de entrega | M64, M65, M39..M46, `contracts/`, `vite.config.ts`, `README.md`, `INSTRUCCIONES.md`, `LICENSE`, `NOTICE`, `public/fonts/LICENSE-*.txt` | RF-49, RF-11 (=cierre), RNF-15, RNF-17, RNF-19, RNF-21, RNF-23, RNF-24, RT-01..RT-13, RE-01..RE-04 (+ RF-06, RF-12, RF-34, RF-38, RF-39, RF-48 Should) | `E2E: 23-marca, 24-accesibilidad, 25-recuperacion, 26-avisos, 17-i18n` + `npm ci && npm run build` en Windows y WSL2/CI + `npm run test -- --coverage` + `forge test` + `npm run check:mermaid` + `Comando: git ls-files` con LICENSE, NOTICE y `public/fonts/LICENSE-*.txt` (artefactos de la sección 9.2) |
 
@@ -2123,7 +2115,7 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 
 ### 10.3 Documentos del corpus
 
-`RepoTecnico/requerimientos.md` (v1.6) · `RepoTecnico/casos_uso/casos_uso.md` (v1.2, 36 CU) · `RepoTecnico/casos_uso/diagramas.md` (v1.0) · `RepoTecnico/diccionario_datos.md` (v1.5) · `RepoTecnico/entornos_globales.md` (v1.7) · `RepoTecnico/identidad_visual.md` (v1.3) · `RepoTecnico/estado_proyecto.md` (v1.6, DEC-01..DEC-44) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (H-01..H-42) · `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30) · `RepoTecnico/GUIA_RAPIDA_TESTING.md` (**no vinculante**, H-24) · `RepoTecnico/requisitos.md` y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` (enunciado fuente) · `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md` (auditoria de este documento: **ADT-01..ADT-33**).
+`RepoTecnico/requerimientos.md` (v1.9) · `RepoTecnico/casos_uso/casos_uso.md` (v1.5, 36 CU) · `RepoTecnico/casos_uso/diagramas.md` (v1.2) · `RepoTecnico/diccionario_datos.md` (v1.8) · `RepoTecnico/entornos_globales.md` (v1.9) · `RepoTecnico/identidad_visual.md` (v1.4) · `RepoTecnico/estado_proyecto.md` (v1.9, DEC-01..DEC-46) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (H-01..H-42) · `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30) · `RepoTecnico/GUIA_RAPIDA_TESTING.md` (**no vinculante**, H-24) · `RepoTecnico/requisitos.md` y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` (enunciado fuente) · `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md` (auditoria de este documento: **ADT-01..ADT-33**).
 
 > **Regla de citacion (ADT-03).** Toda referencia cruzada a otro documento del corpus se escribe **siempre con el documento por delante** y la seccion detras (`diccionario_datos.md` seccion 4.3, `requerimientos.md` seccion 2.2), nunca con la seccion suelta: la seccion sola es **ambigua** con las secciones de este mismo documento.
 
@@ -2133,17 +2125,19 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 
 | Version | Fecha | Cambios | Hallazgos cerrados |
 |---|---|---|---|
-| **1.0** | — | Version auditada: 65 modulos, 20 ADR, 13 diagramas Mermaid. | — |
-ANCHOR_TECNICO `AUDITORIA_DOCUMENTO_TECNICO_V1.md`. **Nuevas secciones:** 3.4.1 (tabla local cerrada de selectores, M66), 3.8 (revelado y exportacion de RF-50 con la politica de portapapeles de P-20), 5.1.1 (contrato de los metodos internos `wallet_*`), 7.4.1 (arness E2E completo), 7.5 (build y empaquetado MV3) y 9.2 (artefactos documentales de la rubrica). **Decisiones del usuario aplicadas:** P-20 (se permite copiar; se borra el portapapeles al ocultar, con test E2E), P-21 (una sola ventana global de `notification.html` con contador de pendientes) y P-22 (`wallet_addEthereumChain` solo anade; activar exige `wallet_switchEthereumChain` con su propia aprobacion). **Decisiones de consolidacion:** D-H..D-U. **Promociones:** P-3.8 a invariante de la seccion 2.3 y P-3.9 a convencion de la seccion 7.4. **Pendientes cerrados:** P-3.1, P-3.2, P-3.3, P-3.4, P-3.5, P-3.6, P-3.8, P-3.9 y P-3.10 (parcial). | **33 de 33** hallazgos de la auditoria (ADT-01..ADT-33) |
+| **1.0** | — | Version auditada: 65 modulos, 20 ADR, 13 diagramas Mermaid (hoy **15**). | — |
+| **1.1** | — | Cierre de los 33 hallazgos de `AUDITORIA_DOCUMENTO_TECNICO_V1.md`. **Nuevas secciones:** 3.4.1 (tabla local cerrada de selectores, M66), 3.8 (revelado y exportacion de RF-50 con la politica de portapapeles de P-20), 5.1.1 (contrato de los metodos internos `wallet_*`), 7.4.1 (arness E2E completo), 7.5 (build y empaquetado MV3) y 9.2 (artefactos documentales de la rubrica). **Decisiones del usuario aplicadas:** P-20 (se permite copiar; se borra el portapapeles al ocultar, con test E2E), P-21 (una sola ventana global de `notification.html` con contador de pendientes) y P-22 (`wallet_addEthereumChain` solo anade; activar exige `wallet_switchEthereumChain` con su propia aprobacion). **Decisiones de consolidacion:** D-H..D-U. **Promociones:** P-3.8 a invariante de la seccion 2.3 y P-3.9 a convencion de la seccion 7.4. **Pendientes cerrados:** P-3.1, P-3.2, P-3.3, P-3.4, P-3.5, P-3.6, P-3.8, P-3.9 y P-3.10 (parcial). | **33 de 33** hallazgos de la auditoria (ADT-01..ADT-33) |
 
 **v1.3 — cierre de `R-09` (DEC-45/DEC-46).** Se anade la **regla 9** de la seccion 3.8 (**guarda de sesion de dApp activa**: bloquea el revelado/exportacion con `-32000`, revalidada en el SW, y bloquea tambien el borrado de la cuenta importada) y la **nueva seccion 3.9** (**guardas del reset** y orden de comprobacion estricto: cola vacia → sin transaccion en vuelo → confirmacion destructiva → limpieza, con la tabla de lo que se limpia y lo que se conserva —`truekeate_logs` sobrevive por RF-32— y el diagrama de flujo). Ambas causas citan el literal de **`diccionario_datos.md` §4.3** (fuente unica) y no lo reproducen. Se sincronizan las fuentes vinculantes (`requerimientos.md` v1.8, `casos_uso.md` v1.4, `diccionario_datos.md` v1.7, `estado_proyecto.md` v1.8 con DEC-01..DEC-46) y se unifica la clave `truekeate_rate_windows` (plural, forma canonica del diccionario §2.13) en las secciones 2.x y 5.x. **Residual cerrado:** `R-09` de `VEREDICTO_FASE2_V1.md` v1.2.
+
+**v1.4 — cierre de los 10 residuales de consistencia (`VR-01..VR-10`).** **(1) `VR-01`** `permissions` del manifest **unificado con `diccionario_datos.md`** en la tabla de §7.3, en el fragmento JSON del manifest, en el fragmento de `src/manifest.ts` (§7.5.4) y en **ADR-08**: `storage`, `alarms`, **`favicon`**, **`clipboardRead`** y **`clipboardWrite`**, cada uno con su fila de justificación (icono de origen de la dApp y política de portapapeles de `R-09`/`P-20`); el favicon deja de ser condicional. **(2) `VR-02`** catálogo de eventos citado como **24** en §2.5.2 y en el `erDiagram` de §4.2. **(3) `VR-04`** la tabla de errores de §5.1 (que reproducía y divergía de los literales) se sustituye por un **índice código → causa de 25 filas** que remite a `diccionario_datos.md` §4.3 sin reproducir ningún literal, y la nota de divergencia de la v1.1 se reescribe sin literal. **(4) `VR-05`** retirada definitiva de `windowsByApprovalId` y del campo `windowId` por solicitud (§2.3, §2.5.2 y riesgo R18), sustituidos por la clave persistida `truekeate_approval_window` (§2.14 del diccionario). **(5) `VR-09`** conteo de diagramas Mermaid corregido a **15** en el texto de §7.5.6, en el comentario de la comprobación de CI y en el historial, y bloques de «Fuentes» (encabezado) y «Documentos del corpus» (§10.3) sincronizados con las versiones vigentes (`requerimientos.md` v1.9, `casos_uso.md` v1.5, `diagramas.md` v1.2, `diccionario_datos.md` v1.8, `entornos_globales.md` v1.9, `estado_proyecto.md` v1.9). **Residuales cerrados:** `VR-01`, `VR-02`, `VR-04`, `VR-05` y `VR-09` de `VEREDICTO_FASE2_V1.md` **v1.3**.
 
 **Detalle por hallazgo (ADT-01..ADT-33).**
 
 | ID | Sev. | Como se cerro en la v1.1 | Seccion |
 |---|---|---|---|
 | **ADT-01** | CRITICA | Nueva **seccion 7.5** «Build y empaquetado MV3»: bloque `scripts` literal, las **6 entradas** de `build.rollupOptions.input`, **ESM** para `background.js` e **IIFE** para `content-script.js` y `inject.js`, generacion del manifest desde `src/manifest.ts` mediante script propio, mapeo `src/*.ts -> dist/*.js` y las **3 paginas HTML** en el arbol de la seccion 2.4. Corregida la cita de ADR-01 a `src/components` | 7.5, 2.4, 2.6 |
-| **ADT-02** | ALTA | Los **3 diagramas** que no parseaban quedan corregidos (sin `;` en mensajes de `sequenceDiagram` y sin ambiguedad de `:` en etiquetas de `stateDiagram-v2`) y se anade la **comprobacion de CI** `npm run check:mermaid` con `mermaid.parse()` sobre los 13 bloques | 2.3, 3.1, 3.5, 7.5.6 |
+| **ADT-02** | ALTA | Los **3 diagramas** que no parseaban quedan corregidos (sin `;` en mensajes de `sequenceDiagram` y sin ambiguedad de `:` en etiquetas de `stateDiagram-v2`) y se anade la **comprobacion de CI** `npm run check:mermaid` con `mermaid.parse()` sobre **todos** los bloques `mermaid` del documento (hoy **15**) | 2.3, 3.1, 3.5, 7.5.6 |
 | **ADT-03** | ALTA | La fuente unica de la tabla de errores es `diccionario_datos.md` seccion 4.3; las copias literales se sustituyen por **referencia normativa + delta arquitectonico** y todas las referencias cruzadas se prefijan con el documento. **P-3.2 cerrado** | 5.1, 3.6, 10.3 |
 | **ADT-04** | ALTA | Anadidas las filas **RNF-01, RNF-17, RNF-24, RT-01, RT-07, RE-02 y RE-03** a la seccion 6.1 y recontada la cobertura de la seccion 1.2 | 1.2, 6.1, 6.2 |
 | **ADT-05** | ALTA | Nueva **seccion 7.4.1**: fixture de `launchPersistentContext` con ruta absoluta, helper de descubrimiento del ID, aislamiento por perfil nuevo, **suspension del SW via CDP**, plazos inyectables, **stub de `chrome.*`** y convencion de evidencia | 7.4, 7.4.1 |

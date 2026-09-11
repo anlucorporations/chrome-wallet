@@ -1,17 +1,17 @@
 # ⚖️ Veredicto de Reevaluación — Fase 2 · TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría (reevaluación) · **Versión:** 1.2 · **Fecha:** 2026-10-09
+> **Fase:** 2 — Auditoría (reevaluación) · **Versión:** 1.3 · **Fecha:** 2026-10-09
 > **Objeto:** cierre de la Fase 2 tras la remediación de las **tres auditorías** (`INFORME_OPTIMIZACION_V1.md`, `casos_uso/AUDITORIA_CASOS_USO_V1.md`, `AUDITORIA_DOCUMENTO_TECNICO_V1.md`).
 > **Revisor:** arquitecto de documentación técnica y auditor de consistencia (revisión independiente).
 > **Naturaleza de este archivo:** **entregable de la reevaluación**. Es un documento de cierre (no un registro histórico) y se actualiza cuando el plan de §5 se ejecuta.
-> **Historial de cambios:** v1.0 emisión del veredicto, tabla de cierre por severidad, **12 hallazgos residuales `R-01..R-12`** y **18 contradicciones residuales**, con el plan de cierre por bloques. · **v1.1** ejecución de los bloques 1, 2 y 3 sobre el corpus y **estado de cierre por residual** (§6): los 8 parciales de las tres auditorías quedan cerrados y **R-09 queda pendiente de una decisión de producto**. · **v1.2 (esta versión)** cierre del residual **`R-09`** con las decisiones de producto **DEC-45** (bloqueo del revelado/exportación y del borrado de una cuenta importada cuando la cuenta está en uso por una dApp) y **DEC-46** (bloqueo del reset con la cola no vacía o una transacción en vuelo): **0 residuales abiertos**, **18/18 contradicciones resueltas** y veredicto ajustado a ✅ **Fase 2 apta para el cierre**, **pendiente solo de la última pasada de consistencia** solicitada por el usuario antes de autorizar la Fase 3.
+> **Historial de cambios:** v1.0 emisión del veredicto, tabla de cierre por severidad, **12 hallazgos residuales `R-01..R-12`** y **18 contradicciones residuales**, con el plan de cierre por bloques. · **v1.1** ejecución de los bloques 1, 2 y 3 sobre el corpus y **estado de cierre por residual** (§6): los 8 parciales de las tres auditorías quedan cerrados y **R-09 queda pendiente de una decisión de producto**. · **v1.2 (esta versión)** cierre del residual **`R-09`** con las decisiones de producto **DEC-45** (bloqueo del revelado/exportación y del borrado de una cuenta importada cuando la cuenta está en uso por una dApp) y **DEC-46** (bloqueo del reset con la cola no vacía o una transacción en vuelo): **0 residuales abiertos**, **18/18 contradicciones resueltas** y veredicto ajustado a ✅ **Fase 2 apta para el cierre**. · **v1.3 (esta versión)** ejecución de la **última pasada de consistencia** solicitada por el usuario: cerrados los **10 defectos residuales `VR-01..VR-10`** (2 ALTA · 5 MEDIA · 3 BAJA) con evidencia verificable, **0 defectos abiertos**, **0 `U+FFFD`** y **0 mojibake**, veredicto ajustado a ✅ **corpus consistente y apto para autorizar la Fase 3** y **Fase 2 cerrada**. Detalle en §7.
 
 ---
 
 ## 1. Veredicto
 
-> ### ✅ **FASE 2 APTA PARA EL CIERRE**
-> **0 hallazgos abiertos** · **27 cerrados** · **8 parciales** (cerrados por los residuales `R-01..R-08`) · **0 residuales abiertos** (**12/12 `R-01..R-12` cerrados**, `R-09` en la v1.2) · **0 contradicciones** (**18/18 resueltas**) · **pendiente solo la última pasada de consistencia** solicitada por el usuario.
+> ### ✅ **CORPUS CONSISTENTE Y APTO PARA AUTORIZAR LA FASE 3**
+> **0 hallazgos abiertos** · **27 cerrados** · **8 parciales** (cerrados por los residuales `R-01..R-08`) · **0 residuales abiertos** (**12/12 `R-01..R-12` cerrados**) · **0 contradicciones** (**18/18 resueltas**) · **0 defectos residuales de consistencia** (**10/10 `VR-01..VR-10` cerrados** en la **v1.3**) · **Fase 2 cerrada**.
 
 **Lectura del veredicto.** La reevaluación **no reabre ningún bloqueante estructural**: los cuatro bloqueantes que impedían el cierre (build/empaquetado MV3, arnés de ejecución E2E, cola de aprobaciones persistida con dueño único del plazo, y anti-firma-ciega) están **cerrados y verificados**. Lo que estaba pendiente era **edición documental** en tres bloques —más la **decisión de producto de `R-09`**, ya resuelta con **DEC-45/DEC-46**— y **no toca arquitectura, alcance ni modelo de datos**. Los tres bloques del plan de §5 —**ejecutados** en la v1.1— eran:
 
@@ -19,7 +19,7 @@
 2. **Bloque 2 — Verificabilidad de criterios.** Criterios que aún carecen de magnitud, de método o de evidencia, o cuyo oráculo es tautológico; el caso residual más citado es la afirmación **no falsable** de que el puerto de larga vida «mantiene vivo» el Service Worker.
 3. **Bloque 3 — Memoria y metadatos.** `estado_proyecto.md` §2 declara versiones **desactualizadas** de casi todos los artefactos, y las cabeceras de `casos_uso.md`, `diagramas.md` y `documento_tecnico.md` siguen citando versiones anteriores de sus fuentes.
 
-**Consecuencia.** El plan de §5 está **ejecutado** y los **12 residuales cerrados**: el cierre queda **condicionado solo a la última pasada de consistencia** por `grep` solicitada por el usuario, sin necesidad de una cuarta auditoría completa.
+**Consecuencia.** El plan de §5 está **ejecutado**, los **12 residuales `R-01..R-12` cerrados** y la **última pasada de consistencia ejecutada** (v1.3) con los **10 defectos `VR-01..VR-10` cerrados**: el corpus queda **consistente**, la **Fase 2 se declara cerrada** y se autoriza la **Fase 3**, sin necesidad de una cuarta auditoría completa. La pasada no reabrió ningún bloqueante ni exigió cambios de arquitectura, alcance o modelo de datos: los 10 defectos eran **cierres incompletos de remediaciones anteriores**.
 
 ### 1.1 Métricas
 
@@ -35,7 +35,10 @@
 | Residuales cerrados | **12 / 12** (`R-09` cerrado en la v1.2 con **DEC-45/DEC-46**) |
 | Residuales abiertos | **0** |
 | Bloqueantes estructurales | **4 / 4 cerrados** |
-| Naturaleza de lo pendiente | **solo la última pasada de consistencia** (verificación documental por `grep`; ningún cambio de arquitectura ni de alcance) |
+| Defectos residuales de la última pasada de consistencia (`VR-01..VR-10`) | **10** (2 ALTA · 5 MEDIA · 3 BAJA) |
+| Defectos residuales cerrados | **10 / 10** (`VR-01..VR-10`, cerrados en la **v1.3**) |
+| Defectos residuales abiertos | **0** |
+| Naturaleza de lo pendiente | **nada**: la última pasada de consistencia está **ejecutada** y el corpus es **consistente** (v1.3); ningún cambio de arquitectura ni de alcance |
 
 ### 1.2 Bloqueantes estructurales (verificados como cerrados)
 
@@ -274,19 +277,70 @@
 
 | Comprobación | Resultado |
 |---|---|
-| `23 nombres` / `catálogo de 23 tipos` en el corpus vigente | **0** (solo historiales y la traza «v1.4: 23 → v1.5: 24») |
+| Variantes del conteo antiguo de eventos en el corpus vigente (estado de la **v1.2**) | **0** en el cuerpo vigente (solo historiales y la traza «23 en v1.4 → 24 desde v1.5»); la verificación de la **v1.3** está en §7.2 |
 | `mantiene vivo el SW` / `mantiene vivo el Service Worker` | **0** en afirmaciones del corpus; solo en los registros históricos que documentan la corrección y en el propio veredicto |
 | `tabla §2.1` como fuente de literales | **0**; todas las citas apuntan a `diccionario_datos.md` §4.3 |
 | `Revisión:` en celdas de criterio | **0**; solo la propia regla que lo prohíbe (convención 3) y los historiales |
 | `una ventana por origen` como invariante vigente | **0**; solo en los registros de la decisión que la sustituye |
 | Caracteres corruptos (`U+FFFD`) | **0** en los 9 documentos de `RepoTecnico/` |
 | Registros históricos y fuentes | **Intactos** (`INFORME_OPTIMIZACION_V1.md`, `casos_uso/AUDITORIA_CASOS_USO_V1.md`, `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, `requisitos.md`, `TAREA_PARA_ESTUDIANTE.md`, `GUIA_RAPIDA_TESTING.md`) |
-| Versiones de los documentos modificados (estado de la v1.2) | `requerimientos.md` **v1.8** · `diccionario_datos.md` **v1.7** · `entornos_globales.md` **v1.8** · `identidad_visual.md` **v1.4** · `estado_proyecto.md` **v1.8** · `casos_uso/casos_uso.md` **v1.4** · `casos_uso/diagramas.md` **v1.1** · `documento_tecnico.md` **v1.3** · `VEREDICTO_FASE2_V1.md` **v1.2** |
+| Versiones de los documentos modificados (estado de la **v1.3**, tras la última pasada de consistencia) | `requerimientos.md` **v1.9** · `diccionario_datos.md` **v1.8** · `entornos_globales.md` **v1.9** · `identidad_visual.md` **v1.4** (sin cambios) · `estado_proyecto.md` **v1.9** · `casos_uso/casos_uso.md` **v1.5** · `casos_uso/diagramas.md` **v1.2** · `documento_tecnico.md` **v1.4** · `VEREDICTO_FASE2_V1.md` **v1.3** |
 | Causas de `R-09` con fila en §4.3 | **2/2** («Cuenta en uso por una dApp conectada» y «Reset bloqueado», ambas `-32000`); **0** referencias a una fila inexistente en el corpus vigente |
 | Literales duplicados fuera de la fuente única | **0**: `requerimientos.md`, `casos_uso.md` y `documento_tecnico.md` citan la **causa** o el **código** de `diccionario_datos.md` §4.3 |
 | Guardas de estado documentadas | **2/2**: revelado/borrado con sesión de dApp activa (§3.10 del diccionario, §3.8 del técnico) y reset con cola no vacía o transacción en vuelo (§3.11 del diccionario, §3.9 del técnico) |
 | Conteos de requisitos | **Sin cambios**: **50 RF = 40 Must + 10 Should · 25 RNF · 13 RT · 4 RE** |
 
-### 6.4 Condición de cierre vigente
+### 6.4 Condición de cierre (cumplida en la v1.3)
 
-`R-09` quedó **cerrado** en la **v1.2** con la decisión de producto del usuario (**DEC-45**/**DEC-46**): las dos causas tienen **fila propia** en `diccionario_datos.md` §4.3 con `code: -32000` y sus **guardas operativas** (§3.10 y §3.11), citadas por causa desde `requerimientos.md`, `casos_uso.md` y `documento_tecnico.md`. Con los **12 residuales cerrados** y las **18 contradicciones resueltas**, la Fase 2 es **apta para el cierre** y queda **pendiente solo la última pasada de consistencia** solicitada por el usuario: el barrido con `grep` de §6.3 sobre el corpus completo. Aprobada esa pasada, la Fase 2 se declara cerrada y se autoriza la **Fase 3**.
+`R-09` quedó **cerrado** en la **v1.2** con la decisión de producto del usuario (**DEC-45**/**DEC-46**): las dos causas tienen **fila propia** en `diccionario_datos.md` §4.3 con `code: -32000` y sus **guardas operativas** (§3.10 y §3.11), citadas por causa desde `requerimientos.md`, `casos_uso.md` y `documento_tecnico.md`. Con los **12 residuales cerrados** y las **18 contradicciones resueltas**, la Fase 2 es **apta para el cierre** y queda **pendiente solo la última pasada de consistencia** solicitada por el usuario: el barrido con `grep` de §6.3 sobre el corpus completo. **Esa pasada se ejecutó y quedó aprobada en la v1.3** (§7): los **10 defectos `VR-01..VR-10`** están **cerrados**, con **0 defectos residuales**, **0 `U+FFFD`** y **0 mojibake**, de modo que la **Fase 2 queda cerrada** y la **Fase 3 autorizada**.
+
+---
+
+## 7. Cierre de la última pasada de consistencia (v1.3): `VR-01..VR-10`
+
+> **Alcance.** La pasada de consistencia solicitada por el usuario revisó el corpus vigente (`requerimientos.md`, `diccionario_datos.md`, `entornos_globales.md`, `casos_uso/casos_uso.md`, `casos_uso/diagramas.md`, `documento_tecnico.md`, `estado_proyecto.md` y este veredicto) y detectó **10 defectos residuales**. **Ninguno es de diseño**: los 10 son **cierres incompletos de remediaciones anteriores** (H-xx, ACU-xx, ADT-xx, R-xx).
+
+### 7.1 Tabla de cierre
+
+| ID | Sev. | Defecto | Corrección aplicada | Documentos · versión |
+|---|---|---|---|---|
+| **`VR-01`** | 🟠 **ALTA** | Permisos del manifest contradictorios: el diccionario exigía `favicon`, `clipboardRead` y `clipboardWrite`, pero el manifest del técnico solo declaraba `storage`/`alarms` y `entornos_globales.md` §4 los dejaba como condicionales | Conjunto **cerrado e idéntico** `["storage", "alarms", "favicon", "clipboardRead", "clipboardWrite"]`, declarado y **justificado permiso a permiso** (favicon = icono de origen de la dApp, RF-35/ADT-22; clipboard = política de portapapeles de RF-50/R-09/P-20, ADT-09); `notifications` sigue **solo** en `optional_permissions`; delta abierto del diccionario **cerrado** | `documento_tecnico.md` **v1.4** §7.3 (+ fragmento de manifest, fragmento de `src/manifest.ts` y ADR-08) · `entornos_globales.md` **v1.9** §4 · `requerimientos.md` **v1.9** RT-04/`CA-RT-04` · `diccionario_datos.md` **v1.8** §6.5 |
+| **`VR-02`** | 🟠 **ALTA** | Tres restos del conteo antiguo **«23»** del catálogo de eventos | Conteo vigente **24** en los tres puntos | `documento_tecnico.md` **v1.4** §2.5.2 y `erDiagram` de §4.2 · `casos_uso/casos_uso.md` **v1.5** CU-29 |
+| **`VR-03`** | 🟡 MEDIA | Constantes citadas «en `entornos_globales.md` §3» que **no existían** allí (`PREVIEW_INLINE_MAX_BYTES`, `INFLIGHT_TTL_MS`, `rateLimitBurst`, `rateLimitRefillPerSecond`, `rateWindowTtlMs`, `RATE_PERSIST_DEBOUNCE_MS`, `EXTENSION_ID`) | Las **siete constantes** se declaran en la tabla de §3 con **valor y módulo responsable**, de modo que **ninguna referencia queda colgante** | `entornos_globales.md` **v1.9** §3 · `diccionario_datos.md` **v1.8** §2.12/§2.13/§3.9/§4.1.1/§5 |
+| **`VR-04`** | 🟡 MEDIA | Tabla de errores **duplicada y divergente** en el técnico (19 filas frente a las 25 de la fuente única) | Sustituida por un **índice código → causa de 25 filas** que remite a la fuente única **sin reproducir literales**; el literal de vencimiento de CU-15 se alinea con el de §4.3 (incluye «(120 s)») | `documento_tecnico.md` **v1.4** §5.1 · `casos_uso/casos_uso.md` **v1.5** CU-15 |
+| **`VR-05`** | 🟡 MEDIA | Modelo retirado que sobrevivía: `windowsByApprovalId` y el campo `windowId` **por solicitud** | Retirados y sustituidos por la entidad vigente **`truekeate_approval_window`** (`diccionario_datos.md` §2.14) | `documento_tecnico.md` **v1.4** §2.3, `PendingRequest` de §2.5.2 y riesgo R18 · `casos_uso/casos_uso.md` **v1.5** CU-08 y CU-15 |
+| **`VR-06`** | 🟡 MEDIA | Afirmación **no falsable**: «Mantiene vivo el SW durante la espera» | Reformulada de forma verificable: el puerto **no** garantiza la vida del SW (~30 s de inactividad); tras una suspensión, un `RESUME` con el mismo `approvalId` responde en **< 200 ms** y el vencimiento se rearma con `chrome.alarms` | `diccionario_datos.md` **v1.8** §3.4 |
+| **`VR-07`** | 🟡 MEDIA | Clave no canónica `settings.networks` en un criterio normativo (RT-06) | Sustituida por **`truekeate_networks`** (forma canónica de ACU-25) | `requerimientos.md` **v1.9** RT-06 |
+| **`VR-08`** | 🔵 BAJA | Cuatro evidencias con formas **fuera de las admitidas** | Normalizadas a `E2E: 04-enviar.spec.ts — recibo type 2` (RF-42), `Vitest: contrast.spec.ts` (§2.4) y `Comando: forge test --match-contract EIP712VerifierTest` (RT-11 y `CA-RF-20`) | `requerimientos.md` **v1.9** |
+| **`VR-09`** | 🔵 BAJA | Metadatos: el técnico declaraba **13** diagramas Mermaid y contiene **15**; el bloque «Fuentes» de `diagramas.md` citaba versiones obsoletas | Conteo corregido a **15** (texto, comentario de CI e historial); «Fuentes» y «Documentos del corpus» sincronizados con las versiones vigentes; reparados los marcadores corruptos `ANCHOR_DIAGRAMAS` y `ANCHOR_TECNICO` del historial | `documento_tecnico.md` **v1.4** §7.5.6, §10.3 y §10.4 · `casos_uso/diagramas.md` **v1.2** · `estado_proyecto.md` **v1.9** §2 |
+| **`VR-10`** | 🔵 BAJA | Mojibake en CU-16 (una palabra con vocal acentuada quedó doblemente codificada) | Corregida a **`reconciliación`**; barrido de caracteres corruptos y de secuencias de doble codificación en todo el corpus: **0** | `casos_uso/casos_uso.md` **v1.5** CU-16 |
+
+### 7.2 Verificación final ejecutada (v1.3)
+
+| Comprobación | Resultado |
+|---|---|
+| Las cuatro variantes del **conteo antiguo de eventos** («23 …») fuera de los registros históricos | **0 en el cuerpo vigente del corpus**: el conteo vigente es **24** (`requerimientos.md` §2.2, `diccionario_datos.md` §2.11 y `documento_tecnico.md` §2.5.2). Las únicas apariciones que se conservan son (a) los **tres informes de auditoría históricos** (regla de residuo `C-13`) y (b) la **evidencia del estado previo** de §3–§5 de este veredicto y la traza del historial «23 en v1.4 → 24 desde v1.5» |
+| `windowsByApprovalId` y `windowId?:` **por solicitud** | **0** en el corpus vigente (se conservan solo las trazas de retirada del diccionario §1/§3.4 y el `windowId` de `chrome.windows` de la ventana única) |
+| `settings.networks` | **0** |
+| `Forge:` · `Revisión:` · `E2E: recibo type:` como forma de evidencia | **0** |
+| `13 diagramas` / `13 bloques` en `documento_tecnico.md` | **0** (15/15, comentario de CI incluido) |
+| Caracteres corruptos (`U+FFFD`) y mojibake de doble codificación | **0** en los nueve documentos del corpus |
+| Conjunto de permisos idéntico en los cuatro documentos | **4/4** (`storage`, `alarms`, `favicon`, `clipboardRead`, `clipboardWrite`; `notifications` solo en `optional_permissions`) |
+| Constantes de `entornos_globales.md` §3 citadas por el diccionario | **10/10 declaradas** — 0 referencias colgantes |
+| Literales de error duplicados fuera de `diccionario_datos.md` §4.3 | **0** |
+| Ficheros temporales creados por la pasada | **0** |
+| Documentos fuente y registros históricos | **Intactos** (`requisitos.md`, `TAREA_PARA_ESTUDIANTE.md`, `GUIA_RAPIDA_TESTING.md`, `INFORME_OPTIMIZACION_V1.md`, `casos_uso/AUDITORIA_CASOS_USO_V1.md` y `AUDITORIA_DOCUMENTO_TECNICO_V1.md`) |
+
+### 7.3 Veredicto de la pasada
+
+| Métrica | Valor |
+|---|---|
+| Defectos detectados (`VR-01..VR-10`) | **10** (2 ALTA · 5 MEDIA · 3 BAJA) |
+| Defectos cerrados | **10 / 10** |
+| Defectos abiertos | **0** |
+| Defectos de diseño | **0** (los 10 eran cierres incompletos de remediaciones anteriores) |
+| Residuales `R-01..R-12` | **12 / 12 cerrados** (sin cambios) |
+| Contradicciones de §4 | **18 / 18 resueltas** (sin cambios) |
+| Conteos de requisitos | **Sin cambios**: 50 RF = 40 Must + 10 Should · 25 RNF · 13 RT · 4 RE |
+
+**Veredicto:** ✅ **corpus consistente y apto para autorizar la Fase 3**. La **Fase 2 queda formalmente cerrada** (`estado_proyecto.md` **v1.9**, §8.2) y el siguiente paso es **`/plan_desarrollo`** (Fase 3).
