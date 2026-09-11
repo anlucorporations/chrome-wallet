@@ -1,7 +1,8 @@
 # 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.6
+> **Fase:** 1 — Concepto · **Versión:** 1.7
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
+> **v1.7:** cierra los hallazgos **ADT-01, ADT-14, ADT-19, ADT-20, ADT-21, ADT-28, ADT-29 y ADT-30** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` con las decisiones **D-L, D-M, D-N, D-O, D-P y D-U**: pipeline MV3 real con los 7 scripts npm y las 3 páginas HTML (§1, §2.2); ruta vigente de las constantes del plazo en `src/background/approvals/timeout.ts` (ADT-28); los **8 tipos de mensaje** en §10 (ADT-29); `notifications` como permiso **opcional** ligado a RF-39 (ADT-30); `key` fija del manifest y UUID literal de EIP-6963 (ADT-19); alcance real de la inyección con `exclude_matches` y `use_dynamic_url` (ADT-20); cota de payload de **64 KiB**, cuota de **10 MB** sin `unlimitedStorage` y `REVEAL_HIDE_MS` (ADT-14, ADT-21). Detalle en §7.
 > **v1.6:** cierra los hallazgos **ACU-03, ACU-17, ACU-25 y ACU-27** de `casos_uso/AUDITORIA_CASOS_USO_V1.md` con las decisiones **D-A, D-B, D-C y D-G**: constantes `PROVIDER_NAME`/`PROVIDER_RDNS`/`SESSION_TTL_MS` en §3 con la distinción entre el `name` de EIP-6963 y `manifest.name`; literal único de build limpio `npm ci && npm run build` (§2.2); permiso de host en runtime y por red —también desde el popup— con el manifest en mínimos privilegios (§4); claves canónicas con prefijo completo. Detalle en §7.
 
 ---
@@ -30,8 +31,10 @@
 | Enunciado fuente | `RepoTecnico/requisitos.md`, `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` |
 | Guía de pruebas rápida | `RepoTecnico/GUIA_RAPIDA_TESTING.md` |
 | Código fuente | `src/` — **a crear en Fase 3**; el código del remoto `codecrypto` (§5) es **solo referencia de consulta** (P-10/DEC-09) y no se reutiliza ni se versiona |
-| Build de la extensión | `dist/` — **es la carpeta que se carga en Chrome** |
+| Build de la extensión | `dist/` — **es la carpeta que se carga en Chrome** (6 entradas JS + 3 páginas HTML + `manifest.json` generado) |
+| Páginas HTML de la extensión (entradas del build) | `index.html` (popup), `connect.html` (ventana de conexión) y `notification.html` (ventana de decisión) — en la raíz del proyecto, **junto a `test.html`** |
 | dApp de pruebas | `test.html` (raíz y copia servida en `http://localhost:5174/test.html`) |
+| Scripts npm del proyecto | `package.json` (**Fase 3**): `dev`, `build`, `typecheck`, `test`, `coverage`, `test:e2e`, `lint:prohibited` — detalle en §2.2 |
 | Binarios Foundry | `C:\Users\lucci\.cargo\bin\{anvil,forge,cast}.exe` |
 | Activos de marca originales | `TrueKeate/` (logo y título en SVG/PNG/JPG/ICO) |
 | Activos de marca del proyecto | `public/brand/` (copias + `truekeate-mark-96.png`) |
@@ -74,12 +77,17 @@ anvil --version
 ### 2.2 Proyecto (a partir de la Fase 3)
 
 ```powershell
-npm ci               # Instalación reproducible desde package-lock.json (build limpio)
-npm run dev          # Vite dev (dApp de pruebas / desarrollo de UI)
-npm run build        # tsc -b && vite build  -> genera dist/ + dist/manifest.json
-npm run test         # Vitest (unitarias / integración)
-npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
+npm ci                   # Instalación reproducible desde package-lock.json (build limpio)
+npm run dev              # Vite dev (dApp de pruebas / desarrollo de UI; puerto 5174 con strictPort)
+npm run build            # tsc -b && vite build  -> genera dist/ (6 entradas + 3 páginas HTML) + dist/manifest.json
+npm run typecheck        # tsc -b (strict: true): 0 errores y 0 avisos de tipos (RNF-13)
+npm run test             # Vitest (unitarias / integración, jsdom)
+npm run coverage         # Vitest con @vitest/coverage-v8 (umbrales de ramas de RNF-17)
+npm run test:e2e         # Playwright: Chromium persistente con la extensión cargada desde dist/ (ruta absoluta)
+npm run lint:prohibited  # Prohibiciones de RT-03: viem, @scure/bip39, @metamask/*, axios y fetch propio
 ```
+
+> **Pipeline MV3 real (ADT-01 / D-U).** El `package.json` expone exactamente los **7 scripts** de arriba (además de `npm ci`): `dev`, `build`, `typecheck`, `test`, `coverage`, `test:e2e` y `lint:prohibited`. `npm run build` construye las **6 entradas** (popup, connect, notification, background, content e inject) y toma como entradas HTML las **3 páginas** `index.html`, `connect.html` y `notification.html`, y genera `dist/manifest.json` desde `src/manifest.ts` (RT-05) con **formato por entrada**: `es` (módulo) para el Service Worker y `iife` para `content-script.js` e `inject.js`, que no admiten `import`. El literal de «build limpio» no cambia: **`npm ci && npm run build`** (D-C). El detalle de entradas, nombres de salida y plantilla de scripts vive en el **§7.5 «Build y empaquetado»** de `documento_tecnico.md` (decisión D-U), que es la fuente normativa del pipeline.
 
 **«Build limpio» — definición (H-20, D-C).** El **literal único** de build limpio en todo el corpus (este documento, `requerimientos.md` y los casos de uso) es **`npm ci && npm run build`**; **`npm install` no es el literal de build limpio** y allí donde aparezca debe leerse como `npm ci` (ACU-26 / D-C). El comando termina con **código de salida 0**, **cero errores de tipos** (`tsc -b` con `strict: true`, RNF-13) y **cero avisos de tipos**; los avisos permitidos (si los hay) se listan expresamente en `plan_desarrollo.md` y ninguno puede provenir de `tsc`. `package-lock.json` se versiona y la build es reproducible.
 
@@ -123,11 +131,12 @@ await window.truekeate.request({ method: 'eth_accounts' });
 await window.truekeate.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] });
 ```
 
-**Verificación previa a los E2E (H-29).** Antes de `npm run test:e2e` hay que comprobar que el nodo responde y que la versión de Foundry está dentro del rango soportado (§8):
+**Verificación previa a los E2E (H-29).** Antes de `npm run test:e2e` hay que comprobar que **la versión de Foundry está dentro del rango soportado** (§8) y que **Anvil responde** en `127.0.0.1:8545`:
 
 ```powershell
 anvil --version                                           # debe estar en el rango soportado (ver §8)
 cast chain-id --rpc-url http://127.0.0.1:8545             # debe devolver 31337
+cast block-number --rpc-url http://127.0.0.1:8545         # Anvil responde: devuelve la altura actual
 ```
 
 Si Anvil no responde o la versión está fuera de rango, la suite E2E **no se ejecuta** y se marca como **no verificada** (nunca como satisfactoria).
@@ -158,16 +167,25 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `DEFAULT_MNEMONIC` | `test test test test test test test test test test test junk` | `src/shared/constants.ts` (solo hint de desarrollo, RF-12) |
 | `DERIVED_ACCOUNTS` | `5` (+ botón "Añadir cuenta") | `src/shared/constants.ts` (RF-04 / P-04) |
 | `BALANCE_POLL_MS` | `5000` | `src/shared/constants.ts` (RF-27) |
-| `SIGN_TIMEOUT_MS` | `120000` | `src/background/approvals.ts` (RF-40) |
-| `CONNECT_TIMEOUT_MS` | `60000` | `src/background/approvals.ts` (RF-40) |
+| `SIGN_TIMEOUT_MS` | `120000` | **`src/background/approvals/timeout.ts`** (M15; RF-40) — ruta vigente (ADT-28) |
+| `CONNECT_TIMEOUT_MS` | `60000` | **`src/background/approvals/timeout.ts`** (M15; RF-40) — ruta vigente (ADT-28) |
 | `SESSION_TTL_MS` | `86400000` | `src/shared/constants.ts` — **caducidad de la sesión de dApp** (24 h renovables desde `lastUsedAt`, `expiresAt = lastUsedAt + SESSION_TTL_MS`) **respaldada por RF-25** (ACU-17 / D-B) |
+| `REVEAL_HIDE_MS` | `30000` | `src/shared/constants.ts` (M57) — **ocultado automático del material revelado** (RF-50; ADT-06) |
+| `MAX_PAYLOAD_BYTES` | `65536` (**64 KiB**) | `src/shared/constants.ts` (M57) — **cota del payload** aceptado; por encima → `-32602` (ADT-21 / D-L) |
+| Cuota de `chrome.storage.local` | `10485760` bytes (**10 MB**) | **Plataforma** (Chrome ≥ 114, mínimo exigido por el proyecto): no es constante de código; **no** se declara `unlimitedStorage` (ADT-14 / D-M) |
 | `PROVIDER_NAME` | `TrueKeate` | `src/inject/provider.ts` (EIP-6963, RF-44 / RT-13) — **nombre corto de marca, vinculante** (ACU-03 / D-A) |
 | `PROVIDER_RDNS` | `academy.codecrypto.truekeate` | `src/inject/provider.ts` (EIP-6963, RF-44 / RT-13) — **vinculante** (ACU-03 / D-A) |
-| `PROVIDER_UUID` | UUID fijo de la extensión | `src/inject/provider.ts` (RF-44) |
+| `PROVIDER_UUID` | `9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90` | `src/inject/provider.ts` (EIP-6963, RF-44) — **literal congelado**, nunca regenerado por carga (`diccionario_datos.md` §4.1.1; ADT-19 / D-N) |
 
 > **Identidad del provider (ACU-03 / D-A, RT-13).** `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` son los valores **vinculantes** del anuncio EIP-6963 (`truekeate:announceProvider`), y son la misma historia que `diccionario_datos.md` §4.1.1. **Atención: el `name` de EIP-6963 no es `manifest.name`.** El manifest declara `TrueKeate Wallet` (§10) y el provider se anuncia con el nombre corto de marca `TrueKeate`; se trata de dos campos distintos que no deben confundirse ni igualarse. `PROVIDER_UUID` es la constante fija de la extensión (nunca se regenera por carga) y el `icon` es un data-URI PNG del isologo de 96 px.
 
+> **Ruta vigente de las constantes del plazo (ADT-28 / COH-08).** `SIGN_TIMEOUT_MS` y `CONNECT_TIMEOUT_MS` viven en **`src/background/approvals/timeout.ts`** (módulo M15: `chrome.alarms`, armado, rearme y vencimiento) y las **constantes compartidas** —`DEFAULT_CHAIN_ID`, `DERIVED_ACCOUNTS`, `SESSION_TTL_MS`, `REVEAL_HIDE_MS`, `MAX_PAYLOAD_BYTES`…— en **`src/shared/constants.ts`** (M57), conforme al árbol de `documento_tecnico.md` §2.4. La ruta **`src/background/approvals.ts`** que declaraba este documento **queda sustituida** por el árbol vigente: pertenecía al borrador previo y no existe en el diseño actual.
+
 > **Caducidad de la sesión de dApp (ACU-17 / D-B, RF-25).** `SESSION_TTL_MS = 86400000` (**24 h renovables**): `expiresAt = lastUsedAt + SESSION_TTL_MS` en `truekeate_connected_sites`, y `lastUsedAt` se refresca en cada `eth_accounts`/`eth_requestAccounts` atendido. Al vencer, la sesión se elimina del mapa, `eth_accounts` devuelve `[]` y el origen debe volver a pasar por `eth_requestAccounts`; no se emite error. El mismo valor vive como `truekeate_settings.sessionTtlMs` (`diccionario_datos.md` §2.7 y §2.10).
+
+> **Cota de payload, cuota de storage y modo de fallo (ADT-14 / D-M, ADT-21 / D-L).** Tamaño máximo de payload: **64 KiB** (`MAX_PAYLOAD_BYTES = 65536`); al excederlo la llamada se rechaza con **`-32602`** y las previews de los tipos de dato largos (`TypedDataPreview.message`, `PersonalSignPreview.text`) se guardan **redactadas en reposo** (hash + resumen), nunca íntegras. Cuota objetivo de `chrome.storage.local`: **10 MB** (la del mínimo exigido, Chrome 114) y **sin** `unlimitedStorage`; el rechazo por cuota es **observable**: 1 reintento, error con `code: -32603` y aviso en el panel de la UI, de modo que una escritura de log descartada nunca queda silenciosa.
+
+> **Temporizador de revelado (RF-50; ADT-06).** `REVEAL_HIDE_MS = 30000` (**30 s**): el material de recuperación se revela solo de forma temporal y se **oculta al vencer el temporizador y al perder el foco** el popup. El comportamiento de UI asociado (aviso de borrado del portapapeles, progreso del temporizador y botón de ocultado inmediato) se especifica en `identidad_visual.md` §5.2 (P-20).
 
 > **Dueño único del plazo de aprobación (H-07).** El **Service Worker es el único dueño del reloj**: `expiresAt = createdAt + SIGN_TIMEOUT_MS` (120 000 ms) para firmas/aprobaciones y `createdAt + CONNECT_TIMEOUT_MS` (60 000 ms) para conexión, **anclados a `createdAt`** (no al instante en que el usuario abre la ventana). El vencimiento se dispara con **`chrome.alarms`**, de modo que ocurre aunque el SW esté dormido. La capa inject/content **no tiene reloj propio**: es solo **red de seguridad con margen superior** (`SIGN_TIMEOUT_MS + 5000` ms) y delega siempre en el `approvalId`; si su temporizador vence, la solicitud ya fue resuelta por el SW. Al expirar, el SW **cierra la ventana** de `notification.html`, marca la solicitud como `expired` y **purga el badge** (RF-38); el error que llega a la página es un objeto **EIP-1193** con `code: 4001` y mensaje en español (RNF-06), nunca un `Error('Request timeout')` sin `code`.
 
@@ -190,7 +208,11 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
 
 ```jsonc
 {
-  "permissions": ["storage", "alarms", "notifications"],
+  // ADT-19 / D-N: clave pública fija (base64) que estabiliza el ID de la extensión;
+  // el valor concreto se congela en src/manifest.ts (M1) al primer build.
+  "key": "<clave pública fija del desarrollador>",
+  "permissions": ["storage", "alarms"],
+  "optional_permissions": ["notifications"],   // RF-39, ciclo posterior (ADT-30 / D-P)
   "host_permissions": [
     "http://127.0.0.1:8545/*",
     "http://localhost:8545/*"
@@ -202,11 +224,18 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
+    // ADT-20 / D-O: no inyectar en páginas de extensiones (incluidas otras wallets);
+    // la lista de orígenes de otras wallets se cierra en src/manifest.ts (M1).
+    "exclude_matches": ["chrome-extension://*/*"],
     "js": ["content-script.js"],
     "run_at": "document_start",
     "all_frames": true
   }],
-  "web_accessible_resources": [{ "resources": ["inject.js"], "matches": ["<all_urls>"] }],
+  "web_accessible_resources": [{
+    "resources": ["inject.js"],
+    "matches": ["<all_urls>"],
+    "use_dynamic_url": true
+  }],
   "background": { "service_worker": "background.js", "type": "module" }
 }
 ```
@@ -215,9 +244,17 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
 |---|---|
 | `storage` | Persistir cartera, sesiones y cola de aprobaciones en `chrome.storage.local` (RNF-08, RF-25, RF-37). El SW **no tiene** `localStorage`. |
 | `alarms` | **Vencimiento del plazo de aprobación aunque el SW esté dormido** (H-02): `setTimeout` no sobrevive a la suspensión del Service Worker, así que `expiresAt` se dispara con `chrome.alarms` (§3). |
-| `notifications` | Aviso al usuario de cada solicitud pendiente (RF-39). Es el único permiso de UI de sistema que el diseño necesita. |
+| `optional_permissions` (`notifications`) | Aviso al usuario de cada solicitud pendiente (**RF-39**, que está en el **ciclo posterior**, P-17). Es un permiso **opcional** (ADT-30 / D-P) y se solicita en runtime cuando la función existe; **el manifest del MVP no lo declara**. |
 | `host_permissions` (RPC local) | Llamar al JSON-RPC de Anvil en `127.0.0.1:8545` / `localhost:8545` (RT-04). No se declara ningún host remoto. |
 | `optional_host_permissions` | Permiso de host **en runtime y por red** para las redes dadas de alta con `wallet_addEthereumChain` (RF-23, **ACU-27 / D-G**): se solicita con `chrome.permissions.request` sobre el `rpcUrl` **siempre que se da de alta una red, también cuando el alta la inicia el popup** —el clic del usuario es el gesto válido que exige la API y no hay excepción por contexto—, y la concesión se registra por red en `truekeate_networks`. Si el usuario **deniega** el permiso, la red **no se persiste** y la llamada devuelve `4001`. Validación previa obligatoria: esquema `https` preferente (`http` solo para `127.0.0.1`/`localhost`) y host que no sea privado ni de enlace local. |
+| `content_scripts` (`<all_urls>` + `all_frames`) | Alcance **real** de la inyección (ADT-20 / D-O): un provider EIP-1193/EIP-6963 debe estar en cualquier dApp visitada y en **todos** los frames (RF-13, RT-13). Se acota con `exclude_matches` y `use_dynamic_url` (nota inferior). |
+| `web_accessible_resources` (`inject.js`) | El content script publica el provider en el mundo de la página; con `use_dynamic_url: true` el recurso no queda referenciable por una URL estable desde terceros (ADT-20 / D-O). |
+
+> **Identidad del paquete: `key` fija y UUID congelado (ADT-19 / D-N).** El manifest declara una **`key` fija** (clave pública del par de firma del desarrollador) cuyo valor se congela en `src/manifest.ts` (M1): con ella el **ID de la extensión es estable en cualquier equipo**, lo que hace reproducible la **allowlist CORS de Anvil (RE-04)** —el `<ID>` de §2.1— y la suite E2E. El `uuid` de EIP-6963 es asimismo un **literal congelado** en `src/inject/provider.ts` (`9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90`, `diccionario_datos.md` §4.1.1), nunca regenerado por carga.
+
+> **Alcance real de la inyección (ADT-20 / D-O).** `content_scripts` se declara con **`<all_urls>` + `all_frames: true`** (justificación en la tabla) y `inject.js` como recurso accesible desde la web. Para que esa amplitud no genere doble inyección ni superficies ajenas: **`exclude_matches`** con `chrome-extension://*/*` y los orígenes de otras wallets (lista cerrada en M1) —no se inyecta en páginas de extensiones ni en las de otras wallets—, y **`use_dynamic_url: true`**, que evita que un tercero referencie el recurso mediante una URL estable. Lo único que la inyección expone es el provider (`window.truekeate` y su alias `window.codecrypto`); **nunca** claves, mnemonic ni el storage (`setAccessLevel: TRUSTED_CONTEXTS`, RNF-09). La redacción de RNF-10 («solo se expone a páginas autorizadas») se corrige en `requerimientos.md` conforme a ADT-20: el alcance efectivo es `<all_urls>` con estas exclusiones.
+
+> **Favicon de `notification.html` (ADT-22).** El origen solicitante se muestra con el favicon que sirve el **propio navegador** (`chrome://favicon`) —nunca con una URL remota ni con un `data:` enviado por la dApp— y se **sanea** antes de pintarlo. Si el servicio exigiera declarar un permiso adicional en la plataforma, se añade a `permissions` con la misma regla de mínimos privilegios y su justificación **antes** de usarlo.
 
 > **Permisos retirados respecto del borrador anterior (H-36).** `tabs`: no se leen `url`/`title`/`favIconUrl`, y la pestaña destino se identifica con el `sender.tab.id` del propio mensaje, de modo que `chrome.tabs.query`/`sendMessage` no lo necesitan. `activeTab`: solo aplica a la pestaña tras una acción del usuario y no aporta nada al flujo por mensaje. `scripting`: la inyección se hace con `content_scripts` declarativos + `web_accessible_resources`, no con `chrome.scripting`. Si en Fase 3 alguna funcionalidad exige uno de ellos, se documenta aquí el uso exacto antes de volver a declararlo.
 
@@ -276,7 +313,8 @@ glab repo create chrome-wallet --private
 | 1.3 | Incorporada la identidad visual TrueKeate (§9): activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
 | 1.4 | Renombrado global a TrueKeate (P-13): provider `window.truekeate`, prefijo `truekeate_` y nomenclatura congelada en §10. |
 | 1.5 | Remediación de la auditoría (Fase 2): sin rastro de reutilización del código del remoto (H-04), permiso `alarms` y mínimos privilegios (H-02/H-36), dueño único del plazo (H-07), «build limpio» + verificación Linux + política de versiones (H-20), puerto 5174 con `strictPort` y clave de sesión normalizada (H-33), CORS con allowlist (H-41), guía heredada no vinculante y verificación previa de E2E (H-24/H-29), alias del provider (H-15). |
-| **1.6** | Cierre de la auditoría de casos de uso (decisiones D-A, D-B, D-C y D-G): `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` en §3 con la nota de que el `name` de EIP-6963 **no** es `manifest.name` (ACU-03); `SESSION_TTL_MS = 86400000` respaldado por RF-25 (ACU-17); literal único de build limpio `npm ci && npm run build` —`npm install` deja de ser válido como literal— (ACU-26 / D-C); permiso de host en runtime y por red, también desde el popup, con el manifest en mínimos privilegios (§4, ACU-27 / D-G); claves canónicas con prefijo completo (ACU-25). |
+| 1.6 | Cierre de la auditoría de casos de uso (decisiones D-A, D-B, D-C y D-G): `PROVIDER_NAME = TrueKeate` y `PROVIDER_RDNS = academy.codecrypto.truekeate` en §3 con la nota de que el `name` de EIP-6963 **no** es `manifest.name` (ACU-03); `SESSION_TTL_MS = 86400000` respaldado por RF-25 (ACU-17); literal único de build limpio `npm ci && npm run build` —`npm install` deja de ser válido como literal— (ACU-26 / D-C); permiso de host en runtime y por red, también desde el popup, con el manifest en mínimos privilegios (§4, ACU-27 / D-G); claves canónicas con prefijo completo (ACU-25). |
+| **1.7** | Cierre de los hallazgos **ADT-01, ADT-14, ADT-19, ADT-20, ADT-21, ADT-28, ADT-29 y ADT-30** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (decisiones D-L, D-M, D-N, D-O, D-P y D-U): **pipeline MV3 real** con los 7 scripts npm (`dev`, `build`, `typecheck`, `test`, `coverage`, `test:e2e`, `lint:prohibited`), las 6 entradas y las 3 páginas HTML junto a `test.html` (§1, §2.2; ADT-01); **ruta vigente de las constantes del plazo** en `src/background/approvals/timeout.ts` y de las compartidas en `src/shared/constants.ts`, declarando **sustituida** `src/background/approvals.ts` (§3; ADT-28); **cota de payload 64 KiB** con `-32602` y previews redactadas en reposo, **cuota de 10 MB** sin `unlimitedStorage` con 1 reintento y `-32603`, y **`REVEAL_HIDE_MS = 30000`** (§3; ADT-14, ADT-21); **`key` fija** del manifest y **UUID literal** de EIP-6963 (§3, §4; ADT-19); **`notifications` como permiso opcional** de RF-39 y manifest del MVP sin declararlo (§4; ADT-30); **alcance real de la inyección** `<all_urls>` + `all_frames` con `exclude_matches`, `use_dynamic_url` y favicon saneado del navegador (§4; ADT-20); **§10 con los 8 tipos de mensaje** (ADT-29); verificación previa de Anvil reforzada antes de los E2E (§2.4). |
 
 ---
 
@@ -284,7 +322,7 @@ glab repo create chrome-wallet --private
 
 | Herramienta | Ámbito | Comando | Requisitos |
 |---|---|---|---|
-| **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/clave privada, formateo, cola de aprobaciones, mapeo de errores EIP-1193. | `npm run test` | Ninguno (no necesita navegador). |
+| **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/clave privada, formateo, cola de aprobaciones, mapeo de errores EIP-1193. | `npm run test` (cobertura: `npm run coverage`) | Ninguno (no necesita navegador). |
 | **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar eventos `accountsChanged`/`chainChanged`. | `npm run test:e2e` | Chromium vía Playwright + **Anvil corriendo** en `127.0.0.1:8545` (verificación previa en §2.4). |
 | **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test` | Foundry dentro del rango soportado (ver «Política de versiones»). |
 
@@ -349,6 +387,7 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | 1.3 | Incorporada la identidad visual TrueKeate: activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
 | 1.4 | Renombrado global a TrueKeate (P-13): nomenclatura fijada en §10 y remoto `codecrypto` registrado como referencia. |
 | 1.5 | Remediación de la auditoría: sin cambios de paleta; se añaden la política de versiones (§8), la verificación Linux y el puerto 5174 (§2.2) y la decisión firme sobre el alias del provider (§10). |
+| 1.7 | Sin cambios de paleta; la referencia cruzada de este anexo se alinea con `identidad_visual.md` **v1.3** (botón fantasma accesible, portapapeles del revelado y contador de solicitudes pendientes). |
 ---
 
 ## 10. Nomenclatura del producto (decisión P-13)
@@ -361,9 +400,9 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | Alias de compatibilidad del provider | **`window.codecrypto = window.truekeate`** — **el mismo objeto** (no una copia ni un envoltorio), asignado en `inject.js` (H-15) |
 | EIP-6963 `name` | `TrueKeate` |
 | EIP-6963 `rdns` | `academy.codecrypto.truekeate` |
-| EIP-6963 `uuid` | Constante fija de la extensión (no aleatoria en cada carga) |
+| EIP-6963 `uuid` | `9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90` — **literal congelado**, no aleatorio en cada carga (ADT-19 / D-N) |
 | Prefijo de claves de storage | `truekeate_` |
-| Tipos de mensaje internos | `TRUEKEATE_REQUEST`, `TRUEKEATE_RESPONSE`, `TRUEKEATE_EVENT` (página ↔ content) · `TRUEKEATE_RPC`, `SIGN_RESPONSE`, `CONNECT_RESPONSE` (content/popup ↔ service worker) |
+| Tipos de mensaje internos (**8**) | `TRUEKEATE_REQUEST`, `TRUEKEATE_RESPONSE`, `TRUEKEATE_EVENT`, `TRUEKEATE_ANNOUNCE` (página ↔ inject ↔ content) · `TRUEKEATE_RPC`, `SIGN_RESPONSE`, `CONNECT_RESPONSE`, `RESUME` (content/popup ↔ service worker) — nombres literales de `diccionario_datos.md` §4.1 y §4.2 (ADT-29) |
 | Dominio EIP-712 de la dApp | `TrueKeate Test App` |
 | dApp de pruebas | `test.html` consumiendo `window.truekeate` |
 
