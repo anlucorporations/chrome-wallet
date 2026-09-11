@@ -27,16 +27,11 @@ dist/notification.js                 1.33 kB │ gzip:  0.74 kB │ map:     3.7
 dist/index.js                       36.97 kB │ gzip: 12.15 kB │ map:   169.46 kB
 dist/background.js                 194.71 kB │ gzip: 72.96 kB │ map: 1,000.78 kB
 dist/chunks/base-GbSk7swv.js       222.48 kB │ gzip: 69.31 kB │ map: 1,052.64 kB
-✓ built in 3.02s
+✓ built in 2.21s
 [manifest] dist/manifest.json generado (version 1.0.0).
 
 ## Artefacto
 OK: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\dist\manifest.json presente.
 
 ## Anvil
-AVISO: Anvil no responde en http://127.0.0.1:8545 (exit 1, salida «Error: error sending request for url (http://127.0.0.1:8545/)
-
-Context:
-- Error #0: client error (Connect)
-- Error #1: tcp connect error
-- Error #2: No se puede establecer una conexión ya que el equip»). Arranca «anvil» antes de las pruebas que usan la red (RF-18/RF-27); 01-onboarding no la necesita.
+OK: cast chain-id --rpc-url http://127.0.0.1:8545 = 31337

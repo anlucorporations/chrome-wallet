@@ -100,12 +100,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5114,
+                      "duration": 1320,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:49:57.229Z",
+                      "startTime": "2026-09-11T16:53:09.986Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -134,12 +134,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8723,
+                      "duration": 2586,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:02.482Z",
+                      "startTime": "2026-09-11T16:53:11.355Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -168,12 +168,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1196,
+                      "duration": 1476,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:11.256Z",
+                      "startTime": "2026-09-11T16:53:13.966Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -202,12 +202,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2197,
+                      "duration": 6994,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:12.480Z",
+                      "startTime": "2026-09-11T16:53:15.459Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -244,12 +244,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2424,
+                      "duration": 2583,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:14.702Z",
+                      "startTime": "2026-09-11T16:53:22.476Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -278,12 +278,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2804,
+                      "duration": 2855,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:17.152Z",
+                      "startTime": "2026-09-11T16:53:25.087Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -315,7 +315,7 @@
           "specs": [
             {
               "title": "la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04)",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -328,67 +328,18 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 4972,
-                      "error": {
-                        "message": "Error: Command failed: cast balance 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://127.0.0.1:8545\nError: error sending request for url (http://127.0.0.1:8545/)\n\nContext:\n- Error #0: client error (Connect)\n- Error #1: tcp connect error\n- Error #2: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión. (os error 10061)\n",
-                        "stack": "Error: Command failed: cast balance 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://127.0.0.1:8545\nError: error sending request for url (http://127.0.0.1:8545/)\n\nContext:\n- Error #0: client error (Connect)\n- Error #1: tcp connect error\n- Error #2: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión. (os error 10061)\n\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:56:22",
-                        "location": {
-                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
-                          "column": 22,
-                          "line": 56
-                        },
-                        "snippet": "  54 |     // origen por CORS (la extensión sí puede, pero solo por el Service Worker con host_permissions).\n  55 |     const { execFileSync } = await import('node:child_process');\n> 56 |     const saldoWei = execFileSync(\n     |                      ^\n  57 |       'cast',\n  58 |       ['balance', ANVIL_ADDRESSES[0] ?? '', '--rpc-url', 'http://127.0.0.1:8545'],\n  59 |       { encoding: 'utf8' },"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
-                            "column": 22,
-                            "line": 56
-                          },
-                          "message": "Error: Command failed: cast balance 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://127.0.0.1:8545\nError: error sending request for url (http://127.0.0.1:8545/)\n\nContext:\n- Error #0: client error (Connect)\n- Error #1: tcp connect error\n- Error #2: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión. (os error 10061)\n\n\n  54 |     // origen por CORS (la extensión sí puede, pero solo por el Service Worker con host_permissions).\n  55 |     const { execFileSync } = await import('node:child_process');\n> 56 |     const saldoWei = execFileSync(\n     |                      ^\n  57 |       'cast',\n  58 |       ['balance', ANVIL_ADDRESSES[0] ?? '', '--rpc-url', 'http://127.0.0.1:8545'],\n  59 |       { encoding: 'utf8' },\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts:56:22"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 2420,
+                      "errors": [],
                       "stdout": [],
-                      "stderr": [
-                        {
-                          "text": "Error: error sending request for url (http://127.0.0.1:8545/)\n\nContext:\n- Error #0: client error (Connect)\n- Error #1: tcp connect error\n- Error #2: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión. (os error 10061)\n"
-                        }
-                      ],
+                      "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:20.001Z",
+                      "startTime": "2026-09-11T16:53:27.988Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\test-failed-2.png"
-                        },
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\error-context.md"
-                        },
-                        {
-                          "name": "trace",
-                          "contentType": "application/zip",
-                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\02-cuentas-02-·-Cuentas-5--67825-enta»-crea-la-6-ª-CA-RF-04--chromium-extension\\trace.zip"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\02-cuentas.spec.ts",
-                        "column": 22,
-                        "line": 56
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2a1f10adf76e3eca4b1d-5f6fd616c4a16bf180ba",
@@ -409,15 +360,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3215,
+                      "duration": 2874,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:26.367Z",
+                      "startTime": "2026-09-11T16:53:30.429Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -443,15 +394,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3242,
+                      "duration": 3369,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:29.661Z",
+                      "startTime": "2026-09-11T16:53:33.325Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -494,15 +445,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3130,
+                      "duration": 2776,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:32.961Z",
+                      "startTime": "2026-09-11T16:53:36.730Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -528,15 +479,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2376,
+                      "duration": 2529,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:36.122Z",
+                      "startTime": "2026-09-11T16:53:39.534Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -579,15 +530,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2657,
+                      "duration": 2610,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:38.528Z",
+                      "startTime": "2026-09-11T16:53:42.110Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -613,15 +564,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2803,
+                      "duration": 2716,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:41.202Z",
+                      "startTime": "2026-09-11T16:53:44.747Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -647,15 +598,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2216,
+                      "duration": 2294,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:44.034Z",
+                      "startTime": "2026-09-11T16:53:47.484Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -698,15 +649,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2780,
+                      "duration": 2577,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:46.293Z",
+                      "startTime": "2026-09-11T16:53:49.843Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -732,15 +683,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2612,
+                      "duration": 7226,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:49.096Z",
+                      "startTime": "2026-09-11T16:53:52.443Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -766,15 +717,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2588,
+                      "duration": 1929,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:51.740Z",
+                      "startTime": "2026-09-11T16:53:59.685Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -817,15 +768,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2617,
+                      "duration": 2368,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:54.377Z",
+                      "startTime": "2026-09-11T16:54:01.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -851,15 +802,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2605,
+                      "duration": 2581,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:57.015Z",
+                      "startTime": "2026-09-11T16:54:04.035Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -885,15 +836,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2539,
+                      "duration": 2435,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:50:59.641Z",
+                      "startTime": "2026-09-11T16:54:06.635Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -936,15 +887,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3320,
+                      "duration": 3111,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:51:02.228Z",
+                      "startTime": "2026-09-11T16:54:09.113Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -970,15 +921,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2919,
+                      "duration": 3004,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:51:05.566Z",
+                      "startTime": "2026-09-11T16:54:12.243Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1004,15 +955,15 @@
                   "projectName": "chromium-extension",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3189,
+                      "duration": 3208,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-11T16:51:08.507Z",
+                      "startTime": "2026-09-11T16:54:15.276Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1032,11 +983,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-11T16:49:41.236Z",
-    "duration": 90662.589,
-    "expected": 22,
+    "startTime": "2026-09-11T16:53:01.185Z",
+    "duration": 77505.82100000001,
+    "expected": 23,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }
