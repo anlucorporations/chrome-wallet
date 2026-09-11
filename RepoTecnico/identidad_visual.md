@@ -1,6 +1,6 @@
 # 🎨 Identidad Visual — TrueKeate
 
-> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.3 · **Estado:** ✅ aprobado (P-14)
+> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.4 · **Estado:** ✅ aprobado (P-14)
 > Fuente: carpeta `TrueKeate/` del workspace (6 activos originales). Esta es la **guía vinculante** de diseño para la wallet y la dApp de pruebas.
 > Los valores marcados como **(medido)** se extrajeron por análisis de píxeles de los activos originales; los marcados como **(derivado)** son extensiones necesarias para UI/estados que no aparecen en los activos.
 > **v1.3:** cierra el hallazgo **ADT-32** de `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (el botón fantasma queda con **una sola** especificación: fondo transparente, borde `--tk-gold-500` y **texto `--tk-navy-800`**) y las decisiones **P-20** (portapapeles del revelado: aviso de borrado, progreso de 30 s y ocultado inmediato) y **P-21** (contador de solicitudes pendientes y **una única ventana de confirmación global**). Verificación cruzada de tokens y medidas contra `documento_tecnico.md` §5.2.
@@ -310,12 +310,12 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 
 ## 8. Verificación (criterios para la Fase 4)
 
-- [ ] El `manifest.json` declara los 4 iconos y cargan sin error en `chrome://extensions`.
+- [ ] El `manifest.json` declara los 4 iconos y cargan sin error: `Inspección: dist/manifest.json (icons 16/32/48/128)` · `E2E: 01-onboarding.spec.ts — carga de dist/ con 0 errores de consola y 0 en el badge`.
 - [ ] El wordmark aparece únicamente como activo gráfico (ni una sola cadena "TrueKeate" renderizada con fuente de sistema en tamaño de logotipo).
 - [ ] Ningún color literal en el CSS fuera de `tokens.css` (búsqueda de `#[0-9a-f]{3,6}` y `rgb(` en los demás archivos → 0 resultados).
 - [ ] **Contraste:** los pares de la matriz de §2.4 se recalculan en un test que lee `tokens.css` y **todos** cumplen su umbral; ningún par se usa como texto fuera de la matriz.
 - [ ] El encabezado de las tres ventanas (popup, connect, notification) usa `--tk-grad-brand` en la misma dirección y **no lleva texto sobre el tramo cian/oro**.
-- [ ] Modo oscuro conmutable sin pérdida de legibilidad (bloque oscuro de §2.4).
+- [ ] Modo oscuro conmutable sin pérdida de legibilidad: los pares del bloque oscuro de §2.4 siguen cumpliendo su umbral y el conmutador no altera el ratio (`Vitest: contrast.spec.ts → 0 pares por debajo del umbral` · `E2E: 24-accesibilidad.spec.ts — axe-core 0 violaciones A/AA`).
 - [ ] **`axe-core`** ejecutado en los E2E sobre popup, `connect.html` y `notification.html`: **0 violaciones** de nivel A/AA.
 - [ ] **Teclado:** flujo completo (cargar/importar, seleccionar cuenta, aprobar, rechazar, reset) operable solo con teclado en las tres ventanas, con **foco visible** (contorno 2 px) y `Esc` = rechazar en la confirmación.
 - [ ] Botones **Aprobar/Rechazar** con área ≥ **44 × 44 px** y separación ≥ 8 px.
@@ -335,3 +335,4 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | 1.1 | Aprobación del sistema de diseño (P-14) y anexo de impacto en los requisitos (§7). |
 | 1.2 | Remediación de la auditoría (Fase 2): corregida la fila mal atribuida de §7 dividiéndola en «E-12 → RNF-04, RT-04» y «E-03 → RF-13/RF-14/RF-45» (H-05); fijada la decisión del alias del provider (H-15/DEC-21); añadida la matriz de contraste cerrada §2.4 y la regla 7 de §5.3 con foco, teclado, área táctil y `axe-core` (H-17). |
 | **1.3** | Cierre del hallazgo **ADT-32** y de las decisiones **P-20** y **P-21**: el **botón fantasma** queda con una única especificación (fondo transparente, borde `--tk-gold-500` y **texto `--tk-navy-800`**, regla 5 de §2.4 y fila de §5.2), con la matriz ampliada con los pares `--tk-navy-800` sobre `--tk-gray-050` (**12,96:1**) y sobre `--tk-gray-100` (**12,16:1**) y `--tk-gold-600` reclasificado como **solo decorativo**; **P-20**: portapapeles del revelado (aviso de borrado, vaciado al ocultarse, progreso de **30 s** y botón «Ocultar ahora»); **P-21**: contador de solicitudes pendientes en `notification.html` y **una única ventana de confirmación global** (sustituye «una ventana por origen»). Añadidos los criterios de verificación de §8 y la verificación cruzada de tokens y medidas con `documento_tecnico.md` §5.2. |
+ **1.4 (esta versión)** — cierre de los residuales **R-07/R-08** del veredicto de reevaluación (§8): los criterios de iconos del manifest y de modo oscuro pasan a tener magnitud y evidencia canónica (`Inspección:` / `Vitest:` / `E2E:`).

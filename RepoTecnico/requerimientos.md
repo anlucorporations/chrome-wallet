@@ -1,6 +1,6 @@
 # 📑 Requerimientos — TrueKeate Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.6 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
+> **Fase:** 1 — Concepto · **Versión:** 1.7 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 > **Anexo vinculante de diseño:** `RepoTecnico/identidad_visual.md` (marca TrueKeate: paleta, tipografía, degradados, iconos y tokens CSS).
@@ -116,7 +116,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | ID | Requerimiento | Fuente | Prioridad | Criterio de aceptación | Evidencia |
 |---|---|---|---|---|---|
 | RF-13 | Inyectar el provider EIP-1193 en `window.truekeate` **y en su alias `window.codecrypto` (el mismo objeto)** en **todas las páginas y frames** (`all_frames: true`, `document_start`). | E-03, E-09, E-33 | Must | En una página cualquiera, `window.truekeate === window.codecrypto` y ambos exponen `request`, `on` y `removeListener`. | `Vitest: inject.spec.ts — alias window.codecrypto` · `E2E: 07-provider.spec.ts` |
-| RF-14 | Implementar `request({ method, params })` con manejo de errores estilo EIP-1193 (`code`, `message`). El catálogo **no incluye `eth_sign`**: responde `4200 Unsupported method` (H-11a). | E-03 | Must | Un método desconocido resuelve con error `code: 4200` y mensaje en español; ningún método lanza de forma síncrona. | `Vitest: errors.spec.ts` (tabla §2.1) |
+| RF-14 | Implementar `request({ method, params })` con manejo de errores estilo EIP-1193 (`code`, `message`). El catálogo **no incluye `eth_sign`**: responde `4200 Unsupported method` (H-11a). | E-03 | Must | Un método desconocido resuelve con error `code: 4200` y mensaje en español; ningún método lanza de forma síncrona. | `Vitest: errors.spec.ts` (códigos de §2.1; literales de tabla §4.3 de `diccionario_datos.md`) |
 | RF-15 | Implementar `on()`, `removeListener()` y `emit` para `accountsChanged`, `chainChanged`, `connect`, `disconnect`, `message`. | E-03, E-10 | Must | `on('accountsChanged', cb)` invoca el callback al cambiar de cuenta desde el popup y `removeListener` deja de invocarlo. | `E2E: 08-eventos.spec.ts` |
 | RF-16 | `eth_requestAccounts`: abre la **página de conexión** para que el usuario elija qué cuenta compartir con esa dApp. | E-36 | Must | Al elegir la cuenta 2 en `connect.html`, `eth_requestAccounts` resuelve `['<cuenta2>']`; al rechazar, `code 4001`. | `E2E: 09-conectar.spec.ts` |
 | RF-17 | `eth_accounts`: devuelve la cuenta autorizada **sin volver a pedir permiso** si el origen ya está conectado; `[]` si no. | **DERIVADO (RNF-11)** | Must | Origen no conectado → `eth_accounts` resuelve `[]` sin abrir ventana; origen conectado → `['<cuenta>']`. | `Vitest: accounts.spec.ts — RNF-11` · `E2E: 09-conectar.spec.ts` |
@@ -141,7 +141,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-31 | **Log de operaciones**: transacciones y firmas en tiempo real, con hash/firma resultante. | E-16 | Must | Cada transacción o firma aprobada produce una entrada con estado final y el hash o la firma en `0x`+hex. | `E2E: 15-logs.spec.ts — operaciones` |
 | RF-32 | **Historial de logs persistente** que sobrevive a `resetWallet` (fuente de verdad: `chrome.storage.local` gestionado por el Service Worker, con `settings.logLimit = 500`; H-09). | E-23 | Should | Tras `resetWallet`, el panel conserva al menos las 5 últimas entradas previas y el máximo almacenado es 500. | `Vitest: logger.spec.ts — reset` |
 | RF-33 | **Validación de formularios** con feedback inline (frase inválida, dirección inválida, saldo insuficiente, clave privada inválida). | E-25 | Must | Frase, dirección, saldo o clave privada inválidos muestran mensaje inline y la operación no se envía. | `Vitest: validation.spec.ts` · `E2E: 16-validacion.spec.ts` |
-| RF-34 | UI en **español**, con formato de ETH a 4 decimales y direcciones abreviadas `0x1234…abcd`. | **NUEVO** (propuesto) | Should | Todo texto visible está en español; ETH se muestra con 4 decimales y las direcciones como `0x1234…abcd`. | `Revisión: grep de literales UI` · `E2E: 17-i18n.spec.ts` |
+| RF-34 | UI en **español**, con formato de ETH a 4 decimales y direcciones abreviadas `0x1234…abcd`. | **NUEVO** (propuesto) | Should | Todo texto visible está en español; ETH se muestra con 4 decimales y las direcciones como `0x1234…abcd`. | `Comando: grep -rniE "(send|cancel|copy|confirm|settings)" src/popup src/connect src/notification` → 0 coincidencias · `E2E: 17-i18n.spec.ts — formato 1,0000 ETH y dirección 0x1234…abcd` |
 
 ### 1.4 Páginas independientes y ciclo de aprobación — **Total: 7 RF (4 Must / 3 Should)**
 
@@ -162,7 +162,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-42 | **EIP-1559**: construir transacciones tipo 2 con `maxFeePerGas`/`maxPriorityFeePerGas` obtenidos de `getFeeData()`. | E-17 | Must | Toda transacción se difunde tipo 2 con `maxFeePerGas` y `maxPriorityFeePerGas` > 0 de `getFeeData()`. | `Vitest: eip1559.spec.ts` · `E2E: recibo type: 2` |
 | RF-43 | **EIP-155**: incluir `chainId` en la firma (protección de replay) y verificar el `chainId` de la red activa. | **OBJETIVO — `requisitos.md:30` (EIP-155)** | Must | La firma incluye el `chainId` activo (`v` = `chainId*2+35`/`36`) y una tx con chainId ajeno se rechaza. | `Vitest: eip155.spec.ts` |
 | RF-44 | **EIP-6963**: anunciar el provider (`uuid`, `name`, `icon`, `rdns`) y responder a `eip6963:requestProvider`. | E-18 | Should | Tras `DOMContentLoaded`, `eip6963:requestProvider` recibe `announceProvider` con `uuid`, `name`, `icon` y `rdns`. | `E2E: 21-eip6963.spec.ts` |
-| RF-45 | **EIP-1193**: cumplir la interfaz `request/on/removeListener` y el catálogo de errores estándar. | E-03 | Must | El provider expone `request`/`on`/`removeListener` y mapea 4001/4100/4200/4900/4901 a errores EIP-1193. | `Vitest: eip1193.spec.ts` (tabla §2.1) |
+| RF-45 | **EIP-1193**: cumplir la interfaz `request/on/removeListener` y el catálogo de errores estándar. | E-03 | Must | El provider expone `request`/`on`/`removeListener` y mapea 4001/4100/4200/4900/4901 a errores EIP-1193. | `Vitest: eip1193.spec.ts` (códigos de §2.1; literales de tabla §4.3 de `diccionario_datos.md`) |
 
 ### 1.6 dApp de pruebas — **Total: 4 RF (2 Must / 2 Should)**
 
@@ -171,7 +171,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-46 | `test.html`: dApp standalone que permita detectar, conectar, consultar saldo, enviar transacción, firmar EIP-712, cambiar de red y escuchar eventos. | E-07..E-11 | Must | `test.html` ejecuta detectar, conectar, saldo, enviar, EIP-712, cambiar red y eventos, con resultado en pantalla. | `E2E: 22-dapp.spec.ts` |
 | RF-47 | La dApp muestra un historial de operaciones y el detalle de la última respuesta. | E-16 | Should | Tras cada operación, la dApp añade una fila al historial y muestra el JSON de la última respuesta sin recortar. | `E2E: 22-dapp.spec.ts — historial` |
 | RF-48 | **Pantalla de bienvenida / "Acerca de"** con el logotipo horizontal de TrueKeate y la tagline `PRODUCTOS \| SERVICIOS \| CRIPTOACTIVOS TOKENIZADOS`. | **NUEVO** (identidad visual) | Should | «Acerca de» muestra el logotipo horizontal y la tagline `PRODUCTOS \| SERVICIOS \| CRIPTOACTIVOS TOKENIZADOS`. | `E2E: 23-marca.spec.ts` |
-| RF-49 | **Aplicación de la identidad visual**: encabezados con el degradado de marca, isologo, tipografías y estados de color definidos en `identidad_visual.md` en las tres ventanas (popup, connect, notification) y en la dApp. | **NUEVO** (identidad visual) | Must | Popup, connect, notification y dApp usan el degradado de marca y 0 colores literales fuera de `tokens.css`. | `Revisión: grep de colores (RNF-18)` · `E2E: 23-marca.spec.ts` |
+| RF-49 | **Aplicación de la identidad visual**: encabezados con el degradado de marca, isologo, tipografías y estados de color definidos en `identidad_visual.md` en las tres ventanas (popup, connect, notification) y en la dApp. | **NUEVO** (identidad visual) | Must | Popup, connect, notification y dApp usan el degradado de marca y 0 colores literales fuera de `tokens.css`. | `Comando: grep -rnE "#[0-9a-fA-F]{3,8}|rgb\(|hsl\(|linear-gradient|radial-gradient|font-family:" src --exclude=tokens.css` → 0 coincidencias · `E2E: 23-marca.spec.ts — degradado de marca en popup, connect, notification y dApp` |
 
 > **Totales por tabla (H-03):** 1.1 = 13 RF (11 Must / 2 Should) · 1.2 = 14 RF (14 Must / 0 Should) · 1.3 = 8 RF (6 Must / 2 Should) · 1.4 = 7 RF (4 Must / 3 Should) · 1.5 = 4 RF (3 Must / 1 Should) · 1.6 = 4 RF (2 Must / 2 Should). **Suma: 50 RF = 40 Must + 10 Should.**
 
@@ -189,44 +189,49 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RNF-04 | Compatibilidad | Debe cargar y funcionar en Chrome ≥ 114 y Edge ≥ 114 sin `manifest_version: 2`. | Carga en `chrome://extensions` y `edge://extensions` |
 | RNF-05 | Usabilidad | Toda solicitud de firma/conexión es aprobable o rechazable en ≤ 2 clics y la ventana muestra **origen solicitante**, destino, valor, red y comisión estimada; en llamadas a contrato, el **calldata decodificado** (selector, función, parámetros) y los avisos de riesgo de H-11b. La confirmación se atiende en **una sola ventana global** (`notification.html`) con la **cola de pendientes** y su **contador** (RF-35, P-21): nunca se muestran dos solicitudes a la vez. | `E2E: 10-aprobar-tx.spec.ts` con conteo de clics y aserción sobre nodos del DOM + `E2E: 18-concurrencia.spec.ts` (una sola ventana y contador de pendientes) |
 | RNF-06 | Usabilidad | Los mensajes de error se muestran en español e indican **causa y acción sugerida**, conforme a la **tabla cerrada por código EIP-1193 (§2.1)**. | `Vitest: errors.spec.ts` contrasta cada código con §2.1: causa y acción presentes |
-| RNF-07 | Fiabilidad | Si el RPC no responde, la UI muestra «desconectado» y reintenta con **política numérica cerrada**: máximo **3 reintentos con backoff ×2 (1 s / 2 s / 4 s)**, **timeout de 5 s por intento**, UI interactiva y `chrome.storage.local` intacto. | `Vitest: rpcRetry.spec.ts` con provider falso y fake timers (3 fallos + 1 éxito) y `E2E` con Anvil detenido |
-| RNF-08 | Fiabilidad | El Service Worker puede reiniciarse en cualquier momento: la cola `Record<approvalId, PendingRequest>` se reconstruye desde `chrome.storage.local` y la reconciliación al arrancar tarda **< 1 s** sin dejar solicitudes huérfanas (H-02). | `Vitest: approvalReconcile.spec.ts` + `E2E`: «stop service worker» en mitad de una aprobación, medido con `performance.now()` |
+| RNF-07 | Fiabilidad | Si el RPC no responde, la UI muestra «desconectado» y reintenta con **política numérica cerrada**: máximo **3 reintentos con backoff ×2 (1 s / 2 s / 4 s)**, **timeout de 5 s por intento**, UI interactiva y `chrome.storage.local` intacto. | `Vitest: rpcRetry.spec.ts — provider falso y fake timers (3 fallos + 1 éxito)` · `E2E: 27-rpc-caido.spec.ts — Anvil detenido` |
+| RNF-08 | Fiabilidad | El Service Worker puede reiniciarse en cualquier momento: la cola `Record<approvalId, PendingRequest>` se reconstruye desde `chrome.storage.local` y la reconciliación al arrancar tarda **< 1 s** sin dejar solicitudes huérfanas (H-02). | `Vitest: approvalReconcile.spec.ts` · `E2E: 18-concurrencia.spec.ts — stop service worker y reconciliación < 1 s medida con performance.now()` |
 | RNF-09 | Seguridad | El mnemonic y las claves privadas **nunca viajan por `window.postMessage` ni hacia la página web** (la página solo recibe firmas, hashes y las direcciones autorizadas). **Sí** pueden mostrarse en las superficies de la propia extensión mediante el flujo de revelado de RF-50 (popup y ventanas de la extensión), que aplica la **higiene del revelado**: confirmación explícita, ocultado por plazo de **30 s** o pérdida de foco, borrado del portapapeles al ocultar y descarte del valor de la memoria de la UI. Tampoco se registran en logs los **payloads firmados completos** (mensaje de `personal_sign`, JSON de `eth_signTypedData_v4`, calldata) (H-42, P-20). | Inspección de mensajes en content-script (0 mensajes con mnemonic o clave hacia la página) + `Vitest: logRedaction.spec.ts` (0 coincidencias de mnemonic, clave o payload íntegro en los logs) + **verificación de la higiene del revelado**: `Vitest: secretsExport.spec.ts` y `E2E: 25-recuperacion.spec.ts` (ocultado a los 30 s y por pérdida de foco, portapapeles sin la semilla tras ocultarse y valor descartado de la UI) |
 | RNF-10 | Seguridad | `inject.js` se expone a **todas** las páginas (`<all_urls>` con `all_frames: true`), **no solo a páginas autorizadas**: la exposición se acota con `use_dynamic_url: true` y `exclude_matches` para los orígenes de extensiones; el control real está en el receptor, que **valida `sender`/`origin`** en cada mensaje, mantiene una **allowlist cerrada de métodos internos** (el resto responde `4200`) y publica con **`targetOrigin` cerrado** (nunca `*`). | `Vitest: manifest.spec.ts` (el manifest declara `use_dynamic_url` y `exclude_matches`; una página arbitraria no obtiene `inject.js`) + `Vitest: messaging.spec.ts` (allowlist de métodos internos y rechazo de `sender`/`origin` no válidos) + intento de inyección desde iframe hostil |
-| RNF-11 | Seguridad | Una dApp no autorizada recibe `[]` en `eth_accounts` y debe pasar por `eth_requestAccounts`. | Test negativo en `test.html` |
-| RNF-12 | Seguridad | Toda transacción/firma requiere aprobación explícita del usuario; ningún método sensible firma en silencio. | Revisión de `handleRPCRequest` |
-| RNF-13 | Mantenibilidad | Código 100 % TypeScript con `strict: true`; el build falla ante errores de tipos. | `tsc -b` sin `any` implícitos |
-| RNF-14 | Mantenibilidad | Separación estricta: React = UI sin criptografía; el Service Worker = criptografía y RPC. | Revisión de imports (ethers solo en background) |
+| RNF-11 | Seguridad | Una dApp no autorizada recibe `[]` en `eth_accounts` y debe pasar por `eth_requestAccounts`. | `Vitest: accounts.spec.ts — RNF-11 (sin sesión → `[]`)` · `E2E: 09-conectar.spec.ts — test negativo de origen no conectado` |
+| RNF-12 | Seguridad | Toda transacción/firma requiere aprobación explícita del usuario; ningún método sensible firma en silencio. | `Inspección: handleRPCRequest (0 métodos sensibles sin entrada pending)` · `E2E: 10-aprobar-tx.spec.ts` |
+| RNF-13 | Mantenibilidad | Código 100 % TypeScript con `strict: true`; el build falla ante errores de tipos. | `Comando: npx tsc -b` (strict, 0 errores y 0 `any` implícitos) |
+| RNF-14 | Mantenibilidad | Separación estricta: React = UI sin criptografía; el Service Worker = criptografía y RPC. | `Comando: grep -rn "from 'ethers'" src/popup src/components` → 0 coincidencias |
 | RNF-15 | Portabilidad | **«Build limpio» = `npm ci && npm run build` con exit 0, cero errores de tipos (`tsc -b`) y solo los warnings permitidos en §2.6**, en Windows y en **Linux (WSL2 o CI `ubuntu-latest`)** (H-20, D-C). | `Comando: npm ci && npm run build` en Windows y en WSL2/CI; salida adjunta como evidencia |
-| RNF-16 | Observabilidad | **Catálogo cerrado de eventos instrumentados (§2.2)**: exactamente una entrada de log por evento, con timestamp, nivel y origen; el log vive en `chrome.storage.local` (gestionado por el SW) y se exporta en JSON; **ninguna entrada contiene claves, mnemonic ni payloads firmados completos** (H-09, H-12, H-42). | `Vitest: logger.spec.ts` (una entrada por evento del catálogo) + **aserción posterior a la suite E2E completa** + exportación del histórico en JSON |
+| RNF-16 | Observabilidad | **Catálogo cerrado de eventos instrumentados (§2.2)**: exactamente una entrada de log por evento, con timestamp, nivel y origen; el log vive en `chrome.storage.local` (gestionado por el SW) y se exporta en JSON; **ninguna entrada contiene claves, mnemonic ni payloads firmados completos** (H-09, H-12, H-42). | `Vitest: logger.spec.ts — 1 entrada por evento del catálogo` · `Inspección: chrome.storage.local.get('truekeate_logs') tras la suite E2E (0 entradas con clave o payload íntegro)` · `Inspección: exportación del histórico en JSON` |
 | RNF-17 | Testabilidad | Cobertura de **ramas** con `@vitest/coverage-v8`: **70 % global** y **≥ 80 %** en `src/background/crypto/`, `src/background/approvals/` y `src/shared/validation/`; con exclusiones declaradas (H-19). | `Comando: npm run test -- --coverage`; el hito no se cierra por debajo del umbral |
 | RNF-18 | Usabilidad / Mantenibilidad | **Consistencia visual:** todo el CSS y TSX bajo `src/` **salvo `src/styles/tokens.css`** consume tokens de `identidad_visual.md`; 0 literales de color (`#…`, `rgb(`, `hsl(`), 0 familias tipográficas literales y 0 degradados fuera de tokens (H-12). | `Comando: grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\(\|hsl\(\|font-family:" src` → 0 coincidencias fuera de `tokens.css` |
-| RNF-19 | Compatibilidad | Contraste del texto principal ≥ 4.5:1 sobre la **matriz cerrada de pares texto/fondo de §2.4**; el teal de marca (`#3E93A6`) no se usa para texto menor de 18 px sobre blanco; el oro (`#C9A97F`) es solo decorativo. | Cálculo WCAG automatizado sobre los pares de §2.4 (test que lee `tokens.css`) |
+| RNF-19 | Compatibilidad | Contraste del texto principal ≥ 4.5:1 sobre la **matriz cerrada de pares texto/fondo de §2.4**; el teal de marca (`#3E93A6`) no se usa para texto menor de 18 px sobre blanco; el oro (`#C9A97F`) es solo decorativo. | `Vitest: contrast.spec.ts — recalcula desde tokens.css los pares de §2.4 (0 por debajo del umbral)` · `E2E: 24-accesibilidad.spec.ts — axe-core 0 violaciones A/AA` |
 | RNF-20 | Portabilidad | Los activos de marca y las fuentes se sirven **desde el propio paquete** de la extensión (`public/brand/`, `public/fonts/`), sin peticiones a CDN en runtime. | Inspección del bundle y de las peticiones de red del popup |
 | RNF-21 | **Accesibilidad** (H-17) | Todas las acciones críticas (cargar wallet, importar clave, seleccionar cuenta, aprobar, rechazar, reset) son ejecutables **solo con teclado**; foco visible con contraste ≥ 3:1; roles/etiquetas ARIA en la lista de cuentas, las pestañas de red y el panel de logs; sin pérdida de contenido al 200 % de zoom; `prefers-reduced-motion` desactiva spinner y transiciones. | `E2E: 24-accesibilidad.spec.ts` (recorrido por teclado) + `axe-core` en los E2E (0 violaciones críticas) + test de contraste de §2.4 |
 | RNF-22 | **Capacidad de recuperación** (H-25) | Exportación/revelado del mnemonic y de las claves privadas tras confirmación explícita; `resetWallet` exige confirmación destructiva que enumera las cuentas importadas que se perderán; al arrancar se valida el checksum BIP-39 y el formato EIP-55 y, ante corrupción, se muestra «wallet dañada» en lugar de derivar direcciones distintas en silencio. | `E2E: 25-recuperacion.spec.ts` (texto exacto del diálogo destructivo) + `Vitest: integrity.spec.ts` (mnemonic y dirección corruptos) |
-| RNF-23 | **Cumplimiento y avisos al usuario** (H-26, H-37) | Aviso no descartable «entorno de desarrollo — no usar con fondos reales» en el primer arranque, en «Acerca de» y antes de la primera firma, con la aceptación registrada en `truekeate_settings`; advertencia al dar de alta una red no marcada `isTestnet`; `LICENSE`, `NOTICE` y `LICENSE-poppins.txt`/`LICENSE-inter.txt`/`LICENSE-jetbrains-mono.txt` (OFL-1.1) presentes en el repositorio; activos de marca TrueKeate cedidos por el titular del proyecto. | `E2E: 26-avisos.spec.ts` (aserción sobre el DOM) + `Revisión: git ls-files` con `LICENSE`, `NOTICE` y los 3 `LICENSE-*.txt` + tabla de excepciones §2.5 |
-| RNF-24 | **Mantenimiento / ciclo de vida** (H-29) | Política de versiones de dependencias (ethers, React, Vite) con `package-lock.json` versionado y build reproducible; rango de versión de Foundry soportado declarado y verificado antes de la suite E2E; revisión de compatibilidad MV3 en cada actualización mayor de Chrome/Edge. | `Revisión: §2.6` + `Comando: npm ci && npm run build` reproducible (mismo resultado en dos equipos) |
+| RNF-23 | **Cumplimiento y avisos al usuario** (H-26, H-37) | Aviso no descartable «entorno de desarrollo — no usar con fondos reales» en el primer arranque, en «Acerca de» y antes de la primera firma, con la aceptación registrada en `truekeate_settings`; advertencia al dar de alta una red no marcada `isTestnet`; `LICENSE`, `NOTICE` y `LICENSE-poppins.txt`/`LICENSE-inter.txt`/`LICENSE-jetbrains-mono.txt` (OFL-1.1) presentes en el repositorio; activos de marca TrueKeate cedidos por el titular del proyecto. | `E2E: 26-avisos.spec.ts` (aserción sobre el DOM) + `Inspección: git ls-files (LICENSE, NOTICE y los 3 LICENSE-*.txt)` + tabla de excepciones §2.5 |
+| RNF-24 | **Mantenimiento / ciclo de vida** (H-29) | Política de versiones de dependencias (ethers, React, Vite) con `package-lock.json` versionado y build reproducible; rango de versión de Foundry soportado declarado y verificado antes de la suite E2E; revisión de compatibilidad MV3 en cada actualización mayor de Chrome/Edge. | `Inspección: §2.6` · `Comando: npm ci && npm run build` en Windows y WSL2 (mismo `dist/`) |
 | RNF-25 | Fiabilidad | **Contrato observable de una transacción (H-22):** `eth_sendTransaction` devuelve el **hash** al difundir; la UI y el log reflejan los estados `pending → confirmada`/`fallida`; un `estimateGas` fallido bloquea el envío con error tipado y mensaje accionable; un revert se muestra con su motivo; el catálogo incluye `eth_getTransactionReceipt`. | `Vitest: txContract.spec.ts` (hash, transiciones, revert y estimación fallida) + `E2E: 04-enviar.spec.ts` con recibo `status 1` |
 
-### 2.1 Tabla cerrada de mensajes por código EIP-1193 (H-12 · RNF-06)
+### 2.1 Tabla cerrada de códigos de error EIP-1193 y su significado (H-12 · RNF-06 · ACU-05/D-E)
 
-| Código | Cuándo se emite | Mensaje (español) | Causa | Acción sugerida |
-|---|---|---|---|---|
-| `4001` | El usuario rechaza o vence el plazo | «Operación cancelada por el usuario.» | Rechazo explícito o expiración (120 s firma / 60 s conexión, RF-40) | Volver a solicitarla desde la dApp |
-| `4100` | El origen no está autorizado | «Esta dApp no tiene permiso para usar la cartera.» | Método sensible sin sesión autorizada (RNF-11) | Conectar con `eth_requestAccounts` |
-| `4200` | Método no soportado (incluye `eth_sign`) | «El método solicitado no está soportado por TrueKeate Wallet.» | Método fuera del catálogo RPC (H-11a) | Usar `personal_sign` o `eth_signTypedData_v4` |
-| `4900` | La cartera está desconectada del RPC | «Sin conexión con la red local (Anvil).» | RPC caído (RNF-07) | Arrancar Anvil en `127.0.0.1:8545` |
-| `4901` | Red no reconocida | «La red solicitada no está dada de alta.» | `wallet_switchEthereumChain` a un `chainId` desconocido | Darla de alta con `wallet_addEthereumChain` |
-| `-32000` | Nonce o gas inválidos | «La red rechazó la transacción: nonce o gas inválidos.» | Respuesta del nodo | Reintentar tras recalcular `nonce`/`getFeeData()` |
-| `-32602` | Parámetros inválidos | «Los parámetros de la solicitud no son válidos.» | Validación de entrada (RF-33) | Revisar la llamada |
-| `-32603` | Error interno | «Error interno de la cartera.» | Fallo no clasificado | Exportar los logs en JSON y reportarlo |
+> **Reparto de fuentes (ACU-05 / D-E, ADT-03).** Esta tabla es la **tabla de códigos y su significado**: fija qué códigos existen, qué significa cada uno y cuándo se emite. **No** fija los literales de los mensajes: la **fuente única de los `message` en español es `diccionario_datos.md` §4.3**, que admite **varios mensajes por código** (uno por causa) e incluye la causa y la acción sugerida. Toda cita de un mensaje en este corpus (**casos de uso, documento técnico, identidad visual**) apunta a `diccionario_datos.md` §4.3, nunca a esta tabla.
+
+| Código | Significado | Cuándo se emite |
+|---|---|---|
+| `4001` | Cancelación por el usuario o vencimiento del plazo | El usuario rechaza explícitamente, la solicitud vence (120 s firma / 60 s conexión, RF-40), se cierra la ventana sin decidir, se excede la cardinalidad o la tasa aprobable, se agota el *token bucket* o se deniega el permiso de host del alta de red (`diccionario_datos.md` §4.3) |
+| `4100` | Origen no autorizado | Método sensible sin sesión autorizada (RNF-11), o método interno invocado desde un contexto no permitido (`diccionario_datos.md` §4.2) |
+| `4200` | Método no soportado, o método interno fuera de contexto | Método fuera del catálogo RPC —incluye `eth_sign`— (H-11a); método interno llamado desde un contexto no permitido (RT-06) |
+| `4900` | Cartera desconectada del RPC | RPC local caído o inalcanzable (RNF-07) |
+| `4901` | Red no reconocida | `wallet_switchEthereumChain` a un `chainId` que no está dado de alta |
+| `-32000` | Rechazo del nodo | Saldo insuficiente, nonce inválido, o `estimateGas` fallido / revert previo a firmar (`diccionario_datos.md` §3.6) |
+| `-32602` | Parámetros o material de entrada inválidos | Mnemonic o clave privada inválidos, dirección malformada (EIP-55), cuenta ya existente, cuenta en uso por una dApp, o payload por encima de **64 KiB** (RF-33; `diccionario_datos.md` §3.9) |
+| `-32603` | Error interno de la cartera | Fallo no clasificado del Service Worker, identificador duplicado en la cola, cuota de `chrome.storage.local` agotada, difusión interrumpida por suspensión del SW, o reset incompleto (RF-32; `diccionario_datos.md` §2.15 y §2.12) |
 
 > Regla (RNF-06): **toda** respuesta de error hacia la página es un objeto EIP-1193 con `code` numérico y `message` en español; queda prohibido resolver con `new Error('Request timeout')` u objetos sin `code`.
+> **Regla de cita (ACU-05/D-E).** Ningún criterio de este corpus reproduce el literal de un mensaje: se cita `diccionario_datos.md` §4.3 por su **causa** o por su **código**. La tabla §4.3 de `diccionario_datos.md` es la fuente de verdad de las filas del catálogo de errores; esta §2.1 lo es de la lista de códigos admitidos.
 
 ### 2.2 Catálogo cerrado de eventos instrumentados y redacción de `params` (H-12, H-42 · RNF-16)
 
-Una entrada de log por evento, sin excepciones. El catálogo es **cerrado**: `rpc_call`, `rpc_error`, `event_emit`, `tx_sent`, `tx_confirmed`, `tx_failed`, `tx_reverted`, `sign_personal`, `sign_typed_data`, `approval_created`, `approval_resolved`, `approval_expired`, `chain_changed`, `accounts_changed`, `wallet_created`, `wallet_imported`, `account_imported`, `account_removed`, `reset_wallet`, `network_added`, `permission_revoked`, `sw_started`, `sw_reconcile`.
+Una entrada de log por evento, sin excepciones. El catálogo es **cerrado** y tiene **24 eventos** (incluye `storage_quota_exceeded`, ADT-14/D-M; `diccionario_datos.md` §2.11): `rpc_call`, `rpc_error`, `event_emit`, `tx_sent`, `tx_confirmed`, `tx_failed`, `tx_reverted`, `sign_personal`, `sign_typed_data`, `approval_created`, `approval_resolved`, `approval_expired`, `chain_changed`, `accounts_changed`, `wallet_created`, `wallet_imported`, `account_imported`, `account_removed`, `reset_wallet`, `network_added`, `permission_revoked`, `sw_started`, `sw_reconcile`, `storage_quota_exceeded`.
+
+> **Evento 24 (ADT-14 / D-M).** `storage_quota_exceeded` se instrumenta con `category: 'system'`, `level: 'error'` y `data: { code: -32603, key, bytesInUse, retried: true }` cuando el rechazo por cuota de `chrome.storage.local` se hace observable (§2.6 y `diccionario_datos.md` §2.15). El conteo vigente es **24**; el valor «23» solo consta en los registros históricos de auditoría.
 
 **Política de redacción de `params` (H-42, ADT-12/D-T) — obligatoria:** nunca se registran claves privadas ni el mnemonic (ya prohibido en `diccionario_datos.md:184`) y **tampoco** el payload firmado íntegro: en `personal_sign` y `eth_signTypedData_v4` se guarda el **hash keccak256 del payload** y su longitud; en `eth_sendTransaction` se guardan `to`, `value`, `dataLength` y **los primeros 10 bytes de `data`** (4 bytes de selector + 6 bytes de prefijo de argumentos, el literal del diccionario), nunca el `data` completo. El log se exporta en JSON para diagnóstico y vive en `chrome.storage.local` gestionado por el Service Worker.
 
@@ -292,21 +297,21 @@ Tabla de **excepciones declaradas**: lo que el enunciado agrupa bajo «Para Prod
 | ID | Tipo | Definición | Criterio de aceptación | Evidencia |
 |---|---|---|---|---|
 | RT-01 | Stack UI | React 19 + TypeScript 5.9 + Vite 7. | `package.json` fija React 19, TypeScript 5.9 y Vite 7 como únicas dependencias de UI y build. | `Comando: npm ls react typescript vite` |
-| RT-02 | Librería criptográfica | **Únicamente** `ethers.js v6` para mnemonic, HD, firma, provider y serialización. | El sistema deberá usar exclusivamente `ethers` v6 para mnemonic, HD, firma, provider y serialización. | `Revisión: package.json + grep de imports cripto` |
+| RT-02 | Librería criptográfica | **Únicamente** `ethers.js v6` para mnemonic, HD, firma, provider y serialización. | El sistema deberá usar exclusivamente `ethers` v6 para mnemonic, HD, firma, provider y serialización. | `Comando: npm ls ethers` · `Comando: grep -rn "from 'ethers'" src/popup` → 0 coincidencias |
 | RT-03 | Prohibiciones | No usar `viem`, `@scure/bip39`, `@metamask/*`, `axios` ni `fetch` directo en el código propio (lo usa ethers internamente). | `grep` de `viem\|@scure/bip39\|@metamask/\|axios` en `src/` y de `fetch(` propio devuelve 0 coincidencias. | `Comando: npm run lint:prohibited` |
-| RT-04 | Plataforma | Chrome Extension Manifest V3: Service Worker (`type: module`), Content Script, Inject Script, `chrome.storage.local`, `chrome.alarms`, `chrome.windows` y `chrome.notifications` **solo como permiso opcional** (H-02, ADT-30/DEC-44). **Permisos mínimos (H-36):** `tabs`, `activeTab` y `scripting` solo se declaran si el código usa una capacidad que los exija; `host_permissions` solo para las redes dadas de alta; **`notifications` no se declara en `permissions`**: vive en **`optional_permissions`** y se solicita en runtime cuando se activa el ciclo posterior de RF-39. **Política de RPC arbitrario (H-36):** `wallet_addEthereumChain` valida esquema (`https` preferente; `http` solo en local) y host, exige aprobación explícita del usuario y solicita el permiso en runtime (`chrome.permissions.request`), registrándolo por red en `truekeate_networks`. | `manifest.json` declara en `permissions` solo `storage` y `alarms` (más los de uso demostrado), y `notifications` únicamente en `optional_permissions`; `tabs`/`activeTab`/`scripting` solo con uso demostrado; el alta de red sin permiso de host se rechaza con error tipado. | `Vitest: manifest.spec.ts` · `Revisión: dist/manifest.json` · `E2E: 12-redes.spec.ts — permiso en runtime` |
-| RT-05 | Build | El `manifest.json` se **genera** desde `src/manifest.ts` y el bundle de ethers se incluye localmente (sin CDN). | `npm run build` genera `manifest.json` desde `src/manifest.ts` y el bundle de ethers vive en `dist/` sin URLs de CDN. | `Comando: npm run build` + `grep` de `http` en `dist/` |
+| RT-04 | Plataforma | Chrome Extension Manifest V3: Service Worker (`type: module`), Content Script, Inject Script, `chrome.storage.local`, `chrome.alarms`, `chrome.windows` y `chrome.notifications` **solo como permiso opcional** (H-02, ADT-30/DEC-44). **Permisos mínimos (H-36):** `tabs`, `activeTab` y `scripting` solo se declaran si el código usa una capacidad que los exija; `host_permissions` solo para las redes dadas de alta; **`notifications` no se declara en `permissions`**: vive en **`optional_permissions`** y se solicita en runtime cuando se activa el ciclo posterior de RF-39. **Política de RPC arbitrario (H-36):** `wallet_addEthereumChain` valida esquema (`https` preferente; `http` solo en local) y host, exige aprobación explícita del usuario y solicita el permiso en runtime (`chrome.permissions.request`), registrándolo por red en `truekeate_networks`. | `manifest.json` declara en `permissions` solo `storage` y `alarms` (más los de uso demostrado), y `notifications` únicamente en `optional_permissions`; `tabs`/`activeTab`/`scripting` solo con uso demostrado; el alta de red sin permiso de host se rechaza con error tipado. | `Vitest: manifest.spec.ts` · `Inspección: dist/manifest.json (notifications solo en optional_permissions)` · `E2E: 12-redes.spec.ts — permiso en runtime` |
+| RT-05 | Build | El `manifest.json` se **genera** desde `src/manifest.ts` y el bundle de ethers se incluye localmente (sin CDN). | `npm run build` genera `manifest.json` desde `src/manifest.ts` y el bundle de ethers vive en `dist/` sin URLs de CDN. | `Comando: npm run build && grep -rn "http" dist/` → 0 URLs de CDN |
 | RT-06 | Red de pruebas | **Foundry Anvil** en `127.0.0.1:8545`, chainId `31337` (sin Sepolia — P-02). | Con Anvil en `127.0.0.1:8545`, `eth_chainId` devuelve `0x7a69` y `settings.networks` no contiene Sepolia. | `Comando: anvil` + `E2E: 07-provider.spec.ts` |
-| RT-07 | Pruebas | Unitarias/integración: **Vitest** (jsdom) sobre módulos del Service Worker. E2E: **Playwright** con Chromium persistente, la extensión cargada desde `dist/` y Anvil en marcha. Contratos: **Forge** sobre un contrato verificador de firmas **EIP-712** (P-07). | `npm run test`, `npm run test:e2e` y `forge test` (contrato `EIP712Verifier.sol`) existen y terminan con exit 0. | `Comando: los tres scripts` |
+| RT-07 | Pruebas | Unitarias/integración: **Vitest** (jsdom) sobre módulos del Service Worker. E2E: **Playwright** con Chromium persistente, la extensión cargada desde `dist/` y Anvil en marcha. Contratos: **Forge** sobre un contrato verificador de firmas **EIP-712** (P-07). | `npm run test`, `npm run test:e2e` y `forge test` (contrato `EIP712Verifier.sol`) existen y terminan con exit 0. | `Comando: npm run test && npm run test:e2e && forge test --match-contract EIP712VerifierTest` (exit 0 en los tres) |
 | RT-08 | Tipos | `@types/chrome` para las APIs del navegador y `@types/node` para el script de build. | `tsc -b` compila con `@types/chrome` y `@types/node` instalados y sin `any` implícitos. | `Comando: npx tsc -b` |
-| RT-09 | Despliegue | **100 % local** (P-08): sin GCP. La extensión se distribuye como carpeta `dist/` y la dApp de pruebas se sirve en local. | No existe despliegue remoto: el artefacto es `dist/` y la dApp se sirve en `http://localhost:5174`. | `Revisión: dist/ + vite.config.ts (port 5174, strictPort)` |
-| RT-10 | Idioma | UI, mensajes de error y documentación en **español**; identificadores de código en **inglés** (P-09). | Toda cadena visible está en español y todo identificador de código en inglés; no hay literales de UI en inglés. | `Revisión: grep de literales` · `E2E: 17-i18n.spec.ts` |
+| RT-09 | Despliegue | **100 % local** (P-08): sin GCP. La extensión se distribuye como carpeta `dist/` y la dApp de pruebas se sirve en local. | No existe despliegue remoto: el artefacto es `dist/` y la dApp se sirve en `http://localhost:5174`. | `Inspección: dist/ y vite.config.ts (port 5174, strictPort)` |
+| RT-10 | Idioma | UI, mensajes de error y documentación en **español**; identificadores de código en **inglés** (P-09). | Toda cadena visible está en español y todo identificador de código en inglés; no hay literales de UI en inglés. | `Comando: grep -rniE "(send|cancel|copy|confirm)" src/popup src/connect src/notification` → 0 coincidencias · `E2E: 17-i18n.spec.ts` |
 | RT-11 | Contrato auxiliar | Proyecto Foundry mínimo con un contrato verificador de firmas EIP-712 (`EIP712Verifier.sol`) y sus tests, usado como prueba de extremo a extremo del firmado (P-07). | `forge test` verifica una firma EIP-712 producida por la wallet: `verify` devuelve `true` y `false` si se altera un byte. | `Comando: forge test --match-contract EIP712VerifierTest` |
-| RT-12 | Identidad visual y licencias | Activos de marca en `public/brand/`, iconos de la extensión en `public/icons/` (generados desde `TrueKeate/TrueKeate_logo.png`), tokens en `src/styles/tokens.css`. Tipografías Poppins + Inter + JetBrains Mono **auto-hospedadas** en `public/fonts/` (woff2, subconjunto latin). **Licencias (H-37):** `LICENSE` del código, `NOTICE` y `public/fonts/LICENSE-poppins.txt`, `LICENSE-inter.txt` y `LICENSE-jetbrains-mono.txt` (OFL-1.1); los activos de marca TrueKeate fueron **proporcionados por el titular del proyecto** (DEC-15), que autoriza su uso y redistribución en este paquete. | Iconos en `public/icons/`, activos en `public/brand/`, woff2 latin + `LICENSE-*.txt` OFL en `public/fonts/` y tokens en `src/styles/tokens.css`; todo activo redistribuido tiene licencia registrada. | `Revisión: árbol public/ + LICENSE/NOTICE` |
-| RT-13 | Nomenclatura e identidad del paquete | Producto **TrueKeate Wallet**; provider `window.truekeate` **con alias `window.codecrypto`**; EIP-6963 `name: "TrueKeate"` y `rdns: "academy.codecrypto.truekeate"`; prefijo de storage `truekeate_`; tipos de mensaje `TRUEKEATE_REQUEST/RESPONSE/EVENT/RPC`; dominio EIP-712 de la dApp `TrueKeate Test App`. **Identidad estable del paquete (ADT-19/DEC-43):** el **UUID del provider es una constante literal congelada** (UUID v4 literal en `src/inject/provider.ts`, nunca generado en runtime) y el `manifest.json` generado incluye una **`key` fija** (clave pública en base64) que estabiliza el **ID de la extensión** entre equipos y reinstalaciones — requisito para la **allowlist de CORS de Anvil (RE-04)** y para la **reproducibilidad de la suite E2E**. | `window.truekeate === window.codecrypto`, prefijo `truekeate_` y tipos `TRUEKEATE_*`; `rdns` = `academy.codecrypto.truekeate`; el UUID del provider y la `key` del manifest son **literales versionados** e idénticos en dos equipos, y el ID de la extensión es el mismo en ambos. | `Vitest: naming.spec.ts` (UUID literal y `key` presente en el manifest generado) · `Revisión: grep de codecrypto_ en src/` · `E2E: ID de extensión estable entre ejecuciones` |
-| RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. | El sistema deberá operar sin backend: ninguna petición sale hacia un servicio propio. | `Revisión: análisis de red del popup` |
+| RT-12 | Identidad visual y licencias | Activos de marca en `public/brand/`, iconos de la extensión en `public/icons/` (generados desde `TrueKeate/TrueKeate_logo.png`), tokens en `src/styles/tokens.css`. Tipografías Poppins + Inter + JetBrains Mono **auto-hospedadas** en `public/fonts/` (woff2, subconjunto latin). **Licencias (H-37):** `LICENSE` del código, `NOTICE` y `public/fonts/LICENSE-poppins.txt`, `LICENSE-inter.txt` y `LICENSE-jetbrains-mono.txt` (OFL-1.1); los activos de marca TrueKeate fueron **proporcionados por el titular del proyecto** (DEC-15), que autoriza su uso y redistribución en este paquete. | Iconos en `public/icons/`, activos en `public/brand/`, woff2 latin + `LICENSE-*.txt` OFL en `public/fonts/` y tokens en `src/styles/tokens.css`; todo activo redistribuido tiene licencia registrada. | `Inspección: árbol public/ y git ls-files LICENSE NOTICE public/fonts/*.txt` |
+| RT-13 | Nomenclatura e identidad del paquete | Producto **TrueKeate Wallet**; provider `window.truekeate` **con alias `window.codecrypto`**; EIP-6963 `name: "TrueKeate"` y `rdns: "academy.codecrypto.truekeate"`; prefijo de storage `truekeate_`; tipos de mensaje `TRUEKEATE_REQUEST/RESPONSE/EVENT/RPC`; dominio EIP-712 de la dApp `TrueKeate Test App`. **Identidad estable del paquete (ADT-19/DEC-43):** el **UUID del provider es una constante literal congelada** (UUID v4 literal en `src/inject/provider.ts`, nunca generado en runtime) y el `manifest.json` generado incluye una **`key` fija** (clave pública en base64) que estabiliza el **ID de la extensión** entre equipos y reinstalaciones — requisito para la **allowlist de CORS de Anvil (RE-04)** y para la **reproducibilidad de la suite E2E**. | `window.truekeate === window.codecrypto`, prefijo `truekeate_` y tipos `TRUEKEATE_*`; `rdns` = `academy.codecrypto.truekeate`; el UUID del provider y la `key` del manifest son **literales versionados** e idénticos en dos equipos, y el ID de la extensión es el mismo en ambos. | `Vitest: naming.spec.ts` (UUID literal y `key` presente en el manifest generado) · `Comando: grep -rn "codecrypto_" src/` → 0 coincidencias · `E2E: 07-provider.spec.ts — ID de extensión estable entre ejecuciones` |
+| RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. | El sistema deberá operar sin backend: ninguna petición sale hacia un servicio propio. | `Inspección: peticiones de red del popup (0 hacia servicios propios)` |
 | RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (P-03). | Mientras el modo desarrollo esté activo, el sistema deberá avisar de que no se usen fondos reales (RNF-23). | `E2E: 26-avisos.spec.ts` |
-| RE-03 | Restricción | No se hace `push` a repositorios remotos sin orden explícita del usuario (`/push`). | El sistema deberá abstenerse de hacer `push`: solo se ejecuta con la orden explícita `/push`. | `Revisión: historial de comandos` |
+| RE-03 | Restricción | No se hace `push` a repositorios remotos sin orden explícita del usuario (`/push`). | El sistema deberá abstenerse de hacer `push`: solo se ejecuta con la orden explícita `/push`. | `Inspección: historial de comandos (0 git push sin /push)` |
 | RE-04 | Restricción | El RPC debe permitir CORS desde el origen de la extensión (`--http.corsdomain` en Anvil), con **allowlist concreta** (origen de la extensión y `http://localhost:5174`), no `*` (H-41). | Con la allowlist declarada, la extensión accede al RPC y un origen no listado es rechazado por CORS. | `Comando: anvil --http.corsdomain <lista>` |
 
 ---
@@ -338,10 +343,10 @@ Transcripción de la **rúbrica de 100 puntos** (`TAREA_PARA_ESTUDIANTE.md:2408-
 | Funcionalidad (40) | `eth_signTypedData_v4` firma mensajes EIP-712 (7) | RF-20, RT-11, RNF-25 | `E2E: 11-firmar-eip712.spec.ts` · `Forge: EIP712Verifier.t.sol` |
 | Funcionalidad (40) | Eventos `accountsChanged` y `chainChanged` funcionan (4) | RF-15, RF-24 | `E2E: 08-eventos.spec.ts` |
 | Funcionalidad (40) | Persistencia con `chrome.storage` (3) | RF-09, RF-10, RF-25, RNF-08 (equivalencia E-26 en §1.0) | `E2E: 05-persistencia.spec.ts` |
-| Arquitectura (20) | Separación correcta de componentes (5) | RNF-14 | Revisión de imports (ethers solo en background) |
+| Arquitectura (20) | Separación correcta de componentes (5) | RNF-14 | `Comando: grep -rn "from 'ethers'" src/popup src/components` → 0 coincidencias |
 | Arquitectura (20) | Comunicación asíncrona robusta (5) | RF-37, RNF-08, RT-04 (puerto de larga vida + `chrome.alarms`) | `Vitest: approvalReconcile.spec.ts` · `E2E: 18-concurrencia.spec.ts` |
-| Arquitectura (20) | Manejo de errores apropiado (5) | RF-14, RNF-06 (tabla §2.1) | `Vitest: errors.spec.ts` |
-| Arquitectura (20) | **Código limpio y comentado (5)** — *sin requisito equivalente en v1.3* | **Cerrado por RNF-13 + RNF-14 + RNF-24 y la regla nueva: todo módulo de criptografía, aprobaciones y mensajería lleva JSDoc de contrato (entradas, salidas, errores)** | `Comando: npx tsc -b` · `Revisión: JSDoc en src/background/**` |
+| Arquitectura (20) | Manejo de errores apropiado (5) | RF-14, RNF-06 (códigos de §2.1 y literales de tabla §4.3 de `diccionario_datos.md`) | `Vitest: errors.spec.ts` |
+| Arquitectura (20) | **Código limpio y comentado (5)** — *sin requisito equivalente en v1.3* | **Cerrado por RNF-13 + RNF-14 + RNF-24 y la regla nueva: todo módulo de criptografía, aprobaciones y mensajería lleva JSDoc de contrato (entradas, salidas, errores)** | `Comando: npx tsc -b` · `Comando: grep -rn "@param|@returns" src/background/crypto` (cobertura JSDoc) |
 | UX/UI (15) | **Popup funcional e intuitivo (5)** — *sin requisito equivalente en v1.3* | **Cerrado por RNF-05 (≤ 2 clics), RNF-21 (teclado y axe-core), RF-27 (polling con parada) y RF-34 (español y formato)** | `E2E: 24-accesibilidad.spec.ts`, `14-polling.spec.ts`, `17-i18n.spec.ts` |
 | UX/UI (15) | **`notification.html` clara y profesional (5)** — *sin requisito equivalente en v1.3* | **Cerrado por RF-35 (origen visible, foco, ventana única), RF-41 y RNF-05** | `E2E: 10-aprobar-tx.spec.ts — foco y origen` |
 | UX/UI (15) | `test.html` funcional (3) | RF-46, RF-47 | `E2E: 22-dapp.spec.ts` |
@@ -370,7 +375,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 | `video_demo.mp4` (**opcional**) | Inicialización, conexión desde dApp, envío, EIP-712, cambio de cuenta/red | No puntúa directamente; evidencia de UX/UI | Fase 5 |
 | ZIP de entrega | `apellido_nombre_wallet.zip` con `src/`, `public/`, `dist/`, `README.md`, `package.json` y el vídeo opcional | Formato exigido por el enunciado | Fase 5 (cierre) |
 
-**Criterio de aceptación:** el ZIP contiene la estructura exacta del enunciado, `dist/` se carga sin errores en un navegador limpio y `README.md` + `INSTRUCCIONES.md` permiten instalar y ejecutar la dApp sin la ayuda del autor.
+**Criterio de aceptación:** el ZIP contiene la estructura exacta del enunciado, `dist/` se carga con **0 errores en consola y 0 en el badge** de `chrome://extensions`, y un evaluador del Perfil B completa la instalación y el arranque en **≤ 15 min** siguiendo solo `README.md` e `INSTRUCCIONES.md`, con **0 consultas al autor** (`E2E: 01-onboarding.spec.ts — carga de dist/ con 0 errores` · `Inspección: ensayo de instalación en RepoTecnico/evidencia/H5/`).
 
 ### 4.3 Perfiles de usuario final (H-27)
 
@@ -479,6 +484,7 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 - [x] Repositorio local inicializado con `main` y `chrome-wallet-DSH` y los 3 remotos configurados.
 - [x] **v1.4 — remediación de `INFORME_OPTIMIZACION_V1.md`:** criterios de aceptación y evidencia en los 49 RF y 13 RT + Anexo A (§9); trazabilidad, conteos y desambiguación (H-03, H-05, H-06, H-30, H-38); ciclo de aprobación MV3, `eth_sign` retirado, vista previa decodificada y alias del provider (H-02, H-07, H-08, H-11a, H-11b, H-15); RNF operacionalizados y categorías nuevas (H-12, H-13, H-17, H-19, H-20, H-22, H-25, H-26, H-29, H-40, H-42); rúbrica, entregables, stakeholders, MVP y licencias (H-14, H-16, H-24, H-27, H-28, H-34, H-35, H-36, H-37).
 - [x] **v1.5 — remediación de `casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30, D-A..D-G):** conteos a **50 RF (40 Must / 10 Should)**; **RF-50 (Must)** con `CA-RF-50` en Gherkin y EARS y desviación **D-13**; **P-17** (el MVP no depende del badge; RF-38/RF-39 siguen en el ciclo posterior), **P-18** y **P-19** (`wallet_switchEthereumChain` exige aprobación si la red destino no es la activa) aplicadas; caducidad de sesión de dApp de 24 h renovables en RF-25 y `CA-RF-25` (**D-B**); literal de build `npm ci && npm run build` (**D-C**, RNF-15); RT-13 como fuente de verdad de EIP-6963 (**D-A**); campo `event` en `truekeate_logs` (**D-D**); varios mensajes por código EIP-1193 (**D-E**); `accountLabels` (**D-F**); permiso de host en runtime siempre (**D-G**); rúbrica de Documentación (§4.1) apuntada a la evidencia existente.
+ **v1.7 (esta versión) — cierre de los residuales del veredicto de reevaluación (`VEREDICTO_FASE2_V1.md`, R-01 y R-09):** §2.1 pasa a ser la **tabla de códigos EIP-1193 y su significado** y los **literales de mensaje** quedan con **fuente única en `diccionario_datos.md` §4.3** (todas las citas de los casos de uso, del Anexo A y del documento técnico apuntan allí); se añade el **evento 24** (`storage_quota_exceeded`) a §2.2; la afirmación **no falsable** del puerto de larga vida se sustituye por los criterios observables «tras 30 s de inactividad, un `RESUME` con el mismo `approvalId` responde en < 200 ms» y «el puerto no garantiza la vida del SW»; y las **evidencias con forma no canónica** (`Revisión:`) se reescriben a `Comando:`/`Inspección:` con magnitud y método (R-06, R-07, R-08).
 - [ ] Repositorios de GitHub y GitLab.com creados por el usuario (acción externa; no bloquea la Fase 2).
 - [ ] Confirmación del usuario para pasar a la Fase 2.
 
@@ -645,10 +651,10 @@ Y en un iframe (all_frames: true) el provider también está presente
 Dado el provider inyectado
 Cuando la página llama a request con un método inexistente o con eth_sign
 Entonces la promesa se rechaza con un objeto que tiene code 4200
-Y el message está en español según la tabla §2.1
+Y el message está en español y coincide con el literal de la tabla §4.3 de `diccionario_datos.md` para la causa «Método fuera del catálogo» · `Vitest: errors.spec.ts — 4200 con el literal de §4.3`
 Y ninguna llamada lanza una excepción síncrona
 ```
-**Evidencia:** `Vitest: errors.spec.ts` (tabla §2.1). **Cierra H-11a.**
+**Evidencia:** `Vitest: errors.spec.ts` (código 4200 de §2.1; literal de tabla §4.3 de `diccionario_datos.md`). **Cierra H-11a.**
 
 #### CA-RF-15 · `on` / `removeListener` / `emit`
 ```gherkin
@@ -817,7 +823,7 @@ Entonces se añade exactamente 1 entrada con category event, el nombre del event
 Dado el log activo
 Cuando se produce un rechazo del usuario (code 4001)
 Entonces la entrada se renderiza en rojo
-Y contiene el código 4001 y el mensaje de la tabla §2.1
+Y contiene el código 4001 y el mensaje de la tabla §4.3 de `diccionario_datos.md` para esa causa
 ```
 **Evidencia:** `E2E: 15-logs.spec.ts — rojo`.
 
@@ -856,7 +862,7 @@ Entonces todo está en español
 Y los importes de ETH se muestran con 4 decimales
 Y las direcciones se abrevian como 0x1234…abcd
 ```
-**Evidencia:** `E2E: 17-i18n.spec.ts` · `Revisión: grep de literales`.
+**Evidencia:** `E2E: 17-i18n.spec.ts — formato y abreviación` · `Comando: grep -rniE "(send|cancel|copy|confirm)" src/popup src/connect src/notification` → 0 coincidencias.
 
 #### CA-RF-35 · `notification.html` anti-phishing y ventana global única (P-21)
 ```gherkin
@@ -888,7 +894,9 @@ Dado el popup con la cola de solicitudes vacía
 Cuando dos orígenes distintos envían una firma cada uno
 Entonces truekeate_pending_requests contiene 2 entradas con claves approvalId distintas
 Y resolver la primera no elimina ni altera la segunda
-Y el puerto chrome.runtime.connect mantiene vivo el Service Worker durante la espera
+Y el puerto chrome.runtime.connect es el canal de respuesta, no un keep-alive: el Service Worker puede suspenderse a los 30 s de inactividad
+Y tras 30 s de inactividad, un RESUME con el mismo approvalId obtiene respuesta en menos de 200 ms
+Y el vencimiento se rearma con chrome.alarms y la cola se reconstruye por reconciliación al arrancar
 ```
 **Evidencia:** `Vitest: approvalQueue.spec.ts` · `E2E: 18-concurrencia.spec.ts`. **Cierra H-02 y H-08.**
 
@@ -917,7 +925,7 @@ Pero descartar la notificación no resuelve la solicitud pendiente
 Dado una firma pendiente creada en t0, con expiresAt = t0 + 120000 y el SW como dueño del plazo
 Cuando el reloj avanza 120 s (con el SW dormido entre medias y despertado por chrome.alarms)
 Entonces el SW cierra notification.html, marca la solicitud expired y purga el badge
-Y la página recibe un error EIP-1193 con code 4001 y el mensaje de §2.1
+Y la página recibe un error EIP-1193 con code 4001 y el mensaje que la tabla §4.3 de `diccionario_datos.md` fija para la causa «vencimiento del plazo»
 Y para una conexión el plazo es de 60 s
 ```
 **Evidencia:** `Vitest: approvalTimeout.spec.ts` (fake timers + `chrome.alarms`). **Cierra H-02 y H-07.**
@@ -936,9 +944,11 @@ Y si el SW se reinicia en mitad del flujo, al arrancar reasocia la solicitud por
 Dado Anvil en marcha
 Cuando la wallet firma cualquier transacción
 Entonces el recibo tiene type 2
-Y maxFeePerGas y maxPriorityFeePerGas son mayores que 0 y provienen de getFeeData()
+Y maxFeePerGas y maxPriorityFeePerGas son mayores que 0
+Y el recibo es type 2
+Y al inyectar otro feeData en el provider falso cambian los valores de la transacción (procedencia observable)
 ```
-**Evidencia:** `Vitest: eip1559.spec.ts` · `E2E: recibo type: 2`.
+**Evidencia:** `Vitest: eip1559.spec.ts — feeData inyectado en provider falso` · `E2E: 04-enviar.spec.ts — recibo type 2 y maxFeePerGas > 0`.
 
 #### CA-RF-43 · EIP-155
 ```gherkin
@@ -963,7 +973,7 @@ Y detail.provider es window.truekeate
 Dado el provider inyectado
 Cuando se inspecciona su interfaz
 Entonces expone request, on y removeListener
-Y los códigos 4001, 4100, 4200, 4900 y 4901 se mapean a objetos EIP-1193 con code y message de §2.1
+Y los códigos 4001, 4100, 4200, 4900 y 4901 se mapean a objetos EIP-1193 con `code` de §2.1 y el `message` de la tabla §4.3 de `diccionario_datos.md`
 ```
 **Evidencia:** `Vitest: eip1193.spec.ts`.
 
@@ -972,7 +982,7 @@ Y los códigos 4001, 4100, 4200, 4900 y 4901 se mapean a objetos EIP-1193 con co
 Dado test.html servido en http://localhost:5174 con la extensión cargada
 Cuando el usuario recorre los 7 flujos: detectar, conectar, saldo, enviar, EIP-712, cambiar red y eventos
 Entonces cada flujo muestra en pantalla su resultado (hash, firma, chainId o error)
-Y ningún flujo queda en blanco ni sin respuesta
+Y los 7 flujos pintan su resultado en menos de 5000 ms medidos con performance.now() desde el clic, sin quedar ninguno en blanco ni sin respuesta
 ```
 **Evidencia:** `E2E: 22-dapp.spec.ts`.
 
@@ -1002,7 +1012,7 @@ Entonces los encabezados usan el degradado de marca y el isologo
 Y las tipografías son Poppins, Inter y JetBrains Mono auto-hospedadas
 Y el número de colores literales fuera de tokens.css es 0
 ```
-**Evidencia:** `Revisión: grep de colores (RNF-18)` · `E2E: 23-marca.spec.ts`.
+**Evidencia:** `Comando: grep -rnE "#[0-9a-fA-F]{3,8}|rgb\(|hsl\(|linear-gradient|radial-gradient|font-family:" src --exclude=tokens.css` → 0 coincidencias · `E2E: 23-marca.spec.ts — identidad en las 3 ventanas y la dApp`.
 
 #### CA-RF-50 · Revelar y exportar la semilla y las claves privadas (D-13, P-20)
 ```gherkin
@@ -1029,7 +1039,7 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 
 #### CA-RT-02 · Única librería criptográfica (EARS)
 *Mientras* el código realice operaciones de mnemonic, HD, firma, provider o serialización, *el sistema deberá* usar únicamente `ethers.js v6`.
-**Evidencia:** `Revisión: package.json + grep de imports cripto`.
+**Evidencia:** `Comando: npm ls ethers` (solo ethers como dependencia criptográfica) · `Comando: grep -rn "from 'ethers'" src/popup` → 0 coincidencias.
 
 #### CA-RT-03 · Prohibiciones (EARS)
 *Si* el código propio incluye `viem`, `@scure/bip39`, `@metamask/*`, `axios` o una llamada `fetch` directa, *entonces* el lint de prohibiciones fallará el build.
@@ -1037,7 +1047,7 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 
 #### CA-RT-04 · Plataforma MV3, permisos mínimos y RPC (EARS)
 *El sistema deberá* generar un `manifest.json` MV3 con Service Worker de tipo módulo, content script e inject script. *Si* un permiso (`tabs`, `activeTab`, `scripting`) no se usa, *entonces* no se declarará. *El sistema deberá* declarar `notifications` únicamente en **`optional_permissions`** y solicitar ese permiso en runtime cuando se active RF-39. *Cuando* la dApp dé de alta una red cuyo host no esté declarado, *el sistema deberá* solicitar el permiso en runtime o rechazar la solicitud con error tipado.
-**Evidencia:** `Vitest: manifest.spec.ts` · `Revisión: dist/manifest.json` · `E2E: 12-redes.spec.ts`. **Cierra H-36 (permisos y política de RPC) y ADT-30/DEC-44 (`notifications` como permiso opcional ligado a RF-39).**
+**Evidencia:** `Vitest: manifest.spec.ts` · `Inspección: dist/manifest.json (notifications solo en optional_permissions)` · `E2E: 12-redes.spec.ts — permiso de host en runtime`. **Cierra H-36 (permisos y política de RPC) y ADT-30/DEC-44 (`notifications` como permiso opcional ligado a RF-39).**
 
 #### CA-RT-05 · Build y manifest generado (EARS)
 *Cuando* se ejecute `npm run build`, *el sistema deberá* generar `manifest.json` desde `src/manifest.ts` e incluir el bundle de ethers localmente, sin URLs de CDN.
@@ -1049,7 +1059,7 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 
 #### CA-RT-07 · Frameworks de prueba (EARS)
 *El sistema deberá* pasar `npm run test` (Vitest), `npm run test:e2e` (Playwright con `dist/`) y `forge test` (`EIP712Verifier.sol`) antes de cerrar cada hito.
-**Evidencia:** `Comando: los tres scripts`.
+**Evidencia:** `Comando: npm run test && npm run test:e2e && forge test --match-contract EIP712VerifierTest`.
 
 #### CA-RT-08 · Tipos (EARS)
 *Cuando* se ejecute `tsc -b`, *el sistema deberá* compilar con `@types/chrome` y `@types/node` instalados y sin `any` implícitos.
@@ -1057,11 +1067,11 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 
 #### CA-RT-09 · Despliegue local (EARS)
 *El sistema deberá* distribuirse 100 % en local: artefacto `dist/` y dApp servida en `http://localhost:5174`; *no deberá* existir despliegue remoto.
-**Evidencia:** `Revisión: dist/ + vite.config.ts (port 5174, strictPort)`.
+**Evidencia:** `Inspección: dist/ y vite.config.ts (port 5174, strictPort)` · `Comando: grep -rn "https://" dist/` → 0 despliegues remotos.
 
 #### CA-RT-10 · Idioma (EARS)
 *El sistema deberá* escribir la UI, los mensajes de error y la documentación en español, y los identificadores de código en inglés.
-**Evidencia:** `Revisión: grep de literales` · `E2E: 17-i18n.spec.ts`.
+**Evidencia:** `Comando: grep -rniE "(send|cancel|copy|confirm)" src/popup src/connect src/notification` → 0 coincidencias · `E2E: 17-i18n.spec.ts — textos visibles en español`.
 
 #### CA-RT-11 · Contrato auxiliar Foundry (EARS)
 *Cuando* `forge test` verifique una firma EIP-712 producida por la wallet, `verify` *deberá* devolver `true`; *si* se altera un byte del mensaje, *entonces* deberá devolver `false`.
@@ -1069,11 +1079,11 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 
 #### CA-RT-12 · Activos, tipografías y licencias (EARS)
 *El sistema deberá* servir los activos en `public/brand/`, los iconos en `public/icons/` y las fuentes woff2 (subconjunto latin) en `public/fonts/`, con los `LICENSE-*.txt` OFL-1.1 correspondientes y sin peticiones a CDN. *De acuerdo con* DEC-15, el titular del proyecto autorizó el uso y la redistribución de los activos de marca TrueKeate.
-**Evidencia:** `Revisión: árbol public/ + LICENSE/NOTICE`.
+**Evidencia:** `Inspección: árbol public/ y git ls-files LICENSE NOTICE public/fonts/*.txt` (5 ficheros de licencia).
 
 #### CA-RT-13 · Nomenclatura e identidad estable del paquete (EARS)
 *El sistema deberá* exponer `window.truekeate` con el alias `window.codecrypto` (el mismo objeto), usar el prefijo `truekeate_` y los tipos `TRUEKEATE_*`, y publicar en EIP-6963 el `name` `TrueKeate`, el `rdns` `academy.codecrypto.truekeate` (**fuente de verdad de EIP-6963: RT-13, D-A**) y un **UUID v4 literal y congelado** (nunca generado en runtime). *El sistema deberá* incluir una **`key` fija** en el `manifest.json` generado para estabilizar el **ID de la extensión** entre equipos y reinstalaciones. *Si* alguna cadena de código conserva el prefijo heredado `codecrypto_`, *entonces* el `grep` de nomenclatura fallará.
-**Evidencia:** `Vitest: naming.spec.ts` · `Revisión: grep de codecrypto_ en src/` · `E2E: ID de extensión estable entre ejecuciones`. **Cierra ADT-19/DEC-43 (UUID literal y `key` fija para la allowlist CORS de RE-04 y la reproducibilidad de los E2E).**
+**Evidencia:** `Vitest: naming.spec.ts` · `Comando: grep -rn "codecrypto_" src/` → 0 coincidencias · `E2E: 07-provider.spec.ts — ID de extensión estable entre ejecuciones`. **Cierra ADT-19/DEC-43 (UUID literal y `key` fija para la allowlist CORS de RE-04 y la reproducibilidad de los E2E).**
 
 ### 9.4 Cobertura del anexo (H-01 · RNF-01)
 
@@ -1081,6 +1091,6 @@ Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 |---|---|---|---|---|
 | RF | **50** (`CA-RF-01`..`CA-RF-50`) | 40 | 10 | 50 / 50 |
 | RT | **13** (`CA-RT-01`..`CA-RT-13`) | — | — | 13 / 13 |
-| RNF | **25** (criterio en la tabla de §2 y en §2.1..§2.6) | — | — | 25 / 25 |
+| RNF | **25** (criterio en la tabla de §2 y en §2.1..§2.6; los literales de mensaje remiten a `diccionario_datos.md` §4.3) | — | — | 25 / 25 |
 
 **Matriz de trazabilidad única (RNF-01):** `E-xx → RF-xx → CA/CU → test`. Su versión completa se materializa en `casos_uso/` (Fase 2) tomando como columna `CA/CU` las etiquetas `CA-RF-xx` de este anexo; la parte `E-xx → RF-xx` ya está declarada en §1 y §1.0.

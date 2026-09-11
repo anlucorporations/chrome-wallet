@@ -1,11 +1,11 @@
 # Casos de Uso — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.2 · **Estado:** ✅ propuesto para revisión
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.3 · **Estado:** ✅ propuesto para revisión
 > **Producto:** **TrueKeate Wallet** (extensión Chrome/Edge Manifest V3) + dApp de pruebas (`test.html`) sobre Foundry Anvil.
 > **Cambio de versión:** v1.2 incorpora las decisiones del usuario **P-20, P-21 y P-22** y las decisiones **D-J, D-K, D-L, D-Q y D-T** de `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md`, y cierra en los casos de uso los hallazgos **ADT-06, ADT-07, ADT-08, ADT-09, ADT-21, ADT-22, ADT-24, ADT-25** y **ADT-30**, más la parte de documentación de **ADT-01**; el detalle está en **«Historial de cambios»** (final del documento).
 > **Cambio de versión:** v1.1 cierra los 30 hallazgos **ACU-01..ACU-30** de `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md`; el detalle está en **«Historial de cambios»** (final del documento).
 > **Fuentes (vinculantes, leídas antes de redactar):**
-> `RepoTecnico/requerimientos.md` v1.4 (§1 RF-01..RF-49 **+ RF-50 en curso**, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 actores/rúbrica/MVP, §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) · `RepoTecnico/diccionario_datos.md` v1.3 (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC y códigos EIP-1193) · `RepoTecnico/entornos_globales.md` v1.5 (permisos, constantes, comandos, nomenclatura) · `RepoTecnico/identidad_visual.md` v1.2 (medidas, tokens, contraste) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos ya remediados: no se reintroduce ninguno).
+> `RepoTecnico/requerimientos.md` v1.6 (§1 RF-01..RF-50, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 actores/rúbrica/MVP, §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) · `RepoTecnico/diccionario_datos.md` v1.5 (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 fuente única de los literales de error** y códigos EIP-1193) · `RepoTecnico/entornos_globales.md` v1.7 (permisos, constantes, comandos, nomenclatura) · `RepoTecnico/identidad_visual.md` v1.3 (medidas, tokens, contraste) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos ya remediados: no se reintroduce ninguno).
 >
 > **Convenciones de este documento**
 > 1. **Un CU = un objetivo de actor.** Los escenarios distintos del mismo objetivo se modelan como flujos alternativos (`A#`) o de excepción (`E#`), no como CU nuevos.
@@ -16,7 +16,7 @@
 > 6. Los CU que no provienen de un RF se marcan **DERIVADO** con su justificación (§3 y §9).
 > 7. **Regla de trazabilidad «la ficha declara, la matriz agrega» (ACU-01).** La columna **Trazabilidad** de cada ficha es la **única fuente de verdad**; §2 (índice), §5 (RF→CU) y §7 (actores) se **regeneran** desde ella y **no pueden** contener un CU ni un RF que la ficha no declare, ni omitir uno que sí declare.
 > 8. **Claves canónicas (ACU-25).** Todo almacén se nombra siempre con su prefijo (`truekeate_networks`, `truekeate_settings`, `truekeate_logs`…); quedan prohibidas las formas abreviadas `settings.*`/`networks.*`.
-> 9. **Errores (ACU-05/D-E).** Todo error que vea el usuario es un objeto EIP-1193 **con `code`** y con el mensaje, causa y acción sugerida de la tabla §2.1 de `requerimientos.md` (un mensaje por causa).
+> 9. **Errores (ACU-05/D-E).** Todo error que vea el usuario es un objeto EIP-1193 **con `code`** y con el mensaje, causa y acción sugerida de la tabla §4.3 de `diccionario_datos.md` (**fuente única de los literales de mensaje**, un mensaje por causa).
 > 10. **Ventana de confirmación única (P-21/ADT-22).** Existe **una sola** ventana global `notification.html` por perfil. Las solicitudes que llegan mientras hay otra en curso **no abren ventana**: esperan en `truekeate_pending_requests` y se muestran en esa misma ventana al resolverse la anterior; la ventana muestra el **contador de pendientes**. Aplica a todo CU que abra confirmación (flujo transversal **X-12**).
 > 11. **Origen (D-J/ADT-07).** El origen de toda petición se deriva **solo** de `sender.origin`; con `sender.frameId !== 0` queda **prohibido** respaldarse en `sender.tab.url` y la respuesta se entrega únicamente a ese frame (flujo transversal **X-11**).
 > 12. **Cotas y límites decididos.** Payload máximo de **64 KiB** con `-32602` al excederlo (D-L/ADT-21, X-13); el *token bucket* por origen cubre **todo** el catálogo RPC, lecturas incluidas (D-Q/ADT-24, X-14); la redacción de logs guarda los **primeros 10 bytes** de `data` (D-T/ADT-12).
@@ -136,7 +136,7 @@ Y truekeate_mnemonic y truekeate_accounts siguen ausentes de chrome.storage.loca
 ```gherkin
 Dado el flujo de creación en el paso 6 (persistencia)
 Cuando chrome.storage.local.set rechaza la escritura
-Entonces la promesa se rechaza con code -32603 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32603 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y ninguna de las claves truekeate_mnemonic, truekeate_accounts ni truekeate_current_account queda escrita
 ```
 **EARS.** *Mientras* la cartera se crea, *el sistema deberá* generar la entropía y derivar las claves **exclusivamente** en el Service Worker con `ethers.js v6`; la frase **no deberá** viajar por `window.postMessage` ni figurar en `truekeate_logs`. *Al primer arranque*, *el sistema deberá* registrar la aceptación del aviso «entorno de desarrollo — no usar con fondos reales» en `truekeate_settings`.
@@ -193,7 +193,7 @@ Cuando el Usuario pulsa el hint de la frase de Anvil
 Entonces el campo contiene exactamente las 12 palabras de prueba
 Y el botón «Importar» queda habilitado
 ```
-**EARS.** *Si* el número de palabras es distinto de 12 o el checksum BIP-39 falla, *entonces* *el sistema deberá* responder `-32602` con el mensaje de la tabla §2.1 sin escribir en `chrome.storage.local`. *Cuando* se importe una cartera, *el sistema deberá* derivar `truekeate_settings.derivedAccountCount = 5` cuentas en orden `m/44'/60'/0'/0/i`.
+**EARS.** *Si* el número de palabras es distinto de 12 o el checksum BIP-39 falla, *entonces* *el sistema deberá* responder `-32602` con el mensaje de la tabla §4.3 de `diccionario_datos.md` sin escribir en `chrome.storage.local`. *Cuando* se importe una cartera, *el sistema deberá* derivar `truekeate_settings.derivedAccountCount = 5` cuentas en orden `m/44'/60'/0'/0/i`.
 **Evidencia:** `Vitest: mnemonic.spec.ts — normalización y checksum` · `E2E: 01-onboarding.spec.ts — hint Anvil` · `Vitest: integrity.spec.ts` (mnemonic corrupto, RNF-22)
 
 ---
@@ -215,7 +215,7 @@ Y el botón «Importar» queda habilitado
 5. El popup muestra la cuenta como «importada» con su etiqueta por defecto `Importada N`.
 
 **Flujos alternativos y de excepción**
-- **A1 — desde el paso 3 (clave ya presente):** el SW no duplica la entrada; responde `-32602` con el mensaje de la **causa «cuenta duplicada»** de la tabla §2.1 (`requerimientos.md` §2.1, ampliada a un mensaje por causa — D-E).
+- **A1 — desde el paso 3 (clave ya presente):** el SW no duplica la entrada; responde `-32602` con el mensaje de la **causa «Cuenta ya existente»** de la tabla §4.3 de `diccionario_datos.md` (un mensaje por causa — D-E), es decir «Esa cuenta ya está en la cartera.».
 - **A2 — desde el paso 5 (renombrar):** el Usuario edita la etiqueta y continúa en **CU-05**.
 - **E1 — desde el paso 2 (formato inválido):** error inline de **CU-32**; no se envía ninguna solicitud al SW.
 - **E2 — desde el paso 3 (el usuario cancela):** ninguna entrada se crea ni se modifica.
@@ -350,7 +350,7 @@ Ejemplos:
 
 **Flujos alternativos y de excepción**
 - **A1 — desde el paso 3 (ocultar una cuenta derivada):** las cuentas derivadas no se eliminan; se marca `visible: false` y la cuenta puede volver a mostrarse con la misma dirección.
-- **E1 — desde el paso 3 (existe una sesión con esa cuenta):** `-32602` con el mensaje de la **causa «cuenta en uso por una dApp»** de la tabla §2.1 (D-E: un mensaje por causa) y ninguna escritura.
+- **E1 — desde el paso 3 (existe una sesión con esa cuenta):** `-32602` con el mensaje que la tabla §4.3 de `diccionario_datos.md` fije para esa causa (D-E: un mensaje por causa); si §4.3 aún no tiene fila para «cuenta en uso por una dApp», se responde `-32602` con el mensaje de la causa de validación más próxima y **queda pendiente añadir su fila** y ninguna escritura.
 - **E2 — desde el paso 4 (cuenta activa):** `truekeate_current_account` se reasigna a `idx:0` en la misma operación.
 
 **Criterios de aceptación**
@@ -381,7 +381,7 @@ Entonces la entrada no se borra y la cuenta puede volver a mostrarse con la mism
 **Objetivo:** Obtener una copia verificable del mnemonic o de la clave privada de una cuenta, tras confirmación explícita, para poder restaurar la cartera en otro equipo.
 **Requisito que lo respalda (P-18):** **RF-50 (Must) · `CA-RF-50`**, en curso de incorporación a `requerimientos.md`. Este documento **no** reescribe el requisito: lo referencia. Complementa a **RNF-22** («Exportación/revelado del mnemonic y de las claves privadas tras confirmación explícita») y cubre el riesgo «pérdida irrecuperable de cuentas importadas» declarado como Alto en `requerimientos.md` §8.
 **Precondiciones:** Cartera operativa; popup abierto; el Usuario conoce que el entorno es de desarrollo.
-**Postcondición de éxito:** La UI muestra la frase o la clave privada bajo demanda (`type="password"` con botón «Mostrar»), el portapapeles contiene el valor solo tras pulsar «Copiar» y se registra **exactamente 1 entrada** en `truekeate_logs` con `event: approval_resolved` y `origin: extension` **sin el valor** (ACU-04: `truekeate_logs` usa el campo `event` del catálogo de 23 nombres; `system` es una **categoría**, no un evento — ver §9, hueco 13). Al ocultarse el valor (30 s, pérdida de foco o cierre) el estado de la UI queda descartado y el portapapeles se vacía si aún lo contenía (**P-20**).
+**Postcondición de éxito:** La UI muestra la frase o la clave privada bajo demanda (`type="password"` con botón «Mostrar»), el portapapeles contiene el valor solo tras pulsar «Copiar» y se registra **exactamente 1 entrada** en `truekeate_logs` con `event: approval_resolved` y `origin: extension` **sin el valor** (ACU-04: `truekeate_logs` usa el campo `event` del catálogo de 24 eventos; `system` es una **categoría**, no un evento — ver §9, hueco 13). Al ocultarse el valor (30 s, pérdida de foco o cierre) el estado de la UI queda descartado y el portapapeles se vacía si aún lo contenía (**P-20**).
 **Postcondición de fallo:** Si el Usuario cancela la confirmación, no se muestra nada; el valor nunca se envía al content script ni a la página y el portapapeles permanece sin el valor.
 **Datos implicados:** `truekeate_mnemonic` (§2.1), `truekeate_imported_accounts[].privateKey` (§2.3), `truekeate_logs` (§2.11: `event`, `category`, `origin`, sin payload sensible), constante `REVEAL_HIDE_MS = 30000` (M57).
 **Trazabilidad:** RF-50 · RNF-09, RNF-22 · CA-RF-50
@@ -614,7 +614,7 @@ Dado Anvil en marcha y la cuenta 0 con saldo
 Cuando intento enviar con una entrada inválida
 Entonces la llamada se rechaza sin difundir ninguna transacción
 Y no se abre ninguna ventana notification.html
-Y el código y el mensaje son los de la tabla §2.1 para esa causa
+Y el código y el mensaje son los de la tabla §4.3 de `diccionario_datos.md` para esa causa
 
 Ejemplos:
 | causa | código esperado |
@@ -633,7 +633,7 @@ Y el chainId de la firma es 31337 (0x7a69) con v = chainId*2+35 o chainId*2+36
 ```gherkin
 Dado un eth_sendTransaction cuyo chainId no es el de la red activa
 Cuando la dApp envía la solicitud
-Entonces la promesa se rechaza con error tipado de la tabla §2.1
+Entonces la promesa se rechaza con error tipado de la tabla §4.3 de `diccionario_datos.md`
 Y no se difunde ninguna transacción
 ```
 **EARS.** *El sistema deberá* construir toda transacción como EIP-1559 tipo 2 con `maxFeePerGas`/`maxPriorityFeePerGas` de `getFeeData()`. *Si* `estimateGas` falla o revierte, *entonces* *el sistema deberá* bloquear el envío y responder `-32000` con mensaje accionable en español. *Mientras* firme, *el sistema deberá* recalcular `nonce` y `getFeeData()` e incluir el `chainId` activo (EIP-155).
@@ -647,7 +647,7 @@ Y la transacción queda registrada con event tx_sent y el hash definitivo
 ```gherkin
 Dado un nodo falso que rechaza las 2 difusiones por nonce inválido
 Cuando el SW agota el reintento
-Entonces la promesa se rechaza con code -32000 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32000 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y truekeate_logs registra exactamente 1 entrada con event tx_failed
 Y no queda ninguna transacción en vuelo para esa cuenta
 ```
@@ -788,7 +788,7 @@ Y el aviso en español es bloqueante y exige confirmación adicional antes de fi
 ```gherkin
 Dado un personal_sign cuyo payload serializado ocupa más de 65536 bytes
 Cuando llega la solicitud de la dApp
-Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y no se crea ninguna entrada en truekeate_pending_requests
 Y no se abre ninguna ventana notification.html
 ```
@@ -802,7 +802,7 @@ Y no se abre ninguna ventana notification.html
 **Objetivo:** Denegar una solicitud de firma, conexión o cambio de red sin que se firme ni se difunda nada.
 **Precondiciones:** Existe una solicitud `pending` y su ventana está abierta.
 **Postcondición de éxito:** La entrada queda `rejected` con `resolvedAt` y `errorCode: 4001`, la ventana global se libera (cierre solo si la cola queda vacía; si no, se muestra la siguiente solicitud, P-21), la página recibe un objeto EIP-1193 con `code: 4001` y el badge se recalcula.
-**Postcondición de fallo:** Si el envío del error falla (pestaña cerrada), la entrada se marca igualmente `rejected`, se purga y se deja traza en `truekeate_logs`; la solicitud **nunca** queda huérfana.
+**Postcondición de fallo:** Si el envío del error falla (pestaña cerrada), la entrada se marca igualmente `rejected`, se purga y se deja traza en `truekeate_logs`; la entrada pasa a `rejected` con `resolvedAt` en **≤ 1000 ms** tras el rechazo y quedan **0 entradas `pending`** (`Vitest: approvalQueue.spec.ts — purga de la entrada rechazada`)
 **Datos implicados:** `truekeate_pending_requests[approvalId].status/resolvedAt/errorCode` (§2.8), `truekeate_connect_request` (§2.9), `truekeate_logs` (`approval_resolved`).
 **Trazabilidad:** RF-35, RF-41, RF-14 · RNF-06 · CA-RF-35, CA-RF-41, CA-RF-14
 
@@ -830,7 +830,7 @@ Y el badge ya no la cuenta
 ```gherkin
 Dado un rechazo del Usuario registrado en truekeate_logs
 Cuando se consulta el panel de logs
-Entonces existe 1 entrada con level error que muestra el código 4001 y el mensaje de la tabla §2.1
+Entonces existe 1 entrada con level error que muestra el código 4001 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y ninguna entrada del log contiene un objeto Error sin campo code
 ```
 **EARS.** *Cuando* el Usuario rechace una solicitud, *el sistema deberá* responder con un objeto EIP-1193 `{ code: 4001, message: "Operación cancelada por el usuario." }` y *nunca deberá* resolver con `new Error(...)` sin `code`. *Mientras* se rechace, *el sistema deberá* purgar la entrada de la cola persistida y recalcular el badge en la misma operación.
@@ -918,7 +918,7 @@ Y truekeate_logs registra exactamente 1 entrada con event approval_expired
 > **Reparto de oráculos (P-17).** **MVP:** RF-37 y RNF-08 (2 entradas `pending` + como máximo 1 transacción en vuelo por cuenta). **Ciclo posterior, ya especificado pero fuera del alcance comprometido:** RF-38 (badge contador, flujo A3) y RF-39 (notificación de Chrome, flujo A3). §5.2 refleja los tres RF porque **la ficha los declara y los especifica**; la columna «MVP / ciclo posterior» de §2 y §6 indica cuáles se verifican en cada ciclo.
 
 **Flujo principal**
-1. El content script abre el puerto `chrome.runtime.connect({ name: 'truekeate_approval' })`, que mantiene vivo el SW durante la espera.
+1. El content script abre el puerto `chrome.runtime.connect({ name: 'truekeate_approval' })`, que es **solo el canal de respuesta** (no un *keep-alive*): el Service Worker se suspende a los ~30 s de inactividad, el **vencimiento se rearma con `chrome.alarms`** y la cola se reconstruye por reconciliaciÃ³n al arrancar (ADT-15/R16).
 2. Llega la primera solicitud: el SW genera un `approvalId` UUID v4, la persiste con `status: 'pending'` mediante read-modify-write serializado (`rmwLock`) y abre `notification.html`.
 3. Llega la segunda solicitud de **otro** origen: el SW la persiste como una entrada independiente y **no abre una segunda ventana** (P-21/ADT-22): queda en cola y el contador de pendientes de la ventana global refleja el total. *(Ciclo posterior: además actualizaría el badge al total de `pending`, RF-38.)*
 4. El SW emite un `eth_getBalance`/`getTransactionCount` por cuenta y encola las firmas en `fifoByAccount`: una transacción en vuelo por `from`.
@@ -959,7 +959,7 @@ Y no se crea ninguna entrada nueva en truekeate_pending_requests
 ```gherkin
 Dado el puerto truekeate_approval cerrado y una entrada que ya no está pending
 Cuando el content script reconecta y envía RESUME con ese approvalId
-Entonces el SW responde con code 4001 y el mensaje de la tabla §2.1
+Entonces el SW responde con code 4001 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y no se reabre ninguna ventana notification.html
 ```
 
@@ -1158,7 +1158,7 @@ Y la revocación solo se aplica tras la aprobación del Usuario
 **Objetivo (del adversario):** leer las cuentas de la cartera o invocar métodos sensibles sin haber obtenido autorización.
 **Objetivo del sistema:** negar el acceso sin filtrar información y sin abrir ninguna ventana.
 **Precondiciones:** Origen sin entrada en `truekeate_connected_sites`; content script inyectado; provider presente.
-**Postcondición de éxito (del sistema):** `eth_accounts` devuelve `[]`, ningún método sensible se ejecuta, no se abre ninguna ventana y el intento queda registrado con su código de error.
+**Postcondición de éxito (del sistema):** `eth_accounts` devuelve `[]`; con **0 sesiones**, ninguno de los 4 métodos sensibles (`eth_sendTransaction`, `personal_sign`, `eth_signTypedData_v4`, `wallet_*`) crea entrada `pending` ni abre ventana, y el intento queda registrado con `code: 4100` (`Vitest: errors.spec.ts — 4100 en los métodos sensibles`)
 **Postcondición de fallo:** Si por cualquier vía la dApp obtuviera una dirección sin sesión, el CU se considera fallido y el defecto es bloqueante (RNF-11).
 **Datos implicados:** `truekeate_connected_sites` (§2.7), `truekeate_logs` (`rpc_error`), protocolo `TRUEKEATE_REQUEST/RESPONSE` (§4.1).
 **Trazabilidad:** RF-17, RF-14 · RNF-10, RNF-11 · CA-RF-17, CA-RF-14
@@ -1186,7 +1186,7 @@ Y no se abre ninguna ventana
 ```gherkin
 Dado un origen sin sesión
 Cuando la dApp llama eth_sendTransaction
-Entonces la promesa se rechaza con code 4100 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code 4100 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y truekeate_pending_requests permanece vacío
 Y truekeate_logs registra exactamente 1 entrada rpc_error con ese código
 ```
@@ -1278,7 +1278,7 @@ Y el respaldo a sender.tab.url no se utiliza
 **Flujos alternativos y de excepción**
 - **A1 — desde el paso 6 (la dApp usa el nombre heredado `window.codecrypto`):** el objeto es el mismo y todas las llamadas funcionan; se cubren los 5 puntos de rúbrica del nombre heredado sin renunciar a la marca.
 - **E1 — desde el paso 2 (la dApp ya había definido su propio `window.truekeate`):** la extensión no sobrescribe silenciosamente un objeto ajeno; se registra un aviso en `truekeate_logs` y se conserva el objeto de la extensión como fuente de verdad del provider.
-- **E2 — desde el paso 4 (dApp que no soporta EIP-6963):** sigue funcionando por `window.truekeate`/`window.codecrypto`; el descubrimiento es adicional, no sustitutivo.
+- **E2 — desde el paso 4 (dApp que no soporta EIP-6963):** sin listener de EIP-6963, `window.truekeate.request({ method: 'eth_chainId' })` resuelve `0x7a69` en < 200 ms; el descubrimiento es adicional, no sustitutivo. `E2E: 21-eip6963.spec.ts — dApp que no soporta EIP-6963`
 
 **Criterios de aceptación**
 ```gherkin
@@ -1417,7 +1417,7 @@ Y la entrada desaparece de truekeate_pending_requests
 ```gherkin
 Dado una solicitud wallet_switchEthereumChain con un chainId sin dar de alta o rechazada por el Usuario
 Cuando la solicitud se resuelve
-Entonces la promesa se rechaza con el código de la tabla §2.1
+Entonces la promesa se rechaza con el código de la tabla §4.3 de `diccionario_datos.md`
 Y truekeate_chain_id no cambia
 Y no se emite ningún chainChanged
 
@@ -1504,7 +1504,7 @@ Y si el permiso se deniega la red no se persiste en truekeate_networks
 ```gherkin
 Dado un wallet_addEthereumChain con un RPC no https y fuera de local
 Cuando llega la solicitud
-Entonces la promesa se rechaza con el código de la tabla §2.1
+Entonces la promesa se rechaza con el código de la tabla §4.3 de `diccionario_datos.md`
 Y no se crea ninguna entrada pending
 Y no se abre ninguna ventana
 Y no se llama a chrome.permissions.request
@@ -1612,7 +1612,7 @@ Entonces su campo data no contiene el mensaje completo en claro
 ```gherkin
 Dado un eth_signTypedData_v4 cuyo payload serializado supera los 65536 bytes
 Cuando la dApp envía la solicitud
-Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y no se crea ninguna entrada en truekeate_pending_requests
 Y no se abre ninguna ventana notification.html
 Y la preview persistida de los tipos largos se guarda redactada (hash y resumen), nunca el mensaje íntegro
@@ -1678,7 +1678,7 @@ Entonces su campo data no contiene el texto completo firmado
 ```gherkin
 Dado un personal_sign cuyo payload serializado supera los 65536 bytes
 Cuando la dApp envía la solicitud
-Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y no se crea ninguna entrada en truekeate_pending_requests
 Y no se abre ninguna ventana notification.html
 ```
@@ -1707,7 +1707,7 @@ Y la preview en reposo guarda solo el hash y el resumen con el número de bytes
 1. La dApp ejecuta `eth_blockNumber` **con el popup cerrado**.
 2. El SW atiende la llamada, emite el resultado y escribe en `truekeate_logs` una entrada con `event: rpc_call` y `category: 'call'`, con método, origen y `ts`.
 3. El Usuario abre el popup y entra en «Registro de actividad»; el popup lee de storage y renderiza.
-4. Las entradas `level: 'error'` se pintan en rojo con el `code` numérico y el mensaje en español de la tabla §2.1.
+4. Las entradas `level: 'error'` se pintan en rojo con el `code` numérico y el mensaje en español de la tabla §4.3 de `diccionario_datos.md`.
 5. Cada transacción aprobada produce una entrada con `event: tx_sent` y `category: 'tx'`, con `txHash` y `txStatus: 'pending'`, que pasa a `event: tx_confirmed` (o `tx_failed`) conservando el mismo hash.
 6. El Usuario descarga el histórico en JSON completo.
 
@@ -1727,7 +1727,7 @@ Entonces truekeate_logs contiene al menos 1 entrada con el método, el origen y 
 Dado el log activo
 Cuando se produce un rechazo del Usuario (code 4001)
 Entonces la entrada se renderiza en rojo
-Y contiene el código 4001 y el mensaje de la tabla §2.1
+Y contiene el código 4001 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 ```
 ```gherkin
 Dado un log con al menos 5 entradas
@@ -1771,7 +1771,7 @@ Y registra la incidencia con event rpc_error y level error
 **Flujos alternativos y de excepción**
 - **A1 — desde el paso 2 (el Usuario cancela):** nada se modifica.
 - **A2 — desde el paso 2 (no hay cuentas importadas):** el diálogo lo indica expresamente («no hay cuentas importadas que se pierdan») y sigue exigiendo confirmación.
-- **E1 — desde el paso 3 (alguna clave no se puede borrar):** el SW reintenta una vez y, si persiste, rechaza con **`-32603`** y el mensaje de la causa «reset incompleto» de la tabla §2.1 (**ACU-05/D-E: el error que ve el usuario siempre lleva `code`**), informando «No se pudo completar el reset. Vuelve a intentarlo.»; el estado parcial se documenta en `truekeate_logs`.
+- **E1 — desde el paso 3 (alguna clave no se puede borrar):** el SW reintenta una vez y, si persiste, rechaza con **`-32603`** y el mensaje que la tabla §4.3 de `diccionario_datos.md` fije para esa causa («reset incompleto»); hasta que exista fila propia se responde `-32603` con el mensaje de fallo interno y **queda pendiente añadir su fila** (**ACU-05/D-E: el error que ve el usuario siempre lleva `code`**), informando «No se pudo completar el reset. Vuelve a intentarlo.»; el estado parcial se documenta en `truekeate_logs`.
 - **E2 — desde el paso 4 (había solicitudes `pending`):** se resuelven con `4001` antes de purgar la cola; ninguna dApp queda colgada.
 
 **Criterios de aceptación**
@@ -1803,7 +1803,7 @@ Entonces el texto enumera las 2 cuentas importadas que se perderán
 **Objetivo:** Seguir entendiendo el estado de la cartera y poder recuperarse cuando Anvil no responde, sin perder el estado persistido.
 **Precondiciones:** Extensión con cartera; Anvil detenido (puerto 8545 sin escuchar).
 **Postcondición de éxito:** La UI muestra «desconectado», los métodos que dependen del RPC fallan con `4900`, el estado persistido queda intacto y, al volver Anvil, la UI se recupera sin recargar la cartera.
-**Postcondición de fallo:** Si la UI se bloquea, pierde el último saldo conocido, deja de ser interactiva o corrompe `chrome.storage.local`, el CU falla.
+**Postcondición de fallo:** Con Anvil detenido el SW registra exactamente **4 llamadas RPC** (1 intento + 3 reintentos), la UI pinta «desconectado» con «Reintentar» habilitado y `chrome.storage.local.get(null)` es idéntico antes y después (`Vitest: rpcRetry.spec.ts — contador de 4 llamadas` · `E2E: 27-rpc-caido.spec.ts — Anvil detenido`)
 **Datos implicados:** `truekeate_logs` (`rpc_error`), último saldo en memoria de la UI, `truekeate_networks` (§2.6), todas las claves persistidas (deben quedar intactas).
 **Trazabilidad:** RF-18, RF-27 · RNF-06, RNF-07 · CA-RF-18, CA-RF-27
 
@@ -1877,7 +1877,7 @@ Y no se crea ninguna entrada en truekeate_pending_requests
 - **A3 — dirección con checksum EIP-55 inválido:** «dirección inválida»; continúa en **CU-11**.
 - **A4 — valor mayor que el saldo disponible:** «saldo insuficiente»; continúa en **CU-11**/**CU-12**.
 - **A5 — etiqueta vacía o de más de 32 caracteres:** «la etiqueta debe tener entre 1 y 32 caracteres»; continúa en **CU-05**.
-- **E1 — entrada válida en la UI pero rechazada por el SW:** `-32602` con el mensaje de la tabla §2.1; la UI refleja el error y no modifica el storage.
+- **E1 — entrada válida en la UI pero rechazada por el SW:** `-32602` con el mensaje de la tabla §4.3 de `diccionario_datos.md`; la UI refleja el error y no modifica el storage.
 
 **Criterios de aceptación**
 ```gherkin
@@ -1896,7 +1896,7 @@ Y el foco permanece en el campo con foco visible de 2 px
 ```gherkin
 Dado una entrada válida en la UI
 Cuando el SW la rechaza por validación de servidor
-Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §2.1
+Entonces la promesa se rechaza con code -32602 y el mensaje de la tabla §4.3 de `diccionario_datos.md`
 Y chrome.storage.local no se modifica
 ```
 **EARS.** *Si* una entrada no supera la validación, *entonces* *el sistema deberá* mostrar un mensaje inline en español y no enviar la operación. *Cuando* una entrada inválida alcance el Service Worker, *el sistema deberá* responder `-32602` sin modificar `chrome.storage.local`.
@@ -1960,7 +1960,7 @@ Y el número de colores literales fuera de tokens.css es 0
 **Actor primario:** Usuario · **Secundarios/sistemas:** UI del popup, panel de logs, Service Worker
 **Objetivo:** Entender qué ha fallado y qué hacer, con el color de estado correcto y una causa y acción sugerida en español.
 **Precondiciones:** Existe al menos un error EIP-1193 registrado (por ejemplo un rechazo `4001` o un `4900`).
-**Postcondición de éxito:** Cada estado usa el token correcto —`error` en `--tk-danger`/`--tk-danger-dark`, `warning` en `--tk-warning`, `success` en `--tk-success`, `info` en `--tk-info`— y cada mensaje muestra el `code` y la acción sugerida de la tabla §2.1.
+**Postcondición de éxito:** Cada estado usa el token correcto —`error` en `--tk-danger`/`--tk-danger-dark`, `warning` en `--tk-warning`, `success` en `--tk-success`, `info` en `--tk-info`— y cada mensaje muestra el `code` y la acción sugerida de la tabla §4.3 de `diccionario_datos.md`.
 **Postcondición de fallo:** Si un error se muestra sin `code`, en otro idioma o con un color fuera de los tokens, el CU falla (RNF-06/RNF-18/RNF-19).
 **Datos implicados:** `truekeate_logs` (§2.11: `level`, `message`, `data`), tokens `--tk-danger`, `--tk-danger-dark`, `--tk-warning`, `--tk-success`, `--tk-info` (§2.3 de `identidad_visual.md`).
 **Trazabilidad:** RF-30, RF-49 · RNF-06, RNF-18, RNF-19 · CA-RF-30, CA-RF-49
@@ -1969,7 +1969,7 @@ Y el número de colores literales fuera de tokens.css es 0
 1. Se produce un error, por ejemplo el rechazo del Usuario (`4001`).
 2. El SW registra la entrada con `level: 'error'` y el código numérico.
 3. El panel de logs la pinta sobre `--tk-night-900` con el texto en `--tk-danger` a ≥ 18 px o con el par alternativo `--tk-danger-dark` sobre blanco (6,84:1).
-4. El mensaje mostrado es el de la tabla §2.1 con su causa y su acción sugerida.
+4. El mensaje mostrado es el de la tabla §4.3 de `diccionario_datos.md` con su causa y su acción sugerida.
 5. En el caso de `4900`, además, la cabecera de la vista muestra el estado «desconectado» con `--tk-warning`.
 
 **Flujos alternativos y de excepción**
@@ -1983,7 +1983,7 @@ Y el número de colores literales fuera de tokens.css es 0
 Dado el log activo
 Cuando se produce un rechazo del Usuario (code 4001)
 Entonces la entrada se renderiza con el token de peligro de la identidad visual
-Y contiene el código 4001, el mensaje de la tabla §2.1, su causa y su acción sugerida
+Y contiene el código 4001, el mensaje de la tabla §4.3 de `diccionario_datos.md`, su causa y su acción sugerida
 ```
 ```gherkin
 Dado cualquier mensaje de error visible en la extensión
@@ -1992,7 +1992,7 @@ Entonces está en español
 Y contiene un campo code numérico
 Y no utiliza un color fuera de los tokens de tokens.css
 ```
-**EARS.** *Mientras* la UI muestre un error, *el sistema deberá* usar el `code` numérico de la tabla §2.1 con su mensaje, causa y acción sugerida en español, y los tokens de estado de la identidad visual. *Si* un par texto/fondo no figura en la matriz de contraste cerrada, *entonces* no se usará para texto. *El sistema deberá* conservar el foco visible de 2 px en todos los controles interactivos.
+**EARS.** *Mientras* la UI muestre un error, *el sistema deberá* usar el `code` numérico de la tabla §4.3 de `diccionario_datos.md` con su mensaje, causa y acción sugerida en español, y los tokens de estado de la identidad visual. *Si* un par texto/fondo no figura en la matriz de contraste cerrada, *entonces* no se usará para texto. *El sistema deberá* conservar el foco visible de 2 px en todos los controles interactivos.
 **Evidencia:** `E2E: 15-logs.spec.ts — rojo con code y acción sugerida` · `E2E: 16-validacion.spec.ts` · `Vitest: errors.spec.ts` · `Vitest: contrast.spec.ts — matriz de contraste desde tokens.css` · `Vitest: goldUsage.spec.ts — ACU-23: falla si un nodo cuyo color computado resuelve a --tk-gold-500 contiene texto (se excluyen SVG con aria-hidden)` · `E2E: 24-accesibilidad.spec.ts — axe-core, 0 violaciones A/AA`
 
 ---
@@ -2000,7 +2000,7 @@ Y no utiliza un color fuera de los tokens de tokens.css
 ### CU-35 · Recorrer las tres ventanas solo con teclado — **DERIVADO**
 **Actor primario:** Usuario (incluye usuarios que no usan ratón) · **Secundarios/sistemas:** Navegador (foco), `axe-core`
 **Objetivo:** Completar las acciones críticas sin ratón, con foco siempre visible y sin trampas de foco.
-**Justificación de derivación (sin RF):** proviene de **RNF-21** (accesibilidad) y **RNF-19** (contraste). No hay RF de accesibilidad en el enunciado; se especifica porque RNF-21 es un requisito Must de la v1.4 y necesita oráculo.
+**Justificación de derivación (sin RF):** proviene de **RNF-21** (accesibilidad) y **RNF-19** (contraste). No hay RF de accesibilidad en el enunciado; se especifica porque RNF-21 es un requisito Must de `requerimientos.md` v1.6 y necesita oráculo.
 **Precondiciones:** Popup (380 × 600), `connect.html` (420 × 650) y `notification.html` (420 × 640) abiertas; extensión cargada.
 **Postcondición de éxito:** Las acciones críticas (cargar cartera, importar clave, seleccionar cuenta, aprobar, rechazar, reset) se ejecutan solo con teclado; `Esc` en la confirmación equivale a rechazar; foco visible de 2 px `--tk-teal-500` con `offset` 2 px; `axe-core` reporta 0 violaciones de nivel A/AA.
 **Postcondición de fallo:** Si alguna acción crítica exige ratón, si el foco no es visible o si hay una trampa de foco, el CU falla (defecto de RNF-21).
@@ -2109,7 +2109,7 @@ Y no hay funciones exportadas sin JSDoc en src/background/crypto, src/background
 Dado README.md e INSTRUCCIONES.md
 Cuando el evaluador sigue sus pasos en un equipo limpio
 Entonces completa la instalación, el build y el arranque de la dApp sin ayuda del autor
-Y ninguno de los dos documentos contiene pasos que exijan conocimiento tácito del proyecto
+Y un evaluador del Perfil B completa la instalación y el arranque en ≤ 15 min siguiendo solo README.md e INSTRUCCIONES.md y registra 0 consultas al autor (`Inspección: ensayo de instalación de CU-36 en RepoTecnico/evidencia/H5/`)
 ```
 **Evidencia:** `E2E: 01-onboarding.spec.ts — carga de dist/ con 0 errores de consola y 0 en el badge de errores` · `Inspección: README.md — 4 puntos de la rúbrica (qué es, requisitos, instalación/build, carga de dist/)` · `Inspección: INSTRUCCIONES.md — 3 puntos de la rúbrica (Anvil, dApp 5174, suites)` · `Comando: grep -rn "@param\|@returns" src --include=*.ts --include=*.tsx` (cobertura de JSDoc en src/background/crypto, src/background/approvals y src/shared/validation) · `Comando: npm ci && npm run build` (Windows y WSL2) · `Comando: npm run test -- --coverage` (ramas ≥ 70 % global y ≥ 80 % en `src/background/crypto/`, `src/background/approvals/`, `src/shared/validation/`) · `Comando: npm run test:e2e` · `Comando: forge test` · `Comando: npm run lint:prohibited` · `Comando: npx tsc -b` · `Comando: npm ls react typescript vite` · `Inspección: git ls-files` con `LICENSE`, `NOTICE` y los 3 `LICENSE-*.txt` · `Inspección: README.md referencia LICENSE/NOTICE y el árbol public/fonts/ con sus LICENSE-*.txt` · `Inspección: dist/manifest.json — notifications en optional_permissions (D-P/ADT-30)` · `Inspección: dist/manifest.json y árbol public/`
 
@@ -2130,7 +2130,7 @@ Estos flujos atraviesan varios CU y se definen una sola vez para no repetirlos. 
 | **X-07** | Origen con formato distinto (`HTTP://LOCALHOST:5174/`) | CU-17, CU-18, CU-19, CU-20, CU-25 | Clave canónica: minúsculas, sin barra final, con puerto explícito. |
 | **X-08** | Exceso de cardinalidad (8 globales, 1 por origen, 6 por minuto) | CU-16, CU-17, CU-25, CU-28 | `4001` inmediato, sin persistir, sin abrir ventana y sin contar para el badge; queda traza en `truekeate_logs`. |
 | **X-09** | Pestaña cerrada con una solicitud pendiente | CU-14, CU-15, CU-19 | `chrome.tabs.onRemoved` marca la entrada `rejected` (o `expired` si ya venció), purga el badge y deja traza. |
-| **X-10** | Sobre de error EIP-1193 | Todos | Toda respuesta de error es un objeto con `code` numérico y `message` en español de la tabla §2.1 de `requerimientos.md`; prohibido `new Error(...)` sin `code`. |
+| **X-10** | Sobre de error EIP-1193 | Todos | Toda respuesta de error es un objeto con `code` numérico y `message` en español de la tabla §4.3 de `diccionario_datos.md`; prohibido `new Error(...)` sin `code`. |
 | **X-11** | Origen derivado **solo** de `sender.origin` (D-J/ADT-07) | CU-17, CU-18, CU-19, CU-20, CU-21, CU-25 | El origen se deriva solo de `sender.origin`; con `sender.frameId !== 0` queda **prohibido** respaldarse en `sender.tab.url` y la respuesta se entrega únicamente a ese frame. La ventana de decisión muestra el origen del frame, nunca el del top. |
 | **X-12** | Ventana global única de confirmación (P-21/ADT-22) | CU-13, CU-14, CU-15, CU-16, CU-24, CU-25, CU-27, CU-28 | Una sola `notification.html` por perfil: la segunda solicitud espera en `truekeate_pending_requests`, no abre ventana y el contador de pendientes refleja el total; se muestra en esa misma ventana al resolverse la anterior. |
 | **X-13** | Payload máximo de 64 KiB (D-L/ADT-21) | CU-13, CU-27, CU-28 | Por encima de 65536 bytes la solicitud se rechaza con `-32602`, no se persiste ni abre ventana; las previews largas se guardan redactadas (hash + resumen). |
@@ -2270,9 +2270,9 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 | RNF-03 | *El sistema deberá* ejecutar exactamente **1 llamada RPC por cuenta visible por ciclo de 5 s**, verificado con contador instrumentado y no por inspección visual. | CU-10 | `Vitest: polling.spec.ts — contador RPC` |
 | RNF-04 | *El sistema deberá* cargar y funcionar en **Chrome ≥ 114** y **Edge ≥ 114** sin `manifest_version: 2`. | CU-36 | `Inspección: carga en chrome://extensions y edge://extensions` |
 | RNF-05 | Toda solicitud *deberá* ser aprobable o rechazable en **≤ 2 clics**, mostrando origen, destino, valor, red, comisión estimada y —en llamadas a contrato— el calldata decodificado. | CU-11 … CU-14, CU-17, CU-27 | `E2E: 10-aprobar-tx.spec.ts` (conteo de clics y aserción sobre nodos del DOM) |
-| RNF-06 | Todo error *deberá* ser un objeto EIP-1193 con `code` numérico y `message` en español con causa y acción sugerida, según la tabla cerrada §2.1 de `requerimientos.md`. | Todos (X-10) | `Vitest: errors.spec.ts` (contrasta los 8 códigos con §2.1) |
-| RNF-07 | *Si* el RPC no responde, *el sistema deberá* reintentar **máx. 3 veces con backoff ×2 (1 s / 2 s / 4 s)**, timeout de **5 s por intento**, mostrar «desconectado» y dejar el storage intacto y la UI interactiva. | CU-31 | `Vitest: rpcRetry.spec.ts` + `E2E` con Anvil detenido |
-| RNF-08 | *Cuando* el SW se reinicie, *el sistema deberá* reconstruir `Record<approvalId, PendingRequest>` desde `chrome.storage.local` en **< 1 s** sin dejar solicitudes huérfanas. | CU-08, CU-15, CU-16, CU-18 | `Vitest: approvalReconcile.spec.ts` + `E2E` «stop service worker» con `performance.now()` |
+| RNF-06 | Todo error *deberá* ser un objeto EIP-1193 con `code` numérico y `message` en español con causa y acción sugerida, según la tabla cerrada de `diccionario_datos.md` §4.3 (fuente única de los literales de mensaje). | Todos (X-10) | `Vitest: errors.spec.ts` (contrasta los 8 códigos con `diccionario_datos.md` §4.3) |
+| RNF-07 | *Si* el RPC no responde, *el sistema deberá* reintentar **máx. 3 veces con backoff ×2 (1 s / 2 s / 4 s)**, timeout de **5 s por intento**, mostrar «desconectado» y dejar el storage intacto y la UI interactiva. | CU-31 | `Vitest: rpcRetry.spec.ts — contador de 4 llamadas` · `E2E: 27-rpc-caido.spec.ts — Anvil detenido` |
+| RNF-08 | *Cuando* el SW se reinicie, *el sistema deberá* reconstruir `Record<approvalId, PendingRequest>` desde `chrome.storage.local` en **< 1 s** sin dejar solicitudes huérfanas. | CU-08, CU-15, CU-16, CU-18 | `Vitest: approvalReconcile.spec.ts` · `E2E: 18-concurrencia.spec.ts — stop service worker y reconciliación < 1 s con performance.now()` |
 | RNF-09 | *El sistema deberá* mantener la clave privada y el mnemonic fuera de la página y de los logs —**ADT-09: nunca hacia la página ni por `window.postMessage`; el revelado hacia contextos de la extensión se rige por CU-07/P-20**—, y redactar los payloads firmados (solo hash y longitud en `personal_sign`/`eth_signTypedData_v4`; `to`, `value`, `dataLength` y los **primeros 10 bytes** de `data` en `eth_sendTransaction`, D-T/ADT-12). | CU-03, CU-07, CU-21, CU-27, CU-28, CU-29 | `Vitest: logRedaction.spec.ts` (0 coincidencias de mnemonic, clave o payload íntegro; primeros 10 bytes de `data`) + `Inspección: mensajes del content script` |
 | RNF-10 | *El sistema deberá* validar `source`/`origin` en el canal externo y `sender.id` + allowlist de rutas y métodos internos en el canal interno, con `targetOrigin = location.origin` y `setAccessLevel('TRUSTED_CONTEXTS')`. | CU-20, CU-21 | `Inspección: código` + test negativo de iframe hostil + `Vitest: eip1193.spec.ts` |
 | RNF-11 | Una dApp no autorizada *deberá* recibir `[]` en `eth_accounts` y `4100` en métodos sensibles. | CU-18, CU-20 | `Vitest: accounts.spec.ts — RNF-11` + `E2E: 09-conectar.spec.ts` (test negativo) |
@@ -2280,7 +2280,7 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 | RNF-13 | *Cuando* se ejecute `tsc -b`, *el sistema deberá* compilar en TypeScript `strict: true` sin `any` implícitos. | CU-36 | `Comando: npx tsc -b` |
 | RNF-14 | React *deberá* ser UI sin criptografía y el Service Worker *deberá* concentrar criptografía y RPC (`ethers` solo en background). | CU-36 | `Inspección: revisión de imports` + `Comando: grep -rn "from 'ethers'" src/popup src/components` (0 coincidencias) |
 | RNF-15 | «Build limpio» = `npm ci && npm run build` con **exit 0**, cero errores de tipos y solo los warnings permitidos, en Windows **y** en Linux (WSL2 o CI `ubuntu-latest`). | CU-36 | `Comando: npm ci && npm run build` en ambos entornos |
-| RNF-16 | *El sistema deberá* producir **exactamente 1 entrada** por evento del catálogo cerrado de 23 tipos, con `ts`, `level` y `origin`, en `chrome.storage.local`, exportable en JSON y sin claves ni payloads íntegros. | CU-29 | `Vitest: logger.spec.ts` + aserción sobre `chrome.storage.local` tras la suite E2E completa |
+| RNF-16 | *El sistema deberá* producir **exactamente 1 entrada** por evento del catálogo cerrado de 24 eventos, con `ts`, `level` y `origin`, en `chrome.storage.local`, exportable en JSON y sin claves ni payloads íntegros. | CU-29 | `Vitest: logger.spec.ts` · `Inspección: chrome.storage.local.get('truekeate_logs') tras la suite E2E (1 entrada por evento del catálogo)` |
 | RNF-17 | Cobertura de **ramas** con `@vitest/coverage-v8`: **≥ 70 % global** y **≥ 80 %** en `src/background/crypto/`, `src/background/approvals/` y `src/shared/validation/`. | CU-36 | `Comando: npm run test -- --coverage` |
 | RNF-18 | *El sistema deberá* consumir todos los colores, tipografías y degradados de `src/styles/tokens.css`: **0** literales de color, **0** familias tipográficas literales y **0** degradados fuera de tokens. | CU-33, CU-34 | `Comando: grep -rnE "#[0-9a-fA-F]{3,8}\|rgb\(\|hsl\(\|linear-gradient\|radial-gradient\|font-family:" src --exclude=tokens.css --include=*.css --include=*.tsx --include=*.ts` → 0 coincidencias (**ACU-09**: alcance cerrado y patrones de degradado y familia tipográfica incluidos) |
 | RNF-19 | *El sistema deberá* cumplir la matriz cerrada de contraste de `identidad_visual.md` §2.4 (≥ 4,5:1 texto normal; ≥ 3:1 foco y componentes); el teal `#3E93A6` solo como texto ≥ 18 px y el oro `#C9A97F` **solo decorativo**. | CU-33, CU-34, CU-35 | `Vitest: contrast.spec.ts — lee tokens.css y recalcula la matriz` + `Vitest: goldUsage.spec.ts — ACU-23: falla si un nodo cuyo color computado resuelve a --tk-gold-500 contiene texto, excluyendo SVG con aria-hidden` |
@@ -2299,12 +2299,12 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 | RT-02 | *Mientras* se realicen operaciones de mnemonic, HD, firma, provider o serialización, *el sistema deberá* usar únicamente `ethers.js v6`. | CU-01, CU-04, CU-27, CU-28 | `Comando: npm ls ethers` + `Comando: grep -rn "from 'ethers'" src/popup src/components` (0 coincidencias) |
 | RT-03 | *Si* el código propio incluye `viem`, `@scure/bip39`, `@metamask/*`, `axios` o `fetch` directo, *entonces* el lint fallará el build. | CU-21, CU-36 | `Comando: npm run lint:prohibited` |
 | RT-04 | *El sistema deberá* generar `manifest.json` MV3 con Service Worker `type: module`, content script e inject script; *si* un permiso no se usa, no se declarará; el alta de red sin permiso de host se rechazará con error tipado. | CU-21, CU-25, CU-36 | `Vitest: manifest.spec.ts` + `Inspección: dist/manifest.json` |
-| RT-05 | *Cuando* se ejecute `npm run build`, *el sistema deberá* generar `manifest.json` desde `src/manifest.ts` e incluir el bundle de ethers localmente, sin URLs de CDN. | CU-36 | `Comando: npm run build` + `grep` de `http` en `dist/` |
+| RT-05 | *Cuando* se ejecute `npm run build`, *el sistema deberá* generar `manifest.json` desde `src/manifest.ts` e incluir el bundle de ethers localmente, sin URLs de CDN. | CU-36 | `Comando: npm run build && grep -rn "http" dist/` → 0 URLs de CDN |
 | RT-06 | *Mientras* Anvil escuche en `127.0.0.1:8545`, *el sistema deberá* responder `eth_chainId = 0x7a69` y no tener Sepolia entre las redes dadas de alta. | CU-10, CU-24 | `Comando: cast chain-id --rpc-url http://127.0.0.1:8545` + `E2E: 07-provider.spec.ts` |
-| RT-07 | *El sistema deberá* pasar `npm run test`, `npm run test:e2e` y `forge test` antes de cerrar cada hito. | CU-36 | `Comando: los tres scripts` |
+| RT-07 | *El sistema deberá* pasar `npm run test`, `npm run test:e2e` y `forge test` antes de cerrar cada hito. | CU-36 | `Comando: npm run test && npm run test:e2e && forge test --match-contract EIP712VerifierTest` (exit 0 en los tres) |
 | RT-08 | *Cuando* se ejecute `tsc -b`, *el sistema deberá* compilar con `@types/chrome` y `@types/node` y sin `any` implícitos. | CU-36 | `Comando: npx tsc -b` |
 | RT-09 | *El sistema deberá* distribuirse 100 % en local: artefacto `dist/` y dApp en `http://localhost:5174`; *no deberá* existir despliegue remoto. | CU-23, CU-36 | `Inspección: dist/ y vite.config.ts (port 5174, strictPort)` |
-| RT-10 | *El sistema deberá* escribir UI, mensajes de error y documentación en español y los identificadores de código en inglés. | CU-10, CU-32, CU-34 | `Comando: grep -rnE "TODO|FIXME" src` (0 coincidencias de literales de UI en otro idioma) + `E2E: 17-i18n.spec.ts` |
+| RT-10 | *El sistema deberá* escribir UI, mensajes de error y documentación en español y los identificadores de código en inglés. | CU-10, CU-32, CU-34 | `Comando: grep -rniE "(send|cancel|copy|confirm)" src/popup src/connect src/notification` → 0 coincidencias · `E2E: 17-i18n.spec.ts — textos visibles en español` |
 | RT-11 | *Cuando* `forge test` verifique una firma EIP-712 producida por la cartera, `verify` *deberá* devolver `true`; *si* se altera un byte, `false`. | CU-27 | `Comando: forge test --match-contract EIP712VerifierTest` |
 | RT-12 | *El sistema deberá* servir los activos en `public/brand/`, los iconos en `public/icons/` y las fuentes woff2 latin en `public/fonts/` con sus `LICENSE-*.txt` OFL-1.1. | CU-33, CU-36 | `Inspección: árbol public/ + LICENSE/NOTICE` |
 | RT-13 | *El sistema deberá* exponer `window.truekeate` con el alias `window.codecrypto` (mismo objeto), usar el prefijo `truekeate_` y los tipos `TRUEKEATE_*`, y publicar el `rdns` declarado en RT-13. | CU-22 | `Vitest: naming.spec.ts` + `Comando: grep -rn "codecrypto_" src/` (0 coincidencias) |
@@ -2329,15 +2329,15 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 4. **Control de tasa y cardinalidad sin RF (D-Q/ADT-24).** `pendingRequestsMax = 8`, `pendingRequestsMaxPerOrigin = 1` y `pendingRequestsPerMinute = 6` son decisiones de datos (§2.8/§2.10 del diccionario) que CU-16 verifica, pero no hay RF que los exija; el enunciado solo pide la cola (RF-37). **D-Q:** el *token bucket* por origen se extiende a **todo** el catálogo RPC, incluidas las lecturas, y se verifica con `rateLimit.spec.ts` (flujo X-14).
 5. **`truekeate_settings.logMaxPerOrigin = 200` y la exportación de logs en JSON** no tienen RF propio: se verifican dentro de CU-29 como parte de RNF-16.
 6. **Caducidad de sesión sin RF propio (ACU-17/D-B).** `truekeate_connected_sites.lastUsedAt`/`expiresAt` y `truekeate_settings.sessionTtlMs = 86400000` no tienen RF exclusivo: la caducidad (24 h renovables en cada uso) se **incorpora a RF-25** y CU-18 la verifica con criterio y evidencia propios. **Hueco cerrado.**
-7. **Aviso de copia y contexto fuera de EIP-1193 (ACU-05/D-E).** El aviso «No se pudo copiar…» de CU-09/E1 es un aviso de UI con causa propia, no un error EIP-1193: no hay llamada al provider que devolver. La tabla §2.1 ampliada a un mensaje por causa sí cubre todos los errores del provider (`code` obligatorio en todo error que vea el usuario).
+7. **Aviso de copia y contexto fuera de EIP-1193 (ACU-05/D-E).** El aviso «No se pudo copiar…» de CU-09/E1 es un aviso de UI con causa propia, no un error EIP-1193: no hay llamada al provider que devolver. La tabla §4.3 de `diccionario_datos.md` ampliada a un mensaje por causa sí cubre todos los errores del provider (`code` obligatorio en todo error que vea el usuario).
 8. **Modo oscuro** aparece en `identidad_visual.md` §5.3 y en la matriz de contraste, pero no tiene RF ni RNF propio ni CU dedicado; CU-34/E1 lo menciona como variante de los pares de contraste.
 9. **`wallet_revokePermissions` desde una dApp**: el catálogo del diccionario lo admite desde página o popup, mientras RF-26 lo describe solo desde el popup. CU-19 cubre ambos caminos; la ambigüedad de alcance queda declarada aquí.
 10. **Verificación en Linux (RNF-15) y CI**: este documento no puede cerrarla (es una ejecución, no una especificación). CU-36 define el criterio y la marca «verificado solo en Windows; pendiente en Linux» si no hay WSL2/CI.
 11. **`rmwLock`, `fifoByAccount` y `portsByApprovalId` (ACU-28): contrato observable ya especificado.** La v1.0 los presentaba como pertenecientes a un `documento_tecnico.md` pendiente; en realidad **ya son criterio de aceptación de CU-16** (una transacción en vuelo por cuenta, puerto de larga vida con `RESUME` y read-modify-write serializada). Lo que queda para `documento_tecnico.md` son **solo los detalles internos de implementación** (estructura de las colas, granularidad del lock, secuencia exacta de mensajes), no el comportamiento exigible. **Hueco reclasificado.**
 12. **RE-03 (no hacer `push`) — restricción de proceso sin CU (ACU-11).** No es observable en tiempo de ejecución: se verifica por **historial de comandos** y se declara así en §8.2 en lugar de dejarla sin cobertura aparente.
-13. **Revelado de material de recuperación y catálogo de eventos (ACU-04).** `truekeate_logs` gana el campo `event` (enum de los 23 nombres) separado de `category`; CU-07 registra su traza con `event: approval_resolved` porque el catálogo cerrado de §2.2 de `requerimientos.md` **no incluye un evento específico de revelado**. Si el catálogo incorpora uno (`secret_revealed` o equivalente), CU-07 deberá adoptarlo en el mismo turno.
+13. **Revelado de material de recuperación y catálogo de eventos (ACU-04).** `truekeate_logs` gana el campo `event` (enum de los 24 eventos) separado de `category`; CU-07 registra su traza con `event: approval_resolved` porque el catálogo cerrado de §2.2 de `requerimientos.md` **no incluye un evento específico de revelado**. Si el catálogo incorpora uno (`secret_revealed` o equivalente), CU-07 deberá adoptarlo en el mismo turno.
 14. **`videos`, ZIP de entrega, `README.md` e `INSTRUCCIONES.md`** son entregables de la fase de manuales (`requerimientos.md` §4.2). **CU-36 ya los verifica** con criterio Gherkin explícito de README / INSTRUCCIONES / JSDoc y evidencia `Inspección:` (ACU-15), cubriendo los 10 puntos de «Documentación» de la rúbrica.
-15. **Los números de caso de prueba (`*.spec.ts`, flujos `E2E`) citados como evidencia** son los declarados por `requerimientos.md` v1.4 más los specs nuevos incorporados en la v1.1 (`windowContract.spec.ts`, `windowRediscovery.spec.ts`, `approvalResume.spec.ts`, `connectRequest.spec.ts`, `goldUsage.spec.ts`, `loggerRetry.spec.ts`, `rpcRetry.spec.ts`, `27-rpc-caido.spec.ts`) y en la v1.2 (`revealHygiene.spec.ts`, `revealClipboard.spec.ts`, `windowQueue.spec.ts`, `rateLimit.spec.ts`, `payloadLimit.spec.ts`, `originFrame.spec.ts`, `28-iframe-hostil.spec.ts`). Si en la Fase 3 se renombran, deberá actualizarse la columna de evidencia de este documento en el mismo turno.
+15. **Los números de caso de prueba (`*.spec.ts`, flujos `E2E`) citados como evidencia** son los declarados por `requerimientos.md` v1.6 más los specs nuevos incorporados en la v1.1 (`windowContract.spec.ts`, `windowRediscovery.spec.ts`, `approvalResume.spec.ts`, `connectRequest.spec.ts`, `goldUsage.spec.ts`, `loggerRetry.spec.ts`, `rpcRetry.spec.ts`, `27-rpc-caido.spec.ts`) y en la v1.2 (`revealHygiene.spec.ts`, `revealClipboard.spec.ts`, `windowQueue.spec.ts`, `rateLimit.spec.ts`, `payloadLimit.spec.ts`, `originFrame.spec.ts`, `28-iframe-hostil.spec.ts`). Si en la Fase 3 se renombran, deberá actualizarse la columna de evidencia de este documento en el mismo turno.
 16. **Contador de pendientes de la ventana global frente al badge (P-21/ADT-22).** El contador visible en `notification.html` es parte del invariante de **ventana global única** y es **MVP**; el **badge** de RF-38 es del ciclo posterior (hueco 3). No se solapan: el contador se pinta en la ventana de decisión y el badge en el icono de la extensión. Esos dos elementos no compiten por el mismo oráculo.
 17. **Cota de payload (64 KiB) y tabla local de selectores sin RF propio (D-L/ADT-21 y D-K/ADT-08).** Ni la cota de 64 KiB con `-32602` ni la tabla **cerrada** de selectores tienen un RF que los exija: se derivan de la prohibición de persistir payloads íntegros y de la anti-firma-ciega (RT-03). CU-13, CU-27 y CU-28 los verifican con `payloadLimit.spec.ts` y `calldata.spec.ts` (flujos X-13).
 
@@ -2349,6 +2349,7 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 ---
 
 ## Historial de cambios
+ **v1.3 (esta versión) — cierre de los residuales del veredicto de reevaluación (R-01, R-02, R-03, R-04):** todas las citas del mensaje de error apuntan a **`diccionario_datos.md` §4.3**; el catálogo de eventos se cita como **24 eventos**; el puerto de larga vida deja de describirse como *keep-alive* (§CU-16); la ventana de confirmación se cita como **global única**; y los criterios de CU-14, CU-20, CU-22, CU-31, CU-36 y §8 ganan magnitud y evidencia canónica.
 
 ### v1.2 — cierre de los hallazgos ADT-01 (documentación), ADT-06, ADT-07, ADT-08, ADT-09, ADT-21, ADT-22, ADT-24, ADT-25 y ADT-30
 
@@ -2379,8 +2380,8 @@ Origen: `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos: 2 crít
 | ACU-01 | 🔴 | Se fija la regla **«la ficha declara, la matriz agrega»** (convención 7) y se **regeneran §2, §5 y §7** desde las 36 fichas. RF-10 → CU-04, CU-05, CU-08, CU-18, CU-24, CU-26; RF-24 → CU-19; RF-27 → CU-26; RF-49 → CU-09; RF-14 → CU-14, CU-20, CU-21, CU-28; RF-17 → CU-08, CU-17, CU-18, CU-20; RF-38 → CU-15 (purga) + CU-16/A3; RF-43 → CU-12; RNF-02, RNF-18, RNF-19 y RT-11 incorporados al índice. **Aserción de cierre:** la bidireccionalidad ficha ↔ matriz es una aserción de **RNF-01**. |
 | ACU-02 | 🔴 | Política RPC reescrita a **«1 intento inicial + 3 reintentos = 4 llamadas RPC»**, esperas observadas 1/2/4 s y timeout 5 s por intento, con contador sobre provider falso; CU-31, su EARS, su evidencia, su A1/E1/E2 y RNF-07 y X-04 alineados. |
 | ACU-03 | 🟠 | **D-A:** el `rdns` se escribe **literal** en CU-22 (`name: "TrueKeate"`, `rdns: "academy.codecrypto.truekeate"`) con su bloque JSON y su criterio; **hueco 2 de §9 cerrado** (el de la v1.0 pasa a ser el hueco 2 actual). |
-| ACU-04 | 🟠 | **D-D:** `truekeate_logs` usa el campo **`event`** (23 nombres) separado de `category`; CU-04 (retira `system`), CU-07, CU-19, CU-27, CU-28 y CU-29 corregidos; §9 gana el hueco 13. |
-| ACU-05 | 🟠 | **D-E:** todos los CU se alinean a la tabla §2.1 **ampliada a un mensaje por causa**; CU-03/A1 y CU-06/E1 citan su causa; **CU-30/E1 recibe `code: -32603`**; CU-09/E1 se declara aviso de UI con causa propia (§9, hueco 7). |
+| ACU-04 | 🟠 | **D-D:** `truekeate_logs` usa el campo **`event`** (24 eventos) separado de `category`; CU-04 (retira `system`), CU-07, CU-19, CU-27, CU-28 y CU-29 corregidos; §9 gana el hueco 13. |
+| ACU-05 | 🟠 | **D-E:** todos los CU se alinean a la tabla §4.3 de `diccionario_datos.md` **ampliada a un mensaje por causa**; CU-03/A1 y CU-06/E1 citan su causa; **CU-30/E1 recibe `code: -32603`**; CU-09/E1 se declara aviso de UI con causa propia (§9, hueco 7). |
 | ACU-06 | 🟠 | **D-F:** CU-05 persiste las etiquetas de cuentas derivadas en **`truekeate_settings.accountLabels: Record<indice, string>`**, con criterio y evidencia propios. |
 | ACU-07 | 🟠 | **P-17:** el oráculo del MVP de CU-16 se limita a «2 entradas `pending` + 1 transacción en vuelo por cuenta»; badge (RF-38) y notificaciones (RF-39) pasan al ciclo posterior; **`CA-RF-38` se retira del oráculo de CU-15** (queda como purga). |
 | ACU-08 | 🟠 | `Entonces` no observables sustituidos: «el puerto mantiene vivo el SW» → **`RESUME` con el `approvalId` responde en < 200 ms tras 30 s** (CU-16); «la UI sigue aceptando interacción» → **botón «Reintentar» habilitado + recorrido con `Tab` + `axe-core`** (CU-31); «sin errores» al cargar `dist/` → **0 errores en consola y 0 en el badge de errores de `chrome://extensions`** (CU-36, flujo principal y criterio de instalación). |
@@ -2404,7 +2405,7 @@ Origen: `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos: 2 crít
 | ACU-26 | 🟡 | **D-C:** el literal de build es **`npm ci && npm run build`** en todo el corpus; los CU dejan de copiar los `CA-RF-xx` y pasan a **referenciarlos + declarar su delta propio** (CU-07, CU-12, CU-18, CU-22, CU-25, CU-36); convención 4. |
 | ACU-27 | 🟡 | **D-G:** el alta de red solicita **siempre** el permiso de host en runtime, también desde el popup (CU-25/A1) con criterio propio; se elimina la excepción de la v1.0. |
 | ACU-28 | 🟡 | El hueco 10 de §9 se reclasifica: `rmwLock`, `fifoByAccount` y `portsByApprovalId` **ya son criterio de aceptación de CU-16**; solo sus detalles internos quedan para `documento_tecnico.md`. |
-| ACU-29 | 🔵 | Convención de evidencia unificada a `Vitest:` / `E2E: <spec> — <flujo>` / `Comando:` / `Inspección:`: **6 `Revisión:` eliminadas** (§8.2 y CU-25, CU-36) y las evidencias `E2E` sin spec/flujo completadas; convención 3. |
+| ACU-29 | 🔵 | Convención de evidencia unificada a `Vitest:` / `E2E: <spec> — <flujo>` / `Comando:` / `Inspección:`: se eliminaron las formas no canónicas (§8.2 y CU-25, CU-36) y se completaron las evidencias `E2E` sin spec/flujo; convención 3. El **barrido total del corpus** (0 `Revisión:` en celdas de criterio) queda documentado en `VEREDICTO_FASE2_V1.md` §5.2, residual **R-06**. |
 | ACU-30 | 🔵 | **CU-17 retirado de la precondición de CU-13**: la conexión vive en `truekeate_connect_request` y se aprueba en `connect.html`, no en `truekeate_pending_requests`/`notification.html`. |
 
 **Estado tras la v1.1:** 36 CU · **sin CU nuevos ni eliminados** · los 50 RF (40 Must + 10 Should) con al menos un CU y **0 huérfanos** · §2, §5 y §7 idénticas entre sí · ningún criterio sin magnitud y sin evidencia de las cuatro formas admitidas.

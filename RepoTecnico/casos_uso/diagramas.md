@@ -1,13 +1,13 @@
 # Diagramas UML — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.0 · **Estado:** ✅ propuesto para revisión
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.1 · **Estado:** ✅ propuesto para revisión
 > **Producto:** **TrueKeate Wallet** (extensión Chrome/Edge Manifest V3) + dApp de pruebas (`test.html`) sobre Foundry Anvil.
-> **Fuentes (leídas antes de redactar):** `RepoTecnico/casos_uso/casos_uso.md` v1.1 (36 CU — **fuente principal**), `RepoTecnico/requerimientos.md` v1.5 (§1 RF-01..RF-50, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 rúbrica y MVP, §9 `CA-RF-xx`/`CA-RT-xx`), `RepoTecnico/diccionario_datos.md` v1.4 (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC y códigos EIP-1193), `RepoTecnico/entornos_globales.md` v1.6 (permisos, constantes, comandos, nomenclatura) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (auditoría ya remediada: **no se reintroduce ningún hallazgo ACU-01..ACU-30**).
+> **Fuentes (leídas antes de redactar):** `RepoTecnico/casos_uso/casos_uso.md` v1.2 (36 CU — **fuente principal**), `RepoTecnico/requerimientos.md` v1.6 (§1 RF-01..RF-50, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 rúbrica y MVP, §9 `CA-RF-xx`/`CA-RT-xx`), `RepoTecnico/diccionario_datos.md` v1.5 (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC y códigos EIP-1193), `RepoTecnico/entornos_globales.md` v1.7 (permisos, constantes, comandos, nomenclatura) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (auditoría ya remediada: **no se reintroduce ningún hallazgo ACU-01..ACU-30**).
 >
 > **Convenciones de este documento**
 > 1. **Fidelidad al corpus.** Los 36 CU, los actores y sus nombres, los estados de `PendingRequest`, los mensajes del protocolo, las claves de almacenamiento y las constantes (120 s / 60 s, 5 s de polling, backoff 1/2/4/8/16 s máx. 30 s, `pendingRequestsMax = 8`, 4 llamadas RPC 1+3, TTL de sesión 24 h) se transcriben **literalmente** de las fuentes. **No se inventa** ningún CU, actor, estado, mensaje ni constante.
 > 2. **Un diagrama por bloque**, cada uno precedido de su título descriptivo. Los bloques son Mermaid puro: ` ```mermaid ` … ` ``` `.
-> 3. **Coherencia de numeración CU.** `casos_uso.md` v1.1 (documento auditado) es la **fuente de verdad de los identificadores**: Conexión de dApp = **CU-17**, `eth_accounts` con sesión = **CU-18**, aviso de origen sin sesión = **CU-20**, envío de transacción = **CU-11**/**CU-13**. Las referencias abreviadas del encargo que no coinciden con esa numeración se han alineado al corpus (por ejemplo, «conexión con selección de cuenta» → **CU-17**, no CU-14/CU-15; «`eth_accounts` con sesión vigente/vencida» → **CU-18/A2**, no CU-17/CU-18; «dos transacciones simultáneas» → **CU-16/A2**, no CU-16/A4; «rechazo del usuario» → **CU-14/A1**, no CU-13/A2).
+> 3. **Coherencia de numeración CU.** `casos_uso.md` v1.2 (documento auditado) es la **fuente de verdad de los identificadores**: Conexión de dApp = **CU-17**, `eth_accounts` con sesión = **CU-18**, aviso de origen sin sesión = **CU-20**, envío de transacción = **CU-11**/**CU-13**. Las referencias abreviadas del encargo que no coinciden con esa numeración se han alineado al corpus (por ejemplo, «conexión con selección de cuenta» → **CU-17**, no CU-14/CU-15; «`eth_accounts` con sesión vigente/vencida» → **CU-18/A2**, no CU-17/CU-18; «dos transacciones simultáneas» → **CU-16/A2**, no CU-16/A4; «rechazo del usuario» → **CU-14/A1**, no CU-13/A2).
 > 4. **Notación de relaciones.** Línea simple `-->` = asociación actor ↔ CU. `-.->|include|` = el CU destino aparece **citado explícitamente** como paso invocado (*«el Usuario decide en CU-13»*, *«continúa en CU-14»*, *«se aplica X-03»*). `-.->|extend|` = el CU origen se declara como **flujo alternativo o de excepción** de la ficha destino (*«A1 — desde el paso 4 … CU-20»*). Si una ficha no cita ninguna relación, **no se dibuja**.
 
 ---
@@ -314,8 +314,8 @@ sequenceDiagram
     SW->>storage: set truekeate_pending_requests approvalId status pending
     Note over storage: expiresAt = createdAt + SIGN_TIMEOUT_MS con SIGN_TIMEOUT_MS = 120000
     content->>SW: connect name truekeate_approval
-    Note over content,SW: el puerto de larga vida mantiene vivo el SW durante la espera
-    SW->>SW: encola la firma en fifoByAccount y abre una sola ventana por origen
+    Note over content,SW: tras 30 s sin actividad, RESUME con el mismo approvalId responde en < 200 ms (el puerto NO mantiene vivo el SW)
+    SW->>SW: encola la firma en fifoByAccount y abre la ventana unica global de confirmacion (cola y contador, P-21)
     SW->>notif: chrome.windows.create focused true y type popup 420 x 640
     SW->>Anvil: eth_getBalance de la cuenta visible
     notif->>SW: SIGN_RESPONSE con approvalId success true
@@ -617,7 +617,7 @@ stateDiagram-v2
 
 ## 4. Diagrama de arquitectura de componentes (contexto)
 
-**Figura 12 — Los cuatro contextos, el almacenamiento y los canales de mensajería.** Se distinguen los dos canales (`window.postMessage` página ↔ content script y `chrome.runtime` content o UI ↔ SW), el **puerto de larga vida** `truekeate_approval` que mantiene vivo el SW durante la espera y `chrome.storage.local` como única fuente de verdad, con `setAccessLevel('TRUSTED_CONTEXTS')`.
+**Figura 12 — Los cuatro contextos, el almacenamiento y los canales de mensajería.** Se distinguen los dos canales (`window.postMessage` página ↔ content script y `chrome.runtime` content o UI ↔ SW), el puerto de larga vida `truekeate_approval`, que **no mantiene vivo** el SW (se suspende a los ~30 s): transporta y correlaciona, y la verdad vive en `chrome.storage.local` y `chrome.alarms` y `chrome.storage.local` como única fuente de verdad, con `setAccessLevel('TRUSTED_CONTEXTS')`.
 
 ```mermaid
 flowchart LR
@@ -747,4 +747,4 @@ npx -p @mermaid-js/mermaid-cli mmdc -i RepoTecnico/casos_uso/diagramas.md -o doc
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.0 | — | Creación del documento con los 12 diagramas exigidos: casos de uso (36 CU y 8 actores), 8 secuencias de flujos críticos, estados del ciclo de aprobación, arquitectura de componentes, índice de trazabilidad e instrucciones de renderizado. Sin modificar ningún otro archivo y sin instalar paquetes. |
+ANCHOR_DIAGRAMAS con los 12 diagramas exigidos: casos de uso (36 CU y 8 actores), 8 secuencias de flujos críticos, estados del ciclo de aprobación, arquitectura de componentes, índice de trazabilidad e instrucciones de renderizado. Sin modificar ningún otro archivo y sin instalar paquetes. |

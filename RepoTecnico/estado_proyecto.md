@@ -2,12 +2,13 @@
 
 > Memoria de trabajo del proyecto. Se lee al inicio de cada turno y se actualiza de forma incremental.
 
-**Última actualización:** Fase 2 — Auditoría 🔄 **EN SU CIERRE** (auditoría de la Fase 1 remediada — `INFORME_OPTIMIZACION_V1.md`, **42 hallazgos** —; **casos de uso** generados y auditados (`casos_uso/casos_uso.md` v1.1, 36 CU + `casos_uso/AUDITORIA_CASOS_USO_V1.md`, **30 hallazgos**) y **gráficos generados** (`casos_uso/diagramas.md` v1.0, **12 diagramas**); **documento técnico** redactado y auditado (`documento_tecnico.md` v1.0 + `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, **33 hallazgos ADT-01..ADT-33**) con su remediación aplicada; pendiente solo el veredicto de reevaluación para declarar el cierre)
-**Versión de este documento:** ✅ **v1.6**
-**Fase actual:** **2 de 5 — Auditoría** (en su **cierre**: documentación de Fase 1, casos de uso, gráficos y documento técnico auditados y remediados; pendiente el veredicto de reevaluación)
+**Última actualización:** 2026-10-09 — Fase 2 — Auditoría: **veredicto de reevaluación emitido** (`VEREDICTO_FASE2_V1.md` v1.0: **Fase 2 NO cerrada**, 0 hallazgos abiertos, 27 cerrados, 8 parciales, **12 residuales `R-01..R-12`** y **18 contradicciones residuales**); en curso el plan de cierre documental de su §5 (🔄 0 hallazgos abiertos (auditoría de la Fase 1 remediada — `INFORME_OPTIMIZACION_V1.md`, **42 hallazgos** —; **casos de uso** generados y auditados (`casos_uso/casos_uso.md` v1.2, 36 CU + `casos_uso/AUDITORIA_CASOS_USO_V1.md`, **30 hallazgos**) y **gráficos generados** (`casos_uso/diagramas.md` v1.0, **12 diagramas**); **documento técnico** redactado y auditado (`documento_tecnico.md` v1.1 + `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, **33 hallazgos ADT-01..ADT-33**) con su remediación aplicada; **veredicto de reevaluación emitido** (`VEREDICTO_FASE2_V1.md`): Fase 2 **no cerrada**, con **12 residuales documentales** en cierre)
+**Versión de este documento:** ✅ **v1.7**
+**Fase actual:** **2 de 5 — Auditoría** (en su **cierre**: documentación de Fase 1, casos de uso, gráficos y documento técnico auditados y remediados; **veredicto de reevaluación emitido** y plan de cierre de los **12 residuales** en ejecución)
 **Comando para continuar:** `/estado` · `/push` · luego `/plan_desarrollo` (Fase 3)
 **Rama de trabajo activa:** `chrome-wallet-DSH`
 **Historial de cambios:** v1.4 decisiones DEC-21..DEC-26 y remediación de `INFORME_OPTIMIZACION_V1.md` · v1.5 decisiones **DEC-27..DEC-36** (P-17, P-18, P-19 y D-A..D-G), `requerimientos.md` v1.5 con **50 RF (40 Must / 10 Should)** y desviaciones **D-01..D-13**, y alta de los artefactos de casos de uso (**36 CU**) y de su auditoría (**30 hallazgos**) · **v1.6 (esta versión)** decisiones **DEC-37..DEC-44** (P-20, P-21, P-22 y D-J..D-Q), `requerimientos.md` **v1.6** (RF-50 con 30 s, ocultado por pérdida de foco y política de portapapeles; RNF-09 y RNF-10 corregidos; RF-23/RF-35 y RT-04/RT-13 ajustados) y `estado_proyecto.md` **v1.6** con el **cierre de la Fase 2** y los artefactos `documento_tecnico.md` v1.0 (+`AUDITORIA_DOCUMENTO_TECNICO_V1.md`, 33 hallazgos) y `casos_uso/diagramas.md` v1.0 (12 diagramas).
+ · **v1.7 (esta versión)** sincronización de la memoria con el **veredicto de reevaluación** (`VEREDICTO_FASE2_V1.md` v1.0, registrado en §2): la Fase 2 queda **NO cerrada** con **12 residuales `R-01..R-12`** y **18 contradicciones** en cierre documental; se alinean las versiones reales de todos los artefactos (`requerimientos.md` v1.7, `diccionario_datos.md` v1.6, `entornos_globales.md` v1.8, `identidad_visual.md` v1.4, `casos_uso.md` v1.3, `diagramas.md` v1.1, `documento_tecnico.md` v1.2) y se corrigen los conteos (66 módulos M1..M66, 9 `sequenceDiagram`), los próximos pasos y los criterios de aceptación de la Fase 2.
 
 ---
 
@@ -28,17 +29,18 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | `requisitos.md` | ✅ Fuente (no se modifica) | Enunciado original de la tarea (36 especificaciones). |
 | `TAREA_PARA_ESTUDIANTE.md` | ✅ Fuente (no se modifica) | Enunciado extendido con arquitectura y ejemplos de código. |
 | `GUIA_RAPIDA_TESTING.md` | ⏳ Línea base previa (**no vinculante**) | Guía del prototipo anterior (nomenclatura `codecrypto_*`); P-10/DEC-09 decidió **no reutilizarla** (H-24). El proyecto tendrá su propia guía de troubleshooting. |
-| `requerimientos.md` | ✅ **v1.6** | **50 RF (40 Must / 10 Should)**, 25 RNF, 13 RT y 4 RE, actores, desviaciones **D-01..D-13**, riesgos, entrevista cerrada y **criterio de aceptación + evidencia por RF/RT** (H-01/DEC-25). Incorpora **RF-50** (revelar/exportar semilla y claves privadas con confirmación explícita, D-13), la **caducidad de sesión de dApp** en RF-25 (D-B) y la **aprobación del cambio de red** en RF-22 (P-19). **v1.6 (ADT-04/06/09/12/14/19/20/22/25/30; P-20/P-21/P-22):** RF-50 con **30 s**, ocultado por pérdida de foco y **política de portapapeles**; **RNF-09** («nunca hacia la página ni por `postMessage`») y **RNF-10** (`<all_urls>` con `use_dynamic_url` y `exclude_matches`) reescritos; RF-23 **añade sin activar**; RF-35 → **una sola ventana global**; RT-04 con `notifications` **opcional**; RT-13 con **UUID literal y `key` fija**; redacción de logs a **10 bytes** de `data`. |
-| `diccionario_datos.md` | ✅ v1.4 (ver cabecera) | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. |
-| `entornos_globales.md` | ✅ v1.6 (ver cabecera) | Entorno verificado, comandos, constantes, permisos de **mínimos privilegios**, política de versiones, 3 remotos, herramientas de prueba y GCP cerrado. |
-| `identidad_visual.md` | ✅ v1.2 (ver cabecera; aprobado, P-14) | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS, **matriz de contraste cerrada** y criterios de accesibilidad (H-17). |
+| `requerimientos.md` | ✅ **v1.7** (ver cabecera) | **50 RF (40 Must / 10 Should)**, 25 RNF, 13 RT y 4 RE, actores, desviaciones **D-01..D-13**, riesgos, entrevista cerrada y **criterio de aceptación + evidencia por RF/RT** (H-01/DEC-25). Incorpora **RF-50** (revelar/exportar semilla y claves privadas con confirmación explícita, D-13), la **caducidad de sesión de dApp** en RF-25 (D-B) y la **aprobación del cambio de red** en RF-22 (P-19). **v1.6 (ADT-04/06/09/12/14/19/20/22/25/30; P-20/P-21/P-22):** RF-50 con **30 s**, ocultado por pérdida de foco y **política de portapapeles**; **RNF-09** («nunca hacia la página ni por `postMessage`») y **RNF-10** (`<all_urls>` con `use_dynamic_url` y `exclude_matches`) reescritos; RF-23 **añade sin activar**; RF-35 → **una sola ventana global**; RT-04 con `notifications` **opcional**; RT-13 con **UUID literal y `key` fija**; redacción de logs a **10 bytes** de `data`. |
+| `diccionario_datos.md` | ✅ **v1.6** (ver cabecera) | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. **§4.3 es la fuente única de los literales de mensaje** (ACU-05/D-E) y el catálogo de eventos tiene **24** valores. |
+| `entornos_globales.md` | ✅ **v1.8** (ver cabecera) | Entorno verificado, comandos, constantes, permisos de **mínimos privilegios**, política de versiones, 3 remotos, herramientas de prueba y GCP cerrado. |
+| `identidad_visual.md` | ✅ **v1.4** (ver cabecera; aprobado, P-14) | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS, **matriz de contraste cerrada** y criterios de accesibilidad (H-17). |
 | `INFORME_OPTIMIZACION_V1.md` | ✅ v1 (Fase 2) | **Informe de auditoría de la Fase 2**: **42 hallazgos** (2 CRITICA · 14 ALTA · 21 MEDIA · 5 BAJA) y **27 descartados**, con plan de acción (QW-1..QW-16, M-1..M-18, RM-1..RM-7) y criterios de aceptación. |
-| `estado_proyecto.md` | ✅ **v1.6** (este archivo) | Memoria de trabajo. |
-| `casos_uso/casos_uso.md` | ✅ v1.1 (Fase 2, ver cabecera) | **36 casos de uso** (Gherkin/EARS) con fichas completas, flujos alternativos y de excepción, criterios con evidencia y matriz de trazabilidad `E-xx → RF-xx → CU → test`. Sus gráficos viven en `casos_uso/diagramas.md`. |
+| `estado_proyecto.md` | ✅ **v1.7** (este archivo) | Memoria de trabajo. |
+| `casos_uso/casos_uso.md` | ✅ **v1.3** (Fase 2, ver cabecera) | **36 casos de uso** (Gherkin/EARS) con fichas completas, flujos alternativos y de excepción, criterios con evidencia y matriz de trazabilidad `E-xx → RF-xx → CU → test`. Sus gráficos viven en `casos_uso/diagramas.md`. |
 | `casos_uso/AUDITORIA_CASOS_USO_V1.md` | ✅ v1.0 (Fase 2) | **Auditoría de los 36 CU**: **30 hallazgos** (ACU-01..ACU-30: 2 CRITICA · 8 ALTA · 18 MEDIA · 2 BAJA), decisiones **D-A..D-G** y **P-17/P-18/P-19** resueltas; su remediación se aplicó en `requerimientos.md` v1.5 y en esta memoria (**DEC-27..DEC-36**). |
-| `casos_uso/diagramas.md` | ✅ **v1.0** (Fase 2) | **12 diagramas** UML de los 36 CU: 8 `sequenceDiagram` (Figuras 2–10), 2 `flowchart` (Figura 1 de casos de uso y Figura 12 de arquitectura) y 1 `stateDiagram-v2` (Figura 11, ciclo de vida del `PendingRequest`), con índice de trazabilidad y notas de renderizado. |
-| `documento_tecnico.md` | ✅ **v1.0** (Fase 2) | Arquitectura y especificación técnica: **65 módulos (M1..M65)**, **20 ADR**, 13 diagramas Mermaid, contratos internos, contrato Forge y trazabilidad. Auditado en `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, con la remediación ya aplicada. |
+| `casos_uso/diagramas.md` | ✅ **v1.1** (Fase 2) | **12 diagramas** UML de los 36 CU: 9 `sequenceDiagram` (Figuras 2–10), 2 `flowchart` (Figura 1 de casos de uso y Figura 12 de arquitectura) y 1 `stateDiagram-v2` (Figura 11, ciclo de vida del `PendingRequest`), con índice de trazabilidad y notas de renderizado. |
+| `documento_tecnico.md` | ✅ **v1.2** (Fase 2) | Arquitectura y especificación técnica: **66 módulos (M1..M66)**, **20 ADR**, 13 diagramas Mermaid, contratos internos, contrato Forge y trazabilidad. Auditado en `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, con la remediación ya aplicada. |
 | `AUDITORIA_DOCUMENTO_TECNICO_V1.md` | ✅ **v1.0** (Fase 2) | **Auditoría del documento técnico**: **33 hallazgos** (ADT-01..ADT-33), decisiones **D-H..D-U** y **P-20/P-21/P-22** resueltas; su remediación se aplica al `documento_tecnico.md`, a `requerimientos.md` v1.6 y a esta memoria (**DEC-37..DEC-44**). |
+| `VEREDICTO_FASE2_V1.md` | ✅ **v1.0** (Fase 2, reevaluación) | **Veredicto de reevaluación de la Fase 2**: ❌ **Fase 2 NO cerrada** (0 abiertos · 27 cerrados · 8 parciales · **12 residuales `R-01..R-12`** y **18 contradicciones residuales**), con tabla de cierre CRITICA/ALTA de las tres auditorías, evidencia `ruta:línea` de ambos lados de cada contradicción y **plan de cierre por bloques** (§5). |
 | `plan_desarrollo.md` | ⏳ Fase 3 | Plan de desarrollo vertical por hitos y **estimación por hitos** (sustituye al «~40 h», H-34). |
 
 ---
@@ -144,7 +146,7 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | ID | Pregunta | Estado |
 |---|---|---|
 | P-13 | Nomenclatura marca/enunciado | ✅ **Renombrar todo a TrueKeate**, incluido el provider (`window.truekeate`) y su alias `window.codecrypto` (DEC-21). |
-| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md`, hoy v1.2). |
+| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md`, hoy v1.4). |
 | P-15 | Iconos pequeños | ✅ **Aprobada** la variante simplificada para 16/32 px. |
 
 ### Bloque 5 — Decisiones de la auditoría del documento técnico ✅ RESUELTO
@@ -189,10 +191,11 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 4. ~~Ejecutar `/casos_uso` (Gherkin/EARS + matriz `E-xx → RF-xx → CU → test`)~~ ✅ **hecho**: **36 CU** en `casos_uso/casos_uso.md`.
 5. ~~Auditar los casos de uso, resolver `P-17`/`P-18`/`P-19` y aplicar la remediación~~ ✅ **hecho**: `casos_uso/AUDITORIA_CASOS_USO_V1.md` (**30 hallazgos**) con remediación aplicada (**DEC-27..DEC-36**, `requerimientos.md` v1.5).
 6. ~~Ejecutar `/graficos` (Mermaid/SVG de los 36 CU auditados)~~ ✅ **hecho**: `casos_uso/diagramas.md` (**12 diagramas**).
-7. ~~Ejecutar `/documento_tecnico` (arquitectura y especificación técnica)~~ ✅ **hecho**: `documento_tecnico.md` (65 módulos, 20 ADR, 13 diagramas).
+7. ~~Ejecutar `/documento_tecnico` (arquitectura y especificación técnica)~~ ✅ **hecho**: `documento_tecnico.md` (66 módulos, 20 ADR, 13 diagramas).
 8. ~~Ejecutar `/auditar_documento` (auditoría del documento técnico)~~ ✅ **hecho**: `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (**33 hallazgos ADT-01..ADT-33**), con **P-20/P-21/P-22** resueltas y remediación aplicada (`requerimientos.md` v1.6, `documento_tecnico.md` y **DEC-37..DEC-44**).
 9. ~~Responder el Bloque 4 de identidad visual~~ ✅ **hecho** (P-13/P-14/P-15).
-10. **Cerrar la Fase 2:** ejecutar el **veredicto de reevaluación** que confirme el cierre de los 42 hallazgos, los 30 ACU y los 33 ADT; **pendiente**.
+10. ~~**Cerrar la Fase 2:** ejecutar el **veredicto de reevaluación** que confirme el cierre de los 42 hallazgos, los 30 ACU y los 33 ADT~~ ✅ **hecho**: `VEREDICTO_FASE2_V1.md` v1.0 emitido (❌ **Fase 2 NO cerrada**: 0 abiertos · 27 cerrados · 8 parciales · **12 residuales `R-01..R-12`** y **18 contradicciones**).
+11. **Ejecutar el plan de cierre de los residuales (`VEREDICTO_FASE2_V1.md` §5)**: bloques 1 (consistencia de valores), 2 (verificabilidad de criterios) y 3 (memoria y metadatos), y repetir la verificación por `grep` antes de declarar la Fase 2 cerrada; **pendiente** (en curso).
 11. Crear los repositorios de GitHub y GitLab.com (P-11).
 12. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo` (estimación por hitos y MVP de **40 Must**, DEC-26).
 
@@ -210,18 +213,19 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 - [x] Decisión de alcance cerrada: red única Anvil, sin GCP, reconstrucción desde cero (DEC-09).
 - [ ] Repositorios de GitHub y GitLab.com creados por el usuario (P-11, no bloquea la Fase 2).
 
-### 8.2 Fase 2 — Auditoría 🔄 **EN SU CIERRE**
+### 8.2 Fase 2 — Auditoría 🔄 **EN SU CIERRE** (veredicto emitido; plan de residuales en ejecución)
 
 - [x] Auditoría ejecutada en 3 fases (7 revisores + 7 verificadores adversariales + síntesis): **42 hallazgos** (2 CRITICA · 14 ALTA · 21 MEDIA · 5 BAJA) y **27 descartados**, en `INFORME_OPTIMIZACION_V1.md`.
 - [x] Quick wins documentales aplicados en `entornos_globales.md` v1.6, `identidad_visual.md` v1.2 y esta memoria: H-03, H-04, H-05, H-07 (dueño del plazo), H-15, H-20, H-24, H-29, H-33, H-34, H-36, H-41 y H-02 (permisos).
 - [x] Decisiones de remediación del usuario registradas: **DEC-21..DEC-26** (auditoría de Fase 1), **DEC-27..DEC-36** (auditoría de los casos de uso) y **DEC-37..DEC-44** (auditoría del documento técnico: **P-20/P-21/P-22** y **D-J..D-Q**).
 - [x] **Criterios de aceptación por requisito** (H-01): los **50 RF** y los 13 RT con criterio y evidencia en `requerimientos.md` **v1.6** (§1, §3 y Anexo A §9), con **`CA-RF-50`** (30 s, pérdida de foco y portapapeles), **`CA-RF-23`** (alta sin activación), **`CA-RF-35`** (ventana global única), **`CA-RF-39`** (permiso opcional), **`CA-RT-04`** y **`CA-RT-13`** (UUID literal y `key` fija).
-- [x] **Casos de uso generados** (**36 CU**, `casos_uso/casos_uso.md` v1.1) y **auditados** (`casos_uso/AUDITORIA_CASOS_USO_V1.md` v1.0, **30 hallazgos**) con su remediación aplicada.
-- [x] **Matriz de trazabilidad** `E-xx → RF-xx → CU → test` con los **40 Must** cubiertos (H-01/H-05/H-06/H-14): declarada en `requerimientos.md` §1/§1.0/§9.4 y materializada en la matriz de `casos_uso/casos_uso.md` v1.1 (40/40 Must con CU y evidencia).
-- [x] **Gráficos de los casos de uso** generados: `casos_uso/diagramas.md` **v1.0** con **12 diagramas** (8 `sequenceDiagram`, 2 `flowchart` y 1 `stateDiagram-v2`).
-- [x] **`documento_tecnico.md` v1.0** redactado (65 módulos, 20 ADR, 13 diagramas) y **auditado** con `/auditar_documento`: `AUDITORIA_DOCUMENTO_TECNICO_V1.md` **v1.0** con **33 hallazgos** (ADT-01..ADT-33), decisiones **D-H..D-U** y **P-20/P-21/P-22** resueltas.
-- [x] **Remediación de la auditoría del documento técnico aplicada**: hallazgos **ADT-04, ADT-06, ADT-09, ADT-12, ADT-14, ADT-19, ADT-20, ADT-22, ADT-25 y ADT-30** cerrados en `requerimientos.md` **v1.6** (conteos verificados: **50 RF = 40 Must + 10 Should · 25 RNF · 13 RT · 4 RE**).
-- [ ] **Veredicto de reevaluación (único criterio pendiente):** un revisor independiente confirma el cierre de los **42 hallazgos** (§10.12 del informe), de los **30 ACU** y de los **33 ADT** antes de declarar la Fase 2 cerrada.
+- [x] **Casos de uso generados** (**36 CU**, `casos_uso/casos_uso.md` v1.3) y **auditados** (`casos_uso/AUDITORIA_CASOS_USO_V1.md` v1.0, **30 hallazgos**) con su remediación aplicada.
+- [x] **Matriz de trazabilidad** `E-xx → RF-xx → CU → test` con los **40 Must** cubiertos (H-01/H-05/H-06/H-14): declarada en `requerimientos.md` §1/§1.0/§9.4 y materializada en la matriz de `casos_uso/casos_uso.md` v1.3 (40/40 Must con CU y evidencia).
+- [x] **Gráficos de los casos de uso** generados: `casos_uso/diagramas.md` **v1.1** con **12 diagramas** (9 `sequenceDiagram`, 2 `flowchart` y 1 `stateDiagram-v2`).
+- [x] **`documento_tecnico.md` v1.2** redactado (66 módulos, 20 ADR, 13 diagramas) y **auditado** con `/auditar_documento`: `AUDITORIA_DOCUMENTO_TECNICO_V1.md` **v1.0** con **33 hallazgos** (ADT-01..ADT-33), decisiones **D-H..D-U** y **P-20/P-21/P-22** resueltas.
+- [x] **Remediación de la auditoría del documento técnico aplicada**: hallazgos **ADT-04, ADT-06, ADT-09, ADT-12, ADT-14, ADT-19, ADT-20, ADT-22, ADT-25 y ADT-30** cerrados en `requerimientos.md` **v1.7** (conteos verificados: **50 RF = 40 Must + 10 Should · 25 RNF · 13 RT · 4 RE**).
+- [x] **Veredicto de reevaluación emitido:** un revisor independiente confirmó **0 hallazgos abiertos**, **27 cerrados**, **8 parciales**, **12 residuales `R-01..R-12`** y **18 contradicciones residuales**, y dictaminó ❌ **Fase 2 NO cerrada** por pendientes de **edición documental** (nada de arquitectura): `VEREDICTO_FASE2_V1.md` v1.0.
+- [ ] **Plan de cierre de los residuales (`VEREDICTO_FASE2_V1.md` §5) ejecutado y verificado:** 0 residuales abiertos, 18/18 contradicciones resueltas y verificación por `grep` sin restos ni caracteres corruptos (criterio único pendiente para declarar la Fase 2 cerrada).
 
 ---
 

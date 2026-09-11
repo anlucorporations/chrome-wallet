@@ -1,18 +1,18 @@
 # Documento Técnico — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.1 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.2 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
 > **Cambios de la v1.1 (resumen).** Se especifican el **build/empaquetado MV3** (§7.5) y el **arnés de pruebas E2E** (§7.4), que eran los dos bloqueantes del hito H1; se añade el flujo de **revelado y exportación (RF-50)** con su política de portapapeles (§3.8); se corrigen los **3 diagramas Mermaid** que no parseaban y se añade su comprobación de CI (§7.5); se resuelven las decisiones del usuario **P-20** (portapapeles), **P-21** (una sola ventana de confirmación global) y **P-22** (`wallet_addEthereumChain` no activa la red); y se cierran las decisiones de consolidación **D-H..D-U**.
 > **Producto:** **TrueKeate Wallet** — extensión de navegador Chrome/Edge **Manifest V3** (wallet Ethereum no custodial) + **dApp de pruebas** (`test.html`) sobre **Foundry Anvil** local.
 > **Autores:** el equipo de proyecto (arquitecto de software senior); el rol humano de **responsable de seguridad** es el autor del proyecto (`requerimientos.md` §4.4).
-> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.5 y los casos de uso de `casos_uso/casos_uso.md` v1.1. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
+> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.6 y los casos de uso de `casos_uso/casos_uso.md` v1.2. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
 > **Fuentes obligatorias leídas (estado actual del disco):**
-> `RepoTecnico/requerimientos.md` **v1.5** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 tabla cerrada de errores; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
-> `RepoTecnico/casos_uso/casos_uso.md` **v1.1** (36 CU, Gherkin/EARS y matriz de trazabilidad) ·
-> `RepoTecnico/casos_uso/diagramas.md` **v1.0** (figuras UML de los 36 CU) ·
-> `RepoTecnico/diccionario_datos.md` **v1.4** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, errores EIP-1193) ·
-> `RepoTecnico/entornos_globales.md` **v1.6** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
-> `RepoTecnico/identidad_visual.md` **v1.2** (tokens, tipografía, medidas, componentes, matriz de contraste) ·
-> `RepoTecnico/estado_proyecto.md` **v1.5** (decisiones **DEC-01..DEC-36**) ·
+> `RepoTecnico/requerimientos.md` **v1.6** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 catálogo de códigos y su significado; `diccionario_datos.md` §4.3 como fuente única de los literales de mensaje; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
+> `RepoTecnico/casos_uso/casos_uso.md` **v1.3** (36 CU, Gherkin/EARS y matriz de trazabilidad) ·
+> `RepoTecnico/casos_uso/diagramas.md` **v1.1** (figuras UML de los 36 CU) ·
+> `RepoTecnico/diccionario_datos.md` **v1.6** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC y **§4.3 como fuente única de los literales de error**) ·
+> `RepoTecnico/entornos_globales.md` **v1.8** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
+> `RepoTecnico/identidad_visual.md` **v1.4** (tokens, tipografía, medidas, componentes, matriz de contraste) ·
+> `RepoTecnico/estado_proyecto.md` **v1.7** (decisiones **DEC-01..DEC-44**) ·
 > `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos **H-01..H-42**, remediados) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos **ACU-01..ACU-30**, remediados).
 > **Regla de no regresión:** ningún defecto ya corregido por `H-01..H-42` ni por `ACU-01..ACU-30` se reintroduce en este documento; los invariantes que los cierran están recogidos en §2.3, §2.5, §3.7, §4.3 y §7.3.
 > **Convenciones:** todo en español; identificadores de código, métodos RPC, nombres de archivo y claves de storage en su **forma original**; las claves de `chrome.storage.local` se citan **siempre con el prefijo completo** `truekeate_` (ACU-25).
@@ -280,7 +280,7 @@ src/
 │   │   ├── router.ts                 # M3  handleRPCRequest: catálogo RPC, guardas de sender, contexto permitido
 │   │   ├── catalog.ts                # M4  Catálogo cerrado de métodos + enum method de la cola + parámetros válidos
 │   │   ├── client.ts                 # M5  JsonRpcProvider único, feeData, nonce, estimateGas, recibo con reintentos
-│   │   ├── errors.ts                 # M6  Tabla §2.1 (varios mensajes por código) → objetos EIP-1193 con code
+│   │   ├── errors.ts                 # M6  Catálogo de códigos de §2.1 + literales de §4.3 de diccionario_datos → objetos EIP-1193 con code
 │   │   └── txContract.ts             # M7  Contrato observable de la transacción: pending → confirmed/failed/reverted
 │   ├── crypto/
 │   │   ├── mnemonic.ts               # M8  BIP-39: generación (fromEntropy 128 bits), normalización, checksum
@@ -541,7 +541,8 @@ export type LogEventName =
   | 'rpc_call' | 'rpc_error' | 'event_emit' | 'tx_sent' | 'tx_confirmed' | 'tx_failed' | 'tx_reverted'
   | 'sign_personal' | 'sign_typed_data' | 'approval_created' | 'approval_resolved' | 'approval_expired'
   | 'chain_changed' | 'accounts_changed' | 'wallet_created' | 'wallet_imported' | 'account_imported'
-  | 'account_removed' | 'reset_wallet' | 'network_added' | 'permission_revoked' | 'sw_started' | 'sw_reconcile';
+  | 'account_removed' | 'reset_wallet' | 'network_added' | 'permission_revoked' | 'sw_started' | 'sw_reconcile'
+  | 'storage_quota_exceeded';
 
 export interface LogEntry {
   id: string; ts: number; level: LogLevel;
@@ -643,7 +644,7 @@ sequenceDiagram
     SW->>SW: "construye TxPreview (selector, functionName, decodedArgs, riskWarnings)"
     SW->>ST: "crea PendingRequest(status pending, createdAt, expiresAt = +120000)"
     SW->>AL: "create('truekeate_expire:<approvalId>', when: expiresAt)"
-    SW->>NO: "windows.create({ focused: true, type: 'popup' }) - una por origen"
+    SW->>NO: "windows.create({ focused: true, type: 'popup' }) - ventana UNICA GLOBAL (cola y contador, P-21/DEC-38)"
     NO->>NO: "renderiza origen, favicon, destino, valor, red, comision y avisos"
     alt Usuario aprueba
         NO->>SW: "SIGN_RESPONSE { approvalId, success: true }"
@@ -975,9 +976,9 @@ flowchart LR
 **Reglas de observabilidad:**
 
 1. **Fuente de verdad única**: `truekeate_logs` vive en `chrome.storage.local` y **lo escribe siempre el Service Worker** —nunca el popup, nunca `localStorage`—, de modo que una operación con el popup cerrado deja traza (H-09, CU-29).
-2. **Catálogo cerrado de 24 eventos** y **5 categorías independientes**:
+2. **Catálogo cerrado de 24 eventos** y **5 categorías independientes** (el enum incluye `storage_quota_exceeded`, ADT-14/D-M):
 
-   `event`: `rpc_call`, `rpc_error`, `event_emit`, `tx_sent`, `tx_confirmed`, `tx_failed`, `tx_reverted`, `sign_personal`, `sign_typed_data`, `approval_created`, `approval_resolved`, `approval_expired`, `chain_changed`, `accounts_changed`, `wallet_created`, `wallet_imported`, `account_imported`, `account_removed`, `reset_wallet`, `network_added`, `permission_revoked`, `sw_started`, `sw_reconcile`.
+   `event`: `rpc_call`, `rpc_error`, `event_emit`, `tx_sent`, `tx_confirmed`, `tx_failed`, `tx_reverted`, `sign_personal`, `sign_typed_data`, `approval_created`, `approval_resolved`, `approval_expired`, `chain_changed`, `accounts_changed`, `wallet_created`, `wallet_imported`, `account_imported`, `account_removed`, `reset_wallet`, `network_added`, `permission_revoked`, `sw_started`, `sw_reconcile`, `storage_quota_exceeded`.
 
    `category` (taxonomía, **no** es el nombre del evento): `call`, `event`, `tx`, `sign`, `system`. Mapeos canónicos: `chain_changed` → `event`; `tx_sent` → `tx`; `sw_started` → `system`. `account_imported` está **reservado** a la importación por clave privada (la derivación HD se instrumenta con `rpc_call` de `wallet_deriveAccounts`).
 3. **Exactamente 1 entrada por evento del catálogo**, con `ts`, `level`, `category`, `event`, `origin`, `message` y `data` redactado (RNF-16).
@@ -1319,7 +1320,7 @@ Ambos nombres exponen `request`, `on` y `removeListener`; un test verifica que *
 
 **Metodos internos** (solo contextos de la extension; desde un content script responden `4200`): `wallet_generateMnemonic` (RF-01), `wallet_importMnemonic` (RF-02), `wallet_deriveAccounts` (RF-04), `wallet_importPrivateKey` (RF-05), `wallet_getNetworks` (RF-23), `wallet_getLogs` (RF-28) y `wallet_revealSecret` (RF-50). Su contrato completo, con parametros, retorno y errores, esta en la **seccion 5.1.1** (ADT-16).
 
-**Errores EIP-1193** (tabla cerrada de `requerimientos.md` §2.1; **todo** error que ve el usuario lleva `code`, y hay **varios mensajes por código**, uno por causa):
+**Errores EIP-1193** (`requerimientos.md` §2.1 fija el **catálogo de códigos y su significado**; los literales de los mensajes tienen su **fuente única** en `diccionario_datos.md` §4.3, con **varios mensajes por código**, uno por causa; **todo** error que ve el usuario lleva `code`):
 
 | Código | Causa | Mensaje (español) | Acción sugerida |
 |---|---|---|---|
@@ -1992,7 +1993,7 @@ Ninguna de estas decisiones está resuelta en el corpus; se declaran aquí **en 
 | **H2 — Provider y lectura** | Provider inyectado con alias, eventos y lecturas contra Anvil | M35, M36, M37, M38, M2, M3, M4, M5, M6, M55, M56, M47 | RF-13, RF-14, RF-15, RF-18, RF-24, RF-27, RF-45 (+ RF-44 Should) | `Vitest: inject/naming/errors/eip1193/polling` + `E2E: 07-provider, 08-eventos, 14-polling` |
 | **H3 — Firma, aprobación y tiempo límite** | Toda operación sensible pasa por la cola persistida con vista previa decodificada y plazo con dueño único | M14, M15, M16, M17, M18, M19, M11, M7, M50..M54 | RF-08, RF-19, RF-20, RF-21, RF-35, RF-37, RF-41, RF-42, RF-43 (+ RF-40 Should, **mecanismo estructural**) | `Vitest: approvalQueue/approvalTimeout/approvalReconcile/calldata/typedData/personalSign/eip1559/eip155` + `E2E: 10-aprobar-tx, 11-firmar-eip712, 11-firmar-mensaje, 18-concurrencia` + `Forge: EIP712Verifier.t.sol` |
 | **H4 — Redes, logs y UI** | Conexión de dApps, sesiones con TTL, cambio y alta de redes, observabilidad y dApp de pruebas completa | M26, M23, M24, M25, M30, M31, M32, M22, M20, M21, M42, M43, M44, M45, M46, M48, M49, `test.html` | RF-16, RF-17, RF-22, RF-23, RF-25, RF-26, RF-28, RF-29, RF-30, RF-31, RF-46 (+ RF-32, RF-47 Should) | `Vitest: accounts/sessions/networks/logger/logRedaction/manifest` + `E2E: 09-conectar, 12-redes, 13-revocar, 15-logs, 22-dapp` |
-| **H5 — Identidad visual, accesibilidad y suite completa** | Identidad aplicada en las tres ventanas y la dApp, accesibilidad verificada, build limpio en ambas plataformas y ensayo de entrega | M64, M65, M39..M46, `contracts/`, `vite.config.ts`, `README.md`, `INSTRUCCIONES.md`, `LICENSE`, `NOTICE`, `public/fonts/LICENSE-*.txt` | RF-49, RF-11 (=cierre), RNF-15, RNF-17, RNF-19, RNF-21, RNF-23, RNF-24, RT-01..RT-13, RE-01..RE-04 (+ RF-06, RF-12, RF-34, RF-38, RF-39, RF-48 Should) | `E2E: 23-marca, 24-accesibilidad, 25-recuperacion, 26-avisos, 17-i18n` + `npm ci && npm run build` en Windows y WSL2/CI + `npm run test -- --coverage` + `forge test` + `npm run check:mermaid` + `Revisión: git ls-files` con los artefactos documentales de la seccion 9.2 |
+| **H5 — Identidad visual, accesibilidad y suite completa** | Identidad aplicada en las tres ventanas y la dApp, accesibilidad verificada, build limpio en ambas plataformas y ensayo de entrega | M64, M65, M39..M46, `contracts/`, `vite.config.ts`, `README.md`, `INSTRUCCIONES.md`, `LICENSE`, `NOTICE`, `public/fonts/LICENSE-*.txt` | RF-49, RF-11 (=cierre), RNF-15, RNF-17, RNF-19, RNF-21, RNF-23, RNF-24, RT-01..RT-13, RE-01..RE-04 (+ RF-06, RF-12, RF-34, RF-38, RF-39, RF-48 Should) | `E2E: 23-marca, 24-accesibilidad, 25-recuperacion, 26-avisos, 17-i18n` + `npm ci && npm run build` en Windows y WSL2/CI + `npm run test -- --coverage` + `forge test` + `npm run check:mermaid` + `Comando: git ls-files` con LICENSE, NOTICE y `public/fonts/LICENSE-*.txt` (artefactos de la sección 9.2) |
 
 **Regla de cierre de hito (RT-07):** un hito no se cierra hasta que `npm run test`, `npm run test:e2e`, `forge test` y `npm run check:mermaid` terminen con exit 0 y la cobertura de ramas no baje de los umbrales de RNF-17. **Los 10 RF Should** se abordan al final (o en el ciclo posterior) sin bloquear el cierre del MVP; **RF-40** se valida aqui aunque su mecanismo se construya en H3.
 
@@ -2002,12 +2003,12 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 
 | Artefacto | Ruta | Contenido minimo exigido | Responsable | Criterio de verificacion |
 |---|---|---|---|---|
-| **README** | `README.md` (raiz) | Que es el proyecto y alcance (desarrollo, sin fondos reales); requisitos previos (Node 24, npm 11, Foundry en rango, Chrome >= 114); **puesta en marcha en 4 pasos**; estructura de carpetas; tabla de scripts de `package.json`; como cargar `dist/` en `chrome://extensions`; comandos de prueba; aviso de seguridad (P-03: sin cifrado); enlaces a `RepoTecnico/` | Autor del proyecto (§4.4 de `requerimientos.md`) | Revisión: el README permite ejecutar `npm ci && npm run build` y cargar la extension **sin leer ningun otro documento**; CU-36 lo recorre |
-| **INSTRUCCIONES** | `INSTRUCCIONES.md` (raiz) | Guia de uso del producto para el usuario final: crear o importar cartera, anadir e importar cuentas, revelar y exportar material (con la politica de portapapeles de P-20), enviar, cambiar y dar de alta redes, conectar y revocar dApps, leer el registro de actividad, resetear; interpretacion de los codigos de error mas frecuentes | Autor del proyecto | Revisión: cada flujo de `test.html` y cada pantalla de las tres ventanas aparece descrito; comprobado en H5 |
-| **LICENSE** | `LICENSE` (raiz) | Licencia del **codigo propio** del proyecto (a decidir por el titular en H5; si no se decide, se declara explicitamente «sin licencia de redistribucion» en vez de omitir el fichero) | Titular del proyecto (decision de negocio, no del equipo tecnico) | `Revisión: git ls-files` contiene `LICENSE`; RNF-23 lo exige |
-| **NOTICE** | `NOTICE` (raiz) | Aviso de **terceros**: `ethers.js v6` (MIT), React 19 (MIT), Vite (MIT), las tipografias Poppins, Inter y JetBrains Mono (**OFL-1.1**) y los activos de marca TrueKeate (DEC-15) | Autor del proyecto | `Revisión: git ls-files` contiene `NOTICE` y cada dependencia del bundle figura con su licencia; RNF-23 |
-| **Licencias de fuentes** | `public/fonts/LICENSE-poppins.txt`, `LICENSE-inter.txt`, `LICENSE-jetbrains-mono.txt` | Texto OFL-1.1 de cada familia **auto-hospedada**, con el aviso de que se sirven desde el propio paquete (sin CDN: RNF-20) | Autor del proyecto | `Revisión: git ls-files public/fonts`: 3 ficheros `LICENSE-*.txt` y sus correspondientes `.woff2`; CA-RT-12 |
-| **Avisos in-product** | Pantallas del popup | Aviso no descartable «entorno de desarrollo, no usar con fondos reales» en el primer arranque, en «Acerca de» y **antes de la primera firma**, con la aceptacion registrada en `truekeate_settings` | Autor del proyecto | `E2E: 26-avisos.spec.ts` (asercion sobre el DOM) y `Revisión: git ls-files` para los 4 ficheros anteriores; RNF-23 |
+| **README** | `README.md` (raiz) | Que es el proyecto y alcance (desarrollo, sin fondos reales); requisitos previos (Node 24, npm 11, Foundry en rango, Chrome >= 114); **puesta en marcha en 4 pasos**; estructura de carpetas; tabla de scripts de `package.json`; como cargar `dist/` en `chrome://extensions`; comandos de prueba; aviso de seguridad (P-03: sin cifrado); enlaces a `RepoTecnico/` | Autor del proyecto (§4.4 de `requerimientos.md`) | Inspección: el README permite ejecutar `npm ci && npm run build` y cargar la extension **sin leer ningun otro documento**; `E2E: 01-onboarding.spec.ts — carga de dist/ con 0 errores`; CU-36 lo recorre |
+| **INSTRUCCIONES** | `INSTRUCCIONES.md` (raiz) | Guia de uso del producto para el usuario final: crear o importar cartera, anadir e importar cuentas, revelar y exportar material (con la politica de portapapeles de P-20), enviar, cambiar y dar de alta redes, conectar y revocar dApps, leer el registro de actividad, resetear; interpretacion de los codigos de error mas frecuentes | Autor del proyecto | Inspección: cada flujo de `test.html` y cada pantalla de las tres ventanas aparece descrito; `E2E: 22-dapp.spec.ts — los 7 flujos` |
+| **LICENSE** | `LICENSE` (raiz) | Licencia del **codigo propio** del proyecto (a decidir por el titular en H5; si no se decide, se declara explicitamente «sin licencia de redistribucion» en vez de omitir el fichero) | Titular del proyecto (decision de negocio, no del equipo tecnico) | `Comando: git ls-files` contiene `LICENSE`; RNF-23 lo exige |
+| **NOTICE** | `NOTICE` (raiz) | Aviso de **terceros**: `ethers.js v6` (MIT), React 19 (MIT), Vite (MIT), las tipografias Poppins, Inter y JetBrains Mono (**OFL-1.1**) y los activos de marca TrueKeate (DEC-15) | Autor del proyecto | `Comando: git ls-files` contiene `NOTICE` y cada dependencia del bundle figura con su licencia; RNF-23 |
+| **Licencias de fuentes** | `public/fonts/LICENSE-poppins.txt`, `LICENSE-inter.txt`, `LICENSE-jetbrains-mono.txt` | Texto OFL-1.1 de cada familia **auto-hospedada**, con el aviso de que se sirven desde el propio paquete (sin CDN: RNF-20) | Autor del proyecto | `Comando: git ls-files public/fonts`: 3 ficheros `LICENSE-*.txt` y sus correspondientes `.woff2`; CA-RT-12 |
+| **Avisos in-product** | Pantallas del popup | Aviso no descartable «entorno de desarrollo, no usar con fondos reales» en el primer arranque, en «Acerca de» y **antes de la primera firma**, con la aceptacion registrada en `truekeate_settings` | Autor del proyecto | `E2E: 26-avisos.spec.ts` (asercion sobre el DOM) y `Comando: git ls-files` para los 4 ficheros anteriores; RNF-23 |
 | **JSDoc por modulo** | Todo `src/**/**.ts` | Cada modulo de la seccion 2.4 lleva una cabecera con su identificador (**M1..M66**), su responsabilidad unica y el requisito que satisface (RF/RNF/RT) | Autor del proyecto | `Vitest: docs.spec.ts` (comprobacion mecanica: cada fichero de `src/` empieza por un bloque JSDoc con el identificador M y una referencia RF/RNF/RT) |
 
 > **Remision de CU-36.** El caso de uso CU-36 (instalacion desde `dist/` y build limpio) **no** define estos artefactos: los **referencia** por su ruta dentro de su lista de verificacion. Si la rubrica exige un artefacto adicional, se documenta primero en esta tabla y despues en el caso de uso (§3 de `casos_uso/casos_uso.md`), nunca al reves.
@@ -2081,7 +2082,7 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 
 ### 10.3 Documentos del corpus
 
-`RepoTecnico/requerimientos.md` (v1.5) · `RepoTecnico/casos_uso/casos_uso.md` (v1.1, 36 CU) · `RepoTecnico/casos_uso/diagramas.md` (v1.0) · `RepoTecnico/diccionario_datos.md` (v1.4) · `RepoTecnico/entornos_globales.md` (v1.6) · `RepoTecnico/identidad_visual.md` (v1.2) · `RepoTecnico/estado_proyecto.md` (v1.5, DEC-01..DEC-36) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (H-01..H-42) · `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30) · `RepoTecnico/GUIA_RAPIDA_TESTING.md` (**no vinculante**, H-24) · `RepoTecnico/requisitos.md` y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` (enunciado fuente) · `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md` (auditoria de este documento: **ADT-01..ADT-33**).
+`RepoTecnico/requerimientos.md` (v1.6) · `RepoTecnico/casos_uso/casos_uso.md` (v1.2, 36 CU) · `RepoTecnico/casos_uso/diagramas.md` (v1.0) · `RepoTecnico/diccionario_datos.md` (v1.5) · `RepoTecnico/entornos_globales.md` (v1.7) · `RepoTecnico/identidad_visual.md` (v1.3) · `RepoTecnico/estado_proyecto.md` (v1.6, DEC-01..DEC-44) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (H-01..H-42) · `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30) · `RepoTecnico/GUIA_RAPIDA_TESTING.md` (**no vinculante**, H-24) · `RepoTecnico/requisitos.md` y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` (enunciado fuente) · `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md` (auditoria de este documento: **ADT-01..ADT-33**).
 
 > **Regla de citacion (ADT-03).** Toda referencia cruzada a otro documento del corpus se escribe **siempre con el documento por delante** y la seccion detras (`diccionario_datos.md` seccion 4.3, `requerimientos.md` seccion 2.2), nunca con la seccion suelta: la seccion sola es **ambigua** con las secciones de este mismo documento.
 
@@ -2092,7 +2093,7 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 | Version | Fecha | Cambios | Hallazgos cerrados |
 |---|---|---|---|
 | **1.0** | — | Version auditada: 65 modulos, 20 ADR, 13 diagramas Mermaid. | — |
-| **1.1** | actual | Aplicacion integra de la auditoria `AUDITORIA_DOCUMENTO_TECNICO_V1.md`. **Nuevas secciones:** 3.4.1 (tabla local cerrada de selectores, M66), 3.8 (revelado y exportacion de RF-50 con la politica de portapapeles de P-20), 5.1.1 (contrato de los metodos internos `wallet_*`), 7.4.1 (arness E2E completo), 7.5 (build y empaquetado MV3) y 9.2 (artefactos documentales de la rubrica). **Decisiones del usuario aplicadas:** P-20 (se permite copiar; se borra el portapapeles al ocultar, con test E2E), P-21 (una sola ventana global de `notification.html` con contador de pendientes) y P-22 (`wallet_addEthereumChain` solo anade; activar exige `wallet_switchEthereumChain` con su propia aprobacion). **Decisiones de consolidacion:** D-H..D-U. **Promociones:** P-3.8 a invariante de la seccion 2.3 y P-3.9 a convencion de la seccion 7.4. **Pendientes cerrados:** P-3.1, P-3.2, P-3.3, P-3.4, P-3.5, P-3.6, P-3.8, P-3.9 y P-3.10 (parcial). | **33 de 33** hallazgos de la auditoria (ADT-01..ADT-33) |
+ANCHOR_TECNICO `AUDITORIA_DOCUMENTO_TECNICO_V1.md`. **Nuevas secciones:** 3.4.1 (tabla local cerrada de selectores, M66), 3.8 (revelado y exportacion de RF-50 con la politica de portapapeles de P-20), 5.1.1 (contrato de los metodos internos `wallet_*`), 7.4.1 (arness E2E completo), 7.5 (build y empaquetado MV3) y 9.2 (artefactos documentales de la rubrica). **Decisiones del usuario aplicadas:** P-20 (se permite copiar; se borra el portapapeles al ocultar, con test E2E), P-21 (una sola ventana global de `notification.html` con contador de pendientes) y P-22 (`wallet_addEthereumChain` solo anade; activar exige `wallet_switchEthereumChain` con su propia aprobacion). **Decisiones de consolidacion:** D-H..D-U. **Promociones:** P-3.8 a invariante de la seccion 2.3 y P-3.9 a convencion de la seccion 7.4. **Pendientes cerrados:** P-3.1, P-3.2, P-3.3, P-3.4, P-3.5, P-3.6, P-3.8, P-3.9 y P-3.10 (parcial). | **33 de 33** hallazgos de la auditoria (ADT-01..ADT-33) |
 
 **Detalle por hallazgo (ADT-01..ADT-33).**
 
