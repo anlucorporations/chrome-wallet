@@ -2,9 +2,9 @@
 
 > Memoria de trabajo del proyecto. Se lee al inicio de cada turno y se actualiza de forma incremental.
 
-**Última actualización:** Fase 1 — Concepto ✅ **COMPLETADA** (entrevista cerrada, identidad visual incorporada, nomenclatura fijada)
-**Fase actual:** **1 de 5 — Concepto** (cerrada, esperando confirmación para avanzar)
-**Comando para continuar:** `/auditar` (Fase 2 – Auditoría) · `/estado` · `/push`
+**Última actualización:** Fase 2 — Auditoría 🔄 **EN CURSO** (informe `INFORME_OPTIMIZACION_V1.md` emitido con **42 hallazgos**; remediación documental aplicada)
+**Fase actual:** **2 de 5 — Auditoría** (auditoría ejecutada + remediación en curso; pendientes casos de uso, gráficos y documento técnico)
+**Comando para continuar:** `/casos_uso` (Fase 2) · `/graficos` · `/documento_tecnico` · `/estado` · `/push`
 **Rama de trabajo activa:** `chrome-wallet-DSH`
 
 ---
@@ -25,27 +25,29 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 |---|---|---|
 | `requisitos.md` | ✅ Fuente (no se modifica) | Enunciado original de la tarea (36 especificaciones). |
 | `TAREA_PARA_ESTUDIANTE.md` | ✅ Fuente (no se modifica) | Enunciado extendido con arquitectura y ejemplos de código. |
-| `GUIA_RAPIDA_TESTING.md` | ✅ Fuente (no se modifica) | Guía de pruebas rápidas y depuración. |
-| `requerimientos.md` | ✅ v1.2 | 47 RF, 17 RNF, 11 RT y 4 RE, actores, desviaciones D-01..D-09, riesgos, entrevista cerrada. |
-| `diccionario_datos.md` | ✅ v1.2 | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. |
-| `entornos_globales.md` | ✅ v1.2 | Entorno verificado, comandos, constantes, permisos, 3 remotos, herramientas de prueba y GCP cerrado. |
-| `identidad_visual.md` | ✅ v1.1 (aprobado, P-14) | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS y criterios de verificación. |
-| `estado_proyecto.md` | ✅ v1.3 (este archivo) | Memoria de trabajo. |
-| `casos_uso/` | ⏳ Fase 2 | Casos de uso (Gherkin/EARS) + diagramas Mermaid/SVG. |
-| `documento_tecnico.md` | ⏳ Fase 2 | Arquitectura y especificación técnica. |
-| `plan_desarrollo.md` | ⏳ Fase 3 | Plan de desarrollo vertical por hitos. |
+| `GUIA_RAPIDA_TESTING.md` | ⏳ Línea base previa (**no vinculante**) | Guía del prototipo anterior (nomenclatura `codecrypto_*`); P-10/DEC-09 decidió **no reutilizarla** (H-24). El proyecto tendrá su propia guía de troubleshooting. |
+| `requerimientos.md` | ✅ v1.4 | **49 RF (39 Must / 10 Should)**, 25 RNF, 13 RT y 4 RE, actores, desviaciones D-01..D-10, riesgos, entrevista cerrada y **criterio de aceptación + evidencia por RF/RT** (H-01/DEC-25). |
+| `diccionario_datos.md` | ✅ v1.3 | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. |
+| `entornos_globales.md` | ✅ v1.5 | Entorno verificado, comandos, constantes, permisos de **mínimos privilegios**, política de versiones, 3 remotos, herramientas de prueba y GCP cerrado. |
+| `identidad_visual.md` | ✅ v1.2 (aprobado, P-14) | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS, **matriz de contraste cerrada** y criterios de accesibilidad (H-17). |
+| `INFORME_OPTIMIZACION_V1.md` | ✅ v1 (Fase 2) | **Informe de auditoría de la Fase 2**: **42 hallazgos** (2 CRITICA · 14 ALTA · 21 MEDIA · 5 BAJA) y **27 descartados**, con plan de acción (QW-1..QW-16, M-1..M-18, RM-1..RM-7) y criterios de aceptación. |
+| `estado_proyecto.md` | ✅ v1.4 (este archivo) | Memoria de trabajo. |
+| `casos_uso/` | ⏳ Fase 2 | Casos de uso (Gherkin/EARS) + diagramas Mermaid/SVG. **Pendiente.** |
+| `documento_tecnico.md` | ⏳ Fase 2 | Arquitectura y especificación técnica. **Pendiente.** |
+| `plan_desarrollo.md` | ⏳ Fase 3 | Plan de desarrollo vertical por hitos y **estimación por hitos** (sustituye al «~40 h», H-34). |
 
 ---
 
 ## 3. Entorno verificado (resumen)
 
 - Windows · Node `v24.16.0` · npm `11.13.0`.
-- Foundry `anvil`/`forge`/`cast` **1.7.2-dev** instalados (`C:\Users\lucci\.cargo\bin`).
+- Foundry `anvil`/`forge`/`cast` **1.7.2-dev** instalados (`C:\Users\lucci\.cargo\bin`); rango soportado `>=1.0.0 <2.0.0` (`entornos_globales.md` §8).
 - Repositorio git **inicializado**: `main` (commit raíz con la documentación) y rama de trabajo `chrome-wallet-DSH`.
-- Remotos configurados: `origin` (GitHub, **no existe**), `gitlab` (GitLab.com, **no existe**), `codecrypto` (GitLab ANLU, **existe con el código previo**).
-- RPC local en `127.0.0.1:8545` **detenido** (se levanta con `anvil` al probar).
+- Remotos configurados: `origin` (GitHub, **no existe**), `gitlab` (GitLab.com, **no existe**), `codecrypto` (GitLab ANLU, **existe con el código previo, solo como referencia**).
+- **El proyecto se reconstruye desde cero (DEC-09):** el código del remoto `codecrypto` **no se adopta, no se reutiliza y no se versiona**; `src/` se crea en la Fase 3 y el remoto solo se consulta. No hay ninguna vía de reutilización de ese código en este plan.
+- RPC local en `127.0.0.1:8545` **detenido** (se levanta con `anvil` al probar, con allowlist de CORS).
 - Sin `gh`/`glab` ni tokens; GCP fuera de alcance.
-- Identidad visual **TrueKeate** incorporada: 6 activos originales en `TrueKeate/`, 4 iconos generados en `public/icons/` y 6 activos de marca en `public/brand/`.
+- Identidad visual **TrueKeate** incorporada: 6 activos originales en `TrueKeate/`, 4 iconos generados en `public/icons/` (versionados, no se regeneran en Linux) y 6 activos de marca en `public/brand/`.
 
 ---
 
@@ -53,11 +55,11 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 
 | # | Decisión | Motivo |
 |---|---|---|
-| DEC-01 | Renumerar los requerimientos como `RF-01..RF-47` usando `requerimientos.md` como **fuente única**. | El enunciado repite los números 20, 26 y 29 (D-01). |
+| DEC-01 | Renumerar los requerimientos como `RF-01..RF-49` usando `requerimientos.md` como **fuente única**. | El enunciado repite los números 20, 26 y 29 (D-01); RF-48/RF-49 son aportaciones de identidad visual y quedan dentro del rango oficial (H-03). |
 | DEC-02 | Adoptar **Foundry Anvil** como red por defecto y **única**. | Petición explícita del usuario (D-02). |
 | DEC-03 | Añadir la **importación por clave privada** (RF-05/RF-06) y la **recepción de fondos con QR/copiar dirección** (RF-07). | Petición explícita del usuario (D-03/D-04). |
 | DEC-04 | Mantener la arquitectura del enunciado: **React = solo UI**, **Service Worker = criptografía y RPC**. | Ya está validada y refuerza RNF-09/RNF-14. |
-| DEC-05 | Incluir desde el diseño la **cola de aprobaciones persistida** y los **timeouts** (RF-37/RF-40/RNF-08). | El Service Worker MV3 se duerme y pierde el estado en memoria. |
+| DEC-05 | Incluir desde el diseño la **cola de aprobaciones persistida** y los **timeouts** (RF-37/RF-40/RNF-08). | El Service Worker MV3 se duerme y pierde el estado en memoria. **Rediseñada en DEC-24** (H-02/H-07/H-08). |
 | DEC-06 | Confirmar `personal_sign` (RF-21) y `wallet_revokePermissions` (RF-26) dentro del alcance. | Respuestas **P-05** y **P-06** del usuario. |
 | DEC-07 | **Retirar Sepolia** del alcance y de `host_permissions`. | Decisión **P-02**. |
 | DEC-08 | Mantener la **carga sin contraseña** del mnemonic, documentándolo como modo desarrollo. | Decisión **P-03**. |
@@ -70,9 +72,15 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | DEC-15 | Adoptar la marca **TrueKeate** entregada en `TrueKeate/` como identidad visual del producto, con el documento vinculante `identidad_visual.md`. | Petición explícita del usuario en Fase 1. |
 | DEC-16 | La paleta se obtuvo por **medición de píxeles** de los activos originales (no por estimación visual) y se congeló en tokens CSS. | RNF-18 exige que no haya colores fuera de los tokens. |
 | DEC-17 | Los iconos de 16/32 px usan una **variante simplificada** (zoom a las flechas + saturación) y los de 48/128 el isologo completo. | El isologo completo se emborrona por debajo de 48 px. |
-| DEC-18 | **Renombrar todo el producto a TrueKeate**, incluido el provider inyectado (`window.truekeate`), el prefijo de storage (`truekeate_`) y los tipos de mensaje. | Decisión **P-13** (desviación consciente del literal E-03 del enunciado). |
+| DEC-18 | **Renombrar todo el producto a TrueKeate**, incluido el provider inyectado (`window.truekeate`), el prefijo de storage (`truekeate_`) y los tipos de mensaje. | Decisión **P-13** (desviación consciente del literal E-03 del enunciado). El alias de compatibilidad se cierra en **DEC-21**. |
 | DEC-19 | Aprobar el sistema de diseño de `identidad_visual.md` tal cual: paleta medida de los activos, Poppins + Inter + JetBrains Mono auto-hospedadas, ventanas de 380×600 / 420×650 / 420×640. | Decisión **P-14**. |
 | DEC-20 | Iconos de 16/32 px con **variante simplificada** (zoom a las flechas + saturación); 48/128 con el isologo completo. | Decisión **P-15**. |
+| DEC-21 | El provider inyectado expone **`window.truekeate`** **y además el alias `window.codecrypto = window.truekeate`** (el **mismo objeto**), con un **test que verifica ambos nombres**. | Cierra **H-15** y protege los **5 puntos de la rúbrica** ligados al nombre literal del enunciado. Decisión firme del usuario (sustituye a «si el evaluador lo exige»). |
+| DEC-22 | **`eth_sign` retirado del catálogo RPC**: se responde `4200` (Unsupported method) y solo se admite **`personal_sign`**. | Cierra **H-11**: `eth_sign` firma un digest de 32 bytes sin interpretación, el enunciado no lo exige y P-05 confirma solo `personal_sign`. |
+| DEC-23 | **Vista previa con decodificación completa del calldata y avisos de riesgo**: selector y nombre de función, parámetros legibles, contrato destino etiquetado y aviso en `approve`/`setApprovalForAll`/valor ilimitado; en EIP-712 se muestran `verifyingContract` y `name` (con aviso si no coinciden con lo declarado); en `personal_sign` se previsualiza el **texto UTF-8** (aviso si el payload es hexadecimal ilegible). | Cierra **H-11**: el usuario debe ver qué autoriza realmente antes de firmar. |
+| DEC-24 | **Rediseño del ciclo de aprobación MV3**: puerto de larga vida (`chrome.runtime.connect` con reconexión y backoff), **`chrome.alarms`** en los permisos, **cola persistida `Record<approvalId, PendingRequest>`** con *read-modify-write* serializado, **reconciliación al arrancar** el SW (marca `expired` y responde `4001` a los huérfanos) y **SW dueño único del plazo** (`SIGN_TIMEOUT_MS` 120 s / `CONNECT_TIMEOUT_MS` 60 s anclados a `createdAt`); al expirar cierra la ventana, marca `expired` y purga el badge. | Cierra **H-02, H-07 y H-08**; completa DEC-05. |
+| DEC-25 | Los **49 RF y los 13 RT** llevan columna de **criterio de aceptación (verificable)** y **evidencia**; los criterios Gherkin viven en **`requerimientos.md` §9 (anexo)** y en los casos de uso. | Cierra **H-01**: sin oráculo por requisito no se puede derivar el test. La redacción dentro de `requerimientos.md` corresponde al analista. |
+| DEC-26 | **MVP = los 39 RF Must**; los **10 RF Should** se planifican en un **ciclo posterior**. La estimación «~40 h» se sustituye por **estimación por hitos** en `plan_desarrollo.md`. | Cierra **H-34** y hace explícito qué cae si se agota el presupuesto (§9). |
 
 ---
 
@@ -90,7 +98,7 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 
 | ID | Pregunta | Respuesta |
 |---|---|---|
-| P-10 | ¿Adoptar la implementación previa del remoto `codecrypto`? | **Reconstruir desde cero.** El remoto queda solo como referencia. |
+| P-10 | ¿Qué se hace con la implementación previa del remoto `codecrypto`? | **Reconstruir desde cero** (DEC-09): el remoto queda solo como **referencia de consulta** y su código no se reutiliza ni se versiona. |
 
 ### Bloque 2 — Alcance funcional
 
@@ -112,8 +120,8 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 
 | ID | Pregunta | Estado |
 |---|---|---|
-| P-13 | Nomenclatura marca/enunciado | ✅ **Renombrar todo a TrueKeate**, incluido el provider (`window.truekeate`). |
-| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md` v1.1). |
+| P-13 | Nomenclatura marca/enunciado | ✅ **Renombrar todo a TrueKeate**, incluido el provider (`window.truekeate`) y su alias `window.codecrypto` (DEC-21). |
+| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md`, hoy v1.2). |
 | P-15 | Iconos pequeños | ✅ **Aprobada** la variante simplificada para 16/32 px. |
 
 ### Pendiente administrativo (no bloqueante)
@@ -130,36 +138,60 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|---|---|
 | Mnemonic en claro en `chrome.storage.local` (modo sin contraseña) | Alta | Alto | **Riesgo aceptado (P-03)**; documentado como modo desarrollo. |
-| Service Worker dormido pierde la cola de aprobaciones | Alta | Alto | Persistir en storage + reconstruir al arrancar (RNF-08). |
-| Bloqueo CORS hacia el RPC local | Media | Medio | `host_permissions` + `--http.corsdomain` en Anvil (RE-04). |
-| Fuga de clave privada hacia la página | Baja | Crítico | Nunca se envían claves por `postMessage` (RNF-09/RNF-10). |
-| Numeración inconsistente del enunciado | Alta | Bajo | Renumeración `RF-XX` (DEC-01). |
-| Reconstruir desde cero consume el presupuesto de ~40 h | Media | Medio | Plan de desarrollo vertical con hitos funcionales y pruebas por ciclo (Fase 3). |
+| Service Worker dormido pierde la cola de aprobaciones | Alta | Alto | **DEC-24**: puerto de larga vida + `chrome.alarms` + cola persistida `Record<approvalId, PendingRequest>` con reconciliación al arrancar y SW dueño único del plazo (RNF-08); al expirar, cierra la ventana, marca `expired` y responde `4001`. |
+| Firma ciega: el usuario aprueba sin decodificar el calldata | Media | Alto | **DEC-22/DEC-23**: `eth_sign` fuera del catálogo (`4200`), decodificación del calldata, `verifyingContract`/`name` visibles y avisos de riesgo antes de firmar. |
+| Bloqueo o exposición del RPC local | Media | Medio | `host_permissions` + **allowlist de CORS** en Anvil (RE-04, H-41); nunca `--http.corsdomain "*"` ni escucha fuera de `127.0.0.1`. |
+| Fuga de clave privada hacia la página | Baja | Crítico | Nunca se envían claves por `postMessage` (RNF-09/RNF-10); `chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })` (H-32). |
+| Numeración inconsistente del enunciado | Alta | Bajo | Renumeración `RF-01..RF-49` (DEC-01) y conteos sincronizados en la tabla §2 (H-03). |
+| **Alcance y plazo:** el MVP (39 RF Must) no cabe en el presupuesto de la asignatura | **Alta** | **Alto** | **MVP por hitos (DEC-26)**: los 10 RF Should pasan a un ciclo posterior; estimación por hitos en `plan_desarrollo.md` (sustituye al «~40 h»); tabla «MVP vs ciclo posterior» (§9). |
 | Combinar Playwright + Forge + Vitest en solitario | Media | Medio | Los tests se construyen en cada ciclo, no al final; el contrato EIP-712 es mínimo. |
-| Historia local y remota sin ancestro común en `codecrypto` | Alta | Medio | Definir estrategia antes del primer `/push` (**P-12**). |
+| Historia local y remota sin ancestro común en `codecrypto` | Alta | Medio | Definir la estrategia de publicación (solo historia git) antes del primer `/push` (**P-12**), sin reutilizar código (DEC-09). |
 
 ---
 
 ## 7. Próximos pasos
 
-1. **Confirmar el cierre de la Fase 1** y autorizar el paso a la **Fase 2 – Auditoría**.
-2. Ejecutar `/auditar` sobre `requerimientos.md`, `diccionario_datos.md` y `entornos_globales.md`.
-3. Ejecutar `/casos_uso` (Gherkin/EARS + trazabilidad a RF), auditarlos y resolver las dudas.
-4. Ejecutar `/graficos` (Mermaid/SVG de los casos de uso auditados).
-5. Ejecutar `/documento_tecnico` y `/auditar_documento`.
-6. ~~Responder el Bloque 4 de identidad visual~~ ✅ **hecho** (P-13/P-14/P-15).
-7. Crear los repositorios de GitHub y GitLab.com (P-11).
-8. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo`.
+1. ~~Confirmar el cierre de la Fase 1 y pasar a la Fase 2~~ ✅ **hecho**.
+2. ~~Ejecutar `/auditar`~~ ✅ **hecho**: `INFORME_OPTIMIZACION_V1.md` (42 hallazgos, 27 descartados).
+3. **Cerrar la remediación de la Fase 2**: completar los criterios de §8.2 y los 12 puntos de `INFORME_OPTIMIZACION_V1.md` §10.
+4. Ejecutar `/casos_uso` (Gherkin/EARS + matriz E-xx → RF-xx → CU → test), auditarlos y resolver las dudas; **pendiente**.
+5. Ejecutar `/graficos` (Mermaid/SVG de los casos de uso auditados); **pendiente**.
+6. Ejecutar `/documento_tecnico` y `/auditar_documento`; **pendiente**.
+7. ~~Responder el Bloque 4 de identidad visual~~ ✅ **hecho** (P-13/P-14/P-15).
+8. Crear los repositorios de GitHub y GitLab.com (P-11).
+9. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo` (estimación por hitos y MVP Must, DEC-26).
 
 ---
 
-## 8. Criterios de aceptación de la Fase 1 ✅ CUMPLIDOS
+## 8. Criterios de aceptación por fase
 
-- [x] Extracción de RF / RNF / RT / RE del enunciado fuente (`requerimientos.md` v1.2).
+### 8.1 Fase 1 — Concepto ✅ CUMPLIDOS
+
+- [x] Extracción de RF / RNF / RT / RE del enunciado fuente (`requerimientos.md` **v1.4**: 49 RF / 25 RNF / 13 RT / 4 RE, D-01..D-10).
 - [x] `requerimientos.md`, `diccionario_datos.md` y `entornos_globales.md` creados y consolidados.
 - [x] `estado_proyecto.md` con el resumen de la fase.
 - [x] Bloque 1, Bloque 1-bis, Bloque 2 y Bloque 3 de la entrevista respondidos (P-01..P-10).
 - [x] Repositorio local inicializado con `main` y `chrome-wallet-DSH` y los 3 remotos configurados.
-- [x] Decisión de alcance cerrada: red única Anvil, sin GCP, reconstrucción desde cero.
+- [x] Decisión de alcance cerrada: red única Anvil, sin GCP, reconstrucción desde cero (DEC-09).
 - [ ] Repositorios de GitHub y GitLab.com creados por el usuario (P-11, no bloquea la Fase 2).
-- [ ] Confirmación explícita del usuario para pasar a la Fase 2.
+
+### 8.2 Fase 2 — Auditoría 🔄 EN CURSO
+
+- [x] Auditoría ejecutada en 3 fases (7 revisores + 7 verificadores adversariales + síntesis): **42 hallazgos** (2 CRITICA · 14 ALTA · 21 MEDIA · 5 BAJA) y **27 descartados**, en `INFORME_OPTIMIZACION_V1.md`.
+- [x] Quick wins documentales aplicados en `entornos_globales.md` v1.5, `identidad_visual.md` v1.2 y esta memoria: H-03, H-04, H-05, H-07 (dueño del plazo), H-15, H-20, H-24, H-29, H-33, H-34, H-36, H-41 y H-02 (permisos).
+- [x] Decisiones de remediación del usuario registradas: **DEC-21..DEC-26**.
+- [ ] **Criterios de aceptación por requisito** (H-01): los 49 RF y los 13 RT con criterio y evidencia en `requerimientos.md` (analista).
+- [ ] **Matriz de trazabilidad** E-xx → RF-xx → CU → test con los 39 Must cubiertos (H-01/H-05/H-06/H-14); depende de `/casos_uso`.
+- [ ] Casos de uso (`casos_uso/`), gráficos y `documento_tecnico.md`; **pendientes**.
+- [ ] Veredicto de reevaluación: un revisor independiente confirma el cierre de los 42 hallazgos (§10.12 del informe) antes de declarar la Fase 2 cerrada.
+
+---
+
+## 9. Alcance del MVP vs ciclo posterior (H-34 / DEC-26)
+
+| Bloque | Alcance | Momento |
+|---|---|---|
+| **MVP (obligatorio)** | **39 RF Must** + los RNF y RT asociados (39 de los 49 RF) | Fases 3-4 |
+| **Ciclo posterior** | **10 RF Should**: RF-06, RF-12, RF-32, RF-34, RF-38, RF-39, RF-40, RF-44, RF-47 y RF-48 (según H-01; **lista canónica en `requerimientos.md` §4.5 «MVP (39 RF Must) vs ciclo posterior (10 RF Should)»**) | tras el MVP, si el presupuesto lo permite |
+
+> La estimación «~40 h» queda **retirada**: el cronograma se fija por **hitos** en `plan_desarrollo.md` (Fase 3), con el MVP Must como compromiso mínimo y los Should como alcance ampliable. Si el presupuesto se agota, el recorte ya está decidido por diseño y no se negocia a mitad de la Fase 4.

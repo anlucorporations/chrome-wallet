@@ -1,6 +1,6 @@
 # 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.4
+> **Fase:** 1 — Concepto · **Versión:** 1.5
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 
 ---
@@ -28,7 +28,7 @@
 | Documentación técnica | `RepoTecnico/` |
 | Enunciado fuente | `RepoTecnico/requisitos.md`, `RepoTecnico/TAREA_PARA_ESTUDIANTE.md` |
 | Guía de pruebas rápida | `RepoTecnico/GUIA_RAPIDA_TESTING.md` |
-| Código fuente | `src/` — **existe una versión completa en el remoto `codecrypto`** (§5), pendiente de adoptar (P-10) |
+| Código fuente | `src/` — **a crear en Fase 3**; el código del remoto `codecrypto` (§5) es **solo referencia de consulta** (P-10/DEC-09) y no se reutiliza ni se versiona |
 | Build de la extensión | `dist/` — **es la carpeta que se carga en Chrome** |
 | dApp de pruebas | `test.html` (raíz y copia servida en `http://localhost:5174/test.html`) |
 | Binarios Foundry | `C:\Users\lucci\.cargo\bin\{anvil,forge,cast}.exe` |
@@ -49,8 +49,10 @@
 # Anvil por defecto: puerto 8545, chainId 31337, mnemonic "test ... junk", 10 000 ETH por cuenta
 anvil
 
-# Con CORS abierto para que la extensión pueda llamar al RPC (RE-04)
-anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"
+# CORS con allowlist: solo el origen de la extensión y la dApp de pruebas (RE-04, H-41)
+# NOTA: <ID> es el ID estable de la extensión (se fija con la "key" del manifest); se sustituye al primer build.
+anvil --host 127.0.0.1 --port 8545 --chain-id 31337 `
+      --http.corsdomain "chrome-extension://<ID>,http://localhost:5174,http://127.0.0.1:5174"
 
 # Verificar que responde
 cast block-number --rpc-url http://127.0.0.1:8545
@@ -59,19 +61,40 @@ cast balance 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://127.0.0
 
 # Ver una transacción enviada desde la wallet
 cast tx <hash> --rpc-url http://127.0.0.1:8545
+
+# Versión del nodo (debe estar en el rango soportado; ver §8)
+anvil --version
 ```
 
-> **Decisión P-02:** Anvil es la **única** red. No se incluye Sepolia. El cambio de red (RF-22/RF-23) se prueba añadiendo una segunda red local con `wallet_addEthereumChain` (por ejemplo `anvil --port 8546 --chain-id 31338`).
+> ⚠️ **No exponer el RPC local (H-41).** `--http.corsdomain "*"` permitiría a **cualquier** sitio visitado en el equipo llamar al JSON-RPC local (y facilita escenarios de *DNS rebinding* hacia `127.0.0.1`). Se usa siempre la **allowlist concreta** de arriba. El comodín solo sería aceptable en una máquina de desarrollo aislada y sin navegación a sitios de terceros, y en ningún caso se publica el puerto 8545 fuera de `127.0.0.1` (nada de `--host 0.0.0.0`).
+
+> **Decisión P-02:** Anvil es la **única** red. No se incluye Sepolia. El cambio de red (RF-22/RF-23) se prueba añadiendo una segunda red local con `wallet_addEthereumChain` (por ejemplo `anvil --port 8546 --chain-id 31338`, con su propia allowlist de CORS).
 
 ### 2.2 Proyecto (a partir de la Fase 3)
 
 ```powershell
-npm install          # Instalar dependencias
+npm ci               # Instalación reproducible desde package-lock.json (build limpio)
 npm run dev          # Vite dev (dApp de pruebas / desarrollo de UI)
 npm run build        # tsc -b && vite build  -> genera dist/ + dist/manifest.json
 npm run test         # Vitest (unitarias / integración)
 npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
 ```
+
+**«Build limpio» — definición (H-20).** `npm ci && npm run build` termina con **código de salida 0**, **cero errores de tipos** (`tsc -b` con `strict: true`, RNF-13) y **cero avisos de tipos**; los avisos permitidos (si los hay) se listan expresamente en `plan_desarrollo.md` y ninguno puede provenir de `tsc`. `package-lock.json` se versiona y la build es reproducible.
+
+**Verificación en Linux (H-20).** Se ejecuta en **WSL2** (`wsl -d Ubuntu -- bash -lc "npm ci && npm run build && npm test"`) o, en su defecto, en un workflow de CI `ubuntu-latest` con los mismos tres pasos. Sin ese medio, RNF-15 se marca como **«verificado solo en Windows; pendiente en Linux»** y no como cumplido.
+
+**Puerto de la dApp de pruebas (H-33).** La configuración de Vite fija el puerto para que el origen sea estable y coincida con la clave de sesión persistida en `truekeate_connected_sites`:
+
+```ts
+// vite.config.ts (extracto)
+export default defineConfig({
+  server: { port: 5174, strictPort: true },
+  preview: { port: 5174, strictPort: true },
+})
+```
+
+Así `http://localhost:5174/test.html` es siempre el mismo origen; si el puerto está ocupado, el arranque **falla** en lugar de desplazarse a 5173 (lo que rompería RF-17/RF-25/RF-26). La **clave de sesión por origen** se normaliza igual en ambos lados: **origen canónico sin barra final y en minúsculas** (esquema, host y puerto explícitos), p. ej. `http://localhost:5174`.
 
 ### 2.3 Cargar la extensión en el navegador
 
@@ -81,7 +104,9 @@ npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
 4. Tras cada `npm run build`: pulsar **Recargar** en la tarjeta de la extensión.
 5. Consola del Service Worker: tarjeta de la extensión → **Service worker**.
 
-### 2.4 Depuración rápida (de `GUIA_RAPIDA_TESTING.md`)
+### 2.4 Depuración rápida
+
+> ⚠️ **`GUIA_RAPIDA_TESTING.md` no es vinculante (H-24).** Ese documento describe la **línea base previa descartada**: usa la nomenclatura antigua (`codecrypto_connected_sites` con valor *string*, `window.codecrypto`) y da por supuesto `npx hardhat node` en lugar de Anvil. P-10/DEC-09 decidió **no reutilizar** ese código ni su documentación, así que **sus snippets no deben copiarse**: la forma canónica de `truekeate_connected_sites` es el objeto por origen de `diccionario_datos.md` §2.7. El proyecto tendrá su **propia guía de troubleshooting** con nomenclatura `truekeate_` (Fase 4).
 
 ```javascript
 // En la consola del Service Worker
@@ -96,6 +121,15 @@ await window.truekeate.request({ method: 'eth_requestAccounts' });
 await window.truekeate.request({ method: 'eth_accounts' });
 await window.truekeate.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] });
 ```
+
+**Verificación previa a los E2E (H-29).** Antes de `npm run test:e2e` hay que comprobar que el nodo responde y que la versión de Foundry está dentro del rango soportado (§8):
+
+```powershell
+anvil --version                                           # debe estar en el rango soportado (ver §8)
+cast chain-id --rpc-url http://127.0.0.1:8545             # debe devolver 31337
+```
+
+Si Anvil no responde o la versión está fuera de rango, la suite E2E **no se ejecuta** y se marca como **no verificada** (nunca como satisfactoria).
 
 ### 2.5 Comandos git del proyecto
 
@@ -128,6 +162,8 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `PROVIDER_RDNS` | `academy.codecrypto.truekeate` | `src/inject/provider.ts` (RF-44) |
 | `PROVIDER_UUID` | UUID fijo de la extensión | `src/inject/provider.ts` (RF-44) |
 
+> **Dueño único del plazo de aprobación (H-07).** El **Service Worker es el único dueño del reloj**: `expiresAt = createdAt + SIGN_TIMEOUT_MS` (120 000 ms) para firmas/aprobaciones y `createdAt + CONNECT_TIMEOUT_MS` (60 000 ms) para conexión, **anclados a `createdAt`** (no al instante en que el usuario abre la ventana). El vencimiento se dispara con **`chrome.alarms`**, de modo que ocurre aunque el SW esté dormido. La capa inject/content **no tiene reloj propio**: es solo **red de seguridad con margen superior** (`SIGN_TIMEOUT_MS + 5000` ms) y delega siempre en el `approvalId`; si su temporizador vence, la solicitud ya fue resuelta por el SW. Al expirar, el SW **cierra la ventana** de `notification.html`, marca la solicitud como `expired` y **purga el badge** (RF-38); el error que llega a la página es un objeto **EIP-1193** con `code: 4001` y mensaje en español (RNF-06), nunca un `Error('Request timeout')` sin `code`.
+
 ### Variables de entorno para el tooling (`.env.local`, no versionado)
 
 | Variable | Uso | Estado |
@@ -143,12 +179,19 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 
 ## 4. Permisos y `host_permissions` previstos (Manifest V3)
 
+Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de verdad, con la justificación de cada permiso.
+
 ```jsonc
 {
-  "permissions": ["storage", "tabs", "activeTab", "notifications", "scripting"],
+  "permissions": ["storage", "alarms", "notifications"],
   "host_permissions": [
     "http://127.0.0.1:8545/*",
     "http://localhost:8545/*"
+  ],
+  "optional_host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://*/*"
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
@@ -161,7 +204,17 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 }
 ```
 
-> Se retiró `https://rpc.sepolia.org/*` por la decisión **P-02**. Si algún día se añade una red con `wallet_addEthereumChain`, habrá que solicitar permiso de host en tiempo de ejecución (`chrome.permissions.request`) o declararlo aquí.
+| Permiso | ¿Por qué? |
+|---|---|
+| `storage` | Persistir cartera, sesiones y cola de aprobaciones en `chrome.storage.local` (RNF-08, RF-25, RF-37). El SW **no tiene** `localStorage`. |
+| `alarms` | **Vencimiento del plazo de aprobación aunque el SW esté dormido** (H-02): `setTimeout` no sobrevive a la suspensión del Service Worker, así que `expiresAt` se dispara con `chrome.alarms` (§3). |
+| `notifications` | Aviso al usuario de cada solicitud pendiente (RF-39). Es el único permiso de UI de sistema que el diseño necesita. |
+| `host_permissions` (RPC local) | Llamar al JSON-RPC de Anvil en `127.0.0.1:8545` / `localhost:8545` (RT-04). No se declara ningún host remoto. |
+| `optional_host_permissions` | Permiso de host **en runtime** para las redes dadas de alta con `wallet_addEthereumChain` (RF-23): se solicita con `chrome.permissions.request` al añadir la red y la concesión se registra por red en `truekeate_networks`. Validación previa obligatoria: esquema `https` preferente (`http` solo para `127.0.0.1`/`localhost`) y host que no sea privado ni de enlace local. |
+
+> **Permisos retirados respecto del borrador anterior (H-36).** `tabs`: no se leen `url`/`title`/`favIconUrl`, y la pestaña destino se identifica con el `sender.tab.id` del propio mensaje, de modo que `chrome.tabs.query`/`sendMessage` no lo necesitan. `activeTab`: solo aplica a la pestaña tras una acción del usuario y no aporta nada al flujo por mensaje. `scripting`: la inyección se hace con `content_scripts` declarativos + `web_accessible_resources`, no con `chrome.scripting`. Si en Fase 3 alguna funcionalidad exige uno de ellos, se documenta aquí el uso exacto antes de volver a declararlo.
+
+> Se retiró `https://rpc.sepolia.org/*` por la decisión **P-02**. Cualquier red nueva se da de alta con `chrome.permissions.request` sobre `optional_host_permissions` (nunca ampliando `host_permissions` con comodines).
 
 ---
 
@@ -187,7 +240,7 @@ glab repo create chrome-wallet --private
 
 **Opción C — por la web (recomendada si no se quieren instalar CLIs):** crear el proyecto vacío en GitHub y en GitLab.com con el nombre `chrome-wallet` en la organización `anlucorporations`, sin README ni .gitignore (para poder hacer push de la historia local sin conflictos). Después avisarme para ejecutar `/push`.
 
-> Nota: la historia local arranca con un commit raíz propio (docs de Fase 1) que **no** comparte ancestro con el commit `632d890` del remoto `codecrypto`. Antes de publicar hay que decidir la estrategia (ver P-10): adoptar el código del remoto y reescribir la historia local, o empujar la rama local con `--force`/`--allow-unrelated-histories`.
+> Nota: la historia local arranca con un commit raíz propio (docs de Fase 1) que **no** comparte ancestro con el commit `632d890` del remoto `codecrypto`. La estrategia de publicación se limita a la **historia git** (P-10/DEC-09): empujar la rama local con `--force` o `--allow-unrelated-histories`, o dejar `codecrypto` intacto como referencia y publicar solo en `origin`/`gitlab`. **El código del remoto no se reutiliza**: el proyecto se reconstruye desde cero y este documento no contempla ninguna reutilización de ese código.
 
 ---
 
@@ -211,6 +264,9 @@ glab repo create chrome-wallet --private
 | 1.0 | Entorno verificado inicial; comandos Anvil; permisos MV3; remotos y GCP pendientes. |
 | 1.1 | P-01/P-02/P-03 aplicados: git inicializado, 3 remotos registrados, Sepolia retirada, verificación de existencia de remotos y descubrimiento de la implementación previa en `codecrypto`. |
 | 1.2 | Fase 1 cerrada: P-04..P-10 aplicados. Reconstrucción desde cero (P-10), alcance 100 % local sin GCP (P-08), herramientas de prueba definidas (P-07) y convención de idioma (P-09). |
+| 1.3 | Incorporada la identidad visual TrueKeate (§9): activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
+| 1.4 | Renombrado global a TrueKeate (P-13): provider `window.truekeate`, prefijo `truekeate_` y nomenclatura congelada en §10. |
+| 1.5 | Remediación de la auditoría (Fase 2): sin rastro de reutilización del código del remoto (H-04), permiso `alarms` y mínimos privilegios (H-02/H-36), dueño único del plazo (H-07), «build limpio» + verificación Linux + política de versiones (H-20), puerto 5174 con `strictPort` y clave de sesión normalizada (H-33), CORS con allowlist (H-41), guía heredada no vinculante y verificación previa de E2E (H-24/H-29), alias del provider (H-15). |
 
 ---
 
@@ -219,8 +275,21 @@ glab repo create chrome-wallet --private
 | Herramienta | Ámbito | Comando | Requisitos |
 |---|---|---|---|
 | **Vitest** (+ jsdom) | Lógica pura del Service Worker: derivación BIP-44, validación BIP-39/clave privada, formateo, cola de aprobaciones, mapeo de errores EIP-1193. | `npm run test` | Ninguno (no necesita navegador). |
-| **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar eventos `accountsChanged`/`chainChanged`. | `npm run test:e2e` | Chromium vía Playwright + **Anvil corriendo** en `127.0.0.1:8545`. |
-| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test` | Foundry 1.7.2-dev (instalado). |
+| **Playwright** (Chromium persistente) | E2E: cargar la extensión desde `dist/`, abrir el popup, conectar `test.html`, aprobar/rechazar firmas, verificar eventos `accountsChanged`/`chainChanged`. | `npm run test:e2e` | Chromium vía Playwright + **Anvil corriendo** en `127.0.0.1:8545` (verificación previa en §2.4). |
+| **Forge** | Proyecto Foundry mínimo con `EIP712Verifier.sol` + tests: comprobar que las firmas producidas por la wallet son válidas on-chain. | `forge test` | Foundry dentro del rango soportado (ver «Política de versiones»). |
+
+### Política de versiones (H-20/H-29)
+
+| Componente | Versión de referencia | Rango soportado / nota |
+|---|---|---|
+| **Foundry** (`anvil`, `forge`, `cast`) | **1.7.2-dev** (detectada en la máquina del proyecto) | **`>=1.0.0 <2.0.0`**. La detectada es una build de desarrollo (*-dev*), así que otro equipo puede comportarse distinto: los E2E y `forge test` se consideran válidos solo dentro del rango y tras la verificación previa de §2.4. |
+| **ethers.js** | **6.15.x** | Única librería criptográfica permitida (RT-02); se fija la *minor* en `package.json` (`~6.15.0`). |
+| **React** | **19.x** | Requisito de la fuente (E-05). |
+| **Vite** | **7.x** | Requisito de la fuente; el puerto de la dApp está fijado en §2.2. |
+| **Node.js / npm** | `v24.16.0` / `11.13.0` | Entorno verificado (§1). |
+| **Iconos** | `public/icons/icon-{16,32,48,128}.png` | **Se versionan y no se regeneran en Linux** (§9.2): `scripts/generate-icons.ps1` depende de `System.Drawing` (Windows). |
+
+> Cualquier cambio de versión de las dependencias principales se registra en este apartado y en el historial (§7) antes de la entrega, junto con la ejecución de `npm ci && npm run build` y la suite de pruebas.
 
 ### Estructura prevista del proyecto Foundry auxiliar
 
@@ -268,6 +337,8 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | Versión | Cambio |
 |---|---|
 | 1.3 | Incorporada la identidad visual TrueKeate: activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
+| 1.4 | Renombrado global a TrueKeate (P-13): nomenclatura fijada en §10 y remoto `codecrypto` registrado como referencia. |
+| 1.5 | Remediación de la auditoría: sin cambios de paleta; se añaden la política de versiones (§8), la verificación Linux y el puerto 5174 (§2.2) y la decisión firme sobre el alias del provider (§10). |
 ---
 
 ## 10. Nomenclatura del producto (decisión P-13)
@@ -277,6 +348,7 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | Nombre del producto | **TrueKeate Wallet** |
 | `manifest.name` | `TrueKeate Wallet` |
 | Provider inyectado | **`window.truekeate`** (EIP-1193) |
+| Alias de compatibilidad del provider | **`window.codecrypto = window.truekeate`** — **el mismo objeto** (no una copia ni un envoltorio), asignado en `inject.js` (H-15) |
 | EIP-6963 `name` | `TrueKeate` |
 | EIP-6963 `rdns` | `academy.codecrypto.truekeate` |
 | EIP-6963 `uuid` | Constante fija de la extensión (no aleatoria en cada carga) |
@@ -285,8 +357,4 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | Dominio EIP-712 de la dApp | `TrueKeate Test App` |
 | dApp de pruebas | `test.html` consumiendo `window.truekeate` |
 
-> **Desviación consciente (P-13):** el enunciado (E-03) exige `window.codecrypto`. La decisión del usuario es renombrar todo a TrueKeate. Si el evaluador exige el nombre literal, basta añadir `window.codecrypto = window.truekeate` en `inject.js` (una línea) y el alias de los tipos de mensaje en el content script.
-
-| Versión | Cambio |
-|---|---|
-| 1.4 | Renombrado global a TrueKeate (P-13) y nomenclatura fijada en §10. |
+> **Desviación consciente (P-13) — decisión firme (H-15/DEC-21).** El enunciado (E-03) exige `window.codecrypto`; el producto se llama TrueKeate, así que el provider es `window.truekeate`. Para **no perder los 5 puntos de la rúbrica** ligados al nombre antiguo, `inject.js` publica **además el alias `window.codecrypto = window.truekeate`** —el **mismo objeto**, no una copia ni un envoltorio— desde la Fase 3. Un **test verifica ambos nombres** (presentes, idénticos y con el mismo `request`/`on`) y el alias forma parte del entregable. No es una decisión diferida: es un criterio de aceptación.
