@@ -1,6 +1,6 @@
 # 🌐 Entornos Globales — CodeCrypto Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.2
+> **Fase:** 1 — Concepto · **Versión:** 1.3
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 
 ---
@@ -32,6 +32,12 @@
 | Build de la extensión | `dist/` — **es la carpeta que se carga en Chrome** |
 | dApp de pruebas | `test.html` (raíz y copia servida en `http://localhost:5174/test.html`) |
 | Binarios Foundry | `C:\Users\lucci\.cargo\bin\{anvil,forge,cast}.exe` |
+| Activos de marca originales | `TrueKeate/` (logo y título en SVG/PNG/JPG/ICO) |
+| Activos de marca del proyecto | `public/brand/` (copias + `truekeate-mark-96.png`) |
+| Iconos de la extensión | `public/icons/icon-{16,32,48,128}.png` (generados desde `TrueKeate/TrueKeate_logo.png`) |
+| Guía de identidad visual | `RepoTecnico/identidad_visual.md` |
+| Tokens de diseño (a crear) | `src/styles/tokens.css` |
+| Fuentes auto-hospedadas (a crear) | `public/fonts/` (Poppins, Inter, JetBrains Mono en woff2) |
 
 ---
 
@@ -226,3 +232,39 @@ contracts/
 ```
 
 > El contrato verificador **no forma parte del producto**: es un instrumento de prueba para demostrar que el firmado EIP-712 de la wallet es correcto y verificable en la EVM.
+---
+
+## 9. Identidad visual (marca TrueKeate)
+
+Los activos originales están en `TrueKeate/` y **no se modifican**. A partir de ellos se generaron los recursos del proyecto:
+
+### 9.1 Activos generados
+
+| Archivo | Tamaño | Uso |
+|---|---|---|
+| `public/icons/icon-16.png` | 16 px | `action.default_icon` — variante **simplificada** (zoom a las flechas + saturación 1.45) |
+| `public/icons/icon-32.png` | 32 px | `action.default_icon` — variante simplificada (saturación 1.35) |
+| `public/icons/icon-48.png` | 48 px | `action.default_icon` — isologo completo |
+| `public/icons/icon-128.png` | 128 px | Icono de tienda / `default_icon` — isologo completo |
+| `public/brand/truekeate-mark-96.png` | 96 px | Marca de agua del encabezado y estados vacíos |
+| `public/brand/truekeate-logo.{svg,png,ico}` | — | Copias de los activos originales |
+| `public/brand/truekeate-titulo.{svg,png}` | — | Logotipo horizontal (bienvenida / "Acerca de") |
+
+### 9.2 Cómo se regeneran los iconos
+
+Script reutilizable: `scripts/generate-icons.ps1` (detecta el recorte, cuadra el lienzo y reduce). Los iconos se obtienen del isologo original recortando el contenido con un margen de 12 px, cuadrando el lienzo sobre fondo blanco y reduciendo con interpolación bicúbica de alta calidad. Para 16/32 px se recorta además el 60 % central (las flechas) y se aplica una matriz de saturación, porque el hexágono completo se emborrona a ese tamaño.
+
+> Requiere .NET `System.Drawing` (disponible en Windows PowerShell 5.1). Si el proyecto se compila en Linux, la generación de iconos se hace una sola vez y los PNG resultantes se versionan en `public/icons/` (no se regeneran en cada build).
+
+### 9.3 Paleta (resumen ejecutivo)
+
+`#1D2B57` marino · `#2E4A7D` azul · `#3A6A85` acero · `#3E93A6` teal · `#5293A4` teal claro · `#88BFC4` cian · `#ACC9D1` cian claro · `#C9A97F` oro · `#E3C797` oro claro.
+Degradado de marca: `linear-gradient(100deg, #1D2B57, #2E4A7D 22%, #3E93A6 52%, #88BFC4 72%, #C9A97F 92%, #E3C797)`.
+
+El detalle completo (tokens, tipografías, componentes, reglas de uso y criterios de verificación) está en `RepoTecnico/identidad_visual.md`.
+
+### 9.4 Historial
+
+| Versión | Cambio |
+|---|---|
+| 1.3 | Incorporada la identidad visual TrueKeate: activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |

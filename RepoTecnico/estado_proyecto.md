@@ -29,7 +29,8 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | `requerimientos.md` | ✅ v1.2 | 47 RF, 17 RNF, 11 RT y 4 RE, actores, desviaciones D-01..D-09, riesgos, entrevista cerrada. |
 | `diccionario_datos.md` | ✅ v1.2 | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. |
 | `entornos_globales.md` | ✅ v1.2 | Entorno verificado, comandos, constantes, permisos, 3 remotos, herramientas de prueba y GCP cerrado. |
-| `estado_proyecto.md` | ✅ v1.2 (este archivo) | Memoria de trabajo. |
+| `identidad_visual.md` | ✅ v1.0 | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS y criterios de verificación. |
+| `estado_proyecto.md` | ✅ v1.3 (este archivo) | Memoria de trabajo. |
 | `casos_uso/` | ⏳ Fase 2 | Casos de uso (Gherkin/EARS) + diagramas Mermaid/SVG. |
 | `documento_tecnico.md` | ⏳ Fase 2 | Arquitectura y especificación técnica. |
 | `plan_desarrollo.md` | ⏳ Fase 3 | Plan de desarrollo vertical por hitos. |
@@ -44,6 +45,7 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 - Remotos configurados: `origin` (GitHub, **no existe**), `gitlab` (GitLab.com, **no existe**), `codecrypto` (GitLab ANLU, **existe con el código previo**).
 - RPC local en `127.0.0.1:8545` **detenido** (se levanta con `anvil` al probar).
 - Sin `gh`/`glab` ni tokens; GCP fuera de alcance.
+- Identidad visual **TrueKeate** incorporada: 6 activos originales en `TrueKeate/`, 4 iconos generados en `public/icons/` y 6 activos de marca en `public/brand/`.
 
 ---
 
@@ -65,6 +67,9 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | DEC-12 | **Vitest + Playwright + contrato verificador EIP-712 con Forge** como stack de pruebas. | Decisión **P-07**. |
 | DEC-13 | **100 % local, sin GCP.** | Decisión **P-08**. |
 | DEC-14 | **UI y documentación en español; identificadores de código en inglés.** | Decisión **P-09**. |
+| DEC-15 | Adoptar la marca **TrueKeate** entregada en `TrueKeate/` como identidad visual del producto, con el documento vinculante `identidad_visual.md`. | Petición explícita del usuario en Fase 1. |
+| DEC-16 | La paleta se obtuvo por **medición de píxeles** de los activos originales (no por estimación visual) y se congeló en tokens CSS. | RNF-18 exige que no haya colores fuera de los tokens. |
+| DEC-17 | Los iconos de 16/32 px usan una **variante simplificada** (zoom a las flechas + saturación) y los de 48/128 el isologo completo. | El isologo completo se emborrona por debajo de 48 px. |
 
 ---
 
@@ -100,6 +105,14 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | P-08 | Despliegue | **100 % local, sin GCP.** |
 | P-09 | Idioma | **UI y documentación en español; identificadores de código en inglés.** |
 
+### Bloque 4 — Identidad visual ⏳ PENDIENTE
+
+| ID | Pregunta | Estado |
+|---|---|---|
+| P-13 | Conciliación entre la marca **TrueKeate** y el `window.codecrypto` exigido por el enunciado; nombre final, `name` de EIP-6963 y `rdns`. | ⏳ Pendiente |
+| P-14 | Validación de la paleta, tipografía y medidas de ventana de `identidad_visual.md`. | ⏳ Pendiente |
+| P-15 | Aceptación de los iconos simplificados de 16/32 px. | ⏳ Pendiente |
+
 ### Pendiente administrativo (no bloqueante)
 
 | ID | Acción | Responsable |
@@ -131,8 +144,9 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 3. Ejecutar `/casos_uso` (Gherkin/EARS + trazabilidad a RF), auditarlos y resolver las dudas.
 4. Ejecutar `/graficos` (Mermaid/SVG de los casos de uso auditados).
 5. Ejecutar `/documento_tecnico` y `/auditar_documento`.
-6. Crear los repositorios de GitHub y GitLab.com (P-11).
-7. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo`.
+6. Responder el **Bloque 4 de identidad visual** (P-13, P-14, P-15).
+7. Crear los repositorios de GitHub y GitLab.com (P-11).
+8. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo`.
 
 ---
 

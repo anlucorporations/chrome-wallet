@@ -3,6 +3,7 @@
 > **Fase:** 1 — Concepto · **Versión:** 1.2 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
+> **Anexo vinculante de diseño:** `RepoTecnico/identidad_visual.md` (marca TrueKeate: paleta, tipografía, degradados, iconos y tokens CSS).
 
 ---
 
@@ -122,6 +123,8 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 |---|---|---|---|
 | RF-46 | `test.html`: dApp standalone que permita detectar, conectar, consultar saldo, enviar transacción, firmar EIP-712, cambiar de red y escuchar eventos. | E-07..E-11 | Must |
 | RF-47 | La dApp muestra un historial de operaciones y el detalle de la última respuesta. | E-16 | Should |
+| RF-48 | **Pantalla de bienvenida / "Acerca de"** con el logotipo horizontal de TrueKeate y la tagline `PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS`. | **NUEVO** (identidad visual) | Should |
+| RF-49 | **Aplicación de la identidad visual**: encabezados con el degradado de marca, isologo, tipografías y estados de color definidos en `identidad_visual.md` en las tres ventanas (popup, connect, notification) y en la dApp. | **NUEVO** (identidad visual) | Must |
 
 ---
 
@@ -146,6 +149,9 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RNF-15 | Portabilidad | El proyecto se compila en Windows y Linux con `npm install && npm run build`. | Build limpio en ambas plataformas |
 | RNF-16 | Observabilidad | Los logs cubren el 100 % de llamadas, eventos y errores, con timestamp, nivel y origen. | Revisión del panel de logs |
 | RNF-17 | Testabilidad | La lógica pura (derivación, validación, formateo, cola de aprobaciones) está aislada en módulos testeables sin navegador. | Cobertura de tests unitarios ≥ 70 % en esos módulos |
+| RNF-18 | Usabilidad / Mantenibilidad | **Consistencia visual:** el 100 % de los colores, tipografías y degradados proviene de los tokens de `identidad_visual.md`; no hay colores literales fuera de `tokens.css`. | Búsqueda de `#[0-9a-f]{3,6}` y `rgb(` en el CSS → 0 coincidencias fuera de los tokens |
+| RNF-19 | Compatibilidad / Accesibilidad | Contraste del texto principal ≥ 4.5:1; el teal de marca (`#3E93A6`) no se usa para texto menor de 18 px sobre blanco; el oro (`#C9A97F`) es solo decorativo. | Cálculo de contraste WCAG en los pares texto/fondo de la UI |
+| RNF-20 | Portabilidad | Los activos de marca y las fuentes se sirven **desde el propio paquete** de la extensión (`public/brand/`, `public/fonts/`), sin peticiones a CDN en runtime. | Inspección del bundle y de las peticiones de red del popup |
 
 ---
 
@@ -164,6 +170,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RT-09 | Despliegue | **100 % local** (P-08): sin GCP. La extensión se distribuye como carpeta `dist/` y la dApp de pruebas se sirve en local. |
 | RT-10 | Idioma | UI, mensajes de error y documentación en **español**; identificadores de código en **inglés** (P-09). |
 | RT-11 | Contrato auxiliar | Proyecto Foundry mínimo con un contrato verificador de firmas EIP-712 (`EIP712Verifier.sol`) y sus tests, usado como prueba de extremo a extremo del firmado (P-07). |
+| RT-12 | Identidad visual | Activos de marca en `public/brand/`, iconos de la extensión en `public/icons/` (generados desde `TrueKeate/TrueKeate_logo.png`), tokens en `src/styles/tokens.css`. Tipografías Poppins + Inter + JetBrains Mono **auto-hospedadas** en `public/fonts/` (woff2, subconjunto latin). |
 | RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. |
 | RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (P-03). |
 | RE-03 | Restricción | No se hace `push` a repositorios remotos sin orden explícita del usuario (`/push`). |
@@ -197,6 +204,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | D-07 | El enunciado no menciona cifrado del mnemonic ni bloqueo por contraseña (E-02 lo excluye). | Alto (seguridad) | **Resuelto (P-03):** se mantiene la **carga sin contraseña**; el riesgo se acepta y se documenta como modo desarrollo. |
 | D-08 | La ruta del proyecto en el enunciado es `71_wallet_chrome_extension/`, pero el workspace es la raíz `chrome-wallet/`. | Bajo | El proyecto se desarrolla en la raíz del workspace. |
 | D-09 | Existe una **implementación previa completa** en el remoto `codecrypto` (§0.1) que no está en el workspace local. | Alto (alcance) | **Resuelto (P-10):** se **reconstruye desde cero**; el remoto queda solo como referencia. |
+| D-10 | El enunciado exige el provider **`window.codecrypto`** y el nombre «CodeCrypto», pero la identidad visual entregada es la marca **TrueKeate**. | Alto (nomenclatura) | Candidato **P-13**: opciones (a) marca visible TrueKeate + provider `window.codecrypto` con alias, (b) renombrar todo a TrueKeate, (c) todo CodeCrypto con la paleta de TrueKeate. |
 
 ---
 
@@ -223,6 +231,14 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | P-04 | Nº de cuentas derivadas | **5 por defecto + botón "Añadir cuenta"** para derivar la siguiente. | RF-04 ampliado; `settings.derivedAccountCount` inicial = 5. |
 | P-05 | `personal_sign` y QR | **Sí a ambos**: `personal_sign` + vista de recepción con **QR y copiar**. | RF-21 y RF-07 pasan a **Must** (confirmados). |
 | P-06 | Permisos y etiquetas | **Sí a ambos**: revocar permiso por origen + renombrar cuentas. | RF-26 y RF-05 confirmados (**Must**). |
+
+### Bloque 4 — Identidad visual ⏳ PENDIENTE
+
+| ID | Pregunta | Estado |
+|---|---|---|
+| P-13 | ¿Cómo conciliamos la marca **TrueKeate** con el `window.codecrypto` que exige el enunciado? ¿Y cuál es el nombre final de la extensión, el `name` de EIP-6963 y el `rdns`? | ⏳ Pendiente |
+| P-14 | ¿Se aprueba la paleta, la tipografía (Poppins/Inter/JetBrains Mono) y las medidas de ventana propuestas en `identidad_visual.md`, o hay un manual de marca adicional que deba respetarse? | ⏳ Pendiente |
+| P-15 | ¿Los iconos simplificados de 16/32 px (zoom a las flechas + saturación) son aceptables, o se prefiere el isologo completo en todos los tamaños? | ⏳ Pendiente |
 
 ### Bloque 3 — Calidad, pruebas y entrega ✅ RESUELTO
 
