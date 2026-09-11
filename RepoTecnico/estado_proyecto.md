@@ -1,8 +1,8 @@
-# 📌 Estado del Proyecto — CodeCrypto Wallet
+# 📌 Estado del Proyecto — TrueKeate Wallet
 
 > Memoria de trabajo del proyecto. Se lee al inicio de cada turno y se actualiza de forma incremental.
 
-**Última actualización:** Fase 1 — Concepto ✅ **COMPLETADA**
+**Última actualización:** Fase 1 — Concepto ✅ **COMPLETADA** (entrevista cerrada, identidad visual incorporada, nomenclatura fijada)
 **Fase actual:** **1 de 5 — Concepto** (cerrada, esperando confirmación para avanzar)
 **Comando para continuar:** `/auditar` (Fase 2 – Auditoría) · `/estado` · `/push`
 **Rama de trabajo activa:** `chrome-wallet-DSH`
@@ -11,7 +11,7 @@
 
 ## 1. Resumen del proyecto
 
-Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Ethereum estilo MetaMask**, con provider EIP-1193 inyectado (`window.codecrypto`), gestión de cuentas HD e importadas por clave privada, envío y recepción de transferencias (con QR), firma de transacciones y de datos EIP-712, firma de mensajes (`personal_sign`), y una **dApp de pruebas** que consume la wallet contra una **red local de Foundry (Anvil)**.
+Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Ethereum estilo MetaMask**, con provider EIP-1193 inyectado (`window.truekeate`), gestión de cuentas HD e importadas por clave privada, envío y recepción de transferencias (con QR), firma de transacciones y de datos EIP-712, firma de mensajes (`personal_sign`), y una **dApp de pruebas** que consume la wallet contra una **red local de Foundry (Anvil)**.
 
 **Stack:** React 19 · TypeScript 5.9 · Vite 7 · ethers.js v6 · Chrome Extension APIs (MV3).
 **Pruebas:** Vitest + Playwright + Forge (contrato verificador EIP-712).
@@ -29,7 +29,7 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | `requerimientos.md` | ✅ v1.2 | 47 RF, 17 RNF, 11 RT y 4 RE, actores, desviaciones D-01..D-09, riesgos, entrevista cerrada. |
 | `diccionario_datos.md` | ✅ v1.2 | Claves de storage, entidades, protocolo de mensajes y catálogo RPC/errores. Red única Anvil. Decisiones P-03..P-08 aplicadas. |
 | `entornos_globales.md` | ✅ v1.2 | Entorno verificado, comandos, constantes, permisos, 3 remotos, herramientas de prueba y GCP cerrado. |
-| `identidad_visual.md` | ✅ v1.0 | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS y criterios de verificación. |
+| `identidad_visual.md` | ✅ v1.1 (aprobado, P-14) | **Anexo vinculante de diseño**: marca TrueKeate, paleta medida, degradados, tipografía, componentes, tokens CSS y criterios de verificación. |
 | `estado_proyecto.md` | ✅ v1.3 (este archivo) | Memoria de trabajo. |
 | `casos_uso/` | ⏳ Fase 2 | Casos de uso (Gherkin/EARS) + diagramas Mermaid/SVG. |
 | `documento_tecnico.md` | ⏳ Fase 2 | Arquitectura y especificación técnica. |
@@ -70,6 +70,9 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | DEC-15 | Adoptar la marca **TrueKeate** entregada en `TrueKeate/` como identidad visual del producto, con el documento vinculante `identidad_visual.md`. | Petición explícita del usuario en Fase 1. |
 | DEC-16 | La paleta se obtuvo por **medición de píxeles** de los activos originales (no por estimación visual) y se congeló en tokens CSS. | RNF-18 exige que no haya colores fuera de los tokens. |
 | DEC-17 | Los iconos de 16/32 px usan una **variante simplificada** (zoom a las flechas + saturación) y los de 48/128 el isologo completo. | El isologo completo se emborrona por debajo de 48 px. |
+| DEC-18 | **Renombrar todo el producto a TrueKeate**, incluido el provider inyectado (`window.truekeate`), el prefijo de storage (`truekeate_`) y los tipos de mensaje. | Decisión **P-13** (desviación consciente del literal E-03 del enunciado). |
+| DEC-19 | Aprobar el sistema de diseño de `identidad_visual.md` tal cual: paleta medida de los activos, Poppins + Inter + JetBrains Mono auto-hospedadas, ventanas de 380×600 / 420×650 / 420×640. | Decisión **P-14**. |
+| DEC-20 | Iconos de 16/32 px con **variante simplificada** (zoom a las flechas + saturación); 48/128 con el isologo completo. | Decisión **P-15**. |
 
 ---
 
@@ -105,13 +108,13 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 | P-08 | Despliegue | **100 % local, sin GCP.** |
 | P-09 | Idioma | **UI y documentación en español; identificadores de código en inglés.** |
 
-### Bloque 4 — Identidad visual ⏳ PENDIENTE
+### Bloque 4 — Identidad visual ✅ RESUELTO
 
 | ID | Pregunta | Estado |
 |---|---|---|
-| P-13 | Conciliación entre la marca **TrueKeate** y el `window.codecrypto` exigido por el enunciado; nombre final, `name` de EIP-6963 y `rdns`. | ⏳ Pendiente |
-| P-14 | Validación de la paleta, tipografía y medidas de ventana de `identidad_visual.md`. | ⏳ Pendiente |
-| P-15 | Aceptación de los iconos simplificados de 16/32 px. | ⏳ Pendiente |
+| P-13 | Nomenclatura marca/enunciado | ✅ **Renombrar todo a TrueKeate**, incluido el provider (`window.truekeate`). |
+| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md` v1.1). |
+| P-15 | Iconos pequeños | ✅ **Aprobada** la variante simplificada para 16/32 px. |
 
 ### Pendiente administrativo (no bloqueante)
 
@@ -144,7 +147,7 @@ Extensión de navegador Chrome/Edge (Manifest V3) que funciona como **wallet Eth
 3. Ejecutar `/casos_uso` (Gherkin/EARS + trazabilidad a RF), auditarlos y resolver las dudas.
 4. Ejecutar `/graficos` (Mermaid/SVG de los casos de uso auditados).
 5. Ejecutar `/documento_tecnico` y `/auditar_documento`.
-6. Responder el **Bloque 4 de identidad visual** (P-13, P-14, P-15).
+6. ~~Responder el Bloque 4 de identidad visual~~ ✅ **hecho** (P-13/P-14/P-15).
 7. Crear los repositorios de GitHub y GitLab.com (P-11).
 8. Pasar a la **Fase 3 – Desarrollo** con `/plan_desarrollo`.
 

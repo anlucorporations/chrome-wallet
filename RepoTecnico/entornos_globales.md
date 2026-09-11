@@ -1,6 +1,6 @@
-# 🌐 Entornos Globales — CodeCrypto Wallet
+# 🌐 Entornos Globales — TrueKeate Wallet
 
-> **Fase:** 1 — Concepto · **Versión:** 1.3
+> **Fase:** 1 — Concepto · **Versión:** 1.4
 > Registro de configuración, rutas, variables de entorno y comandos importantes. Se actualiza a lo largo del proyecto.
 
 ---
@@ -85,16 +85,16 @@ npm run test:e2e     # Playwright (extensión cargada con --load-extension=dist)
 
 ```javascript
 // En la consola del Service Worker
-chrome.storage.local.get('codecrypto_connected_sites', console.log);
+chrome.storage.local.get('truekeate_connected_sites', console.log);
 chrome.storage.local.get(null, console.log);                    // Todo el storage
-chrome.storage.local.set({ codecrypto_connected_sites: {} });   // Desconectar todos los sitios
+chrome.storage.local.set({ truekeate_connected_sites: {} });   // Desconectar todos los sitios
 ```
 
 ```javascript
 // En la consola de la dApp (test.html)
-await window.codecrypto.request({ method: 'eth_requestAccounts' });
-await window.codecrypto.request({ method: 'eth_accounts' });
-await window.codecrypto.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] });
+await window.truekeate.request({ method: 'eth_requestAccounts' });
+await window.truekeate.request({ method: 'eth_accounts' });
+await window.truekeate.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] });
 ```
 
 ### 2.5 Comandos git del proyecto
@@ -113,7 +113,7 @@ git fetch codecrypto --prune                 # Traer las ramas del remoto
 
 ## 3. Variables de configuración de la extensión
 
-No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La configuración vive en `chrome.storage.local` bajo `codecrypto_settings` (ver `diccionario_datos.md` §2.10) y en constantes de build.
+No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La configuración vive en `chrome.storage.local` bajo `truekeate_settings` (ver `diccionario_datos.md` §2.10) y en constantes de build.
 
 | Constante | Valor por defecto | Dónde |
 |---|---|---|
@@ -125,7 +125,7 @@ No se usa `.env` en tiempo de ejecución (la extensión no tiene backend). La co
 | `BALANCE_POLL_MS` | `5000` | `src/shared/constants.ts` (RF-27) |
 | `SIGN_TIMEOUT_MS` | `120000` | `src/background/approvals.ts` (RF-40) |
 | `CONNECT_TIMEOUT_MS` | `60000` | `src/background/approvals.ts` (RF-40) |
-| `PROVIDER_RDNS` | `io.codecrypto` | `src/inject/provider.ts` (RF-44) |
+| `PROVIDER_RDNS` | `academy.codecrypto.truekeate` | `src/inject/provider.ts` (RF-44) |
 | `PROVIDER_UUID` | UUID fijo de la extensión | `src/inject/provider.ts` (RF-44) |
 
 ### Variables de entorno para el tooling (`.env.local`, no versionado)
@@ -268,3 +268,25 @@ El detalle completo (tokens, tipografías, componentes, reglas de uso y criterio
 | Versión | Cambio |
 |---|---|
 | 1.3 | Incorporada la identidad visual TrueKeate: activos originales y generados, rutas, paleta e instrucciones de regeneración de iconos. |
+---
+
+## 10. Nomenclatura del producto (decisión P-13)
+
+| Elemento | Valor |
+|---|---|
+| Nombre del producto | **TrueKeate Wallet** |
+| `manifest.name` | `TrueKeate Wallet` |
+| Provider inyectado | **`window.truekeate`** (EIP-1193) |
+| EIP-6963 `name` | `TrueKeate` |
+| EIP-6963 `rdns` | `academy.codecrypto.truekeate` |
+| EIP-6963 `uuid` | Constante fija de la extensión (no aleatoria en cada carga) |
+| Prefijo de claves de storage | `truekeate_` |
+| Tipos de mensaje internos | `TRUEKEATE_REQUEST`, `TRUEKEATE_RESPONSE`, `TRUEKEATE_EVENT` (página ↔ content) · `TRUEKEATE_RPC`, `SIGN_RESPONSE`, `CONNECT_RESPONSE` (content/popup ↔ service worker) |
+| Dominio EIP-712 de la dApp | `TrueKeate Test App` |
+| dApp de pruebas | `test.html` consumiendo `window.truekeate` |
+
+> **Desviación consciente (P-13):** el enunciado (E-03) exige `window.codecrypto`. La decisión del usuario es renombrar todo a TrueKeate. Si el evaluador exige el nombre literal, basta añadir `window.codecrypto = window.truekeate` en `inject.js` (una línea) y el alias de los tipos de mensaje en el content script.
+
+| Versión | Cambio |
+|---|---|
+| 1.4 | Renombrado global a TrueKeate (P-13) y nomenclatura fijada en §10. |

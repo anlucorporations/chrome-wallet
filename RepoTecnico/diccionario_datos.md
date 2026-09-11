@@ -1,4 +1,4 @@
-# 🗂️ Diccionario de Datos — CodeCrypto Wallet
+# 🗂️ Diccionario de Datos — TrueKeate Wallet
 
 > **Fase:** 1 — Concepto · **Versión:** 1.2
 > Se actualiza de forma incremental durante el desarrollo. Fuente de verdad de claves de `chrome.storage.local`, `localStorage`, mensajes y entidades en memoria.
@@ -9,8 +9,8 @@
 
 | Prefijo | Ámbito | Persistencia | Sensibilidad |
 |---|---|---|---|
-| `codecrypto_` | `chrome.storage.local` (Service Worker + popup) | Persistente | Mixta (ver columna) |
-| `codecrypto_logs` | `localStorage` del popup | Persistente entre resets | Baja |
+| `truekeate_` | `chrome.storage.local` (Service Worker + popup) | Persistente | Mixta (ver columna) |
+| `truekeate_logs` | `localStorage` del popup | Persistente entre resets | Baja |
 | *sin prefijo* | Memoria del Service Worker (`Map`) | Volátil (se pierde al dormir el SW) | Alta |
 
 Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString` = string decimal (BigInt serializado) · `ChainIdHex` = string `0x…`.
@@ -19,7 +19,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ## 2. Entidades y claves de `chrome.storage.local`
 
-### 2.1 `codecrypto_mnemonic`
+### 2.1 `truekeate_mnemonic`
 
 | Campo | Tipo | Obligatorio | Descripción | Origen | Sensible |
 |---|---|---|---|---|---|
@@ -30,7 +30,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.2 `codecrypto_accounts`
+### 2.2 `truekeate_accounts`
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -40,7 +40,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.3 `codecrypto_imported_accounts`
+### 2.3 `truekeate_imported_accounts`
 
 > **Nuevo (RF-05, RF-06).**
 
@@ -54,17 +54,17 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.4 `codecrypto_current_account`
+### 2.4 `truekeate_current_account`
 
 | Campo | Tipo | Descripción | Validación |
 |---|---|---|---|
-| — | `string` | Identificador de la cuenta activa en el popup. Formato `idx:<n>` para derivadas o `imp:<address>` para importadas. | Debe existir en `codecrypto_accounts` o `codecrypto_imported_accounts`. |
+| — | `string` | Identificador de la cuenta activa en el popup. Formato `idx:<n>` para derivadas o `imp:<address>` para importadas. | Debe existir en `truekeate_accounts` o `truekeate_imported_accounts`. |
 
 *Ejemplo:* `"idx:0"` (retrocompatible con el formato antiguo `"0"`).
 
 ---
 
-### 2.5 `codecrypto_chain_id`
+### 2.5 `truekeate_chain_id`
 
 | Campo | Tipo | Descripción | Valores iniciales |
 |---|---|---|---|
@@ -72,7 +72,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.6 `codecrypto_networks`
+### 2.6 `truekeate_networks`
 
 > **Nuevo (RF-23).** Por decisión P-02 el sistema arranca con **una sola red** (Anvil local); las demás se añaden en tiempo de ejecución con `wallet_addEthereumChain` o desde la UI.
 
@@ -101,7 +101,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.7 `codecrypto_connected_sites`
+### 2.7 `truekeate_connected_sites`
 
 > **RF-25, RF-17, RF-26.** Mapa `origin → sesión de dApp`.
 
@@ -117,7 +117,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.8 `codecrypto_pending_request` — solicitud de firma/aprobación
+### 2.8 `truekeate_pending_request` — solicitud de firma/aprobación
 
 > **RF-19, RF-20, RF-35, RF-37, RF-40.**
 
@@ -138,7 +138,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.9 `codecrypto_connect_request` — solicitud de conexión
+### 2.9 `truekeate_connect_request` — solicitud de conexión
 
 > **RF-16, RF-36.**
 
@@ -155,11 +155,11 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.10 `codecrypto_settings`
+### 2.10 `truekeate_settings`
 
 | Campo | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `derivedAccountCount` | `number` | `5` | Cuentas a derivar al cargar la wallet; el botón "Añadir cuenta" lo incrementa y extiende `codecrypto_accounts` (RF-04, P-04). |
+| `derivedAccountCount` | `number` | `5` | Cuentas a derivar al cargar la wallet; el botón "Añadir cuenta" lo incrementa y extiende `truekeate_accounts` (RF-04, P-04). |
 | `balancePollMs` | `number` | `5000` | Intervalo de polling de saldos (RF-27). |
 | `logLimit` | `number` | `500` | Máximo de entradas de log retenidas (RF-32). |
 | `language` | `'es' \| 'en'` | `'es'` | Idioma de la UI (P-09). |
@@ -168,7 +168,7 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 ---
 
-### 2.11 `codecrypto_logs`
+### 2.11 `truekeate_logs`
 
 > Almacenado en **`localStorage`** del popup para sobrevivir a `resetWallet` (RF-32).
 
@@ -227,9 +227,9 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 | `windowId` | `number` | Ventana de `notification.html` abierta. |
 | `timer` | `number` | Timeout (RF-40). |
 
-> ⚠️ Al dormirse el Service Worker este `Map` se pierde: la reconstrucción se hace desde `codecrypto_pending_request` (RNF-08). Si la promesa original ya no existe, la solicitud se resuelve con error `4001`.
+> ⚠️ Al dormirse el Service Worker este `Map` se pierde: la reconstrucción se hace desde `truekeate_pending_request` (RNF-08). Si la promesa original ya no existe, la solicitud se resuelve con error `4001`.
 
-### 3.4 `DappSession` (vista en memoria de `codecrypto_connected_sites`)
+### 3.4 `DappSession` (vista en memoria de `truekeate_connected_sites`)
 
 | Campo | Tipo | Descripción |
 |---|---|---|
@@ -246,10 +246,10 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 | `type` | Dirección | Campos |
 |---|---|---|
-| `CODECRYPTO_REQUEST` | inject → content | `id`, `method`, `params` |
-| `CODECRYPTO_RESPONSE` | content → inject | `id`, `result`, `error` |
-| `CODECRYPTO_EVENT` | content → inject | `eventName`, `data` |
-| `CODECRYPTO_ANNOUNCE` | inject → content | `info` (EIP-6963) |
+| `TRUEKEATE_REQUEST` | inject → content | `id`, `method`, `params` |
+| `TRUEKEATE_RESPONSE` | content → inject | `id`, `result`, `error` |
+| `TRUEKEATE_EVENT` | content → inject | `eventName`, `data` |
+| `TRUEKEATE_ANNOUNCE` | inject → content | `info` (EIP-6963) |
 
 > Validación obligatoria: `event.source === window` y `event.origin === location.origin` (RNF-10). Nunca transportan claves ni el mnemonic (RNF-09).
 
@@ -257,10 +257,10 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 | `type` | Dirección | Campos |
 |---|---|---|
-| `CODECRYPTO_RPC` | content/popup → SW | `method`, `params`, `origin`, `tabId` |
+| `TRUEKEATE_RPC` | content/popup → SW | `method`, `params`, `origin`, `tabId` |
 | `SIGN_RESPONSE` | notification → SW | `approvalId`, `success`, `error?` |
 | `CONNECT_RESPONSE` | connect → SW | `requestId`, `success`, `account?`, `accountIndex?`, `error?` |
-| `CODECRYPTO_EVENT` | SW → content | `eventName`, `data` |
+| `TRUEKEATE_EVENT` | SW → content | `eventName`, `data` |
 
 ### 4.3 Métodos RPC soportados por el provider
 
@@ -318,8 +318,8 @@ Tipos: `Address` = string `0x` + 40 hex · `Hex` = string `0x…` · `WeiString`
 
 | Tema | Estado |
 |---|---|
-| P-03 (contraseña/cifrado) | ✅ **Sin contraseña.** No se crea `codecrypto_vault`; `encryptionEnabled=false` y `requirePasswordOnOpen=false`. |
-| P-04 (nº de cuentas) | ✅ **5 por defecto + botón "Añadir cuenta"**; `derivedAccountCount` se incrementa y `codecrypto_accounts` crece en orden BIP-44. |
-| P-05 (personal_sign / QR) | ✅ Confirmado: `personal_sign` usa `codecrypto_pending_request`; el QR es estado de UI y **no** se persiste. |
-| P-06 (permisos/etiquetas) | ✅ Confirmado: al revocar se elimina la entrada de `codecrypto_connected_sites`; `codecrypto_imported_accounts[].label` es renombrable. |
+| P-03 (contraseña/cifrado) | ✅ **Sin contraseña.** No se crea `truekeate_vault`; `encryptionEnabled=false` y `requirePasswordOnOpen=false`. |
+| P-04 (nº de cuentas) | ✅ **5 por defecto + botón "Añadir cuenta"**; `derivedAccountCount` se incrementa y `truekeate_accounts` crece en orden BIP-44. |
+| P-05 (personal_sign / QR) | ✅ Confirmado: `personal_sign` usa `truekeate_pending_request`; el QR es estado de UI y **no** se persiste. |
+| P-06 (permisos/etiquetas) | ✅ Confirmado: al revocar se elimina la entrada de `truekeate_connected_sites`; `truekeate_imported_accounts[].label` es renombrable. |
 | P-08 (GCP) | ✅ **No aplica**: alcance 100 % local. |

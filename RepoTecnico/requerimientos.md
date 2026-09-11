@@ -1,6 +1,6 @@
-# 📑 Requerimientos — CodeCrypto Wallet (Extensión Chrome estilo MetaMask)
+# 📑 Requerimientos — TrueKeate Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.2 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
+> **Fase:** 1 — Concepto · **Versión:** 1.3 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 > **Anexo vinculante de diseño:** `RepoTecnico/identidad_visual.md` (marca TrueKeate: paleta, tipografía, degradados, iconos y tokens CSS).
@@ -9,10 +9,12 @@
 
 ## 0. Resumen ejecutivo
 
-Construir una **extensión de navegador Chrome/Edge (Manifest V3)** que funcione como **wallet Ethereum no custodial**, con las mismas capacidades básicas que MetaMask: creación/importación de cartera, gestión de múltiples cuentas, firma y envío de transacciones, firma de datos tipados (EIP-712) y un **provider inyectado (`window.codecrypto`)** que permita conectarse a una **dApp de pruebas** y operar contra una **red local de Foundry (Anvil)**, con posibilidad de añadir/cambiar redes.
+Construir una **extensión de navegador Chrome/Edge (Manifest V3)** que funcione como **wallet Ethereum no custodial**, con las mismas capacidades básicas que MetaMask: creación/importación de cartera, gestión de múltiples cuentas, firma y envío de transacciones, firma de datos tipados (EIP-712) y un **provider inyectado (`window.truekeate`)** que permita conectarse a una **dApp de pruebas** y operar contra una **red local de Foundry (Anvil)**, con posibilidad de añadir/cambiar redes.
 
 | Aspecto | Definición |
 |---|---|
+| Nombre del producto | **TrueKeate Wallet** (marca TrueKeate; ver `identidad_visual.md`) |
+| Provider inyectado | **`window.truekeate`** (EIP-1193) — decisión P-13 |
 | Tipo de sistema | Extensión de navegador (MV3) + dApp de pruebas (HTML/JS) |
 | Blockchain objetivo | Ethereum (EVM), red local de pruebas |
 | Red por defecto | `http://127.0.0.1:8545`, chainId `31337` (`0x7a69`) — **Anvil, sin Sepolia** (P-02) |
@@ -68,7 +70,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 
 | ID | Requerimiento | Fuente | Prioridad |
 |---|---|---|---|
-| RF-13 | Inyectar el provider EIP-1193 en `window.codecrypto` en **todas las páginas y frames** (`all_frames: true`, `document_start`). | E-03, E-09, E-33 | Must |
+| RF-13 | Inyectar el provider EIP-1193 en `window.truekeate` en **todas las páginas y frames** (`all_frames: true`, `document_start`). | E-03, E-09, E-33 | Must |
 | RF-14 | Implementar `request({ method, params })` con manejo de errores estilo EIP-1193 (`code`, `message`). | E-03 | Must |
 | RF-15 | Implementar `on()`, `removeListener()` y `emit` para `accountsChanged`, `chainChanged`, `connect`, `disconnect`, `message`. | E-03, E-10 | Must |
 | RF-16 | `eth_requestAccounts`: abre la **página de conexión** para que el usuario elija qué cuenta compartir con esa dApp. | E-30, E-36 | Must |
@@ -170,6 +172,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RT-09 | Despliegue | **100 % local** (P-08): sin GCP. La extensión se distribuye como carpeta `dist/` y la dApp de pruebas se sirve en local. |
 | RT-10 | Idioma | UI, mensajes de error y documentación en **español**; identificadores de código en **inglés** (P-09). |
 | RT-11 | Contrato auxiliar | Proyecto Foundry mínimo con un contrato verificador de firmas EIP-712 (`EIP712Verifier.sol`) y sus tests, usado como prueba de extremo a extremo del firmado (P-07). |
+| RT-13 | Nomenclatura | Producto **TrueKeate Wallet**; provider `window.truekeate`; EIP-6963 `name: "TrueKeate"` y `rdns: "academy.codecrypto.truekeate"`; prefijo de storage `truekeate_`; tipos de mensaje `TRUEKEATE_REQUEST/RESPONSE/EVENT/RPC`; dominio EIP-712 de la dApp `TrueKeate Test App`. |
 | RT-12 | Identidad visual | Activos de marca en `public/brand/`, iconos de la extensión en `public/icons/` (generados desde `TrueKeate/TrueKeate_logo.png`), tokens en `src/styles/tokens.css`. Tipografías Poppins + Inter + JetBrains Mono **auto-hospedadas** en `public/fonts/` (woff2, subconjunto latin). |
 | RE-01 | Restricción | No existe backend propio: toda la comunicación es directa dApp ↔ extensión ↔ nodo RPC. |
 | RE-02 | Restricción | El modo "sin contraseña" (RF-03) implica que el mnemonic queda en claro en `chrome.storage.local` → riesgo aceptado solo para entorno de desarrollo (P-03). |
@@ -183,7 +186,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | Actor | Descripción | Objetivos principales |
 |---|---|---|
 | **Usuario (dueño de la wallet)** | Persona que instala la extensión. | Crear/importar cartera, gestionar cuentas, enviar/recibir ETH, aprobar o rechazar solicitudes. |
-| **dApp** (ej. `test.html`) | Aplicación web de terceros que consume `window.codecrypto`. | Conectar, leer saldo, enviar transacciones, firmar datos, escuchar eventos. |
+| **dApp** (ej. `test.html`) | Aplicación web de terceros que consume `window.truekeate`. | Conectar, leer saldo, enviar transacciones, firmar datos, escuchar eventos. |
 | **Service Worker (background)** | Actor de sistema. | Custodiar material criptográfico, ejecutar RPC, orquestar aprobaciones y eventos. |
 | **Nodo RPC local (Anvil)** | Actor de sistema externo. | Ejecutar y validar transacciones, entregar feeData y saldos. |
 | **Navegador (Chrome/Edge)** | Plataforma. | Ciclo de vida del Service Worker, permisos, ventanas, notificaciones. |
@@ -204,7 +207,7 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | D-07 | El enunciado no menciona cifrado del mnemonic ni bloqueo por contraseña (E-02 lo excluye). | Alto (seguridad) | **Resuelto (P-03):** se mantiene la **carga sin contraseña**; el riesgo se acepta y se documenta como modo desarrollo. |
 | D-08 | La ruta del proyecto en el enunciado es `71_wallet_chrome_extension/`, pero el workspace es la raíz `chrome-wallet/`. | Bajo | El proyecto se desarrolla en la raíz del workspace. |
 | D-09 | Existe una **implementación previa completa** en el remoto `codecrypto` (§0.1) que no está en el workspace local. | Alto (alcance) | **Resuelto (P-10):** se **reconstruye desde cero**; el remoto queda solo como referencia. |
-| D-10 | El enunciado exige el provider **`window.codecrypto`** y el nombre «CodeCrypto», pero la identidad visual entregada es la marca **TrueKeate**. | Alto (nomenclatura) | Candidato **P-13**: opciones (a) marca visible TrueKeate + provider `window.codecrypto` con alias, (b) renombrar todo a TrueKeate, (c) todo CodeCrypto con la paleta de TrueKeate. |
+| D-10 | El enunciado exige el provider **`window.codecrypto`** y el nombre «CodeCrypto», pero la identidad visual entregada es la marca **TrueKeate**. | Alto (nomenclatura) | **Resuelto (P-13):** el producto se llama **TrueKeate Wallet** y **todo se renombra a TrueKeate**, incluido el provider inyectado (`window.truekeate`). Es una **desviación consciente** del literal E-03; si el evaluador lo exige, se recupera la compatibilidad con una línea (`window.codecrypto = window.truekeate`). |
 
 ---
 
@@ -232,13 +235,13 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | P-05 | `personal_sign` y QR | **Sí a ambos**: `personal_sign` + vista de recepción con **QR y copiar**. | RF-21 y RF-07 pasan a **Must** (confirmados). |
 | P-06 | Permisos y etiquetas | **Sí a ambos**: revocar permiso por origen + renombrar cuentas. | RF-26 y RF-05 confirmados (**Must**). |
 
-### Bloque 4 — Identidad visual ⏳ PENDIENTE
+### Bloque 4 — Identidad visual ✅ RESUELTO
 
 | ID | Pregunta | Estado |
 |---|---|---|
-| P-13 | ¿Cómo conciliamos la marca **TrueKeate** con el `window.codecrypto` que exige el enunciado? ¿Y cuál es el nombre final de la extensión, el `name` de EIP-6963 y el `rdns`? | ⏳ Pendiente |
-| P-14 | ¿Se aprueba la paleta, la tipografía (Poppins/Inter/JetBrains Mono) y las medidas de ventana propuestas en `identidad_visual.md`, o hay un manual de marca adicional que deba respetarse? | ⏳ Pendiente |
-| P-15 | ¿Los iconos simplificados de 16/32 px (zoom a las flechas + saturación) son aceptables, o se prefiere el isologo completo en todos los tamaños? | ⏳ Pendiente |
+| P-13 | Conciliación marca/nomenclatura | ✅ **Renombrar todo a TrueKeate**, incluido el provider inyectado (`window.truekeate`). |
+| P-14 | Sistema de diseño | ✅ **Aprobado tal cual** (`identidad_visual.md`): paleta medida, Poppins + Inter + JetBrains Mono auto-hospedadas, ventanas 380×600 / 420×650 / 420×640. |
+| P-15 | Iconos pequeños | ✅ **Aprobada** la variante simplificada para 16/32 px (zoom a las flechas + saturación). |
 
 ### Bloque 3 — Calidad, pruebas y entrega ✅ RESUELTO
 

@@ -1,6 +1,6 @@
 # 🎨 Identidad Visual — TrueKeate
 
-> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.0
+> **Fase:** 1 — Concepto (anexo) · **Versión:** 1.1 · **Estado:** ✅ aprobado (P-14)
 > Fuente: carpeta `TrueKeate/` del workspace (6 activos originales). Esta es la **guía vinculante** de diseño para la wallet y la dApp de pruebas.
 > Los valores marcados como **(medido)** se extrajeron por análisis de píxeles de los activos originales; los marcados como **(derivado)** son extensiones necesarias para UI/estados que no aparecen en los activos.
 
@@ -229,11 +229,11 @@
 
 | Requisito | Efecto de la identidad visual |
 |---|---|
-| RF-03/E-03 (`window.codecrypto`) | **Pendiente de decisión (P-13):** la marca del producto es TrueKeate, pero el enunciado exige el provider `window.codecrypto`. |
+| E-03 / RF-13 (provider inyectado) | **Resuelto (P-13):** el provider se llama **`window.truekeate`** (desviación consciente del literal del enunciado; el alias `window.codecrypto` se añade como una línea si el evaluador lo exige). |
 | RF-30 (logs con colores, rojo en errores) | Se usa `--tk-danger` (`#D64545`). |
 | RF-34 (UI en español) | La tagline de marca está en español y encaja. |
 | RF-38 (badge contador) | `--tk-danger` sobre el icono. |
-| RF-44 (EIP-6963: `name`, `icon`, `rdns`) | `name: "TrueKeate"`, `icon: data:image/png` del isologo 96 px, `rdns: "academy.codecrypto.truekeate"` (pendiente de confirmar con P-13). |
+| RF-44 (EIP-6963: `name`, `icon`, `rdns`) | `name: "TrueKeate"`, `icon`: data-URI PNG del isologo de 96 px, `rdns: "academy.codecrypto.truekeate"` (confirmado en P-13). |
 | RF-45/E-12 (Chrome/Edge) | Iconos 16/32/48/128 generados y verificados. |
 | Nuevo | RNF-18: **consistencia visual** — todos los colores, tipografías y degradados provienen de los tokens de este documento. |
 | Nuevo | RF-48: pantalla de **bienvenida / "Acerca de"** con el logotipo horizontal y la tagline. |
