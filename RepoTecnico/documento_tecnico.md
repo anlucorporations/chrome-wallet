@@ -318,7 +318,7 @@ src/
 │   ├── settings.ts                   # M29 truekeate_settings: defaults, lectura/escritura tipada, aceptación de avisos
 │   ├── logging/
 │   │   ├── logger.ts                 # M30 truekeate_logs: 1 entrada por evento del catálogo, escrito por el SW
-│   │   ├── events.ts                 # M31 Catálogo cerrado de 23 eventos + 5 categorías + niveles
+│   │   ├── events.ts                 # M31 Catálogo cerrado de 24 eventos + 5 categorías + niveles
 │   │   └── retention.ts              # M32 Retención FIFO por ts: logLimit 500 / logMaxPerOrigin 200
 │   └── state/
 │       ├── schema.ts                 # M33 Esquema y versión de las claves truekeate_* + resetWallet con exclusión de logs
@@ -975,7 +975,7 @@ flowchart LR
 **Reglas de observabilidad:**
 
 1. **Fuente de verdad única**: `truekeate_logs` vive en `chrome.storage.local` y **lo escribe siempre el Service Worker** —nunca el popup, nunca `localStorage`—, de modo que una operación con el popup cerrado deja traza (H-09, CU-29).
-2. **Catálogo cerrado de 23 eventos** y **5 categorías independientes**:
+2. **Catálogo cerrado de 24 eventos** y **5 categorías independientes**:
 
    `event`: `rpc_call`, `rpc_error`, `event_emit`, `tx_sent`, `tx_confirmed`, `tx_failed`, `tx_reverted`, `sign_personal`, `sign_typed_data`, `approval_created`, `approval_resolved`, `approval_expired`, `chain_changed`, `accounts_changed`, `wallet_created`, `wallet_imported`, `account_imported`, `account_removed`, `reset_wallet`, `network_added`, `permission_revoked`, `sw_started`, `sw_reconcile`.
 
