@@ -1,25 +1,25 @@
-﻿# ⚖️ Veredicto de Reevaluación — Fase 2 · TrueKeate Wallet
+# ⚖️ Veredicto de Reevaluación — Fase 2 · TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría (reevaluación) · **Versión:** 1.1 · **Fecha:** 2026-10-09
+> **Fase:** 2 — Auditoría (reevaluación) · **Versión:** 1.2 · **Fecha:** 2026-10-09
 > **Objeto:** cierre de la Fase 2 tras la remediación de las **tres auditorías** (`INFORME_OPTIMIZACION_V1.md`, `casos_uso/AUDITORIA_CASOS_USO_V1.md`, `AUDITORIA_DOCUMENTO_TECNICO_V1.md`).
 > **Revisor:** arquitecto de documentación técnica y auditor de consistencia (revisión independiente).
 > **Naturaleza de este archivo:** **entregable de la reevaluación**. Es un documento de cierre (no un registro histórico) y se actualiza cuando el plan de §5 se ejecuta.
-> **Historial de cambios:** v1.0 emisión del veredicto, tabla de cierre por severidad, **12 hallazgos residuales `R-01..R-12`** y **18 contradicciones residuales**, con el plan de cierre por bloques. · **v1.1 (esta versión)** ejecución de los bloques 1, 2 y 3 sobre el corpus y **estado de cierre por residual** (§6): los 8 parciales de las tres auditorías quedan cerrados y **R-09 queda pendiente de una decisión de producto**.
+> **Historial de cambios:** v1.0 emisión del veredicto, tabla de cierre por severidad, **12 hallazgos residuales `R-01..R-12`** y **18 contradicciones residuales**, con el plan de cierre por bloques. · **v1.1** ejecución de los bloques 1, 2 y 3 sobre el corpus y **estado de cierre por residual** (§6): los 8 parciales de las tres auditorías quedan cerrados y **R-09 queda pendiente de una decisión de producto**. · **v1.2 (esta versión)** cierre del residual **`R-09`** con las decisiones de producto **DEC-45** (bloqueo del revelado/exportación y del borrado de una cuenta importada cuando la cuenta está en uso por una dApp) y **DEC-46** (bloqueo del reset con la cola no vacía o una transacción en vuelo): **0 residuales abiertos**, **18/18 contradicciones resueltas** y veredicto ajustado a ✅ **Fase 2 apta para el cierre**, **pendiente solo de la última pasada de consistencia** solicitada por el usuario antes de autorizar la Fase 3.
 
 ---
 
 ## 1. Veredicto
 
-> ### ❌ **FASE 2 NO CERRADA**
-> **0 hallazgos abiertos** · **27 cerrados** · **8 parciales** · **18 contradicciones residuales** · **12 hallazgos residuales** (3 ALTA · 8 MEDIA · 1 BAJA).
+> ### ✅ **FASE 2 APTA PARA EL CIERRE**
+> **0 hallazgos abiertos** · **27 cerrados** · **8 parciales** (cerrados por los residuales `R-01..R-08`) · **0 residuales abiertos** (**12/12 `R-01..R-12` cerrados**, `R-09` en la v1.2) · **0 contradicciones** (**18/18 resueltas**) · **pendiente solo la última pasada de consistencia** solicitada por el usuario.
 
-**Lectura del veredicto.** La reevaluación **no reabre ningún bloqueante estructural**: los cuatro bloqueantes que impedían el cierre (build/empaquetado MV3, arnés de ejecución E2E, cola de aprobaciones persistida con dueño único del plazo, y anti-firma-ciega) están **cerrados y verificados**. Lo pendiente es **edición documental** en tres bloques y **no toca arquitectura, alcance ni decisiones de producto**:
+**Lectura del veredicto.** La reevaluación **no reabre ningún bloqueante estructural**: los cuatro bloqueantes que impedían el cierre (build/empaquetado MV3, arnés de ejecución E2E, cola de aprobaciones persistida con dueño único del plazo, y anti-firma-ciega) están **cerrados y verificados**. Lo que estaba pendiente era **edición documental** en tres bloques —más la **decisión de producto de `R-09`**, ya resuelta con **DEC-45/DEC-46**— y **no toca arquitectura, alcance ni modelo de datos**. Los tres bloques del plan de §5 —**ejecutados** en la v1.1— eran:
 
 1. **Bloque 1 — Consistencia de valores.** Valores canónicos que no se citan igual en todo el corpus (conteo de eventos, plazo de revelado, ventana de confirmación, tipos de mensaje, identidad EIP-6963, cota de payload, cuota de storage, redacción de logs, conteos de requisitos y versiones de documento).
 2. **Bloque 2 — Verificabilidad de criterios.** Criterios que aún carecen de magnitud, de método o de evidencia, o cuyo oráculo es tautológico; el caso residual más citado es la afirmación **no falsable** de que el puerto de larga vida «mantiene vivo» el Service Worker.
 3. **Bloque 3 — Memoria y metadatos.** `estado_proyecto.md` §2 declara versiones **desactualizadas** de casi todos los artefactos, y las cabeceras de `casos_uso.md`, `diagramas.md` y `documento_tecnico.md` siguen citando versiones anteriores de sus fuentes.
 
-**Consecuencia.** El cierre queda **condicionado a la ejecución del plan de §5** y a una nueva pasada de verificación por `grep`, sin necesidad de una cuarta auditoría completa.
+**Consecuencia.** El plan de §5 está **ejecutado** y los **12 residuales cerrados**: el cierre queda **condicionado solo a la última pasada de consistencia** por `grep` solicitada por el usuario, sin necesidad de una cuarta auditoría completa.
 
 ### 1.1 Métricas
 
@@ -27,12 +27,15 @@
 |---|---|
 | Hallazgos auditados en total (H-01..H-42 + ACU-01..ACU-30 + ADT-01..ADT-33) | **105** |
 | Cerrados (sin residual) | **27** |
-| Parciales (cerrados en parte: subsiste una cita, un valor o una evidencia) | **8** |
+| Parciales (cerrados por los residuales `R-01..R-08`) | **8** |
 | Abiertos | **0** |
 | Contradicciones residuales detectadas | **18** |
+| Contradicciones resueltas | **18 / 18** — **0 pendientes** |
 | Hallazgos residuales (`R-01..R-12`) | **12** (3 ALTA · 8 MEDIA · 1 BAJA) |
+| Residuales cerrados | **12 / 12** (`R-09` cerrado en la v1.2 con **DEC-45/DEC-46**) |
+| Residuales abiertos | **0** |
 | Bloqueantes estructurales | **4 / 4 cerrados** |
-| Naturaleza de lo pendiente | **100 % edición documental** (ningún cambio de arquitectura ni de alcance) |
+| Naturaleza de lo pendiente | **solo la última pasada de consistencia** (verificación documental por `grep`; ningún cambio de arquitectura ni de alcance) |
 
 ### 1.2 Bloqueantes estructurales (verificados como cerrados)
 
@@ -127,7 +130,7 @@
 | **R-06** | 🟡 MEDIA | Verificabilidad (`ACU-29`) | La tabla de evidencias de RNF de `requerimientos.md` §2 usa **formas no canónicas** de evidencia (`Revisión:`), prohibidas por la convención 3 de `casos_uso.md` (`Vitest:` · `E2E: <spec> — <flujo>` · `Comando:` · `Inspección:`). | `casos_uso/casos_uso.md:13` (regla dura: «no se admite `Revisión:` ni `E2E` sin identificar spec y flujo») frente a `requerimientos.md:208` (`+ Revisión: git ls-files …`), `:209` (`Revisión: §2.6 + Comando: …`) | Sustituir `Revisión:` por `Inspección:` o `Comando:` en las filas afectadas y mantener las cuatro formas canónicas como únicas válidas |
 | **R-07** | 🟡 MEDIA | Verificabilidad (`ACU-02`/`ACU-29`) | Criterios con **oráculo tautológico o sin magnitud**: el «Entonces» repite el «Dado/Cuando» o enuncia «sin errores»/«sigue funcionando» sin umbral ni método. | `casos_uso/casos_uso.md:13` (regla dura) y `:2386` (`«sin errores» al cargar dist/ → 0 errores en consola y 0 en el badge de chrome://extensions`) frente a los párrafos de criterio de RNF/CA del Anexo A de `requerimientos.md` (Anexo A §9) que aún no fijan magnitud; barrido de §5.4 | Reescribir cada criterio con **número, método y evidencia** en una de las cuatro formas canónicas (ver el barrido sistemático del bloque 2) |
 | **R-08** | 🟡 MEDIA | Verificabilidad (`H-01`) | Los criterios abreviados de la columna «Criterio de aceptación» de la tabla de RF (`requerimientos.md` §1) declaran una **magnitud sin método** en varios RF (criterio medible, pero sin indicar cómo se mide ni con qué evidencia), y algunos RF remiten a la evidencia de forma genérica. | `requerimientos.md:55` (regla: criterio abreviado «≤ 120 caracteres, medible» + evidencia) frente a las filas de §1 cuya columna de evidencia repite `Vitest`/`E2E` sin flujo o sin spec completa; verificación por barrido de §5.4 | Completar la columna de evidencia con la forma canónica `E2E: <spec> — <flujo>` o `Vitest: <spec> — <aserción>` en todos los RF/RT |
-| **R-09** | 🟡 MEDIA | Errores EIP-1193 (`ACU-05`) | Dos causas citadas por los casos de uso **no existen** en la tabla de §4.3: «cuenta en uso por una dApp» (`-32602`) y «reset incompleto» (`-32603`), de modo que ninguna fila de §4.3 satisface esas citas. | `casos_uso/casos_uso.md:353` (`el mensaje de la causa «cuenta en uso por una dApp» … un mensaje por causa`) y `:1774` (`el mensaje de la causa «reset incompleto»`) frente a `diccionario_datos.md:845-869` (tabla §4.3: **ninguna fila** con esas causas) | **Requiere decisión:** o se añaden las dos causas a §4.3 (mensaje literal nuevo, **decisión de producto**) o los CU pasan a citar el código (`-32602`/`-32603`) sin prometer un literal inexistente. No se inventa el literal en esta reevaluación |
+| **R-09** | 🟡 MEDIA | Errores EIP-1193 (`ACU-05`) | Dos causas citadas por los casos de uso **no existen** en la tabla de §4.3: «cuenta en uso por una dApp» (`-32602`) y «reset incompleto» (`-32603`), de modo que ninguna fila de §4.3 satisface esas citas. | `casos_uso/casos_uso.md:353` (`el mensaje de la causa «cuenta en uso por una dApp» … un mensaje por causa`) y `:1774` (`el mensaje de la causa «reset incompleto»`) frente a `diccionario_datos.md:845-869` (tabla §4.3: **ninguna fila** con esas causas) | **Requiere decisión:** o se añaden las dos causas a §4.3 (mensaje literal nuevo, **decisión de producto**) o los CU pasan a citar el código (`-32602`/`-32603`) sin prometer un literal inexistente. No se inventa el literal en esta reevaluación | ✅ **CERRADO en la v1.2 con decisión de producto:** las dos causas se añaden a `diccionario_datos.md` §4.3 con **literal propio y `code: -32000`** (familia de conflicto de estado) —«Cuenta en uso por una dApp conectada» (**DEC-45**) y «Reset bloqueado» (**DEC-46**)—, con guardas operativas en §3.10/§3.11; los CA y los CU las citan **por causa**. Detalle en §6.1 |
 | **R-10** | 🟡 MEDIA | Metadatos / citas de fuentes | Las cabeceras de `casos_uso.md`, `diagramas.md` y `documento_tecnico.md` citan **versiones obsoletas** de sus fuentes (bloques «Fuentes vinculantes» y «Fuentes obligatorias leídas»), de modo que la cadena de custodia documental es falsa. | `documento_tecnico.md:9-15` (`requerimientos.md **v1.5**`, `casos_uso.md **v1.1**`, `diccionario_datos.md **v1.4**`, `entornos_globales.md **v1.6**`, `identidad_visual.md **v1.2**`, `estado_proyecto.md **v1.5** (DEC-01..DEC-36)`) frente a las cabeceras reales `requerimientos.md:3` (1.6), `casos_uso/casos_uso.md:3` (1.2), `diccionario_datos.md:3` (1.5), `entornos_globales.md:3` (1.7), `identidad_visual.md:3` (1.3), `estado_proyecto.md:6` (v1.6); `casos_uso/casos_uso.md:8` (`requerimientos.md v1.4 … diccionario_datos.md v1.3 … entornos_globales.md v1.5`); `diagramas.md:5` (`casos_uso.md v1.1`, `requerimientos.md v1.5`, `diccionario_datos.md v1.4`, `entornos_globales.md v1.6`) | Actualizar los tres bloques de fuentes a las versiones reales tras §5 y dejar constancia en el historial de cada documento |
 | **R-11** | 🟡 MEDIA | Metadatos / memoria | La memoria no refleja el estado real de la reevaluación: el «Próximos pasos» 10 y el criterio §8.2 del veredicto figuran como **pendientes**, y no existe constancia del presente veredicto ni de los 12 residuales. | `estado_proyecto.md:195` («ejecutar el **veredicto de reevaluación** … **pendiente**») y `:224` (`- [ ] **Veredicto de reevaluación (único criterio pendiente)**`) frente a `VEREDICTO_FASE2_V1.md` §1 (veredicto emitido: **Fase 2 NO cerrada**, 12 residuales) | Añadir a `estado_proyecto.md` la referencia al veredicto, el recuento de residuales y la nueva condición de cierre (plan de §5 ejecutado) |
 | **R-12** | 🔵 BAJA | Consistencia histórica | El historial de `diccionario_datos.md` y el de `casos_uso.md` mezclan el conteo **viejo y el nuevo** de eventos («23» y «hoy 24») en la misma celda, lo que conserva la ambigüedad aunque el valor vigente esté claro. | `diccionario_datos.md:940` («enum cerrado de **23** eventos (hoy **24**: v1.5 añade `storage_quota_exceeded`)») frente a `diccionario_datos.md:292`/`:294` (enum de **24** eventos) | Mantener la traza histórica **solo** en las filas de historial (marcadas con la versión en que cambió el conteo) y dejar el valor vigente sin doble número en el cuerpo del documento |
@@ -197,7 +200,7 @@
 |---|---|---|
 | Declarar **fuente única de literales = `diccionario_datos.md` §4.3**; convertir §2.1 de `requerimientos.md` en tabla de códigos y significado con remisión a §4.3 | `R-01`, `ADT-03`, `C-01` | 1,0 h |
 | Redirigir las **28 citas** de `casos_uso.md` y las 2 de `documento_tecnico.md` a §4.3 | `R-01`, `C-02` | 0,75 h |
-| Resolver las dos causas sin fila en §4.3 (`cuenta en uso por una dApp`, `reset incompleto`) | `R-09` | **requiere decisión (0,5 h tras la respuesta)** |
+| Resolver las dos causas sin fila en §4.3 (`cuenta en uso por una dApp`, `reset incompleto`) | `R-09` | ✅ **hecho**: dos filas nuevas en §4.3 con `code: -32000` y guardas en §3.10/§3.11 (**DEC-45/DEC-46**) |
 | Barrido de criterios de RF/RT/RNF/`CA-xx` sin magnitud, sin método o con oráculo tautológico y reescritura con número + método + evidencia canónica | `R-07`, `R-08`, `ACU-02`, `ACU-29` | 2,5 h |
 | Sustituir las formas de evidencia no canónicas (`Revisión:` → `Inspección:`/`Comando:`) | `R-06` | 0,5 h |
 | Sustituir las 4 afirmaciones no falsables del puerto por la formulación «`RESUME` < 200 ms tras 30 s» + «el puerto no garantiza la vida del SW» | `R-03`, `C-04..C-07` | 0,75 h |
@@ -223,7 +226,7 @@
 | Bloque 3 — Memoria y metadatos | ≈ 3,25 h |
 | **Total** | **≈ 11 h** (más la respuesta a `R-09`) |
 
-**La Fase 2 se declara cerrada cuando:** (a) los 12 residuales `R-01..R-12` están cerrados o declarados como residuo aceptado con motivo; (b) las 18 contradicciones de §4 están resueltas; y (c) la verificación por `grep` no encuentra ninguno de los valores corregidos ni caracteres corruptos (`\uFFFD`).
+**La Fase 2 se declara cerrada cuando:** (a) los 12 residuales `R-01..R-12` están cerrados o declarados como residuo aceptado con motivo —✅ **cumplido: 12/12**—; (b) las 18 contradicciones de §4 están resueltas —✅ **cumplido: 18/18**—; y (c) la verificación por `grep` no encuentra ninguno de los valores corregidos ni caracteres corruptos (`\uFFFD`) —**pendiente solo la última pasada de consistencia solicitada por el usuario**.
 
 ### 5.5 Reglas de ejecución
 
@@ -235,7 +238,7 @@
 
 ---
 
-## 6. Estado de cierre tras la ejecución (v1.1)
+## 6. Estado de cierre tras la ejecución (v1.2)
 
 > **Alcance de las líneas de esta sección:** las de §3 y §4 corresponden al estado **previo** a la ejecución; las de esta sección, al estado **posterior**.
 
@@ -251,12 +254,12 @@
 | `R-06` | ✅ **Cerrado** | Las **33** evidencias con forma no canónica (`Revisión:`) del corpus se reescriben a `Comando:`/`Inspección:` con comando o criterio explícito (`requerimientos.md` §1/§2/§3/§9A, `documento_tecnico.md` §9.2 y §9.5, `entornos_globales.md` §3, `identidad_visual.md` §8, `casos_uso.md` §8.1/§8.2) |
 | `R-07` | ✅ **Cerrado** | Los oráculos tautológicos detectados por el barrido ganan magnitud, método y evidencia (CU-14, CU-20, CU-22/E2, CU-31, CU-36; CA-RF-34, CA-RF-42, CA-RF-46, CA-RF-49, CA-RF-50; RNF-07, RNF-08, RNF-16, RT-05, RT-07, RT-10) |
 | `R-08` | ✅ **Cerrado** | Los criterios abreviados de RF/RT y los RNF afectados pasan a indicar **cómo se mide** y con qué evidencia canónica (barrido de §5.4) |
-| `R-09` | ⚠ **Pendiente de decisión** | «cuenta en uso por una dApp» (`-32602`) y «reset incompleto» (`-32603`) **no tienen fila en `diccionario_datos.md` §4.3**: los CU se reformulan para citar el **código** y declarar la fila pendiente, sin inventar el literal (requiere decisión de producto) |
+| `R-09` | ✅ **Cerrado** | **Decisión de producto aplicada (v1.2, DEC-45/DEC-46):** `diccionario_datos.md` **v1.7** gana en **§4.3** **dos filas por causa** con `code: -32000` —«Cuenta en uso por una dApp conectada» y «Reset bloqueado», justificadas como familia de **conflicto de estado** en su **§6.5**—; **§3.10** añade la guarda de sesión de dApp activa (revelado/exportación y borrado de la cuenta importada) y **§3.11 es nueva** (guardas y orden de comprobación del reset). Aplicado en `requerimientos.md` **v1.8** (`CA-RF-05`, `CA-RF-06`, `CA-RF-11` y `CA-RF-50`), `casos_uso.md` **v1.4** (CU-06, CU-07 y CU-30, con flujo alternativo, Gherkin y evidencia) y `documento_tecnico.md` **v1.3** (§3.8 regla 9 y §3.9) |
 | `R-10` | ✅ **Cerrado** | `documento_tecnico.md` v1.2, `casos_uso.md` v1.3 y `diagramas.md` v1.1 actualizan sus bloques de «Fuentes» a las versiones vigentes (y DEC-01..DEC-44) |
 | `R-11` | ✅ **Cerrado** | `estado_proyecto.md` v1.7 registra el veredicto en §2, marca el cierre del paso 10, abre el paso 11 (plan de residuales) y añade el criterio pendiente en §8.2 |
 | `R-12` | ✅ **Cerrado** | `diccionario_datos.md` v1.6 separa el conteo histórico (23 en v1.4 → 24 desde v1.5) del valor vigente y retira la nota de delta pendiente |
 
-**Balance:** **11 cerrados** y **1 pendiente de decisión** (R-09).
+**Balance:** **12 cerrados** y **0 pendientes** (`R-09` cerrado en la v1.2 con DEC-45/DEC-46).
 
 ### 6.2 Contradicciones resueltas
 
@@ -265,7 +268,7 @@
 | `C-01` a `C-12`, `C-14` a `C-18` | ✅ **Resueltas** por edición del corpus (fuente única de literales, 24 eventos, ventana única, versiones y citas de fuentes) |
 | `C-13` | ✅ **Resuelta por declaración de residuo**: el registro histórico `casos_uso/AUDITORIA_CASOS_USO_V1.md` conserva «23 tipos» como prueba del cambio; el corpus vigente usa **24** (regla de §5.5) |
 
-**Balance: 18/18 resueltas.**
+**Balance: 18/18 resueltas · 0 contradicciones abiertas.**
 
 ### 6.3 Verificación final ejecutada
 
@@ -278,8 +281,12 @@
 | `una ventana por origen` como invariante vigente | **0**; solo en los registros de la decisión que la sustituye |
 | Caracteres corruptos (`U+FFFD`) | **0** en los 9 documentos de `RepoTecnico/` |
 | Registros históricos y fuentes | **Intactos** (`INFORME_OPTIMIZACION_V1.md`, `casos_uso/AUDITORIA_CASOS_USO_V1.md`, `AUDITORIA_DOCUMENTO_TECNICO_V1.md`, `requisitos.md`, `TAREA_PARA_ESTUDIANTE.md`, `GUIA_RAPIDA_TESTING.md`) |
-| Versiones de los documentos modificados | `requerimientos.md` **v1.7** · `diccionario_datos.md` **v1.6** · `entornos_globales.md` **v1.8** · `identidad_visual.md` **v1.4** · `estado_proyecto.md` **v1.7** · `casos_uso/casos_uso.md` **v1.3** · `casos_uso/diagramas.md` **v1.1** · `documento_tecnico.md` **v1.2** · `VEREDICTO_FASE2_V1.md` **v1.1** |
+| Versiones de los documentos modificados (estado de la v1.2) | `requerimientos.md` **v1.8** · `diccionario_datos.md` **v1.7** · `entornos_globales.md` **v1.8** · `identidad_visual.md` **v1.4** · `estado_proyecto.md` **v1.8** · `casos_uso/casos_uso.md` **v1.4** · `casos_uso/diagramas.md` **v1.1** · `documento_tecnico.md` **v1.3** · `VEREDICTO_FASE2_V1.md` **v1.2** |
+| Causas de `R-09` con fila en §4.3 | **2/2** («Cuenta en uso por una dApp conectada» y «Reset bloqueado», ambas `-32000`); **0** referencias a una fila inexistente en el corpus vigente |
+| Literales duplicados fuera de la fuente única | **0**: `requerimientos.md`, `casos_uso.md` y `documento_tecnico.md` citan la **causa** o el **código** de `diccionario_datos.md` §4.3 |
+| Guardas de estado documentadas | **2/2**: revelado/borrado con sesión de dApp activa (§3.10 del diccionario, §3.8 del técnico) y reset con cola no vacía o transacción en vuelo (§3.11 del diccionario, §3.9 del técnico) |
+| Conteos de requisitos | **Sin cambios**: **50 RF = 40 Must + 10 Should · 25 RNF · 13 RT · 4 RE** |
 
 ### 6.4 Condición de cierre vigente
 
-La Fase 2 queda **a una sola decisión** de cerrarse: la respuesta a `R-09` (añadir las dos causas a `diccionario_datos.md` §4.3 con su literal, o mantener la cita por código). Ejecutada esa decisión y repetida la verificación de §6.3, los 12 residuales estarán cerrados, las 18 contradicciones resueltas y la Fase 2 podrá declararse cerrada.
+`R-09` quedó **cerrado** en la **v1.2** con la decisión de producto del usuario (**DEC-45**/**DEC-46**): las dos causas tienen **fila propia** en `diccionario_datos.md` §4.3 con `code: -32000` y sus **guardas operativas** (§3.10 y §3.11), citadas por causa desde `requerimientos.md`, `casos_uso.md` y `documento_tecnico.md`. Con los **12 residuales cerrados** y las **18 contradicciones resueltas**, la Fase 2 es **apta para el cierre** y queda **pendiente solo la última pasada de consistencia** solicitada por el usuario: el barrido con `grep` de §6.3 sobre el corpus completo. Aprobada esa pasada, la Fase 2 se declara cerrada y se autoriza la **Fase 3**.

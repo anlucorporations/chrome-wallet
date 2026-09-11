@@ -1,6 +1,6 @@
 # 📑 Requerimientos — TrueKeate Wallet (Extensión Chrome estilo MetaMask)
 
-> **Fase:** 1 — Concepto · **Versión:** 1.7 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
+> **Fase:** 1 — Concepto · **Versión:** 1.8 · **Estado:** ✅ **FASE 1 COMPLETADA** (entrevista cerrada; pendiente solo la creación de repos remotos)
 > **Documento fuente:** `RepoTecnico/requisitos.md` (enunciado original) y `RepoTecnico/TAREA_PARA_ESTUDIANTE.md`.
 > **Guía principal de desarrollo:** este archivo. Se actualiza de forma incremental durante todo el proyecto.
 > **Anexo vinculante de diseño:** `RepoTecnico/identidad_visual.md` (marca TrueKeate: paleta, tipografía, degradados, iconos y tokens CSS).
@@ -101,15 +101,15 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | RF-02 | **Importar** una wallet a partir de una frase de recuperación de 12 palabras, validando checksum BIP-39 y normalizando espacios/mayúsculas. | E-01 | Must | Al importar 12 palabras con espacios/mayúsculas irregulares, la cuenta 0 derivada coincide con la canónica. | `Vitest: mnemonic.spec.ts — normaliza y valida checksum` |
 | RF-03 | **Carga sin contraseña**: al cargar/importar la frase, la wallet queda operativa de inmediato (modo desarrollo). | E-02 | Must | Al cargar o importar la frase, el popup muestra la cuenta 0 y su saldo sin pedir contraseña. | `E2E: 01-onboarding.spec.ts — sin prompt de contraseña` |
 | RF-04 | **Derivar cuentas HD** BIP-32/BIP-44 con ruta `m/44'/60'/0'/0/i`: **5 cuentas por defecto** y botón **"Añadir cuenta"** para derivar la siguiente (P-04). | E-01 | Must | Al crear la cartera hay exactamente 5 cuentas (índices 0..4) y «Añadir cuenta» deriva la 6.ª. | `Vitest: derivation.spec.ts` · `E2E: 02-cuentas.spec.ts` |
-| RF-05 | **Importar cuenta por clave privada** (0x + 64 hex). La cuenta se añade marcada como "importada" y con **etiqueta renombrable** (P-06). | **NUEVO** (usuario) | Must | Al importar `0x`+64 hex, la cuenta aparece marcada «importada» y su etiqueta renombrada persiste. | `Vitest: importPrivateKey.spec.ts` · `E2E: 02-cuentas.spec.ts` |
-| RF-06 | **Eliminar cuenta importada** (las derivadas del mnemonic no se eliminan, solo se ocultan). | **NUEVO** (propuesto) | Should | Eliminar una importada borra su clave de storage; las derivadas solo se ocultan y siguen derivándose. | `Vitest: accounts.spec.ts — borrado de importada` |
+| RF-05 | **Importar cuenta por clave privada** (0x + 64 hex). La cuenta se añade marcada como "importada" y con **etiqueta renombrable** (P-06); su clave privada solo puede **revelarse o eliminarse mientras la cuenta no esté en uso por una dApp** (**R-09a/DEC-45**). | **NUEVO** (usuario) | Must | Al importar `0x`+64 hex, la cuenta aparece marcada «importada» y su etiqueta renombrada persiste; con una sesión de dApp vigente sobre esa cuenta, revelar o eliminar se bloquea con `-32000` y el mensaje de la causa «Cuenta en uso por una dApp conectada» de `diccionario_datos.md` §4.3. | `Vitest: importPrivateKey.spec.ts` · `Vitest: accounts.spec.ts — guarda de sesión de dApp activa (bloqueo -32000)` · `E2E: 02-cuentas.spec.ts` |
+| RF-06 | **Eliminar cuenta importada** (las derivadas del mnemonic no se eliminan, solo se ocultan). **Se bloquea** si la cuenta tiene una sesión de dApp vigente (**R-09a/DEC-45**). | **NUEVO** (propuesto) | Should | Eliminar una importada borra su clave de storage; las derivadas solo se ocultan y siguen derivándose; con sesión de dApp vigente el borrado se rechaza con `-32000` (R-09a/DEC-45) y `truekeate_imported_accounts` queda intacto hasta revocar el permiso. | `Vitest: accounts.spec.ts — borrado de importada` · `Vitest: accounts.spec.ts — bloqueo con sesión activa (-32000)` · `E2E: 25-recuperacion.spec.ts — bloqueo y desbloqueo tras revocar` |
 | RF-07 | **Recibir transferencias**: dirección completa + copiar al portapapeles + **QR**, y saldo actualizado. **Confirmado en P-05.** | **NUEVO** (usuario) | Must | En «Recibir», la dirección mostrada, el portapapeles y el QR decodificado son la misma cadena `0x…`. | `E2E: 03-recibir.spec.ts — copiar y QR` |
 | RF-08 | **Enviar transferencias** desde cualquiera de las cuentas de la wallet (interna o a direcciones externas) con estimación de gas y confirmación del usuario. | E-24 | Must | Al enviar 1 ETH entre cuentas de Anvil, la llamada devuelve hash `0x`+64 hex y el recibo es `status 1`. | `E2E: 04-enviar.spec.ts` · `Vitest: tx.spec.ts` |
 | RF-09 | **Auto-carga**: al abrir el popup, si existe wallet en storage se restaura sin pedir la frase. | E-27 | Must | Al reabrir el popup con cartera en storage, se muestra la cuenta activa sin solicitar la frase. | `E2E: 05-persistencia.spec.ts` |
 | RF-10 | **Restaurar estado**: al reabrir, se restaura cuenta activa, red, cuentas importadas y sesiones de dApp. | E-28 | Must | Tras reabrir el popup se restauran cuenta activa, red, importadas y sesiones con los mismos valores. | `E2E: 05-persistencia.spec.ts` · `Vitest: state.spec.ts` |
-| RF-11 | **Reset wallet**: botón que limpia la cartera (mnemonic, cuentas, sesiones) y vuelve al formulario inicial. | E-21 | Must | Al confirmar «Reset wallet», storage queda sin mnemonic/cuentas/sesiones y el popup vuelve al inicio. | `E2E: 06-reset.spec.ts` · `Vitest: reset.spec.ts` |
+| RF-11 | **Reset wallet**: botón que limpia la cartera (mnemonic, cuentas, sesiones) y vuelve al formulario inicial. **Se bloquea** con la cola `truekeate_pending_requests` no vacía o una transacción en vuelo en `truekeate_inflight_tx` (**R-09b/DEC-46**). | E-21 | Must | Con la cola vacía y sin transacción en vuelo, al confirmar «Reset wallet» el storage queda sin mnemonic/cuentas/sesiones y el popup vuelve al inicio; con `<n>` solicitudes pendientes o transacción en vuelo el reset se rechaza con `-32000`, la UI indica cuántas quedan y ninguna clave se borra. | `E2E: 06-reset.spec.ts — reset con la cola vacía y reset bloqueado` · `Vitest: reset.spec.ts — orden de comprobación y bloqueo (-32000)` |
 | RF-12 | **Hint interactivo**: la frase semilla de prueba de Anvil es clickeable y rellena el formulario. | E-22 | Should | Al pulsar el hint, el campo queda relleno con las 12 palabras de Anvil y «Importar» pasa a habilitado. | `E2E: 01-onboarding.spec.ts — hint Anvil` |
-| RF-50 | **Revelar y exportar** la **frase semilla (BIP-39)** y las **claves privadas** de las cuentas **bajo confirmación explícita del usuario**: advertencia de riesgo, valores ocultos por defecto, revelado temporal de **30 s** con **ocultado también por pérdida de foco**, **política de portapapeles** (copiar permitido; **borrado del portapapeles al ocultar** si aún contiene la semilla) y prohibición de exponerlos por `window.postMessage` (**aportación de diseño D-13**, H-25; **P-20**). | **NUEVO** (diseño, D-13) | Must | Con confirmación explícita, el valor oculto por defecto se revela **30 s** y se oculta al expirar el plazo **o al perder el foco**; copiar está permitido y al ocultarse **se borra el portapapeles** si aún contiene la semilla; el valor nunca viaja por `window.postMessage`. | `Vitest: secretsExport.spec.ts — confirmación, 30 s, pérdida de foco, borrado del portapapeles y no postMessage` · `E2E: 25-recuperacion.spec.ts — revelado temporal, clipboard borrado` |
+| RF-50 | **Revelar y exportar** la **frase semilla (BIP-39)** y las **claves privadas** de las cuentas **bajo confirmación explícita del usuario**: advertencia de riesgo, valores ocultos por defecto, revelado temporal de **30 s** con **ocultado también por pérdida de foco**, **política de portapapeles** (copiar permitido; **borrado del portapapeles al ocultar** si aún contiene la semilla) y prohibición de exponerlos por `window.postMessage` (**aportación de diseño D-13**, H-25; **P-20**). **Se bloquea** si la cuenta —o alguna derivada del mnemonic revelado— tiene una sesión de dApp vigente (**R-09a/DEC-45**). | **NUEVO** (diseño, D-13) | Must | Con confirmación explícita, el valor oculto por defecto se revela **30 s** y se oculta al expirar el plazo **o al perder el foco**; copiar está permitido y al ocultarse **se borra el portapapeles** si aún contiene la semilla; el valor nunca viaja por `window.postMessage`; con sesión de dApp vigente sobre la cuenta el revelado/exportación se rechaza con `-32000` sin entregar el valor. | `Vitest: secretsExport.spec.ts — confirmación, 30 s, pérdida de foco, borrado del portapapeles y no postMessage` · `Vitest: secretsExport.spec.ts — bloqueo con sesión de dApp activa (-32000)` · `E2E: 25-recuperacion.spec.ts — revelado temporal, clipboard borrado` |
 
 ### 1.2 Provider inyectado y operaciones blockchain — **Total: 14 RF (14 Must / 0 Should)**
 
@@ -220,9 +220,9 @@ Convención de identificadores: `RF-XX`. La columna **Fuente** indica el número
 | `4200` | Método no soportado, o método interno fuera de contexto | Método fuera del catálogo RPC —incluye `eth_sign`— (H-11a); método interno llamado desde un contexto no permitido (RT-06) |
 | `4900` | Cartera desconectada del RPC | RPC local caído o inalcanzable (RNF-07) |
 | `4901` | Red no reconocida | `wallet_switchEthereumChain` a un `chainId` que no está dado de alta |
-| `-32000` | Rechazo del nodo | Saldo insuficiente, nonce inválido, o `estimateGas` fallido / revert previo a firmar (`diccionario_datos.md` §3.6) |
-| `-32602` | Parámetros o material de entrada inválidos | Mnemonic o clave privada inválidos, dirección malformada (EIP-55), cuenta ya existente, cuenta en uso por una dApp, o payload por encima de **64 KiB** (RF-33; `diccionario_datos.md` §3.9) |
-| `-32603` | Error interno de la cartera | Fallo no clasificado del Service Worker, identificador duplicado en la cola, cuota de `chrome.storage.local` agotada, difusión interrumpida por suspensión del SW, o reset incompleto (RF-32; `diccionario_datos.md` §2.15 y §2.12) |
+| `-32000` | Conflicto de estado | El nodo rechaza la operación —saldo insuficiente, nonce inválido o `estimateGas` fallido / revert previo a firmar (`diccionario_datos.md` §3.6)— **o** el estado de la propia cartera impide una operación por lo demás legítima: **cuenta en uso por una dApp** (bloquea el revelado/exportación y el borrado, R-09a/DEC-45) y **reset con la cola no vacía o una transacción en vuelo** (bloquea el reset, R-09b/DEC-46) |
+| `-32602` | Parámetros o material de entrada inválidos | Mnemonic o clave privada inválidos, dirección malformada (EIP-55), cuenta ya existente, o payload por encima de **64 KiB** (RF-33; `diccionario_datos.md` §3.9) |
+| `-32603` | Error interno de la cartera | Fallo no clasificado del Service Worker, identificador duplicado en la cola, cuota de `chrome.storage.local` agotada, o difusión interrumpida por suspensión del SW (`diccionario_datos.md` §2.15 y §2.12) |
 
 > Regla (RNF-06): **toda** respuesta de error hacia la página es un objeto EIP-1193 con `code` numérico y `message` en español; queda prohibido resolver con `new Error('Request timeout')` u objetos sin `code`.
 > **Regla de cita (ACU-05/D-E).** Ningún criterio de este corpus reproduce el literal de un mensaje: se cita `diccionario_datos.md` §4.3 por su **causa** o por su **código**. La tabla §4.3 de `diccionario_datos.md` es la fuente de verdad de las filas del catálogo de errores; esta §2.1 lo es de la lista de códigos admitidos.
@@ -484,7 +484,8 @@ Paquete de entrega definido en `TAREA_PARA_ESTUDIANTE.md:2632-2667`, con su peso
 - [x] Repositorio local inicializado con `main` y `chrome-wallet-DSH` y los 3 remotos configurados.
 - [x] **v1.4 — remediación de `INFORME_OPTIMIZACION_V1.md`:** criterios de aceptación y evidencia en los 49 RF y 13 RT + Anexo A (§9); trazabilidad, conteos y desambiguación (H-03, H-05, H-06, H-30, H-38); ciclo de aprobación MV3, `eth_sign` retirado, vista previa decodificada y alias del provider (H-02, H-07, H-08, H-11a, H-11b, H-15); RNF operacionalizados y categorías nuevas (H-12, H-13, H-17, H-19, H-20, H-22, H-25, H-26, H-29, H-40, H-42); rúbrica, entregables, stakeholders, MVP y licencias (H-14, H-16, H-24, H-27, H-28, H-34, H-35, H-36, H-37).
 - [x] **v1.5 — remediación de `casos_uso/AUDITORIA_CASOS_USO_V1.md` (ACU-01..ACU-30, D-A..D-G):** conteos a **50 RF (40 Must / 10 Should)**; **RF-50 (Must)** con `CA-RF-50` en Gherkin y EARS y desviación **D-13**; **P-17** (el MVP no depende del badge; RF-38/RF-39 siguen en el ciclo posterior), **P-18** y **P-19** (`wallet_switchEthereumChain` exige aprobación si la red destino no es la activa) aplicadas; caducidad de sesión de dApp de 24 h renovables en RF-25 y `CA-RF-25` (**D-B**); literal de build `npm ci && npm run build` (**D-C**, RNF-15); RT-13 como fuente de verdad de EIP-6963 (**D-A**); campo `event` en `truekeate_logs` (**D-D**); varios mensajes por código EIP-1193 (**D-E**); `accountLabels` (**D-F**); permiso de host en runtime siempre (**D-G**); rúbrica de Documentación (§4.1) apuntada a la evidencia existente.
- **v1.7 (esta versión) — cierre de los residuales del veredicto de reevaluación (`VEREDICTO_FASE2_V1.md`, R-01 y R-09):** §2.1 pasa a ser la **tabla de códigos EIP-1193 y su significado** y los **literales de mensaje** quedan con **fuente única en `diccionario_datos.md` §4.3** (todas las citas de los casos de uso, del Anexo A y del documento técnico apuntan allí); se añade el **evento 24** (`storage_quota_exceeded`) a §2.2; la afirmación **no falsable** del puerto de larga vida se sustituye por los criterios observables «tras 30 s de inactividad, un `RESUME` con el mismo `approvalId` responde en < 200 ms» y «el puerto no garantiza la vida del SW»; y las **evidencias con forma no canónica** (`Revisión:`) se reescriben a `Comando:`/`Inspección:` con magnitud y método (R-06, R-07, R-08).
+ **v1.7 — cierre de los residuales del veredicto de reevaluación (`VEREDICTO_FASE2_V1.md`, R-01 y R-09):** §2.1 pasa a ser la **tabla de códigos EIP-1193 y su significado** y los **literales de mensaje** quedan con **fuente única en `diccionario_datos.md` §4.3** (todas las citas de los casos de uso, del Anexo A y del documento técnico apuntan allí); se añade el **evento 24** (`storage_quota_exceeded`) a §2.2; la afirmación **no falsable** del puerto de larga vida se sustituye por los criterios observables «tras 30 s de inactividad, un `RESUME` con el mismo `approvalId` responde en < 200 ms» y «el puerto no garantiza la vida del SW»; y las **evidencias con forma no canónica** (`Revisión:`) se reescriben a `Comando:`/`Inspección:` con magnitud y método (R-06, R-07, R-08).
+ **v1.8 (esta versión) — cierre de `R-09` (`VEREDICTO_FASE2_V1.md` v1.2, DEC-45/DEC-46):** los **criterios de aceptación** de **RF-05, RF-06, RF-11 y RF-50** (`CA-RF-05`, `CA-RF-06`, `CA-RF-11` y `CA-RF-50`) recogen las **dos guardas nuevas**: (a) **cuenta en uso por una dApp conectada** → bloquea el revelado/exportación de su clave privada y el borrado de la cuenta importada con `-32000` (**R-09a/DEC-45**); (b) **reset bloqueado** por cola `truekeate_pending_requests` no vacía o transacción en vuelo en `truekeate_inflight_tx` → bloquea el reset con `-32000`, la UI indica cuántas solicitudes quedan y ofrece resolverlas (aprobar o rechazar) o esperar a que expiren (**R-09b/DEC-46**). §2.1 reasigna ambas causas a la fila `-32000` (conflicto de estado) y retira «cuenta en uso por una dApp» de `-32602` y «reset incompleto» de `-32603`. Los **literales** siguen con fuente única en `diccionario_datos.md` §4.3 y los **conteos no cambian**: **50 RF (40 Must / 10 Should) · 25 RNF · 13 RT · 4 RE**.
 - [ ] Repositorios de GitHub y GitLab.com creados por el usuario (acción externa; no bloquea la Fase 2).
 - [ ] Confirmación del usuario para pasar a la Fase 2.
 
@@ -568,16 +569,29 @@ Entonces la cuenta aparece marcada «importada» y con la dirección derivada de
 Y al renombrarla, la etiqueta persiste tras reabrir el popup
 Pero con 63 hex o sin el prefijo 0x la UI muestra error inline y no añade nada
 ```
-**Evidencia:** `Vitest: importPrivateKey.spec.ts` · `E2E: 02-cuentas.spec.ts`.
+```gherkin
+Dado una cuenta importada cubierta por una sesión vigente en truekeate_connected_sites
+Cuando intento revelar su clave privada o eliminarla
+Entonces la operación se rechaza con el error tipado -32000 de la causa «Cuenta en uso por una dApp conectada» (diccionario_datos.md §4.3; R-09a/DEC-45)
+Y ninguna escritura de chrome.storage.local ha tenido lugar
+```
+**Evidencia:** `Vitest: importPrivateKey.spec.ts — validación de 0x+64 hex` · `Vitest: accounts.spec.ts — guarda de sesión de dApp activa (bloqueo -32000)` · `E2E: 02-cuentas.spec.ts — importación y renombrado`.
 
 #### CA-RF-06 · Eliminar cuenta importada
 ```gherkin
-Dado una cuenta importada con etiqueta
+Dado una cuenta importada con etiqueta y sin sesión de dApp que la use
 Cuando el usuario confirma «Eliminar cuenta»
 Entonces la cuenta desaparece y su clave privada ya no existe en chrome.storage.local
 Y al ocultar una cuenta derivada, la cuenta puede volver a mostrarse con la misma dirección
 ```
-**Evidencia:** `Vitest: accounts.spec.ts — borrado de importada`.
+```gherkin
+Dado una cuenta importada con una sesión vigente en truekeate_connected_sites
+Cuando el usuario confirma «Eliminar cuenta»
+Entonces el popup y el SW rechazan la operación con el error tipado -32000 de la causa «Cuenta en uso por una dApp conectada» (diccionario_datos.md §4.3; R-09a/DEC-45)
+Y truekeate_imported_accounts conserva la entrada con su privateKey
+Y el mensaje nombra la dApp cuyo permiso debe revocarse antes de reintentar
+```
+**Evidencia:** `Vitest: accounts.spec.ts — borrado de importada` · `Vitest: accounts.spec.ts — bloqueo con sesión activa (-32000) y borrado tras revocar` · `E2E: 25-recuperacion.spec.ts — bloqueo por sesión y desbloqueo tras revocar el permiso`.
 
 #### CA-RF-07 · Recibir: dirección, copiar y QR
 ```gherkin
@@ -620,12 +634,25 @@ Entonces se restauran los cuatro elementos con los mismos valores
 #### CA-RF-11 · Reset wallet
 ```gherkin
 Dado una cartera con mnemonic, cuentas importadas y sesiones
+Y truekeate_pending_requests sin entradas pending y truekeate_inflight_tx vacío
 Cuando el usuario pulsa «Reset wallet» y confirma el diálogo destructivo
 Entonces chrome.storage.local no contiene mnemonic, cuentas ni sesiones
 Y el popup vuelve al formulario inicial
 Pero truekeate_logs se conserva (RF-32)
 ```
-**Evidencia:** `E2E: 06-reset.spec.ts` · `Vitest: reset.spec.ts` (texto del diálogo destructivo en RNF-22).
+```gherkin
+Dado truekeate_pending_requests con 2 entradas en estado pending
+Cuando el usuario pulsa «Reset wallet»
+Entonces el reset no se ejecuta y el popup muestra el error tipado -32000 de la causa «Reset bloqueado» (diccionario_datos.md §4.3; R-09b/DEC-46)
+Y la UI indica que quedan 2 solicitudes y ofrece resolverlas (aprobar o rechazar) o esperar a que expiren
+Y ninguna clave truekeate_* se ha borrado
+```
+```gherkin
+Dado truekeate_inflight_tx con 1 transacción en vuelo vigente y la cola de solicitudes vacía
+Cuando el usuario pulsa «Reset wallet»
+Entonces el reset no se ejecuta y recibe el mismo error -32000 mientras la entrada siga vigente (TTL de 180 s)
+```
+**Evidencia:** `Vitest: reset.spec.ts — orden de comprobación: cola vacía → sin transacción en vuelo → confirmación destructiva → limpieza` · `Vitest: reset.spec.ts — bloqueo con 2 pending y con transacción en vuelo (-32000)` · `Vitest: reset.spec.ts — texto del diálogo destructivo en RNF-22` · `E2E: 06-reset.spec.ts — reset con la cola vacía y reset bloqueado con 2 pendientes`.
 
 #### CA-RF-12 · Hint interactivo de Anvil
 ```gherkin
@@ -1028,8 +1055,14 @@ Pero al ocultarse (por plazo o por pérdida de foco), el sistema borra el portap
 Y el valor nunca se envía a ninguna página por window.postMessage ni queda registrado en truekeate_logs
 Y si el usuario cancela la confirmación, no se revela ni se exporta nada
 ```
-**Evidencia:** `Vitest: secretsExport.spec.ts — confirmación, ocultación por defecto, 30 s, ocultado por pérdida de foco, borrado del portapapeles y no postMessage` · `E2E: 25-recuperacion.spec.ts — revelado temporal, ocultado al perder el foco y portapapeles sin la semilla`.
-**EARS:** *El sistema deberá* exigir **confirmación explícita** del usuario antes de revelar o exportar la frase semilla BIP-39 o una clave privada; *el sistema no deberá* exponer nunca esos valores por `window.postMessage` ni a la página web; *cuando* el usuario confirme, *el sistema deberá* advertir del riesgo y mostrar el valor solo de forma temporal (**30 s**) o hasta que la ventana pierda el foco, permaneciendo **oculto por defecto**; *cuando* el valor se oculte, *el sistema deberá* **borrar el portapapeles** si aún contiene la semilla. **Cierra D-13 (P-18), RNF-22 (H-25) y ADT-09/P-20 (higiene del revelado y portapapeles, DEC-37).**
+```gherkin
+Dado una cuenta con una sesión vigente en truekeate_connected_sites (o el mnemonic, alguna de cuyas cuentas derivadas la tiene)
+Cuando el usuario abre «Revelar frase semilla» o «Exportar clave privada»
+Entonces la operación se rechaza con el error tipado -32000 de la causa «Cuenta en uso por una dApp conectada» (diccionario_datos.md §4.3; R-09a/DEC-45)
+Y no se muestra ni se entrega el valor y ninguna entrada de truekeate_logs lo contiene
+```
+**Evidencia:** `Vitest: secretsExport.spec.ts — confirmación, ocultación por defecto, 30 s, ocultado por pérdida de foco, borrado del portapapeles y no postMessage` · `Vitest: secretsExport.spec.ts — bloqueo con sesión de dApp activa (-32000)` · `E2E: 25-recuperacion.spec.ts — revelado temporal, ocultado al perder el foco y portapapeles sin la semilla`.
+**EARS:** *El sistema deberá* exigir **confirmación explícita** del usuario antes de revelar o exportar la frase semilla BIP-39 o una clave privada; *el sistema no deberá* exponer nunca esos valores por `window.postMessage` ni a la página web; *cuando* el usuario confirme, *el sistema deberá* advertir del riesgo y mostrar el valor solo de forma temporal (**30 s**) o hasta que la ventana pierda el foco, permaneciendo **oculto por defecto**; *cuando* el valor se oculte, *el sistema deberá* **borrar el portapapeles** si aún contiene la semilla; *si* la cuenta —o alguna cuenta derivada del mnemonic revelado— tiene una **sesión de dApp vigente** en `truekeate_connected_sites`, *entonces* *el sistema deberá* **bloquear** la operación con `-32000` y no entregar el valor hasta que se revoque ese permiso (**R-09a/DEC-45**). **Cierra D-13 (P-18), RNF-22 (H-25), ADT-09/P-20 (higiene del revelado y portapapeles, DEC-37) y R-09a (DEC-45).**
 
 ### 9.3 Criterios de aceptación de los RT (notación EARS)
 

@@ -1,11 +1,12 @@
 # Casos de Uso — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.3 · **Estado:** ✅ propuesto para revisión
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.4 · **Estado:** ✅ propuesto para revisión
 > **Producto:** **TrueKeate Wallet** (extensión Chrome/Edge Manifest V3) + dApp de pruebas (`test.html`) sobre Foundry Anvil.
+> **Cambio de versión:** v1.4 cierra el residual **`R-09`** del veredicto de reevaluación con las decisiones **DEC-45** y **DEC-46**: las **dos guardas nuevas** ganan flujo alternativo, criterio Gherkin con magnitud y evidencia canónica en **CU-06** (bloqueo del borrado de una cuenta importada con sesión de dApp activa), **CU-07** (bloqueo del revelado/exportación con sesión de dApp activa) y **CU-30** (bloqueo del reset con la cola no vacía o transacción en vuelo); los tres índices **§2, §5 y §7 no cambian** (sin CU ni RF nuevos) y el literal de cada causa sigue teniendo fuente única en `diccionario_datos.md` §4.3.
 > **Cambio de versión:** v1.2 incorpora las decisiones del usuario **P-20, P-21 y P-22** y las decisiones **D-J, D-K, D-L, D-Q y D-T** de `RepoTecnico/AUDITORIA_DOCUMENTO_TECNICO_V1.md`, y cierra en los casos de uso los hallazgos **ADT-06, ADT-07, ADT-08, ADT-09, ADT-21, ADT-22, ADT-24, ADT-25** y **ADT-30**, más la parte de documentación de **ADT-01**; el detalle está en **«Historial de cambios»** (final del documento).
 > **Cambio de versión:** v1.1 cierra los 30 hallazgos **ACU-01..ACU-30** de `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md`; el detalle está en **«Historial de cambios»** (final del documento).
 > **Fuentes (vinculantes, leídas antes de redactar):**
-> `RepoTecnico/requerimientos.md` v1.6 (§1 RF-01..RF-50, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 actores/rúbrica/MVP, §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) · `RepoTecnico/diccionario_datos.md` v1.5 (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 fuente única de los literales de error** y códigos EIP-1193) · `RepoTecnico/entornos_globales.md` v1.7 (permisos, constantes, comandos, nomenclatura) · `RepoTecnico/identidad_visual.md` v1.3 (medidas, tokens, contraste) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos ya remediados: no se reintroduce ninguno).
+> `RepoTecnico/requerimientos.md` **v1.8** (§1 RF-01..RF-50, §2 RNF-01..RNF-25, §3 RT-01..RT-13 y RE-01..RE-04, §4 actores/rúbrica/MVP, §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) · `RepoTecnico/diccionario_datos.md` **v1.7** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 fuente única de los literales de error** y códigos EIP-1193, guardas del revelado/borrado en §3.10 y del reset en §3.11) · `RepoTecnico/entornos_globales.md` **v1.8** (permisos, constantes, comandos, nomenclatura) · `RepoTecnico/identidad_visual.md` **v1.4** (medidas, tokens, contraste) · `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos ya remediados: no se reintroduce ninguno).
 >
 > **Convenciones de este documento**
 > 1. **Un CU = un objetivo de actor.** Los escenarios distintos del mismo objetivo se modelan como flujos alternativos (`A#`) o de excepción (`E#`), no como CU nuevos.
@@ -20,6 +21,7 @@
 > 10. **Ventana de confirmación única (P-21/ADT-22).** Existe **una sola** ventana global `notification.html` por perfil. Las solicitudes que llegan mientras hay otra en curso **no abren ventana**: esperan en `truekeate_pending_requests` y se muestran en esa misma ventana al resolverse la anterior; la ventana muestra el **contador de pendientes**. Aplica a todo CU que abra confirmación (flujo transversal **X-12**).
 > 11. **Origen (D-J/ADT-07).** El origen de toda petición se deriva **solo** de `sender.origin`; con `sender.frameId !== 0` queda **prohibido** respaldarse en `sender.tab.url` y la respuesta se entrega únicamente a ese frame (flujo transversal **X-11**).
 > 12. **Cotas y límites decididos.** Payload máximo de **64 KiB** con `-32602` al excederlo (D-L/ADT-21, X-13); el *token bucket* por origen cubre **todo** el catálogo RPC, lecturas incluidas (D-Q/ADT-24, X-14); la redacción de logs guarda los **primeros 10 bytes** de `data` (D-T/ADT-12).
+> 13. **Guardas de estado (R-09/DEC-45/DEC-46).** (a) **Cuenta en uso por una dApp** —entrada **vigente** en `truekeate_connected_sites`— **bloquea** el revelado/exportación de su clave privada (o del mnemonic que la deriva) y el **borrado** de la cuenta importada; (b) el **reset** está **bloqueado** mientras `truekeate_pending_requests` tenga entradas `pending` o `truekeate_inflight_tx` una transacción en vuelo. Ambas guardas usan el error tipado **`-32000`** y el literal de su **causa** en `diccionario_datos.md` §4.3 (**fuente única**); la causa del reset es un **error de validación de UI** y ningún método RPC la devuelve. **No se permite continuar** mientras la guarda esté activa. Aplica a CU-06, CU-07 y CU-30.
 
 ---
 
@@ -51,7 +53,7 @@
 | CU-04 | Derivar y añadir cuentas HD | Usuario | RF-04, RF-10 | RT-02 | **MVP** |
 | CU-05 | Renombrar una cuenta | Usuario | RF-05, RF-10 | — | **MVP** |
 | CU-06 | Eliminar una cuenta importada | Usuario | RF-06 | RNF-22 | **MVP** (RF-06 Should) |
-| CU-07 | Revelar/exportar el material de recuperación | Usuario | RF-50 | RNF-09, RNF-22 | **MVP** (RF-50 Must, en curso) |
+| CU-07 | Revelar/exportar el material de recuperación | Usuario | RF-50 | RNF-09, RNF-22 | **MVP** (RF-50 Must) |
 | CU-08 | Reabrir el popup y restaurar el estado persistido | Usuario | RF-09, RF-10, RF-17 | RNF-08, RNF-22 | **MVP** |
 | CU-09 | Recibir fondos: dirección, copiar y QR | Usuario | RF-07, RF-49 | RNF-18, RNF-20 | **MVP** |
 | CU-10 | Consultar el saldo y su actualización cada 5 s | Usuario | RF-18, RF-27, RF-34 | RNF-02, RNF-03; RT-06, RT-10, RE-04 | **MVP** (RF-34 ciclo posterior) |
@@ -337,7 +339,7 @@ Ejemplos:
 **Objetivo:** Retirar de la cartera una cuenta importada por clave privada, eliminando su material sensible del almacenamiento.
 **Precondiciones:** `truekeate_imported_accounts` con al menos una entrada.
 **Postcondición de éxito:** La entrada desaparece de `truekeate_imported_accounts` (incluida su `privateKey`), la cuenta deja de ofrecerse en `connect.html` y, si era la activa, `truekeate_current_account` pasa a `idx:0`.
-**Postcondición de fallo:** Si el Usuario cancela el diálogo destructivo, no se elimina nada; si la cuenta está referenciada por una sesión de dApp activa, la operación se bloquea con `-32602` y se indica la dApp que debe revocarse primero.
+**Postcondición de fallo:** Si el Usuario cancela el diálogo destructivo, no se elimina nada; si la cuenta tiene una **sesión de dApp vigente** (`truekeate_connected_sites`), la operación se **bloquea** con el error tipado `-32000` y el mensaje indica la dApp cuyo permiso debe revocarse primero (R-09a/DEC-45): **no se permite continuar** y la entrada conserva su `privateKey`.
 **Datos implicados:** `truekeate_imported_accounts` (§2.3), `truekeate_current_account` (§2.4), `truekeate_connected_sites` (§2.7), `truekeate_logs` (§2.11, `event`: `account_removed`).
 **Trazabilidad:** RF-06 · RNF-22 · CA-RF-06
 
@@ -350,7 +352,7 @@ Ejemplos:
 
 **Flujos alternativos y de excepción**
 - **A1 — desde el paso 3 (ocultar una cuenta derivada):** las cuentas derivadas no se eliminan; se marca `visible: false` y la cuenta puede volver a mostrarse con la misma dirección.
-- **E1 — desde el paso 3 (existe una sesión con esa cuenta):** `-32602` con el mensaje que la tabla §4.3 de `diccionario_datos.md` fije para esa causa (D-E: un mensaje por causa); si §4.3 aún no tiene fila para «cuenta en uso por una dApp», se responde `-32602` con el mensaje de la causa de validación más próxima y **queda pendiente añadir su fila** y ninguna escritura.
+- **E1 — desde el paso 3 (existe una sesión vigente de dApp sobre esa cuenta):** el borrado queda **bloqueado**: se rechaza con el error tipado **`-32000`** (conflicto de estado; **R-09a/DEC-45**) y el literal de la causa «Cuenta en uso por una dApp conectada» de `diccionario_datos.md` §4.3 —fuente única de los literales—, que nombra el `origen` de la dApp; **no** se escribe nada y la entrada conserva su `privateKey`. La única salida es **revocar el permiso** de esa dApp (**CU-19**) y reintentar.
 - **E2 — desde el paso 4 (cuenta activa):** `truekeate_current_account` se reasigna a `idx:0` en la misma operación.
 
 **Criterios de aceptación**
@@ -371,18 +373,27 @@ Dado una cuenta derivada del mnemonic
 Cuando el Usuario la oculta
 Entonces la entrada no se borra y la cuenta puede volver a mostrarse con la misma dirección
 ```
-**EARS.** *El sistema deberá* eliminar la `privateKey` de una cuenta importada solo tras confirmación explícita, y *nunca deberá* eliminar cuentas derivadas del mnemonic (solo ocultarlas). *Si* la cuenta está en uso por una sesión de dApp, *entonces* *el sistema deberá* bloquear el borrado con `-32602`.
-**Evidencia:** `Vitest: accounts.spec.ts — borrado de importada` · `E2E: 25-recuperacion.spec.ts` (texto del diálogo) · `Comando: chrome.storage.local.get('truekeate_imported_accounts')`
+```gherkin
+Dado una cuenta importada con una entrada vigente en truekeate_connected_sites
+Cuando el Usuario confirma «Eliminar cuenta»
+Entonces el popup y el SW rechazan la operación con el error tipado -32000 de la causa «Cuenta en uso por una dApp conectada» (diccionario_datos.md §4.3; R-09a/DEC-45)
+Y el mensaje nombra el origen de la dApp cuyo permiso debe revocarse
+Y truekeate_imported_accounts conserva la entrada con su privateKey
+Cuando el Usuario revoca el permiso de esa dApp y repite «Eliminar cuenta»
+Entonces la entrada desaparece y su privateKey ya no existe en chrome.storage.local
+```
+**EARS.** *El sistema deberá* eliminar la `privateKey` de una cuenta importada solo tras confirmación explícita, y *nunca deberá* eliminar cuentas derivadas del mnemonic (solo ocultarlas). *Si* la cuenta tiene una **sesión de dApp vigente**, *entonces* *el sistema deberá* **bloquear** el borrado con `-32000` y no escribir nada hasta que ese permiso se revoque (R-09a/DEC-45).
+**Evidencia:** `Vitest: accounts.spec.ts — borrado de importada` · `Vitest: accounts.spec.ts — bloqueo con sesión activa (-32000) y borrado tras revocar el permiso` · `E2E: 25-recuperacion.spec.ts — texto del diálogo destructivo y desbloqueo tras revocar` · `Comando: chrome.storage.local.get('truekeate_imported_accounts')`
 
 ---
 
 ### CU-07 · Revelar/exportar el material de recuperación
 **Actor primario:** Usuario · **Secundarios/sistemas:** Service Worker, UI del popup · **Responsable de seguridad** (rol de custodia)
 **Objetivo:** Obtener una copia verificable del mnemonic o de la clave privada de una cuenta, tras confirmación explícita, para poder restaurar la cartera en otro equipo.
-**Requisito que lo respalda (P-18):** **RF-50 (Must) · `CA-RF-50`**, en curso de incorporación a `requerimientos.md`. Este documento **no** reescribe el requisito: lo referencia. Complementa a **RNF-22** («Exportación/revelado del mnemonic y de las claves privadas tras confirmación explícita») y cubre el riesgo «pérdida irrecuperable de cuentas importadas» declarado como Alto en `requerimientos.md` §8.
+**Requisito que lo respalda (P-18):** **RF-50 (Must) · `CA-RF-50`**, publicado en `requerimientos.md` **v1.8**. Este documento **no** reescribe el requisito: lo referencia. Complementa a **RNF-22** («Exportación/revelado del mnemonic y de las claves privadas tras confirmación explícita») y cubre el riesgo «pérdida irrecuperable de cuentas importadas» declarado como Alto en `requerimientos.md` §8.
 **Precondiciones:** Cartera operativa; popup abierto; el Usuario conoce que el entorno es de desarrollo.
 **Postcondición de éxito:** La UI muestra la frase o la clave privada bajo demanda (`type="password"` con botón «Mostrar»), el portapapeles contiene el valor solo tras pulsar «Copiar» y se registra **exactamente 1 entrada** en `truekeate_logs` con `event: approval_resolved` y `origin: extension` **sin el valor** (ACU-04: `truekeate_logs` usa el campo `event` del catálogo de 24 eventos; `system` es una **categoría**, no un evento — ver §9, hueco 13). Al ocultarse el valor (30 s, pérdida de foco o cierre) el estado de la UI queda descartado y el portapapeles se vacía si aún lo contenía (**P-20**).
-**Postcondición de fallo:** Si el Usuario cancela la confirmación, no se muestra nada; el valor nunca se envía al content script ni a la página y el portapapeles permanece sin el valor.
+**Postcondición de fallo:** Si el Usuario cancela la confirmación, no se muestra nada; el valor nunca se envía al content script ni a la página y el portapapeles permanece sin el valor. Si la cuenta —o alguna cuenta derivada del mnemonic revelado— tiene una **sesión de dApp vigente** en `truekeate_connected_sites`, la operación se **bloquea** con `-32000` (R-09a/DEC-45), **no se entrega ningún valor** y no se permite continuar hasta revocar ese permiso.
 **Datos implicados:** `truekeate_mnemonic` (§2.1), `truekeate_imported_accounts[].privateKey` (§2.3), `truekeate_logs` (§2.11: `event`, `category`, `origin`, sin payload sensible), constante `REVEAL_HIDE_MS = 30000` (M57).
 **Trazabilidad:** RF-50 · RNF-09, RNF-22 · CA-RF-50
 > **Delta propio del CU (ACU-26).** No se reproduce el texto de `CA-RF-50`: además del criterio del requisito, este CU exige (a) entrega **solo** a contextos de la extensión (`sender.tab === undefined` y `sender.url` en la allowlist), (b) ocultado a los **30 s** (`REVEAL_HIDE_MS = 30000`, **P-20/ADT-06**) y **también al perder el foco** la ventana, (c) **descarte del estado de la UI** (ADT-09): al ocultarse, el valor se elimina de la memoria del popup y de cualquier estado de la UI, no basta con dejar de pintarlo, (d) **política de portapapeles (P-20/ADT-09)**: si al ocultarse el portapapeles aún contiene el valor revelado, se sobrescribe con cadena vacía, y (e) que el valor **nunca** aparezca en `truekeate_logs` ni viaje por `window.postMessage`.
@@ -400,6 +411,7 @@ Entonces la entrada no se borra y la cuenta puede volver a mostrarse con la mism
 - **E1 — desde el paso 3 (invocación desde un content script):** el SW responde `4200 Unsupported method` (guarda de `sender` de §4.2 del diccionario) y registra el intento.
 - **E2 — desde el paso 4 (ocultado por los 30 s, pérdida de foco o cierre del popup):** el valor se oculta, se descarta de la memoria de la UI y, si el portapapeles aún lo contenía, se sobrescribe con cadena vacía; al ocultarse antes del plazo, el temporizador se cancela.
 - **E3 — desde el paso 6 (el portapapeles no es legible o no está disponible):** la política se aplica igualmente con la API disponible; si no puede leerse, el popup vuelve a escribir cadena vacía y registra la incidencia, sin bloquear el ocultado.
+- **E4 — desde el paso 2 (la cuenta está en uso por una dApp):** el revelado/exportación queda **bloqueado**: el popup —y, como revalidación, el SW al resolver el secreto— lo rechaza con el error tipado **`-32000`** (conflicto de estado; **R-09a/DEC-45**) y el literal de la causa «Cuenta en uso por una dApp conectada» de `diccionario_datos.md` §4.3; no se muestra ni se entrega el valor y ninguna entrada de `truekeate_logs` lo contiene. La única salida es **revocar el permiso** de esa dApp (**CU-19**) y repetir la operación.
 
 **Criterios de aceptación**
 ```gherkin
@@ -443,8 +455,17 @@ Cuando se dispara el ocultado
 Entonces el portapapeles conserva ese contenido ajeno
 Y no se ha escrito en el portapapeles ninguna cadena distinta
 ```
-**EARS.** *Mientras* se revele material de recuperación, *el sistema deberá* entregarlo únicamente a páginas de la extensión (`sender.tab === undefined` y `sender.url` en la allowlist) y *nunca deberá* incluirlo en `truekeate_logs` ni en mensajes `window.postMessage`. *Cuando* el valor revelado se oculte —por `REVEAL_HIDE_MS = 30000`, por pérdida de foco o por cierre del popup—, *el sistema deberá* descartarlo del estado de la UI y, si el portapapeles aún lo contiene, sobrescribirlo con cadena vacía.
-**Evidencia:** `E2E: 25-recuperacion.spec.ts — revelado y ocultado a los 30 s` · `E2E: 25-recuperacion.spec.ts — política de portapapeles: navigator.clipboard.readText() devuelve la cadena vacía tras el ocultado` · `E2E: 25-recuperacion.spec.ts — ocultado por pérdida de foco antes del plazo` · `Vitest: revealHygiene.spec.ts — el estado de la UI descarta el valor al ocultarse` · `Vitest: revealClipboard.spec.ts — el borrado del portapapeles solo ocurre si aún contiene el valor revelado` · `Vitest: logRedaction.spec.ts — 0 coincidencias del valor revelado` · `Vitest: eip1193.spec.ts — guarda de contexto del revelado` · `Inspección: allowlist de `sender.url` en `handleRPCRequest` (§4.2 del diccionario) y constante REVEAL_HIDE_MS en el módulo de revelado`
+```gherkin
+Dado una cuenta con una entrada vigente en truekeate_connected_sites, o el mnemonic con alguna cuenta derivada en esa situación
+Cuando el Usuario abre «Revelar frase semilla» o «Exportar clave privada» y confirma
+Entonces la operación se rechaza con el error tipado -32000 de la causa «Cuenta en uso por una dApp conectada» (diccionario_datos.md §4.3; R-09a/DEC-45)
+Y el popup no muestra el valor y el portapapeles no lo contiene
+Y truekeate_logs no registra ninguna entrada con el valor
+Cuando el Usuario revoca el permiso de esa dApp y repite la operación
+Entonces el revelado procede con la higiene normal de 30 s y ocultado por pérdida de foco
+```
+**EARS.** *Mientras* se revele material de recuperación, *el sistema deberá* entregarlo únicamente a páginas de la extensión (`sender.tab === undefined` y `sender.url` en la allowlist) y *nunca deberá* incluirlo en `truekeate_logs` ni en mensajes `window.postMessage`. *Cuando* el valor revelado se oculte —por `REVEAL_HIDE_MS = 30000`, por pérdida de foco o por cierre del popup—, *el sistema deberá* descartarlo del estado de la UI y, si el portapapeles aún lo contiene, sobrescribirlo con cadena vacía. *Si* la cuenta —o alguna cuenta derivada del mnemonic revelado— tiene una **sesión de dApp vigente**, *entonces* *el sistema deberá* **bloquear** la operación con `-32000` y no entregar ningún valor hasta que ese permiso se revoque (**R-09a/DEC-45**).
+**Evidencia:** `E2E: 25-recuperacion.spec.ts — revelado y ocultado a los 30 s` · `E2E: 25-recuperacion.spec.ts — política de portapapeles: navigator.clipboard.readText() devuelve la cadena vacía tras el ocultado` · `E2E: 25-recuperacion.spec.ts — ocultado por pérdida de foco antes del plazo` · `E2E: 25-recuperacion.spec.ts — bloqueo por sesión de dApp vigente y desbloqueo tras revocar el permiso` · `Vitest: revealHygiene.spec.ts — el estado de la UI descarta el valor al ocultarse` · `Vitest: revealClipboard.spec.ts — el borrado del portapapeles solo ocurre si aún contiene el valor revelado` · `Vitest: secretsExport.spec.ts — bloqueo con sesión de dApp activa (-32000)` · `Vitest: logRedaction.spec.ts — 0 coincidencias del valor revelado` · `Vitest: eip1193.spec.ts — guarda de contexto del revelado` · `Inspección: allowlist de `sender.url` en `handleRPCRequest` (§4.2 del diccionario) y constante REVEAL_HIDE_MS en el módulo de revelado`
 
 ---
 
@@ -1757,22 +1778,24 @@ Y registra la incidencia con event rpc_error y level error
 **Objetivo:** Devolver la extensión a su estado inicial eliminando mnemonic, cuentas y sesiones, sabiendo exactamente qué se pierde.
 **Precondiciones:** Cartera operativa; popup abierto.
 **Postcondición de éxito:** `chrome.storage.local` no contiene `truekeate_mnemonic`, `truekeate_accounts`, `truekeate_imported_accounts`, `truekeate_current_account`, `truekeate_connected_sites`, `truekeate_pending_requests` ni `truekeate_connect_request`; el popup vuelve al formulario inicial; **`truekeate_logs` se conserva**.
-**Postcondición de fallo:** Si el Usuario cancela el diálogo destructivo, no se borra nada; si el borrado falla a medias, la UI informa y el usuario puede reintentar (operación idempotente).
+**Postcondición de fallo:** Si el Usuario cancela el diálogo destructivo, no se borra nada; si la **cola no está vacía** o hay una **transacción en vuelo**, el reset se **bloquea** con `-32000` (R-09b/DEC-46) sin borrar ninguna clave; si el borrado falla a medias, la UI informa y el usuario puede reintentar (operación idempotente).
 **Datos implicados:** todas las claves `truekeate_*` salvo `truekeate_logs` (§2.1–§2.11), `truekeate_logs` (§2.11, `event`: `reset_wallet`).
 **Trazabilidad:** RF-11, RF-32 · RNF-22 · CA-RF-11, CA-RF-32
 
 **Flujo principal**
 1. El Usuario abre «Ajustes → Reset wallet».
-2. El popup muestra un diálogo destructivo que **enumera** las cuentas importadas que se perderán (no re-derivables del mnemonic) y exige confirmación explícita.
-3. El Usuario confirma; el SW cancela alarmas de vencimiento y elimina las claves de cartera, cuentas, sesiones y colas.
-4. El SW conserva `truekeate_logs`, purga el badge y registra `reset_wallet`.
-5. El popup vuelve a la pantalla inicial de bienvenida.
+2. El SW comprueba, **en este orden**, que `truekeate_pending_requests` no tiene entradas `pending` y que `truekeate_inflight_tx` no tiene transacciones en vuelo; si alguna de las dos guardas falla, el reset se **bloquea** con `-32000` y la UI lo explica con el número de solicitudes pendientes (**E1**).
+3. Con ambas guardas en verde, el popup muestra un diálogo destructivo que **enumera** las cuentas importadas que se perderán (no re-derivables del mnemonic) y exige confirmación explícita.
+4. El Usuario confirma; el SW cancela las alarmas de vencimiento y elimina, en este orden, el material de la cartera (mnemonic, cuentas, cuenta activa), la red, las sesiones y colas, y el estado operativo (`truekeate_settings`, `truekeate_inflight_tx`, `truekeate_rate_windows`).
+5. El SW **conserva `truekeate_logs`** (RF-32), purga el badge y registra `reset_wallet`.
+6. El popup vuelve a la pantalla inicial de bienvenida.
 
 **Flujos alternativos y de excepción**
-- **A1 — desde el paso 2 (el Usuario cancela):** nada se modifica.
-- **A2 — desde el paso 2 (no hay cuentas importadas):** el diálogo lo indica expresamente («no hay cuentas importadas que se pierdan») y sigue exigiendo confirmación.
-- **E1 — desde el paso 3 (alguna clave no se puede borrar):** el SW reintenta una vez y, si persiste, rechaza con **`-32603`** y el mensaje que la tabla §4.3 de `diccionario_datos.md` fije para esa causa («reset incompleto»); hasta que exista fila propia se responde `-32603` con el mensaje de fallo interno y **queda pendiente añadir su fila** (**ACU-05/D-E: el error que ve el usuario siempre lleva `code`**), informando «No se pudo completar el reset. Vuelve a intentarlo.»; el estado parcial se documenta en `truekeate_logs`.
-- **E2 — desde el paso 4 (había solicitudes `pending`):** se resuelven con `4001` antes de purgar la cola; ninguna dApp queda colgada.
+- **A1 — desde el paso 3 (el Usuario cancela):** nada se modifica.
+- **A2 — desde el paso 3 (no hay cuentas importadas):** el diálogo lo indica expresamente («no hay cuentas importadas que se pierdan») y sigue exigiendo confirmación.
+- **E1 — desde el paso 2 (la cola no está vacía o hay una transacción en vuelo):** el reset **no se inicia** —**no se permite continuar**—; se muestra el error tipado **`-32000`** de la causa «Reset bloqueado» de `diccionario_datos.md` §4.3 (**R-09b/DEC-46**) con el **número exacto** de solicitudes pendientes, y la UI ofrece dos salidas: **resolver ahora** (aprobar o rechazar cada solicitud en la ventana única: CU-13, CU-14 y CU-16) o **esperar** a que los plazos las cierren con `4001` (CU-15). Ninguna clave `truekeate_*` se borra mientras la guarda esté activa.
+- **E2 — desde el paso 4 (alguna clave no se puede borrar):** el SW reintenta una vez y, si persiste, responde **`-32603`** con el literal de la causa «Fallo no clasificado del SW» de `diccionario_datos.md` §4.3, informa en la UI y deja la traza del estado parcial en `truekeate_logs`; el reset es **idempotente** y puede reintentarse.
+- **E3 — desde el paso 4 (llega una solicitud entre la comprobación y la limpieza):** se resuelve con `4001` antes de purgar la cola; ninguna dApp queda colgada.
 
 **Criterios de aceptación**
 ```gherkin
@@ -1792,8 +1815,21 @@ Dado una cartera con 2 cuentas importadas
 Cuando se abre el diálogo de reset
 Entonces el texto enumera las 2 cuentas importadas que se perderán
 ```
-**EARS.** *Cuando* el Usuario confirme el reset, *el sistema deberá* eliminar mnemonic, cuentas, sesiones y colas, y *deberá* excluir `truekeate_logs` de la limpieza. *El sistema deberá* enumerar en el diálogo destructivo las cuentas importadas que se perderán. *Si* hay solicitudes `pending`, *entonces* *el sistema deberá* resolverlas con `4001` antes de purgar.
-**Evidencia:** `E2E: 06-reset.spec.ts` · `Vitest: reset.spec.ts` · `E2E: 25-recuperacion.spec.ts` (texto exacto del diálogo) · `Inspección: chrome.storage.local.get(null)`
+```gherkin
+Dado truekeate_pending_requests con 2 entradas pending y truekeate_inflight_tx vacío
+Cuando el Usuario pulsa «Reset wallet»
+Entonces el reset no se ejecuta y se muestra el error tipado -32000 de la causa «Reset bloqueado» (diccionario_datos.md §4.3; R-09b/DEC-46)
+Y la UI indica que quedan 2 solicitudes y ofrece «Resolver ahora» (aprobar o rechazar) y «Esperar»
+Y chrome.storage.local.get(null) es idéntico al estado previo al clic
+```
+```gherkin
+Dado truekeate_inflight_tx con 1 entrada vigente y la cola de solicitudes vacía
+Cuando el Usuario pulsa «Reset wallet»
+Entonces el reset no se ejecuta y recibe el mismo error -32000 mientras la entrada siga vigente (TTL de 180 s)
+Y al confirmarse o fallar la transacción el reset procede con la confirmación destructiva
+```
+**EARS.** *Cuando* el Usuario confirme el reset, *el sistema deberá* eliminar mnemonic, cuentas, sesiones y colas, y *deberá* excluir `truekeate_logs` de la limpieza. *El sistema deberá* enumerar en el diálogo destructivo las cuentas importadas que se perderán. *Si* la cola `truekeate_pending_requests` no está vacía o existe una transacción en vuelo en `truekeate_inflight_tx`, *entonces* *el sistema deberá* **bloquear** el reset con `-32000`, indicar cuántas solicitudes quedan y ofrecer resolverlas (aprobar o rechazar) o esperar a que expiren (**R-09b/DEC-46**); solo con la cola vacía y sin transacción en vuelo *el sistema deberá* proceder. *Si* hay solicitudes `pending` que lleguen entre la comprobación y la limpieza, *entonces* *el sistema deberá* resolverlas con `4001` antes de purgar.
+**Evidencia:** `E2E: 06-reset.spec.ts — reset con la cola vacía y reset bloqueado con 2 pendientes` · `Vitest: reset.spec.ts — orden de comprobación: cola vacía → sin transacción en vuelo → confirmación destructiva → limpieza` · `Vitest: reset.spec.ts — bloqueo con 2 pending y con transacción en vuelo (-32000), sin borrar ninguna clave` · `E2E: 25-recuperacion.spec.ts` (texto exacto del diálogo) · `Inspección: chrome.storage.local.get(null) tras el bloqueo (idéntico) y tras el reset (solo truekeate_logs)`
 
 ---
 
@@ -2186,7 +2222,7 @@ Estos flujos atraviesan varios CU y se definen una sola vez para no repetirlos. 
 | RF-45 | Must | CU-22 | no (1) | CA-RF-45 |
 | RF-46 | Must | CU-23 | no (1) | CA-RF-46 |
 | RF-49 | Must | CU-01, CU-09, CU-33, CU-34 | sí (4) | CA-RF-49 |
-| RF-50 | Must | CU-07 | no (1) | CA-RF-50 (P-18; requisito en curso en `requerimientos.md`) |
+| RF-50 | Must | CU-07 | no (1) | CA-RF-50 (P-18; publicado en `requerimientos.md` v1.8) |
 
 **Total Must cubiertos: 40 / 40 · RF Must huérfanos: 0.**
 
@@ -2323,7 +2359,7 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 
 **Huecos declarados (no se crea requisito nuevo; se anota aquí).**
 
-1. **`RF-50` y su `CA-RF-50` están en curso en `requerimientos.md`.** Este documento **referencia** el requisito (CU-07 y §5) y **no lo define**, conforme a P-18. Hasta que `requerimientos.md` lo publique, el total de RF Must es **40** contando RF-50; el recuento de §2 y §5 se actualizará en el mismo turno en que el requisito se publique con su `CA-RF-50`.
+1. **`RF-50` y su `CA-RF-50` ya están publicados en `requerimientos.md` v1.8** (hueco **cerrado**): este documento **referencia** el requisito (CU-07 y §5) y **no lo define**, conforme a P-18. El total de RF Must es **40** contando RF-50, y los recuentos de §2 y §5 lo reflejan.
 2. **Cierre de ACU-03 / D-A (EIP-6963).** El literal vinculante es el de `requerimientos.md` **RT-13**: `name: "TrueKeate"` y `rdns: "academy.codecrypto.truekeate"`. CU-22 lo escribe literalmente y su criterio exige ese `rdns` exacto. **Este hueco queda cerrado**: el diccionario v1.3 debe alinearse a RT-13, y la divergencia deja de bloquear la Fase 3.
 3. **Badge y notificaciones fuera del MVP (P-17 / D-P / ADT-30).** El oráculo del MVP de CU-16 es «2 entradas `pending` en `truekeate_pending_requests` + como máximo 1 transacción en vuelo por cuenta». El **badge (RF-38)** y las **notificaciones (RF-39)** se verifican en el **ciclo posterior**; `CA-RF-38` se retira del oráculo de CU-15 (queda solo como operación de purga). **ADT-30:** el permiso `notifications` sale del MVP y vive en **`optional_permissions`**; se solicita con `chrome.permissions.request` al reincorporar RF-39, verificado por `manifest.spec.ts` (CU-16/A3 y CU-36).
 4. **Control de tasa y cardinalidad sin RF (D-Q/ADT-24).** `pendingRequestsMax = 8`, `pendingRequestsMaxPerOrigin = 1` y `pendingRequestsPerMinute = 6` son decisiones de datos (§2.8/§2.10 del diccionario) que CU-16 verifica, pero no hay RF que los exija; el enunciado solo pide la cola (RF-37). **D-Q:** el *token bucket* por origen se extiende a **todo** el catálogo RPC, incluidas las lecturas, y se verifica con `rateLimit.spec.ts` (flujo X-14).
@@ -2349,7 +2385,8 @@ Estos criterios aplican a **todos** los CU y no se repiten en cada ficha. Cada f
 ---
 
 ## Historial de cambios
- **v1.3 (esta versión) — cierre de los residuales del veredicto de reevaluación (R-01, R-02, R-03, R-04):** todas las citas del mensaje de error apuntan a **`diccionario_datos.md` §4.3**; el catálogo de eventos se cita como **24 eventos**; el puerto de larga vida deja de describirse como *keep-alive* (§CU-16); la ventana de confirmación se cita como **global única**; y los criterios de CU-14, CU-20, CU-22, CU-31, CU-36 y §8 ganan magnitud y evidencia canónica.
+ **v1.4 (esta versión) — cierre de `R-09` (`VEREDICTO_FASE2_V1.md` v1.2, DEC-45/DEC-46):** **CU-06**, **CU-07** y **CU-30** ganan flujo alternativo/de excepción, criterio **Gherkin** con magnitud y evidencia canónica para las **dos guardas nuevas**: (a) **cuenta en uso por una dApp** → bloquea el borrado de la cuenta importada (CU-06/E1) y el revelado/exportación de su clave privada o del mnemonic que la deriva (CU-07/E4) con `-32000`; (b) **reset bloqueado** por cola no vacía o transacción en vuelo (CU-30/E1) con `-32000`, contador de pendientes y salidas «resolver ahora» o «esperar»; CU-30 explicita el **orden de comprobación** (cola vacía → sin transacción en vuelo → confirmación destructiva → limpieza) y lo que se conserva (`truekeate_logs`, RF-32). Se añade la **convención 13** (guardas de estado), se alinean las fuentes a `requerimientos.md` v1.8 y `diccionario_datos.md` v1.7, y se cierran los restos de «RF-50 en curso». **§2, §5 y §7 siguen siendo idénticas entre sí** (sin CU ni RF nuevos: 36 CU, 50/50 RF, 40/40 Must).
+ **v1.3 — cierre de los residuales del veredicto de reevaluación (R-01, R-02, R-03, R-04):** todas las citas del mensaje de error apuntan a **`diccionario_datos.md` §4.3**; el catálogo de eventos se cita como **24 eventos**; el puerto de larga vida deja de describirse como *keep-alive* (§CU-16); la ventana de confirmación se cita como **global única**; y los criterios de CU-14, CU-20, CU-22, CU-31, CU-36 y §8 ganan magnitud y evidencia canónica.
 
 ### v1.2 — cierre de los hallazgos ADT-01 (documentación), ADT-06, ADT-07, ADT-08, ADT-09, ADT-21, ADT-22, ADT-24, ADT-25 y ADT-30
 

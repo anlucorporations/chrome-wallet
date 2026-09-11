@@ -1,18 +1,19 @@
 # Documento Técnico — TrueKeate Wallet
 
-> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.2 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Fase:** 2 — Auditoría/especificación · **Versión:** 1.3 · **Estado:** ✅ auditoría `AUDITORIA_DOCUMENTO_TECNICO_V1.md` (ADT-01..ADT-33) aplicada — ver §10.4 «Historial de cambios»
+> **Cambios de la v1.3 (resumen).** Se añaden la **guarda de sesión de dApp activa** en el revelado/exportación y en el borrado de una cuenta importada (§3.8, regla 9; **R-09a/DEC-45**) y la **nueva §3.9** con las guardas y el **orden de comprobación del reset** (§3.9; **R-09b/DEC-46**): ambas se emiten como error tipado `-32000` y **citan `diccionario_datos.md` §4.3 como fuente única de los literales**. Se sincronizan las fuentes vinculantes a las versiones vigentes del corpus.
 > **Cambios de la v1.1 (resumen).** Se especifican el **build/empaquetado MV3** (§7.5) y el **arnés de pruebas E2E** (§7.4), que eran los dos bloqueantes del hito H1; se añade el flujo de **revelado y exportación (RF-50)** con su política de portapapeles (§3.8); se corrigen los **3 diagramas Mermaid** que no parseaban y se añade su comprobación de CI (§7.5); se resuelven las decisiones del usuario **P-20** (portapapeles), **P-21** (una sola ventana de confirmación global) y **P-22** (`wallet_addEthereumChain` no activa la red); y se cierran las decisiones de consolidación **D-H..D-U**.
 > **Producto:** **TrueKeate Wallet** — extensión de navegador Chrome/Edge **Manifest V3** (wallet Ethereum no custodial) + **dApp de pruebas** (`test.html`) sobre **Foundry Anvil** local.
 > **Autores:** el equipo de proyecto (arquitecto de software senior); el rol humano de **responsable de seguridad** es el autor del proyecto (`requerimientos.md` §4.4).
-> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.6 y los casos de uso de `casos_uso/casos_uso.md` v1.2. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
+> **Alcance de este documento:** especificación de **arquitectura, diseño de flujos, modelo de datos, interfaces, trazabilidad, entornos y riesgos** del sistema. **No** define requisitos: los requisitos son de `requerimientos.md` v1.8 y los casos de uso de `casos_uso/casos_uso.md` v1.4. **No** contiene el plan de desarrollo detallado (eso es `/plan_desarrollo`, Fase 3): el §9 es solo una secuencia de hitos de referencia.
 > **Fuentes obligatorias leídas (estado actual del disco):**
-> `RepoTecnico/requerimientos.md` **v1.6** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 catálogo de códigos y su significado; `diccionario_datos.md` §4.3 como fuente única de los literales de mensaje; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
-> `RepoTecnico/casos_uso/casos_uso.md` **v1.3** (36 CU, Gherkin/EARS y matriz de trazabilidad) ·
+> `RepoTecnico/requerimientos.md` **v1.8** (50 RF = 40 Must + 10 Should; 25 RNF; 13 RT; 4 RE; §2.1 catálogo de códigos y su significado; `diccionario_datos.md` §4.3 como fuente única de los literales de mensaje; §2.2 catálogo de eventos y redacción; §4.1 rúbrica; §4.5 MVP vs ciclo posterior; §9 Anexo A con `CA-RF-xx`/`CA-RT-xx`) ·
+> `RepoTecnico/casos_uso/casos_uso.md` **v1.4** (36 CU, Gherkin/EARS y matriz de trazabilidad; guardas de estado en CU-06, CU-07 y CU-30) ·
 > `RepoTecnico/casos_uso/diagramas.md` **v1.1** (figuras UML de los 36 CU) ·
-> `RepoTecnico/diccionario_datos.md` **v1.6** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC y **§4.3 como fuente única de los literales de error**) ·
+> `RepoTecnico/diccionario_datos.md` **v1.7** (claves `truekeate_*`, entidades, protocolo `TRUEKEATE_*`, catálogo RPC, **§4.3 como fuente única de los literales de error**, guarda del revelado/borrado en §3.10 y guardas del reset en §3.11) ·
 > `RepoTecnico/entornos_globales.md` **v1.8** (entorno verificado, comandos, constantes, permisos, nomenclatura) ·
 > `RepoTecnico/identidad_visual.md` **v1.4** (tokens, tipografía, medidas, componentes, matriz de contraste) ·
-> `RepoTecnico/estado_proyecto.md` **v1.7** (decisiones **DEC-01..DEC-44**) ·
+> `RepoTecnico/estado_proyecto.md` **v1.8** (decisiones **DEC-01..DEC-46**) ·
 > `RepoTecnico/INFORME_OPTIMIZACION_V1.md` (42 hallazgos **H-01..H-42**, remediados) y `RepoTecnico/casos_uso/AUDITORIA_CASOS_USO_V1.md` (30 hallazgos **ACU-01..ACU-30**, remediados).
 > **Regla de no regresión:** ningún defecto ya corregido por `H-01..H-42` ni por `ACU-01..ACU-30` se reintroduce en este documento; los invariantes que los cierran están recogidos en §2.3, §2.5, §3.7, §4.3 y §7.3.
 > **Convenciones:** todo en español; identificadores de código, métodos RPC, nombres de archivo y claves de storage en su **forma original**; las claves de `chrome.storage.local` se citan **siempre con el prefijo completo** `truekeate_` (ACU-25).
@@ -236,7 +237,7 @@ sequenceDiagram
 | Estado volátil admisible | Solo índices de transporte **reconstruibles**: `portsByApprovalId`, `windowsByApprovalId`, `expiryAlarms`, `rmwLock`. Ninguno es fuente de verdad. La cola FIFO por cuenta y la ventana de tasa **dejan de ser volátiles**: su marca se persiste (D-R) | H-02, **ADT-23/D-R** |
 | Serialización por cuenta | **Máximo 1 transacción en vuelo por `from`**, garantizado por la marca persistida `truekeate_inflight_tx` (`Record<Address, { approvalId: string; txHash?: Hex; startedAt: number }>`) que la reconciliación reconstruye; el `nonce` definitivo se recalcula al aprobar con `getTransactionCount(account, 'pending')` junto con `getFeeData()`; `nonceInformativo` es solo informativo | H-10, **ADT-23/D-R** |
 | Cardinalidad y tasa | `pendingRequestsMax = 8` globales, `pendingRequestsMaxPerOrigin = 1`, `pendingRequestsPerMinute = 6`. Al exceder: `4001` **inmediato**, sin persistir, sin abrir ventana y sin contar para el badge | H-18, X-08 |
-| *Token bucket* de todo el catálogo | El limitador de tasa por origen (**6 solicitudes por ventana de 60 s**) se aplica a **todo** el catálogo RPC, no solo a los métodos aprobables: también `eth_getBalance`, `eth_estimateGas`, `eth_blockNumber`, `eth_chainId`, `eth_gasPrice`, `eth_feeHistory`, `eth_getTransactionByHash` y `eth_getTransactionReceipt`. La ventana se persiste en `truekeate_rate_window` (`Record<origin, number[]>` con las marcas `ts` de la ventana vigente) y **sobrevive a la suspensión**; al exceder, `4001` con el mensaje de tasa y **sin abrir ventana** | **ADT-24/D-Q** |
+| *Token bucket* de todo el catálogo | El limitador de tasa por origen (**6 solicitudes por ventana de 60 s**) se aplica a **todo** el catálogo RPC, no solo a los métodos aprobables: también `eth_getBalance`, `eth_estimateGas`, `eth_blockNumber`, `eth_chainId`, `eth_gasPrice`, `eth_feeHistory`, `eth_getTransactionByHash` y `eth_getTransactionReceipt`. La ventana se persiste en `truekeate_rate_windows` (`Record<origin, number[]>` con las marcas `ts` de la ventana vigente) y **sobrevive a la suspensión**; al exceder, `4001` con el mensaje de tasa y **sin abrir ventana** | **ADT-24/D-Q** |
 | Ventana de confirmación global | Existe **una sola** `notification.html` para toda la extensión (P-21). La solicitud «en curso» es la que ocupa la ventana; las demás permanecen `pending` en la cola y el **contador de pendientes es visible**. Al resolverse una, el SW **muestra la siguiente en la misma ventana**; si no queda ninguna, la cierra. Queda **prohibida** la concurrencia de dos `notification.html` | **P-21/ADT-22** |
 | Estado de la ventana recargado | Recargar `notification.html` **no** pierde la solicitud: la ventana se re-renderiza desde las entradas persistidas (la `pending` de menor `createdAt` es la «en curso»); si ya no está `pending`, muestra el estado resuelto y se cierra | **P-3.8 (promovida a invariante)** |
 | Cierre por ventana o pestaña | Cerrar `notification.html` con la X equivale a **rechazo** (`4001`) de la solicitud en curso, salvo que el plazo ya haya vencido, en cuyo caso prevalece `expired`; a continuación se muestra la siguiente pendiente. `chrome.tabs.onRemoved` marca `rejected`/`expired` y purga el badge | H-02, X-02, X-09, **P-21** |
@@ -1081,7 +1082,47 @@ sequenceDiagram
 7. **Aviso de captura**: durante el revelado se muestra el aviso «evita capturas de pantalla o grabaciones» (amenaza declarada en la seccion 3.7, ADT-26); es un aviso, no un control tecnico.
 8. **Evidencia E2E obligatoria (P-20)**: debe existir un test E2E (`E2E: 25-recuperacion.spec.ts`) que, tras copiar el valor y provocar el ocultado —**por temporizador** y **por perdida de foco**, ambos casos—, **lea el contenido del portapapeles** y afirme que **ya no contiene la semilla** (cadena vacia o valor distinto). Es la unica forma de verificar la garantia de P-20: inspeccionar el DOM **no basta**. La evidencia se archiva segun la convencion de la seccion 7.4.
 
-**Exportacion (misma politica).** La exportacion de la clave privada de una cuenta importada sigue exactamente las reglas 1 a 8: confirmacion explicita, 30 s, doble disparador, descarte del estado y borrado del portapapeles. El `CA-RF-50` y la evidencia `Vitest: secretsExport.spec.ts` se mantienen; lo que anade la v1.1 es la **politica de portapapeles** y su test E2E.
+9. **Guarda de sesion de dApp activa (R-09a / DEC-45)**: si la cuenta revelada —o, al revelar el **mnemonic**, cualquiera de las cuentas que este deriva— tiene una entrada **vigente** en `truekeate_connected_sites` (seccion 4.1, clave 7), la operacion se **bloquea** con el error tipado **`-32000`** y el literal de la causa «Cuenta en uso por una dApp conectada» de **`diccionario_datos.md` §4.3** (fuente unica de los literales), que nombra el `origen` de la dApp y la accion (revocar su permiso). La comprobacion se hace **en el popup al abrir la accion** y se **revalida en el SW** al resolver el secreto: sin revocar ese permiso (**CU-19**) **no se entrega ningun valor**. La misma guarda bloquea el **borrado de la cuenta importada** (RF-06, seccion 3.3).
+
+**Exportacion (misma politica).** La exportacion de la clave privada de una cuenta importada sigue exactamente las reglas 1 a 9: confirmacion explicita, 30 s, doble disparador, descarte del estado, borrado del portapapeles y guarda de sesion de dApp activa. El `CA-RF-50` y la evidencia `Vitest: secretsExport.spec.ts` se mantienen; lo que anade la v1.1 es la **politica de portapapeles** y su test E2E, y la v1.3 la **guarda de R-09a**.
+
+### 3.9 Reset de la cartera: guardas y orden de comprobacion (RF-11 - R-09b / DEC-46)
+
+**Requisito:** RF-11 (Must) + `CA-RF-11`; caso de uso CU-30; modulo **M33** (`state/schema.ts`, que ya excluye `truekeate_logs` de la limpieza, ADR-11).
+
+**Guardas de estado (DEC-46).** El reset **no se inicia** si `truekeate_pending_requests` (seccion 4.1, clave 8) tiene entradas `pending`, ni si `truekeate_inflight_tx` (clave 12) tiene una transaccion en vuelo **vigente** (TTL de 180 s). El rechazo es un **error de validacion de UI** —no lo devuelve ningun metodo RPC— con error tipado **`-32000`** y el literal de la causa «Reset bloqueado» de **`diccionario_datos.md` §4.3**: la UI lo pinta con el **numero exacto** de solicitudes pendientes. **No se permite continuar.**
+
+```mermaid
+flowchart TD
+    A["Usuario pulsa Reset wallet"] --> B{"truekeate_pending_requests sin entradas pending?"}
+    B -- "no: n pendientes" --> X["-32000 Reset bloqueado: n pendientes - resolver o esperar"]
+    B -- "si" --> C{"truekeate_inflight_tx sin transaccion en vuelo?"}
+    C -- "no" --> X
+    C -- "si" --> D["Dialogo destructivo: enumera las importadas que se pierden (RNF-22)"]
+    D -- "cancela" --> E["No se modifica nada"]
+    D -- "confirma" --> F["Cancelar alarmas de vencimiento y purgar el badge"]
+    F --> G["Eliminar las claves truekeate_* SALVO truekeate_logs (RF-32)"]
+    G --> H["Registrar reset_wallet y volver al formulario inicial"]
+```
+
+1. **Cola vacia**: `truekeate_pending_requests` sin entradas `pending` (seccion 4.1). Si hay `n > 0`, **bloqueo** con `-32000` y el literal de la causa correspondiente; `n` es el contador que muestra la UI.
+2. **Sin transaccion en vuelo**: `truekeate_inflight_tx` sin entradas vigentes (se borran al confirmar o fallar y las purga la reconciliacion al arrancar, seccion 3.4). Si las hay, **bloqueo** con el mismo codigo y literal.
+3. **Confirmacion destructiva**: solo con (1) y (2) en verde se abre el dialogo que **enumera** las cuentas importadas que se perderan (RNF-22). Cancelar no modifica nada.
+4. **Limpieza**: se cancelan las alarmas de vencimiento, se purga el badge y se eliminan las claves `truekeate_*` **salvo `truekeate_logs`**; se registra `reset_wallet`.
+
+**Salidas que la UI ofrece durante el bloqueo.** (a) **Resolver ahora**: llevar al usuario a la cola —la ventana unica `notification.html`— para **aprobar o rechazar** cada solicitud (CU-13, CU-14, CU-16); (b) **Esperar**: los plazos del SW cierran las solicitudes con `4001` (secciones 2.3 y 3.1), la cola queda vacia y el reset procede. Mientras la guarda este activa **no se elimina ninguna clave**: el estado es identico al previo (`Inspección: chrome.storage.local.get(null)`).
+
+**Que se limpia y que se conserva.**
+
+| Grupo | Claves | Efecto del reset |
+|---|---|---|
+| Material de la cartera | `truekeate_mnemonic`, `truekeate_accounts`, `truekeate_imported_accounts`, `truekeate_current_account` | **Se eliminan** |
+| Red | `truekeate_chain_id`, `truekeate_networks` | **Se eliminan** (se vuelve al default Anvil Local) |
+| Sesiones y colas | `truekeate_connected_sites`, `truekeate_pending_requests`, `truekeate_connect_request`, `truekeate_approval_window` | **Se eliminan** (la cola ya esta vacia por la guarda del paso 1) |
+| Estado operativo | `truekeate_settings`, `truekeate_inflight_tx`, `truekeate_rate_windows` | **Se eliminan** (`truekeate_inflight_tx` ya esta vacio por la guarda del paso 2) |
+| Auditoria | `truekeate_logs` | **Se conserva** (**RF-32**, ADR-11): el historico sobrevive y se exporta en JSON |
+
+**Idempotencia y fallo parcial.** El reset es **idempotente**: repetirlo con el storage ya limpio es un no-op que vuelve a registrar `reset_wallet`. Si una escritura falla, el SW reintenta **una vez** y, si persiste, responde `-32603` con el literal de la causa «Fallo no clasificado del SW» de `diccionario_datos.md` §4.3, informa en la UI y deja la traza del estado parcial en `truekeate_logs`. **Evidencia:** `Vitest: reset.spec.ts — orden de comprobacion y bloqueo (-32000)` · `E2E: 06-reset.spec.ts — reset con la cola vacia y reset bloqueado con 2 pendientes`.
 
 ---
 
@@ -1103,7 +1144,7 @@ sequenceDiagram
 | 10 | `truekeate_settings` | objeto de ajustes | Defaults en M29; `accountLabels` y registro de aceptación de avisos | SW y páginas de la extensión | **No** |
 | 11 | `truekeate_logs` | `LogEntry[]` | Retencion FIFO por `ts`; lo escribe **siempre** el SW; el popup solo lo renderiza | SW escribe; popup lee | **SI** (excluida de la limpieza, RF-32) |
 | 12 | `truekeate_inflight_tx` | `Record<Address, { approvalId, txHash?, startedAt }>` | Marca de «transaccion en vuelo» **persistida** (D-R/ADT-23): se escribe al difundir y se borra al confirmar o fallar; la reconciliacion purga las entradas cuyo recibo ya existe | **Solo el SW escribe** | **No** |
-| 13 | `truekeate_rate_window` | `Record<origin, number[]>` (marcas `ts` de la ventana de 60 s) | Ventana de tasa por origen **persistida** (D-Q/ADT-24) para todo el catalogo RPC; sobrevive a la suspension del SW | **Solo el SW escribe** | **No** |
+| 13 | `truekeate_rate_windows` | `Record<origin, number[]>` (marcas `ts` de la ventana de 60 s) | Ventana de tasa por origen **persistida** (D-Q/ADT-24) para todo el catalogo RPC; sobrevive a la suspension del SW | **Solo el SW escribe** | **No** |
 
 **Claves inexistentes o retiradas (no deben aparecer en el código):** `truekeate_pending_request` (singular, v1.2: **retirada sin alias ni migración**, H-08) · `truekeate_vault` (**no se crea**: P-03, sin cifrado) · cualquier forma `settings.*` o `settings.networks` (**prohibida**: se exige el nombre completo con prefijo, ACU-25) · `codecrypto_*`, `codecrypto_connected_sites` y `window.codecrypto` **como almacén** (el alias solo existe como objeto de runtime, DEC-21) · `localStorage` en cualquier componente (el SW no lo tiene, H-09).
 
@@ -2040,7 +2081,7 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 | `REVEAL_HIDE_MS` | **30000** ms: plazo de revelado del material de recuperacion (RF-50). El ocultado se dispara tambien por perdida de foco (seccion 3.8) |
 | `CLIPBOARD_CLEAR_ON_HIDE` | **true**: al ocultarse el valor revelado, si el portapapeles aun lo contiene se sobrescribe con cadena vacia (P-20, seccion 3.8) |
 | `truekeate_inflight_tx` | Marca **persistida** de transaccion en vuelo por cuenta (maximo 1 por `from`), reconstruida por la reconciliacion (D-R/ADT-23) |
-| `truekeate_rate_window` | Ventana de tasa **persistida** por origen (6 solicitudes por 60 s) aplicada a todo el catalogo RPC (D-Q/ADT-24) |
+| `truekeate_rate_windows` | Ventana de tasa **persistida** por origen (6 solicitudes por 60 s) aplicada a todo el catalogo RPC (D-Q/ADT-24) |
 | **`fifoByAccount`** | Cola en memoria (reconstruible) que garantiza **máximo 1 transacción en vuelo por `from`** |
 | **`gasLimit` / `estimationFailed`** | Estimación de gas y su fallo; si falla, el envío se bloquea con `-32000` |
 | **`inject.js`** | Script que publica el provider en la página: `window.truekeate` **y** `window.codecrypto` (el mismo objeto) |
@@ -2094,6 +2135,8 @@ Los **10 puntos de «Documentacion»** de la rubrica no se deducian del document
 |---|---|---|---|
 | **1.0** | — | Version auditada: 65 modulos, 20 ADR, 13 diagramas Mermaid. | — |
 ANCHOR_TECNICO `AUDITORIA_DOCUMENTO_TECNICO_V1.md`. **Nuevas secciones:** 3.4.1 (tabla local cerrada de selectores, M66), 3.8 (revelado y exportacion de RF-50 con la politica de portapapeles de P-20), 5.1.1 (contrato de los metodos internos `wallet_*`), 7.4.1 (arness E2E completo), 7.5 (build y empaquetado MV3) y 9.2 (artefactos documentales de la rubrica). **Decisiones del usuario aplicadas:** P-20 (se permite copiar; se borra el portapapeles al ocultar, con test E2E), P-21 (una sola ventana global de `notification.html` con contador de pendientes) y P-22 (`wallet_addEthereumChain` solo anade; activar exige `wallet_switchEthereumChain` con su propia aprobacion). **Decisiones de consolidacion:** D-H..D-U. **Promociones:** P-3.8 a invariante de la seccion 2.3 y P-3.9 a convencion de la seccion 7.4. **Pendientes cerrados:** P-3.1, P-3.2, P-3.3, P-3.4, P-3.5, P-3.6, P-3.8, P-3.9 y P-3.10 (parcial). | **33 de 33** hallazgos de la auditoria (ADT-01..ADT-33) |
+
+**v1.3 — cierre de `R-09` (DEC-45/DEC-46).** Se anade la **regla 9** de la seccion 3.8 (**guarda de sesion de dApp activa**: bloquea el revelado/exportacion con `-32000`, revalidada en el SW, y bloquea tambien el borrado de la cuenta importada) y la **nueva seccion 3.9** (**guardas del reset** y orden de comprobacion estricto: cola vacia → sin transaccion en vuelo → confirmacion destructiva → limpieza, con la tabla de lo que se limpia y lo que se conserva —`truekeate_logs` sobrevive por RF-32— y el diagrama de flujo). Ambas causas citan el literal de **`diccionario_datos.md` §4.3** (fuente unica) y no lo reproducen. Se sincronizan las fuentes vinculantes (`requerimientos.md` v1.8, `casos_uso.md` v1.4, `diccionario_datos.md` v1.7, `estado_proyecto.md` v1.8 con DEC-01..DEC-46) y se unifica la clave `truekeate_rate_windows` (plural, forma canonica del diccionario §2.13) en las secciones 2.x y 5.x. **Residual cerrado:** `R-09` de `VEREDICTO_FASE2_V1.md` v1.2.
 
 **Detalle por hallazgo (ADT-01..ADT-33).**
 
