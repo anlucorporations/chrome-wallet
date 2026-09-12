@@ -4,6 +4,8 @@
  *
  * El esqueleto de H1 (`Notification.tsx`) queda superado por M50: la ventana única decide con los
  * paneles M51–M54 y entrega `SIGN_RESPONSE`; este entry es el que la publica en el paquete.
+ *
+ * Requisitos: RF-19..RF-23, RF-35 y RF-41 (RNF-05, RNF-12, RNF-21).
  */
 
 import { StrictMode } from 'react';

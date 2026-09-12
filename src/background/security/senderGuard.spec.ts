@@ -13,6 +13,8 @@
  *
  * No se transcriben los números a mano: se comparan con los constructores de `../rpc/errors`
  * (`methodNotAllowedInContextError`, `unauthorizedOriginError`), fuente única de los literales.
+ *
+ * Requisitos: RNF-09, RNF-10 y RNF-12.
  */
 
 import { describe, expect, it } from 'vitest';

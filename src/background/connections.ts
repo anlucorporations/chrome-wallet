@@ -17,6 +17,8 @@
  * 4. **`settlePendingConnect` es el ÚNICO punto que cierra el ciclo**: resuelve la promesa con la
  *    decisión del usuario (cuenta elegida o `4001`) y descarta el registro. Borrar la entrada sin
  *    resolver dejaría la promesa de `eth_requestAccounts` colgada.
+ *
+ * Requisitos: RF-16 (RNF-11).
  */
 
 import type {

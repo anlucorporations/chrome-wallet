@@ -1,0 +1,10 @@
+{
+  "criterio": "RNF-19 · contraste real del texto del encabezado sobre --tk-grad-brand",
+  "puntosMuestreados": 9,
+  "ratioMinimoObservado": 3.88,
+  "cajasDeTexto": [
+    "h1.tk-header__title «TrueKeate Wallet»",
+    "span.tk-badge «Anvil Local»",
+    "button.tk-btn-ghost tk-btn-small «Acerca de»"
+  ]
+}

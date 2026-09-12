@@ -36,6 +36,8 @@
  * El caso 1 es un **control positivo** (una cadena inglesa inventada se detecta) y el caso 2 un
  * **control de no-regresión** (los identificadores que provocaron `D-H2-A` no se marcan). Sin
  * ellos, un fichero de pruebas vacuo daría verde para siempre.
+ *
+ * Módulo(s) de contrato: M39 y M62.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';

@@ -21,7 +21,7 @@
         --tk-gray-900: #121a2b;
         --tk-white: #ffffff;
         --tk-gold-500: #c9a97f;
-        --tk-success: #1f8a70;
+        --tk-success: #17806a;
         --tk-danger-dark: #a62f2f;
         --tk-grad-brand: linear-gradient(
           100deg,
@@ -63,7 +63,18 @@
       .logo {
         display: block;
         width: min(360px, 80vw);
-        margin: 0 auto 20px;
+        margin: 24px auto 8px;
+      }
+
+      /* Lema exacto de marca (identidad_visual.md §1 y §8). */
+      .lema {
+        max-width: 860px;
+        margin: 0 auto 16px;
+        color: var(--tk-navy-800);
+        font: 600 11px var(--tk-font-display);
+        letter-spacing: 0.14em;
+        text-align: center;
+        text-transform: uppercase;
       }
 
       .panel {
@@ -135,13 +146,61 @@
         outline-offset: 2px;
       }
 
+      /* ------------------------------------------------------------------
+         Encabezado de marca (CA-RF-49 · tarea 6.1)
+
+         Réplica EXACTA del encabezado de las tres ventanas de la extensión: franja de 72 px con
+         `--tk-grad-brand` en la misma dirección (oscuro abajo-izquierda → cian → oro arriba-derecha)
+         y marca de agua del isologo al 18 %. Todo el color sale de los tokens de arriba.
+         ------------------------------------------------------------------ */
+      .marca {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 72px;
+        padding: 0 20px;
+        overflow: hidden;
+        background: var(--tk-grad-brand);
+        color: var(--tk-white);
+      }
+
+      .marca__texto {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+
+      .marca__titulo {
+        margin: 0;
+        color: var(--tk-white);
+        font: 700 20px var(--tk-font-display);
+      }
+
+      .marca__sub {
+        margin: 2px 0 0;
+        color: var(--tk-white);
+        font: 400 12px var(--tk-font-mono);
+      }
+
+      .marca__isologo {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        width: 96px;
+        height: 96px;
+        opacity: 0.18;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
       .encabezado {
         max-width: 860px;
         margin: 0 auto 16px;
         padding: 0 4px;
       }
 
-      .encabezado h1 {
+      .encabezado__titulo {
         margin: 0;
         font-size: 20px;
         color: var(--tk-navy-800);
@@ -153,12 +212,19 @@
         font-size: 14px;
       }
 
-      .barra-marca {
-        height: 6px;
-        border-radius: 999px;
-        background: var(--tk-grad-brand);
-        max-width: 860px;
-        margin: 0 auto 20px;
+      /* Cabecera completa de la página: la franja de marca (a sangre) y, debajo, el logotipo
+         horizontal con la tagline. Es un `<header>` de página, así que es el landmark `banner` y
+         todo su contenido queda dentro de una región (axe-core: `region` / `landmark-one-main`). */
+      .cabecera {
+        margin: -24px -24px 20px;
+      }
+
+      .cabecera__marca {
+        padding: 20px 4px 12px;
+      }
+
+      .contenido {
+        display: block;
       }
 
       .resultados {
@@ -274,20 +340,38 @@
   </head>
   <body>
     <!-- dApp de pruebas autocontenida: se sirve en http://localhost:5174/test.html -->
-    <img class="logo" src="brand/truekeate-titulo.png" alt="TrueKeate" />
-    <div class="barra-marca" aria-hidden="true"></div>
+    <!--
+      Encabezado de marca (CA-RF-49 · tarea 6.1): es la MISMA franja que las tres ventanas de la
+      extensión (`--tk-grad-brand` de 72 px con la marca de agua del isologo). El texto blanco solo
+      se apoya en el tramo OSCURO del degradado (regla 1 de `identidad_visual.md` §2.4): sobre el
+      tramo cian/oro (2,04:1 y 2,22:1) no hay ningún texto, solo el isologo decorativo.
+    -->
+    <header class="cabecera">
+      <div class="marca">
+        <div class="marca__texto">
+          <h1 class="marca__titulo">TrueKeate Wallet · dApp de pruebas</h1>
+          <p class="marca__sub">Anvil Local · entorno de desarrollo sin fondos reales</p>
+        </div>
+        <img class="marca__isologo" src="brand/truekeate-mark-96.png" alt="" aria-hidden="true" />
+      </div>
 
-    <div class="encabezado">
-      <h1>dApp de pruebas de TrueKeate Wallet</h1>
-      <p>
-        Siete flujos operativos: detectar el provider, conectar, consultar saldo, enviar una
-        transacción, firmar datos EIP-712, cambiar de red y escuchar eventos. Cada flujo muestra su
-        resultado aquí mismo en menos de 5000 ms; los tres errores de red más frecuentes —
-        <code>4001</code>, <code>4900</code> y <code>4901</code>— se pintan con su código y su
-        acción sugerida.
-      </p>
-    </div>
+      <div class="cabecera__marca">
+        <img class="logo" src="brand/truekeate-titulo.png" alt="Logotipo de TrueKeate" />
+        <p class="lema">PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS</p>
+      </div>
+    </header>
 
+    <main class="contenido">
+      <div class="encabezado">
+        <h2 class="encabezado__titulo">Flujos de la dApp</h2>
+        <p>
+          Siete flujos operativos: detectar el provider, conectar, consultar saldo, enviar una
+          transacción, firmar datos EIP-712, cambiar de red y escuchar eventos. Cada flujo muestra su
+          resultado aquí mismo en menos de 5000 ms; los tres errores de red más frecuentes —
+          <code>4001</code>, <code>4900</code> y <code>4901</code>— se pintan con su código y su
+          acción sugerida.
+        </p>
+      </div>
     <section class="panel" aria-labelledby="titulo-deteccion">
       <h2 id="titulo-deteccion">Flujo 1 · Detectar el provider</h2>
       <p class="estado" id="estado">
@@ -355,6 +439,7 @@
       <h2 id="titulo-registro">Historial de la página</h2>
       <pre class="log" id="registro" role="status">—</pre>
     </section>
+    </main>
 
     <script>
       (function () {

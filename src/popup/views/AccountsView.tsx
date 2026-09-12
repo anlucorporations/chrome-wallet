@@ -191,9 +191,9 @@ export function AccountsView({
       <StatusMessage message={status} tone="success" />
 
       <section className="tk-section" aria-labelledby="cuentas-acciones">
-        <h3 className="tk-section__title" id="cuentas-acciones">
+        <h2 className="tk-section__title" id="cuentas-acciones">
           Cartera
-        </h3>
+        </h2>
         <div className="tk-actions-row">
           <button type="button" className="tk-btn-primary" onClick={handleCreate} disabled={busy}>
             Crear cartera nueva
@@ -242,9 +242,9 @@ export function AccountsView({
 
       <section className="tk-section" aria-labelledby="cuentas-lista">
         <div className="tk-section__head">
-          <h3 className="tk-section__title" id="cuentas-lista">
+          <h2 className="tk-section__title" id="cuentas-lista">
             Cuentas
-          </h3>
+          </h2>
           <span className="tk-badge">{visibleAccounts.length}</span>
         </div>
 

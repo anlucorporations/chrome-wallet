@@ -14,6 +14,9 @@
  * cual sea el orden; si alguien vuelve a importar la lista desde el catálogo, este caso falla.
  *
  * Entorno `node`: ver la cabecera de `src/background/crypto/mnemonic.spec.ts`.
+ *
+ * Módulo(s) de contrato: M20 y M3.
+ * Requisitos: RNF-10.
  */
 
 import { describe, expect, it } from 'vitest';

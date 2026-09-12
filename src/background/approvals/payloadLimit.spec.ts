@@ -6,6 +6,8 @@
  * `MAX_PAYLOAD_BYTES` (65 536 bytes) se responde con **`-32602` (`payloadTooLarge`) SIN persistir
  * nada, sin tocar la ventana de tasa y sin abrir ventana**; la medida es en **bytes UTF-8**, no en
  * caracteres.
+ *
+ * Requisitos: RF-37 (RNF-09, RNF-12).
  */
 
 import { describe, expect, it } from 'vitest';

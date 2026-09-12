@@ -11,6 +11,8 @@
  * - `SIGN_TIMEOUT_MS`, `CONNECT_TIMEOUT_MS` y `REVEAL_HIDE_MS` se pueden inyectar por
  *   `import.meta.env.VITE_*` (solo para el arnés E2E), conservando SIEMPRE el valor de
  *   producción como valor por defecto (`documento_tecnico.md` §7.4.1.d).
+ *
+ * Requisitos: RF-04, RF-12, RF-18, RF-25, RF-27 y RF-40 (RT-06, RT-13).
  */
 
 // ---------------------------------------------------------------------------

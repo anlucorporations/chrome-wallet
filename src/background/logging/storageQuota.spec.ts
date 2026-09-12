@@ -9,6 +9,8 @@
  *
  * Ningún fallo queda en silencio: si ni la entrada de diagnóstico cabe, el contador en memoria, el
  * persistido en `truekeate_logs_dropped` y el `dropped` de `wallet_getLogs` siguen publicándolo.
+ *
+ * Requisitos: RNF-16 (ADT-14 / D-M).
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

@@ -15,6 +15,8 @@
  *    sin `ts` numérico se considera la más antigua (no puede bloquear la retención).
  * 3. El módulo es **PURO**: recibe una lista y devuelve la lista retenida más el informe de lo
  *    descartado. La escritura la hace M30 (`logger.ts`), que es el ÚNICO que toca el almacén.
+ *
+ * Requisitos: RF-32 (RNF-16).
  */
 
 import type { LogEntry } from '../../shared/types';

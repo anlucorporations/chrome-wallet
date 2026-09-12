@@ -27,6 +27,8 @@
  * ORDEN DE CERROJOS (importante): se toma SIEMPRE `focusLock` antes que el `rmwLock` de M14, y
  * nunca se anida el mismo cerrojo dos veces. Por eso las funciones públicas con cerrojo delegan en
  * una implementación interna SIN cerrojo, que es la que pueden reutilizar entre sí.
+ *
+ * Requisitos: RF-35, RF-36 y RF-41 (RNF-05, RNF-21).
  */
 
 import type {

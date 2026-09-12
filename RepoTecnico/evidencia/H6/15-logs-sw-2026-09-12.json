@@ -1,0 +1,36 @@
+{
+  "flujo": "llamada registrada por el SW con el popup cerrado",
+  "fecha": "2026-09-12",
+  "popupCerrado": true,
+  "entradaDeLaLlamada": {
+    "category": "call",
+    "data": {
+      "params": []
+    },
+    "event": "rpc_call",
+    "id": "3b7dab05-ee67-439b-a8c7-df2edb659cd6",
+    "level": "info",
+    "message": "Llamada RPC del catálogo",
+    "method": "eth_chainId",
+    "origin": "http://localhost:5174",
+    "ts": 1789253626929
+  },
+  "entradaDelError": {
+    "category": "call",
+    "data": {
+      "code": -32603,
+      "message": "Error interno de la cartera."
+    },
+    "event": "rpc_error",
+    "id": "b78a4868-cfd7-445d-afe6-98b956c4c233",
+    "level": "warn",
+    "message": "Llamada RPC que devolvió un error EIP-1193 del catálogo",
+    "method": "eth_getBalance",
+    "origin": "http://localhost:5174",
+    "ts": 1789253626979
+  },
+  "entradasDeEthChainId": {
+    "antes": 0,
+    "despues": 1
+  }
+}

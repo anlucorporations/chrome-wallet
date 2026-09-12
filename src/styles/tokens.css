@@ -32,7 +32,11 @@
   --tk-night-800: #1B2540;
 
   /* Estados (derivados) */
-  --tk-success: #1F8A70;
+  /* H6 · el verde de la marca se OSCURECE de #1F8A70 a #17806A (matriz de §2.4 ampliada):
+     como texto de la insignia «Red de pruebas» (11 px, 600) el valor anterior daba **4,26:1** sobre
+     blanco y no alcanzaba el 4,5:1 de texto normal; el nuevo da **4,85:1** sobre blanco, 4,59:1
+     sobre --tk-gray-050 y 3,75:1 sobre --tk-night-900 (donde la matriz solo exige 3:1). */
+  --tk-success: #17806A;
   --tk-info: #3E93A6;
   --tk-warning: #C9A97F;
   --tk-danger: #D64545;
@@ -50,7 +54,7 @@
   );
   --tk-grad-mark: linear-gradient(135deg, #1D2B57 0%, #3E93A6 48%, #88BFC4 68%, #C9A97F 100%);
   --tk-grad-gold: linear-gradient(135deg, #C9A97F 0%, #E3C797 100%);
-  --tk-grad-success: linear-gradient(135deg, #1F8A70 0%, #3E93A6 100%);
+  --tk-grad-success: linear-gradient(135deg, #17806A 0%, #3E93A6 100%);
   --tk-grad-danger: linear-gradient(135deg, #A62F2F 0%, #D64545 100%);
 
   /* Tipografía */
@@ -78,6 +82,11 @@
   --tk-touch-target: 44px;
   --tk-focus-width: 2px;
   --tk-focus-offset: 2px;
+
+  /* Hueco reservado a la marca de agua del encabezado (isologo de 96 px al 18 %, §5.1) más el botón
+     «Acerca de» (RNF-23): las acciones de la cabecera no pueden quedar debajo del isologo ni
+     partirse en dos líneas dentro de los 380 px del popup. */
+  --tk-header-actions-width: 168px;
 
   /* Superficies y colores derivados que necesita el popup de H2. Van aquí porque
      tokens.css es la ÚNICA fuente de color del proyecto (RNF-18): ninguna hoja de estilos del

@@ -14,6 +14,9 @@
  * Nota de implementación: el prefijo heredado se construye por concatenación para que ESTE
  * fichero no contenga su literal (si lo contuviera, el propio `lint:prohibited` —y la
  * comprobación de la lista de coincidencias— fallarían por el test que lo persigue).
+ *
+ * Módulo(s) de contrato: M1, M55, M57 y M64.
+ * Requisitos: RT-13 (RNF-01, RNF-20).
  */
 
 import { createHash } from 'node:crypto';

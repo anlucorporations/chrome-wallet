@@ -15,6 +15,8 @@
  * `Object.defineProperty(..., { writable: false, configurable: false })`. En jsdom no hay
  * `document.currentScript` marcado por el relay, así que la superficie se publica SIN catálogo
  * remoto: es justo el caso «sin content script al otro lado» que exige responder `4200`.
+ *
+ * Módulo(s) de contrato: M35, M37 y M56.
  */
 
 import { describe, expect, it, vi } from 'vitest';

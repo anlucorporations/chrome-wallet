@@ -351,9 +351,9 @@ export function SendView({ accounts, currentAccount, onChanged }: SendViewProps)
       ) : null}
 
       <section className="tk-section" aria-labelledby="enviar-titulo">
-        <h3 className="tk-section__title" id="enviar-titulo">
+        <h2 className="tk-section__title" id="enviar-titulo">
           Enviar criptoactivos
-        </h3>
+        </h2>
         <p className="tk-note">
           Elige la cuenta de origen, el destino y el importe. La comisión se estima antes de enviar y
           la transacción se confirma en la ventana de la cartera.

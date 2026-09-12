@@ -23,7 +23,7 @@
  * - **RNF-14**: este fichero no importa `ethers` ni ningún módulo del Service Worker.
  */
 
-import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { AccountsView } from './views/AccountsView';
 import { LogsView } from './views/LogsView';
 import { NetworksView } from './views/NetworksView';
@@ -31,6 +31,7 @@ import { ReceiveView } from './views/ReceiveView';
 import { SecurityView } from './views/SecurityView';
 import { SendView } from './views/SendView';
 import { SitesView } from './views/SitesView';
+import { AboutDialog } from './components/AboutDialog';
 import { StatusMessage } from './components/StatusMessage';
 import {
   balanceStatusLabel,
@@ -39,11 +40,16 @@ import {
 } from './hooks/useBalancePolling';
 import { acceptDevNotice, readSnapshot, type AccountRow, type WalletSnapshot } from './walletState';
 import { popupErrorOf, type PopupError } from './popupErrors';
+import { ACERCA_DE_BOTON, NOMBRE_PRODUCTO, TAGLINE_MARCA } from '../shared/i18n';
 import '../styles/tokens.css';
 import '../styles/base.css';
 
-/** Tagline literal de marca (identidad_visual.md §1 y §8). */
-export const TAGLINE = 'PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS';
+/**
+ * Descriptor de marca literal de `identidad_visual.md` §1 y §8 (RNF-23). Se reexporta desde aquí
+ * —y no se declara de nuevo— porque el literal vive en `src/shared/i18n.ts` (M66): una sola fuente
+ * para el popup, el «Acerca de» y los E2E.
+ */
+export const TAGLINE = TAGLINE_MARCA;
 
 /** Ruta pública del isologo de 96 px. */
 const MARK_SRC = 'brand/truekeate-mark-96.png';
@@ -87,6 +93,12 @@ export function App(): JSX.Element {
   const [tab, setTab] = useState<TabId>('accounts');
   const [error, setError] = useState<PopupError | null>(null);
   const [noticeBusy, setNoticeBusy] = useState(false);
+  /**
+   * Pantalla «Acerca de» (RNF-23, tarea 6.3). Vive aquí y no en una vista concreta porque el aviso
+   * debe estar accesible desde la cabecera, que es común a todas las pestañas y a los estados de
+   * carga, vacío y error.
+   */
+  const [aboutOpen, setAboutOpen] = useState(false);
   /**
    * Confirmación de una operación destructiva que deja el popup en el formulario inicial
    * (reset, CU-30 paso 6). Vive aquí, y no en la vista que la provoca, porque el reset deja la
@@ -178,6 +190,30 @@ export function App(): JSX.Element {
     enabled: phase === 'ready' && tab === 'accounts',
   });
 
+  /** Pestañas del popup; la activa es la que se lleva al principio de la fila al cambiar de vista. */
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Al cambiar de pestaña, la activa se desplaza a la vista (RNF-21): con siete pestañas en 380 px
+   * algunas quedan fuera de la fila y, al navegar SOLO con teclado, el foco podía quedar en un
+   * control invisible. Se hace en un efecto, después del render, y solo si hay un elemento activo
+   * dentro de la fila.
+   */
+  const revealActiveTab = useCallback((): void => {
+    const contenedor = tabsRef.current;
+    if (contenedor === null) {
+      return;
+    }
+    const activa = contenedor.querySelector('.tk-tab--active');
+    if (activa instanceof HTMLElement) {
+      activa.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, []);
+
+  useEffect(() => {
+    revealActiveTab();
+  }, [revealActiveTab, tab]);
+
   const handleChanged = async (): Promise<void> => {
     await refresh();
   };
@@ -185,10 +221,28 @@ export function App(): JSX.Element {
   return (
     <div className="tk-window tk-popup">
       <header className="tk-header">
-        <h1 className="tk-header__title">TrueKeate Wallet</h1>
-        <span className="tk-header__badge tk-badge">Anvil Local</span>
+        <h1 className="tk-header__title">{NOMBRE_PRODUCTO}</h1>
+        <div className="tk-header__actions">
+          <span className="tk-badge">Anvil Local</span>
+          {/*
+            «Acerca de» (RNF-23, tarea 6.3): está SIEMPRE en la cabecera —también en el estado
+            vacío y mientras el aviso del primer arranque bloquea la interfaz—, porque es el otro
+            aviso in-product que exige el criterio y no puede depender de tener cartera.
+          */}
+          <button type="button" className="tk-btn-ghost tk-btn-small" onClick={() => setAboutOpen(true)}>
+            {ACERCA_DE_BOTON}
+          </button>
+        </div>
         <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
       </header>
+
+      {aboutOpen ? (
+        <AboutDialog
+          onClose={() => {
+            setAboutOpen(false);
+          }}
+        />
+      ) : null}
 
       <StatusMessage message={flash} tone="success" />
 
@@ -241,8 +295,8 @@ export function App(): JSX.Element {
           </main>
         ) : (
           <>
-            <nav className="tk-tabs" aria-label="Secciones del popup">
-              <div className="tk-tabs__list tk-tabs__list--seven" role="tablist">
+            <nav className="tk-tabs" aria-label="Secciones de TrueKeate Wallet">
+              <div className="tk-tabs__list tk-tabs__list--seven" role="tablist" ref={tabsRef}>
                 {TABS.map((definition) => (
                   <button
                     key={definition.id}
@@ -266,15 +320,21 @@ export function App(): JSX.Element {
               Los contadores del polling (M47) se publican como atributos de datos: son la
               evidencia observable de «1 eth_getBalance por cuenta visible y ciclo» (CA-RF-27) y
               permiten comprobarla sin instrumentar el canal ni exponer nada en `window`.
+
+              H6 · el `role="tabpanel"` va en el contenedor y NO en el `<main>`: axe-core mide que un
+              `role="tabpanel"` sobre `<main>` **anula el landmark** (`aria-allowed-role` y
+              `landmark-one-main`), de modo que el documento quedaba sin `main` y sin región. El
+              `<main>` conserva su semántica de landmark y el panel declara su rol ARIA.
             */}
-            <main
-              className="tk-main"
-              id={`panel-${tab}`}
-              role="tabpanel"
-              aria-labelledby={`tab-${tab}`}
-              data-polling-requests={tab === 'accounts' ? polling.requestCount : undefined}
-              data-polling-cycles={tab === 'accounts' ? polling.cycleCount : undefined}
-            >
+            <main className="tk-main">
+              <div
+                className="tk-panel"
+                id={`panel-${tab}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${tab}`}
+                data-polling-requests={tab === 'accounts' ? polling.requestCount : undefined}
+                data-polling-cycles={tab === 'accounts' ? polling.cycleCount : undefined}
+              >
               {tab === 'accounts' ? (
                 <AccountsView
                   accounts={accounts}
@@ -322,6 +382,7 @@ export function App(): JSX.Element {
                   onResetDone={setFlash}
                 />
               ) : null}
+              </div>
             </main>
           </>
         )
@@ -347,8 +408,7 @@ function DevNoticeDialog({ busy, onAccept }: DevNoticeDialogProps): JSX.Element 
   return (
     <div className="tk-overlay">
       <div className="tk-dialog tk-dialog--notice" role="dialog" aria-modal="true" aria-label="Aviso de entorno de desarrollo">
-        <h2 className="tk-dialog__title">Entorno de desarrollo — no usar con fondos reales</h2>
-        <div className="tk-dialog__body">
+        <h2 className="tk-dialog__title">Entorno de desarrollo — no usar con fondos reales</h2>        <div className="tk-dialog__body">
           <p>
             Esta cartera funciona <strong>sin contraseña</strong> y guarda la frase de recuperación
             en el almacén local de la extensión. Está pensada para la red local de pruebas (Anvil)

@@ -12,6 +12,8 @@
  *   contexto se recalcula SOLO desde `sender`.
  * - RNF-09/H-42: los `params` se redactan ANTES de cualquier despacho, también cuando la guarda
  *   rechaza la petición.
+ *
+ * Módulo(s) de contrato: M2, M3 y M20.
  */
 
 import { describe, expect, it, vi } from 'vitest';

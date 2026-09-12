@@ -1,0 +1,29 @@
+{
+  "acercaDe": {
+    "tagline": "PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS",
+    "logotipo": "brand/truekeate-titulo.png",
+    "licencias": [
+      "fonts/LICENSE-poppins.txt",
+      "fonts/LICENSE-inter.txt",
+      "fonts/LICENSE-jetbrains-mono.txt"
+    ],
+    "notice": "NOTICE",
+    "superficies": [
+      "popup",
+      "connect.html",
+      "notification.html"
+    ]
+  },
+  "primeraFirma": {
+    "avisoVisible": true,
+    "bloqueaAprobar": true,
+    "acusePorTeclado": true,
+    "reapareceEnLaSegunda": false
+  },
+  "avisoPrimerArranque": {
+    "texto": "Entorno de desarrollo — no usar con fondos reales",
+    "descartable": false,
+    "bloqueaLaInterfaz": true,
+    "devNoticeAcceptedAt": 1789253725337
+  }
+}

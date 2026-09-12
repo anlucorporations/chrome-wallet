@@ -6,6 +6,8 @@
  * Regla dura del arnés (§3.4.7 y §7.4.1.d): el plazo se prueba con **fake timers + el reloj del
  * stub de `chrome.alarms`**, NUNCA esperando 120 s reales. El reloj del stub es la fuente de
  * verdad de `scheduledTime`, así que las aserciones son exactas (`STUB_EPOCH_MS + 120_000`).
+ *
+ * Requisitos: RF-37, RF-40 y RF-41 (RNF-08).
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';

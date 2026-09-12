@@ -1,0 +1,126 @@
+NOTICE — TrueKeate Wallet
+=========================
+
+Titular del proyecto: ANLU corporations
+Licencia del codigo propio: MIT (ver `LICENSE`)
+Documento generado en el cierre de H6 (Fase 3) a partir de `package.json`,
+`package-lock.json` y de los ficheros realmente instalados en `node_modules/`.
+
+Este producto incluye software de terceros. A continuacion se enumeran las
+dependencias, su version instalada, su licencia y su titular. Los textos
+completos de las licencias acompanan a cada paquete en
+`node_modules/<paquete>/LICENSE*` y, en el caso de las tipografias, en
+`public/fonts/LICENSE-*.txt`.
+
+
+1. Dependencias de ejecucion (se empaquetan en `dist/`)
+-------------------------------------------------------
+
+| Paquete | Version | Licencia | Titular / autor |
+|---|---|---|---|
+| ethers | 6.15.0 | MIT | Richard Moore (ricmoo) |
+| react | 19.3.0 | MIT | Meta Platforms, Inc. y colaboradores |
+| react-dom | 19.3.0 | MIT | Meta Platforms, Inc. y colaboradores |
+
+- **ethers.js v6** es la UNICA libreria criptografica del producto (RT-02):
+  BIP-39, derivacion HD, claves, EIP-55, firma EIP-1559/EIP-155, EIP-712 y
+  `personal_sign`. Se usa a traves de su `JsonRpcProvider`, que internamente
+  emplea `fetch` (excepcion declarada D-05 de `RepoTecnico/requerimientos.md`).
+- **React 19** se usa solo para la interfaz de las tres ventanas y la dApp de
+  pruebas (RNF-14: la UI no contiene criptografia).
+
+
+2. Herramientas de desarrollo y pruebas (NO se empaquetan en `dist/`)
+---------------------------------------------------------------------
+
+| Paquete | Version | Licencia | Titular / autor |
+|---|---|---|---|
+| vite | 7.3.6 | MIT | Evan You y colaboradores |
+| @vitejs/plugin-react | 5.2.0 | MIT | Evan You |
+| typescript | 5.9.3 | Apache-2.0 | Microsoft Corporation |
+| vitest | 3.2.7 | MIT | Anthony Fu |
+| @vitest/coverage-v8 | 3.2.7 | MIT | Anthony Fu |
+| jsdom | 26.1.0 | MIT | jsdom contributors |
+| @playwright/test | 1.63.0 | Apache-2.0 | Microsoft Corporation |
+| @axe-core/playwright | 4.13.0 | MPL-2.0 | Deque Systems, Inc. |
+| eslint | 9.39.5 | MIT | Nicholas C. Zakas |
+| @eslint/js | 9.39.5 | MIT | ESLint contributors |
+| typescript-eslint | 8.70.0 | MIT | typescript-eslint contributors |
+| eslint-plugin-react-hooks | 7.1.1 | MIT | Meta Platforms, Inc. |
+| globals | 17.12.0 | MIT | Sindre Sorhus |
+| mermaid | 11.17.2 | MIT | Knut Sveidqvist |
+| @types/chrome | 0.1.43 | MIT | DefinitelyTyped contributors |
+| @types/node | 24.13.4 | MIT | DefinitelyTyped contributors |
+| @types/react | 19.3.0 | MIT | DefinitelyTyped contributors |
+| @types/react-dom | 19.3.0 | MIT | DefinitelyTyped contributors |
+
+Notas de cumplimiento:
+
+- **@axe-core/playwright** (MPL-2.0) se usa EXCLUSIVAMENTE como dependencia de
+  desarrollo, dentro de la suite E2E de accesibilidad (RNF-21). Es una licencia
+  MPL-2.0: se usa sin modificar y no se distribuye en `dist/`. Si se modificara
+  el fichero cubierto, habria que publicar la modificacion (obligacion de la
+  MPL-2.0 sobre los ficheros cubiertos).
+- **@playwright/test** y **typescript** son Apache-2.0: se incluye aqui el
+  aviso de licencia y la referencia a `node_modules/<paquete>/LICENSE`, que
+  contiene el texto completo, el `NOTICE` propio del proyecto y la clausula de
+  patentes de la Apache-2.0.
+- Ninguna dependencia de desarrollo se empaqueta en el artefacto cargable:
+  `dist/` contiene solo el codigo propio mas `ethers`, `react` y `react-dom`
+  (verificable con `npm run lint:prohibited` y con la inspeccion de `dist/`).
+
+
+3. Contrato auxiliar de Foundry (`contracts/`)
+----------------------------------------------
+
+| Componente | Version | Licencia | Titular / autor |
+|---|---|---|---|
+| Foundry (`forge`, `anvil`, `cast`) | rango declarado `>= 1.0.0 < 2.0.0`; verificado con `1.7.2-dev` | MIT o Apache-2.0 (doble) | Foundry contributors |
+| forge-std (`contracts/lib/forge-std`) | vendorizado como referencia de pruebas | MIT o Apache-2.0 (doble) | Foundry contributors |
+
+`contracts/` es un **instrumento de prueba** (P-07): `EIP712Verifier.sol` y su
+test verifican que la firma EIP-712 producida por la wallet es verificable
+on-chain. Su licencia dual MIT/Apache-2.0 se conserva tal cual, con los dos
+textos en `contracts/lib/forge-std/LICENSE-MIT` y `LICENSE-APACHE`.
+
+
+4. Tipografias (SIL Open Font License 1.1)
+------------------------------------------
+
+Las tres familias se auto-hospedan en `public/fonts/` (0 peticiones a CDN,
+RNF-20) y viajan dentro del paquete de la extension.
+
+| Familia | Ficheros | Licencia | Texto completo |
+|---|---|---|---|
+| **Poppins** (3 pesos discretos) | `poppins-latin-400.woff2`, `poppins-latin-600.woff2`, `poppins-latin-700.woff2` | **SIL Open Font License 1.1** | `public/fonts/LICENSE-poppins.txt` |
+| **Inter** (variable) | `inter-latin.woff2` | **SIL Open Font License 1.1** | `public/fonts/LICENSE-inter.txt` |
+| **JetBrains Mono** (variable) | `jetbrains-mono-latin.woff2` | **SIL Open Font License 1.1** | `public/fonts/LICENSE-jetbrains-mono.txt` |
+
+Los tres textos OFL-1.1 estan versionados en el repositorio y se distribuyen
+junto con las fuentes (`git ls-files` los lista). La OFL-1.1 permite el uso,
+estudio, modificacion y redistribucion de la fuente siempre que: (a) no se
+venda por si sola, (b) los nombres reservados no se reutilicen en derivados y
+(c) la licencia acompanie a la fuente. Aqui las fuentes se redistribuyen **sin
+modificar** dentro del paquete de la extension.
+
+
+5. Activos de marca (fuera de la licencia MIT)
+----------------------------------------------
+
+Los activos de la marca **TrueKeate** (`TrueKeate/`, `public/brand/` y los
+iconos derivados de `public/icons/`) fueron cedidos al proyecto por su titular
+para este uso (DEC-15). **No** se redistribuyen bajo la licencia MIT del
+codigo: ver el apartado «Alcance de esta licencia» de `LICENSE`.
+
+
+6. Software de terceros no distribuido
+--------------------------------------
+
+- **Google Chrome / Microsoft Edge**: plataforma de ejecucion; no se
+  redistribuye.
+- **Anvil (Foundry)**: nodo local de pruebas que el usuario arranca por su
+  cuenta; no se redistribuye.
+- **npm**: gestor de paquetes usado para instalar; no se redistribuye.
+
+Ni `ethers`, ni `react`, ni `react-dom`, ni ningun otro paquete de terceros se
+ha modificado.

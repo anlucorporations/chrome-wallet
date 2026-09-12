@@ -279,9 +279,9 @@ export function LogsView(): JSX.Element {
 
       <section className="tk-section" aria-labelledby="actividad-titulo">
         <div className="tk-section__head">
-          <h3 className="tk-section__title" id="actividad-titulo">
+          <h2 className="tk-section__title" id="actividad-titulo">
             Panel de actividad
-          </h3>
+          </h2>
           <span className="tk-badge" id="actividad-errores" data-errors={errorCount}>
             {errorCount} errores
           </span>

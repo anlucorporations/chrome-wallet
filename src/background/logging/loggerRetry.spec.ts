@@ -9,6 +9,8 @@
  *   2. el reintento reescribe la lista YA retenida (la entrada sobrevive si el recorte la hace
  *      caber);
  *   3. un fallo que NO es de cuota no inventa el aviso de almacenamiento lleno ni reintenta.
+ *
+ * Requisitos: RNF-16 (ADT-14 / D-M).
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

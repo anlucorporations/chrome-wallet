@@ -171,9 +171,9 @@ export function SitesView({ accounts }: SitesViewProps): JSX.Element {
 
       <section className="tk-section" aria-labelledby="sitios-lista">
         <div className="tk-section__head">
-          <h3 className="tk-section__title" id="sitios-lista">
+          <h2 className="tk-section__title" id="sitios-lista">
             Sitios conectados
-          </h3>
+          </h2>
           <span className="tk-badge">{sites.length}</span>
           <button
             type="button"
@@ -234,9 +234,9 @@ export function SitesView({ accounts }: SitesViewProps): JSX.Element {
       </section>
 
       <section className="tk-section" aria-labelledby="sitios-revocar">
-        <h3 className="tk-section__title" id="sitios-revocar">
+        <h2 className="tk-section__title" id="sitios-revocar">
           Revocar un permiso por origen
-        </h3>
+        </h2>
         <div className="tk-field">
           <label className="tk-field__label" htmlFor="sitios-origen">
             Origen conectado (esquema + host + puerto)

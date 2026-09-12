@@ -353,9 +353,9 @@ export function NetworksView({ networks, currentChainId, onChanged }: NetworksVi
 
       <section className="tk-section" aria-labelledby="redes-lista">
         <div className="tk-section__head">
-          <h3 className="tk-section__title" id="redes-lista">
+          <h2 className="tk-section__title" id="redes-lista">
             Redes dadas de alta
-          </h3>
+          </h2>
           <span className="tk-badge">{networks.length}</span>
         </div>
 
@@ -419,9 +419,9 @@ export function NetworksView({ networks, currentChainId, onChanged }: NetworksVi
       </section>
 
       <section className="tk-section" aria-labelledby="redes-alta">
-        <h3 className="tk-section__title" id="redes-alta">
+        <h2 className="tk-section__title" id="redes-alta">
           Dar de alta una red nueva
-        </h3>
+        </h2>
         <p className="tk-note" id="redes-alta-aviso">
           {ADD_CHAIN_ACTIVATION_NOTE}
         </p>

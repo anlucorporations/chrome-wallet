@@ -1,0 +1,3474 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\playwright.config.ts",
+    "rootDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-extension",
+        "name": "chromium-extension",
+        "testDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "RepoTecnico/evidencia/H6/e2e-2026-09-12.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5174/test.html",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "01-onboarding.spec.ts",
+      "file": "01-onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "01 · Onboarding: carga de dist/ y popup en estado vacío",
+          "file": "01-onboarding.spec.ts",
+          "line": 43,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la extensión carga desde dist/ y el ID se descubre del Service Worker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1346,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:17:54.718Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-2eba15d7df659200b20b",
+              "file": "01-onboarding.spec.ts",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2439,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:17:56.116Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-20651e6bbe346f6d9a7a",
+              "file": "01-onboarding.spec.ts",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1387,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:17:58.579Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-b8854f827a86f020a399",
+              "file": "01-onboarding.spec.ts",
+              "line": 124,
+              "column": 3
+            },
+            {
+              "title": "el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2161,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:17:59.985Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-d6e9c4783705fee77ae9",
+              "file": "01-onboarding.spec.ts",
+              "line": 157,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "01 · Onboarding H2: crear, importar y sin contraseña",
+          "file": "01-onboarding.spec.ts",
+          "line": 195,
+          "column": 6,
+          "specs": [
+            {
+              "title": "crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2375,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:02.162Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-e915165a3814dd467810",
+              "file": "01-onboarding.spec.ts",
+              "line": 198,
+              "column": 3
+            },
+            {
+              "title": "importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4081,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:04.563Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dacac6177a7cb5257661-157d4ef4d9afda74a47e",
+              "file": "01-onboarding.spec.ts",
+              "line": 252,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "02-cuentas.spec.ts",
+      "file": "02-cuentas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "02 · Cuentas: 5 derivadas, la 6.ª y la importada",
+          "file": "02-cuentas.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9058,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:08.718Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-5f6fd616c4a16bf180ba",
+              "file": "02-cuentas.spec.ts",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "importar por clave privada la marca como importada y su etiqueta se renombra (CA-RF-05)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3337,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:17.824Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-0176aa69b6dace64d39e",
+              "file": "02-cuentas.spec.ts",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "la sesión de dApp vigente bloquea la eliminación con `-32000` y se desbloquea al revocarla",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4643,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:21.185Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2a1f10adf76e3eca4b1d-d51bd899cdfdc45b4901",
+              "file": "02-cuentas.spec.ts",
+              "line": 105,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "03-recibir.spec.ts",
+      "file": "03-recibir.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "03 · Recibir: dirección, portapapeles y QR coinciden",
+          "file": "03-recibir.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la pestaña «Recibir» muestra la dirección de la cuenta activa y su QR la codifica (CA-RF-07)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4023,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:25.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1d9fca96db279add5c4d-89ecbe6acd4c219f52cb",
+              "file": "03-recibir.spec.ts",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "«Copiar» deja en el portapapeles la misma dirección que se muestra (CA-RF-07)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2379,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:30.049Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1d9fca96db279add5c4d-c29f1d67cfd859a7e9d0",
+              "file": "03-recibir.spec.ts",
+              "line": 55,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "04-enviar.spec.ts",
+      "file": "04-enviar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "04 · envío de 1 ETH con aprobación y recibo status 1 (CA-RF-08)",
+          "file": "04-enviar.spec.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la dApp recibe el hash al aprobar y el recibo del nodo es status 1",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7313,
+                      "error": {
+                        "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n",
+                        "stack": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\04-enviar.spec.ts:75:28",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 54,
+                          "line": 963
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 54,
+                            "line": 963
+                          },
+                          "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n\n   at fixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\04-enviar.spec.ts:75:28"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:32.464Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\04-enviar-04-·-envío-de-1--01bf3-recibo-del-nodo-es-status-1-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\04-enviar-04-·-envío-de-1--01bf3-recibo-del-nodo-es-status-1-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\04-enviar-04-·-envío-de-1--01bf3-recibo-del-nodo-es-status-1-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\04-enviar-04-·-envío-de-1--01bf3-recibo-del-nodo-es-status-1-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 54,
+                        "line": 963
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2c731c43c17a3fc9b807-ce9664f553bf54601cf3",
+              "file": "04-enviar.spec.ts",
+              "line": 54,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "05-persistencia.spec.ts",
+      "file": "05-persistencia.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "05 · Persistencia: reabrir el popup restaura el estado",
+          "file": "05-persistencia.spec.ts",
+          "line": 33,
+          "column": 6,
+          "specs": [
+            {
+              "title": "reabrir el popup restaura cuenta activa e importadas SIN pedir la frase (CA-RF-09 / CA-RF-10)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4495,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:42.038Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-f14f08b76986d09307d9",
+              "file": "05-persistencia.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "la suspensión del Service Worker por CDP no pierde el estado persistido (RNF-08)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3706,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:46.674Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-86e4748e09de7239c9a3",
+              "file": "05-persistencia.spec.ts",
+              "line": 68,
+              "column": 3
+            },
+            {
+              "title": "una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2008,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:50.425Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c66fecb417999e19f9e5-8e30b5abbc84b4c1cd1c",
+              "file": "05-persistencia.spec.ts",
+              "line": 100,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "06-reset.spec.ts",
+      "file": "06-reset.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "06 · Reset de la cartera",
+          "file": "06-reset.spec.ts",
+          "line": 53,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el reset enumera las importadas, borra cartera y sesiones y CONSERVA los logs (CA-RF-11 / RF-32)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3660,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:52.495Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-7840f29fb471443b4148",
+              "file": "06-reset.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "con una solicitud `pending` el reset se bloquea con `-32000` y no toca el almacén (DEC-46)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3262,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:56.218Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-e805c91f83c7bd42ac02",
+              "file": "06-reset.spec.ts",
+              "line": 126,
+              "column": 3
+            },
+            {
+              "title": "con una transacción en vuelo vigente el reset también se bloquea (DEC-46)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4264,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:18:59.591Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "58e90238425057d68b5f-bdd5de0aa04ad16ce1c4",
+              "file": "06-reset.spec.ts",
+              "line": 159,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "07-provider.spec.ts",
+      "file": "07-provider.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "07 · Provider, alias e identidad EIP-6963",
+          "file": "07-provider.spec.ts",
+          "line": 68,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3394,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:03.968Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-ad380f9dab688c112973",
+              "file": "07-provider.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "el ID de la extensión es el derivado de la `key` del manifest (estable entre ejecuciones)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3015,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:07.421Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-f1f4b7165d4448c18a44",
+              "file": "07-provider.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2487,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:10.465Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-9ee6406e0ea617ad3a09",
+              "file": "07-provider.spec.ts",
+              "line": 160,
+              "column": 3
+            },
+            {
+              "title": "el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7598,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:13.017Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-a01a0bef01c83cc586d1",
+              "file": "07-provider.spec.ts",
+              "line": 230,
+              "column": 3
+            },
+            {
+              "title": "la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2167,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:20.805Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613fb774f1d24e76c72c-8f6c53474d688d2032bd",
+              "file": "07-provider.spec.ts",
+              "line": 261,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "08-eventos.spec.ts",
+      "file": "08-eventos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "08 · Eventos del provider en dos pestañas",
+          "file": "08-eventos.spec.ts",
+          "line": 70,
+          "column": 6,
+          "specs": [
+            {
+              "title": "`accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4705,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:23.016Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fb525c86bc7f773ec8db-739318e3ebc842e3eaae",
+              "file": "08-eventos.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4413,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:27.738Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fb525c86bc7f773ec8db-80caf9d93bcbf19e4b9a",
+              "file": "08-eventos.spec.ts",
+              "line": 162,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "09-conectar.spec.ts",
+      "file": "09-conectar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "09 · Conexión de la dApp: test negativo, elección y sesión de 24 h",
+          "file": "09-conectar.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2318,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:32.192Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-25fdfd58a9e2831d9984",
+              "file": "09-conectar.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5598,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:34.554Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-d76beb83fee608b0cc81",
+              "file": "09-conectar.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "rechazar en connect.html responde 4001 y NO persiste ninguna sesión",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3258,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:40.202Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8a5c8a9e0f06d0233651-41faa8516fbe96dc63da",
+              "file": "09-conectar.spec.ts",
+              "line": 180,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "10-aprobar-tx.spec.ts",
+      "file": "10-aprobar-tx.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35)",
+          "file": "10-aprobar-tx.spec.ts",
+          "line": 43,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la vista previa decodifica el calldata, la ventana es única y está enfocada",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8231,
+                      "error": {
+                        "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n",
+                        "stack": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\10-aprobar-tx.spec.ts:68:18",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 54,
+                          "line": 963
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 54,
+                            "line": 963
+                          },
+                          "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n\n   at fixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\10-aprobar-tx.spec.ts:68:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:43.513Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 54,
+                        "line": 963
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5de4393f0ea6984e0fbc-9334776001b2b2adcc44",
+              "file": "10-aprobar-tx.spec.ts",
+              "line": 46,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "11-firmar-eip712.spec.ts",
+      "file": "11-firmar-eip712.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20)",
+          "file": "11-firmar-eip712.spec.ts",
+          "line": 64,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la ventana muestra name/verifyingContract y la firma verifica el digest del contrato",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7487,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:19:53.970Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b75fd59a606da7a636a0-c953b3163a3bf7bb761b",
+              "file": "11-firmar-eip712.spec.ts",
+              "line": 67,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "11-firmar-mensaje.spec.ts",
+      "file": "11-firmar-mensaje.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "11 · personal_sign: texto legible y firma verificable (CA-RF-21)",
+          "file": "11-firmar-mensaje.spec.ts",
+          "line": 36,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la ventana muestra el texto y la firma recupera la cuenta autorizada",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5512,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:01.645Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "832b4dd83b3030039fa0-aefd9b3cd326d8496355",
+              "file": "11-firmar-mensaje.spec.ts",
+              "line": 39,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "12-redes.spec.ts",
+      "file": "12-redes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "12 · Redes: cambio aprobado y alta sin activación",
+          "file": "12-redes.spec.ts",
+          "line": 113,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la red destino YA activa responde `null` sin abrir la ventana de confirmación (CA-RF-22)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2305,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:07.207Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61a19916271fb03f620c-35511ab6b32eae106721",
+              "file": "12-redes.spec.ts",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5393,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:09.532Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61a19916271fb03f620c-c3c7fc2573c306a92e72",
+              "file": "12-redes.spec.ts",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2694,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:14.955Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61a19916271fb03f620c-18ee305e9c8e5aecc353",
+              "file": "12-redes.spec.ts",
+              "line": 182,
+              "column": 3
+            },
+            {
+              "title": "la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11170,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:17.672Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61a19916271fb03f620c-50a8074a2d3c1eccb62f",
+              "file": "12-redes.spec.ts",
+              "line": 216,
+              "column": 3
+            },
+            {
+              "title": "el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7168,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:28.859Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61a19916271fb03f620c-dfcabee55198df944972",
+              "file": "12-redes.spec.ts",
+              "line": 250,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "13-revocar.spec.ts",
+      "file": "13-revocar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "13 · Revocación de la sesión de una dApp desde el popup",
+          "file": "13-revocar.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5647,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:36.115Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ed4d9ff14d9e1f9a560-36608fe2437baf4cf140",
+              "file": "13-revocar.spec.ts",
+              "line": 53,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "14-polling.spec.ts",
+      "file": "14-polling.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "14 · Polling de saldos: 1 RPC por cuenta visible y ciclo",
+          "file": "14-polling.spec.ts",
+          "line": 42,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el contador real del popup marca 5 RPC por ciclo, arranca y para con la vista",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20188,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:20:41.821Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4657fe22830468aabb47-0e60729a0f4154d0e737",
+              "file": "14-polling.spec.ts",
+              "line": 45,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "15-logs.spec.ts",
+      "file": "15-logs.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "15 · Observabilidad: `truekeate_logs` y panel de actividad",
+          "file": "15-logs.spec.ts",
+          "line": 89,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14386,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:02.055Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4d8d0513ffe13b1caf35-26aa48da91b1efc00f64",
+              "file": "15-logs.spec.ts",
+              "line": 92,
+              "column": 3
+            },
+            {
+              "title": "el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4654,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:16.477Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4d8d0513ffe13b1caf35-335c0e55e83681acc448",
+              "file": "15-logs.spec.ts",
+              "line": 172,
+              "column": 3
+            },
+            {
+              "title": "la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3230,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:21.177Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4d8d0513ffe13b1caf35-389b38ea8bd70cd0c698",
+              "file": "15-logs.spec.ts",
+              "line": 238,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "16-validacion.spec.ts",
+      "file": "16-validacion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "16 · Validación inline de formularios (CA-RF-33)",
+          "file": "16-validacion.spec.ts",
+          "line": 36,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la frase inválida muestra el error inline y no envía la operación",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4721,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:24.592Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-8612f893e335b4390054",
+              "file": "16-validacion.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "la clave privada inválida muestra el error inline y no añade ninguna cuenta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2972,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:29.400Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-720b6773e2d35ec0bd2c",
+              "file": "16-validacion.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "la etiqueta inválida se señala inline y no renombra la cuenta (CA-RF-33)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3092,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:32.409Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "73e4077613fadc2f4328-ecf9c4b54f5996281e2a",
+              "file": "16-validacion.spec.ts",
+              "line": 101,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "17-i18n.spec.ts",
+      "file": "17-i18n.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "17 · formato de datos y textos en español (CA-RT-10)",
+          "file": "17-i18n.spec.ts",
+          "line": 67,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el saldo del popup usa 4 decimales con coma",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2761,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:35.562Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a7d31ad31daa39d77ab6-dbd28a9383443e7cda30",
+              "file": "17-i18n.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "las direcciones se muestran `0x1234…abcd` con el valor completo en `title`",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3432,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:38.355Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a7d31ad31daa39d77ab6-db934a5bf3104dbb72eb",
+              "file": "17-i18n.spec.ts",
+              "line": 95,
+              "column": 3
+            },
+            {
+              "title": "el valor de la transacción en la ventana de confirmación usa el mismo formato",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4690,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:41.814Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a7d31ad31daa39d77ab6-576947f3a78061ea538e",
+              "file": "17-i18n.spec.ts",
+              "line": 133,
+              "column": 3
+            },
+            {
+              "title": "las cuatro superficies declaran español y no muestran texto de UI en inglés",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5297,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:46.531Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a7d31ad31daa39d77ab6-8a3278df52e2c2993878",
+              "file": "17-i18n.spec.ts",
+              "line": 164,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "18-concurrencia.spec.ts",
+      "file": "18-concurrencia.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37)",
+          "file": "18-concurrencia.spec.ts",
+          "line": 45,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9726,
+                      "error": {
+                        "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n",
+                        "stack": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at expect.poll.message (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\18-concurrencia.spec.ts:92:16)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\18-concurrencia.spec.ts:89:5",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 54,
+                          "line": 963
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 54,
+                            "line": 963
+                          },
+                          "message": "Error: locator.textContent: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('.tk-header__badge')\u001b[22m\n\n\n   at fixtures\\extension.ts:963\n\n  961 | /** Texto del contador visible de la ventana única («N solicitudes en espera»). */\n  962 | export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {\n> 963 |   return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';\n      |                                                      ^\n  964 | }\n  965 |\n  966 | /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */\n    at leerContadorDeLaVentana (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:963:54)\n    at expect.poll.message (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\18-concurrencia.spec.ts:92:16)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\18-concurrencia.spec.ts:89:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:21:51.865Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\\test-failed-3.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 54,
+                        "line": 963
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "bd1f54a79f6a63f1216c-eb1ce302b77293b0c561",
+              "file": "18-concurrencia.spec.ts",
+              "line": 48,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "21-eip6963.spec.ts",
+      "file": "21-eip6963.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "21 · EIP-6963: anuncio del provider",
+          "file": "21-eip6963.spec.ts",
+          "line": 66,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la dApp recibe el anuncio con la identidad vinculante y el icono incrustado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2780,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:03.984Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1312ce543807e9d130c5-d9f17c996c418457763c",
+              "file": "21-eip6963.spec.ts",
+              "line": 69,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "22-dapp.spec.ts",
+      "file": "22-dapp.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "22 · dApp de pruebas: los siete flujos (CA-RF-46)",
+          "file": "22-dapp.spec.ts",
+          "line": 116,
+          "column": 6,
+          "specs": [
+            {
+              "title": "flujos 1 a 4 (detectar, conectar, saldo y envío) con resultado en pantalla en menos de 5000 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5797,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:06.945Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e8bdbdda2999279def56-c29554b130ba8adfa4f4",
+              "file": "22-dapp.spec.ts",
+              "line": 125,
+              "column": 3
+            },
+            {
+              "title": "flujos 5 a 7 (EIP-712, cambio de red y eventos) con resultado en pantalla en menos de 5000 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:12.928Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e8bdbdda2999279def56-6676ddecbe484cd3b7a4",
+              "file": "22-dapp.spec.ts",
+              "line": 211,
+              "column": 3
+            },
+            {
+              "title": "los errores 4001 y 4901 se muestran con su código y su acción sugerida",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4444,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:21.153Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e8bdbdda2999279def56-26a0c37ba6e7afc891ce",
+              "file": "22-dapp.spec.ts",
+              "line": 301,
+              "column": 3
+            },
+            {
+              "title": "el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13568,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:25.644Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e8bdbdda2999279def56-06deeacfb4a1602df132",
+              "file": "22-dapp.spec.ts",
+              "line": 340,
+              "column": 3
+            },
+            {
+              "title": "un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10544,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:39.259Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e8bdbdda2999279def56-d2f7b597ef5029cd1994",
+              "file": "22-dapp.spec.ts",
+              "line": 405,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "23-marca.spec.ts",
+      "file": "23-marca.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "23 · marca en las cuatro superficies (CA-RF-49)",
+          "file": "23-marca.spec.ts",
+          "line": 80,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el degradado de marca es idéntico en popup, connect y notification, de 72 px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2940,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:49.857Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3e8a81dfd6ebfbaf2cb-226d7812889262b2fe22",
+              "file": "23-marca.spec.ts",
+              "line": 83,
+              "column": 3
+            },
+            {
+              "title": "el texto blanco del encabezado se apoya en el tramo OSCURO del degradado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2199,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:52.828Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3e8a81dfd6ebfbaf2cb-c6e929bddb3f74829891",
+              "file": "23-marca.spec.ts",
+              "line": 140,
+              "column": 3
+            },
+            {
+              "title": "la dApp de pruebas usa la marca: logotipo horizontal, fondo y tagline exacta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2453,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:55.045Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3e8a81dfd6ebfbaf2cb-3af94adda607e5b0787a",
+              "file": "23-marca.spec.ts",
+              "line": 278,
+              "column": 3
+            },
+            {
+              "title": "la marca no rompe los flujos de la dApp: el provider se sigue detectando",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2090,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:57.514Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3e8a81dfd6ebfbaf2cb-0400851f5b7f09fb26b8",
+              "file": "23-marca.spec.ts",
+              "line": 328,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "24-accesibilidad.spec.ts",
+      "file": "24-accesibilidad.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "24 · accesibilidad AA: axe-core, teclado, foco y zoom (RNF-21)",
+          "file": "24-accesibilidad.spec.ts",
+          "line": 108,
+          "column": 6,
+          "specs": [
+            {
+              "title": "axe-core: 0 violaciones A/AA en las cuatro superficies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 22671,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:22:59.773Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0218e63748eb649944a7-22fdb25388679c6f2dde",
+              "file": "24-accesibilidad.spec.ts",
+              "line": 111,
+              "column": 3
+            },
+            {
+              "title": "teclado: foco visible, activación con Enter y áreas táctiles de 44 px",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2735,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\24-accesibilidad.spec.ts:180:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\24-accesibilidad.spec.ts:180:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:22.464Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\24-accesibilidad-24-·-acce-fa90d-r-y-áreas-táctiles-de-44-px-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\24-accesibilidad-24-·-acce-fa90d-r-y-áreas-táctiles-de-44-px-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\24-accesibilidad-24-·-acce-fa90d-r-y-áreas-táctiles-de-44-px-chromium-extension\\test-failed-3.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\24-accesibilidad-24-·-acce-fa90d-r-y-áreas-táctiles-de-44-px-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\24-accesibilidad-24-·-acce-fa90d-r-y-áreas-táctiles-de-44-px-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0218e63748eb649944a7-a0a7e27471f30c5abb5e",
+              "file": "24-accesibilidad.spec.ts",
+              "line": 152,
+              "column": 3
+            },
+            {
+              "title": "zoom al 200 %: sin pérdida de contenido ni desborde horizontal (WCAG 1.4.4)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2027,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:26.155Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0218e63748eb649944a7-59ba22f10eeb70fe0d76",
+              "file": "24-accesibilidad.spec.ts",
+              "line": 222,
+              "column": 3
+            },
+            {
+              "title": "prefers-reduced-motion: el spinner no anima cuando el usuario lo pide",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2134,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:28.234Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0218e63748eb649944a7-2331379caa80ef169dd9",
+              "file": "24-accesibilidad.spec.ts",
+              "line": 256,
+              "column": 3
+            },
+            {
+              "title": "aria-label y roles: pestañas, cuentas y panel de actividad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2772,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:30.390Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0218e63748eb649944a7-4861c5b041f619e300b1",
+              "file": "24-accesibilidad.spec.ts",
+              "line": 288,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "25-recuperacion.spec.ts",
+      "file": "25-recuperacion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "25 · Recuperación: revelado temporal, portapapeles y bloqueo",
+          "file": "25-recuperacion.spec.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el revelado exige confirmación, dura 30 s, descarta la memoria y NO pasa por postMessage (CA-RF-50)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3469,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:33.226Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-9595df9091269eba39ca",
+              "file": "25-recuperacion.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "el revelado se oculta al PERDER el foco y vacía el portapapeles (CA-RF-50)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2698,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:36.724Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-d40182ce6a27f2ff8aee",
+              "file": "25-recuperacion.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3451,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:39.437Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5db409b80deafa7431b0-ccc3a80721f0bb09110d",
+              "file": "25-recuperacion.spec.ts",
+              "line": 138,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "26-avisos.spec.ts",
+      "file": "26-avisos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "26 · avisos in-product: primer arranque, «Acerca de» y primera firma (RNF-23)",
+          "file": "26-avisos.spec.ts",
+          "line": 61,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el aviso del primer arranque es NO descartable y se registra al aceptarlo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2330,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:42.932Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "534938d9cd5a78013ecd-f9f36cf061fad3df1b97",
+              "file": "26-avisos.spec.ts",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "«Acerca de»: logotipo, tagline exacta, licencias y NOTICE en las tres ventanas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3589,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:45.280Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "534938d9cd5a78013ecd-d107af7258ce4c958ae3",
+              "file": "26-avisos.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "antes de la primera firma: el aviso aparece, bloquea «Aprobar» y no reaparece",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1902,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\26-avisos.spec.ts:185:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\26-avisos.spec.ts:185:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:48.885Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\26-avisos-26-·-avisos-in-p-bc2a0-ea-«Aprobar»-y-no-reaparece-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\26-avisos-26-·-avisos-in-p-bc2a0-ea-«Aprobar»-y-no-reaparece-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\26-avisos-26-·-avisos-in-p-bc2a0-ea-«Aprobar»-y-no-reaparece-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\26-avisos-26-·-avisos-in-p-bc2a0-ea-«Aprobar»-y-no-reaparece-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "534938d9cd5a78013ecd-f30cff53699749421dfe",
+              "file": "26-avisos.spec.ts",
+              "line": 176,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "27-rpc-caido.spec.ts",
+      "file": "27-rpc-caido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "27 · RPC caído: 4900, UI desconectada y almacén intacto",
+          "file": "27-rpc-caido.spec.ts",
+          "line": 44,
+          "column": 6,
+          "specs": [
+            {
+              "title": "con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13346,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:23:51.921Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "182a99c337fecc3e1567-c12b6628ace64f24024b",
+              "file": "27-rpc-caido.spec.ts",
+              "line": 47,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "28-iframe-hostil.spec.ts",
+      "file": "28-iframe-hostil.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "28 · Iframe cross-origin: aislamiento de la sesión del top",
+          "file": "28-iframe-hostil.spec.ts",
+          "line": 54,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el iframe de otro origen recibe [] y nunca la cuenta del top",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1411,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\28-iframe-hostil.spec.ts:80:13",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\28-iframe-hostil.spec.ts:80:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:24:05.353Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "85427a82b9268cb0c225-9244b17ed068b10e0255",
+              "file": "28-iframe-hostil.spec.ts",
+              "line": 57,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "29-sw-suspendido.spec.ts",
+      "file": "29-sw-suspendido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "29 · SW suspendido a mitad de una aprobación (RNF-08)",
+          "file": "29-sw-suspendido.spec.ts",
+          "line": 64,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-extension",
+                  "projectName": "chromium-extension",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2401,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\29-sw-suspendido.spec.ts:77:11",
+                        "location": {
+                          "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                          "column": 14,
+                          "line": 181
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                            "column": 14,
+                            "line": 181
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\29-sw-suspendido.spec.ts:77:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-12T22:24:07.397Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\\test-failed-3.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3a94deaf6abca6b5c2f3-d2fe5c9ac4b447ea265b",
+              "file": "29-sw-suspendido.spec.ts",
+              "line": 67,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "90-sonda.spec.ts",
+      "file": "90-sonda.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sonda: personal_sign con diagnostico",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-extension",
+              "projectName": "chromium-extension",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2207,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\90-sonda.spec.ts:26:9",
+                    "location": {
+                      "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                      "column": 14,
+                      "line": 181
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mfixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                        "column": 14,
+                        "line": 181
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5174/test.html\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures\\extension.ts:181\n\n  179 |  */\n  180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {\n> 181 |   await page.goto(url);\n      |              ^\n  182 |   await page.waitForLoadState('domcontentloaded');\n  183 | }\n  184 |\n    at openDapp (C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts:181:14)\n    at C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\90-sonda.spec.ts:26:9"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T22:24:10.959Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\test-results\\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\fixtures\\extension.ts",
+                    "column": 14,
+                    "line": 181
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "78b91ab4ee0bc04228d7-964a366ac194234045d6",
+          "file": "90-sonda.spec.ts",
+          "line": 22,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T22:17:14.339Z",
+    "duration": 419022.631,
+    "expected": 66,
+    "skipped": 0,
+    "unexpected": 8,
+    "flaky": 0
+  }
+}

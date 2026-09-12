@@ -76,7 +76,7 @@
 
 | Token | Hex | Uso | Nota |
 |---|---|---|---|
-| `--tk-success` | `#1F8A70` | Transacción confirmada, conexión OK | Verde frío para no chocar con el teal. Deriva de `--tk-teal-500`. |
+| `--tk-success` | `#17806A` | Transacción confirmada, conexión OK | Verde frío para no chocar con el teal. Deriva de `--tk-teal-500`. **v1.5:** oscurecido desde `#1F8A70` (4,26:1 sobre blanco < 4,5:1) a `#17806A` (**4,85:1** sobre blanco, 4,59:1 sobre `--tk-gray-050`, 3,75:1 sobre `--tk-night-900`): como texto de la insignia «Red de pruebas» (11 px) tiene que cumplir 4,5:1 (H6, `contrast.spec.ts`). |
 | `--tk-info` | `#3E93A6` | Información, eventos | Igual al acento de marca. |
 | `--tk-warning` | `#C9A97F` | Avisos, red de pruebas, gas alto | Reutiliza el oro de marca. |
 | `--tk-danger` | `#D64545` | Errores (**RF-30 exige rojo en los logs**), rechazo de firma | Único color ajeno a la marca; obligado por el enunciado. |
@@ -110,6 +110,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | `--tk-white` | `--tk-danger` `#D64545` | **4,38:1** | ⚠️ < 4,5: texto ≥ 18 px o fondo `--tk-danger-dark` `#A62F2F` (**6,84:1**) |
 | `--tk-danger-dark` | `--tk-white` / `--tk-gray-050` | **6,84:1** / **6,48:1** | ✅ AA — rojo para texto pequeño |
 | `--tk-danger` | `--tk-gray-050` | **4,15:1** | ⚠️ log `error` en claro: ≥ 18 px o iconos (RF-30) |
+| `--tk-success` `#17806A` | `--tk-white` | **4,85:1** | ✅ AA — **insignia «Red de pruebas»** (texto de 11 px) y confirmaciones sobre tarjeta (**fila añadida en H6**; el valor anterior `#1F8A70` daba 4,26:1 y no cumplía) |
 
 **Modo oscuro (fondo `--tk-night-900` `#0E1526`)**
 
@@ -121,7 +122,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | `--tk-gold-500` (`warning`) | `--tk-night-900` | **8,20:1** | ✅ AAA — log `warn` y **borde del botón fantasma en oscuro** |
 | `--tk-teal-400` `#5293A4` | `--tk-night-900` | **5,26:1** | ✅ AA — acento en oscuro |
 | `--tk-teal-500` | `--tk-night-900` | **5,14:1** | ✅ AA — log `info` y foco |
-| `--tk-success` `#1F8A70` | `--tk-night-900` | **4,27:1** | ⚠️ < 4,5: log `success` ≥ 18 px, o texto `--tk-cyan-200` (10,42:1) con el indicador en `--tk-success` |
+| `--tk-success` `#17806A` | `--tk-night-900` | **3,75:1** | ⚠️ < 4,5: log `success` ≥ 18 px, o texto `--tk-cyan-200` (10,42:1) con el indicador en `--tk-success`. **v1.5:** el valor cambió de `#1F8A70` (4,27:1) a `#17806A` para que su uso como texto sobre blanco cumpla 4,5:1 (fila añadida en el modo claro) |
 | `--tk-danger` `#D64545` | `--tk-night-900` | **4,16:1** | ⚠️ < 4,5: log `error` ≥ 18 px, o fondo `--tk-danger-dark` con texto blanco (6,84:1) |
 | `--tk-gray-600` | `--tk-night-800` | **2,77:1** | ❌ **prohibido**: en oscuro el texto secundario es `--tk-gray-100` o `--tk-cyan-200` |
 
@@ -156,7 +157,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 --tk-grad-gold: linear-gradient(135deg, #C9A97F 0%, #E3C797 100%);
 
 /* Estados */
---tk-grad-success: linear-gradient(135deg, #1F8A70 0%, #3E93A6 100%);
+--tk-grad-success: linear-gradient(135deg, #17806A 0%, #3E93A6 100%);
 --tk-grad-danger:  linear-gradient(135deg, #A62F2F 0%, #D64545 100%);
 ```
 
@@ -222,7 +223,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 2. **Tamaño mínimo del isologo:** 24 px en UI (por debajo, usar el icono simplificado de 16/32).
 3. **Fondo:** sobre blanco, `--tk-gray-050` o `--tk-night-900`. **Nunca** sobre el degradado de marca a menos que sea la versión en blanco del isologo.
 4. **No hacer:** deformar, rotar, cambiar los colores del degradado, añadir sombras duras, recolorear el isologo a un color plano, retipear el wordmark.
-5. **Modo oscuro (con accesibilidad):** fondo `--tk-night-900`, superficies `--tk-night-800`, texto `--tk-gray-100` (`#EEF2F6`); el acento sube a `--tk-teal-400` (`#5293A4`, 5,26:1); el texto secundario **nunca** es `--tk-gray-600` (2,77:1 sobre `--tk-night-800`, prohibido) sino `--tk-cyan-200` (`#ACC9D1`, 10,42:1) o `--tk-gray-100`; el degradado de marca se mantiene igual en los encabezados y **el foco visible se conserva** (contorno `--tk-teal-500` de 2 px con *offset* 2 px, 5,14:1 sobre `--tk-night-900`). En el panel de logs oscuro, `success` (4,27:1) y `error` (4,16:1) **no** alcanzan 4,5:1 a tamaño pequeño: su texto se rotula a ≥ 18 px o usa el par alternativo de la matriz de §2.4.
+5. **Modo oscuro (con accesibilidad):** fondo `--tk-night-900`, superficies `--tk-night-800`, texto `--tk-gray-100` (`#EEF2F6`); el acento sube a `--tk-teal-400` (`#5293A4`, 5,26:1); el texto secundario **nunca** es `--tk-gray-600` (2,77:1 sobre `--tk-night-800`, prohibido) sino `--tk-cyan-200` (`#ACC9D1`, 10,42:1) o `--tk-gray-100`; el degradado de marca se mantiene igual en los encabezados y **el foco visible se conserva** (contorno `--tk-teal-500` de 2 px con *offset* 2 px, 5,14:1 sobre `--tk-night-900`). En el panel de logs oscuro, `success` (3,75:1) y `error` (4,16:1) **no** alcanzan 4,5:1 a tamaño pequeño: su texto se rotula a ≥ 18 px o usa el par alternativo de la matriz de §2.4.
 6. **La tagline** se usa **solo** en la pantalla de bienvenida / "Acerca de", nunca en el encabezado del popup (falta espacio).
 7. **Accesibilidad verificable (H-17):**
    - **Foco visible** en todo control interactivo: contorno de 2 px `--tk-teal-500` con *offset* 2 px (3,54:1 sobre blanco y 5,14:1 sobre `--tk-night-900`; ≥ 3:1 exigido por WCAG 1.4.11). **Nunca** `outline: none` sin sustituto equivalente.
@@ -261,7 +262,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
   --tk-night-800: #1B2540;
 
   /* Estados (derivados) */
-  --tk-success: #1F8A70;
+  --tk-success: #17806A;
   --tk-info: #3E93A6;
   --tk-warning: #C9A97F;
   --tk-danger: #D64545;
@@ -271,7 +272,7 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
   --tk-grad-brand: linear-gradient(100deg, #1D2B57 0%, #2E4A7D 22%, #3E93A6 52%, #88BFC4 72%, #C9A97F 92%, #E3C797 100%);
   --tk-grad-mark: linear-gradient(135deg, #1D2B57 0%, #3E93A6 48%, #88BFC4 68%, #C9A97F 100%);
   --tk-grad-gold: linear-gradient(135deg, #C9A97F 0%, #E3C797 100%);
-  --tk-grad-success: linear-gradient(135deg, #1F8A70 0%, #3E93A6 100%);
+  --tk-grad-success: linear-gradient(135deg, #17806A 0%, #3E93A6 100%);
   --tk-grad-danger: linear-gradient(135deg, #A62F2F 0%, #D64545 100%);
 
   /* Tipografía */
@@ -338,3 +339,4 @@ Umbrales WCAG 2.1 aplicados: **4,5:1** texto normal (< 18 px, o < 14 px en negri
 | 1.2 | Remediación de la auditoría (Fase 2): corregida la fila mal atribuida de §7 dividiéndola en «E-12 → RNF-04, RT-04» y «E-03 → RF-13/RF-14/RF-45» (H-05); fijada la decisión del alias del provider (H-15/DEC-21); añadida la matriz de contraste cerrada §2.4 y la regla 7 de §5.3 con foco, teclado, área táctil y `axe-core` (H-17). |
 | **1.3** | Cierre del hallazgo **ADT-32** y de las decisiones **P-20** y **P-21**: el **botón fantasma** queda con una única especificación (fondo transparente, borde `--tk-gold-500` y **texto `--tk-navy-800`**, regla 5 de §2.4 y fila de §5.2), con la matriz ampliada con los pares `--tk-navy-800` sobre `--tk-gray-050` (**12,96:1**) y sobre `--tk-gray-100` (**12,16:1**) y `--tk-gold-600` reclasificado como **solo decorativo**; **P-20**: portapapeles del revelado (aviso de borrado, vaciado al ocultarse, progreso de **30 s** y botón «Ocultar ahora»); **P-21**: contador de solicitudes pendientes en `notification.html` y **una única ventana de confirmación global** (sustituye «una ventana por origen»). Añadidos los criterios de verificación de §8 y la verificación cruzada de tokens y medidas con `documento_tecnico.md` §5.2. |
  **1.4 (esta versión)** — cierre de los residuales **R-07/R-08** del veredicto de reevaluación (§8): los criterios de iconos del manifest y de modo oscuro pasan a tener magnitud y evidencia canónica (`Inspección:` / `Vitest:` / `E2E:`).
+ **1.5 (H6, parte 1)** — una única corrección de token, exigida por la puerta de contraste de la tarea 6.2: `--tk-success` pasa de `#1F8A70` (**4,26:1** sobre blanco, por debajo de 4,5:1) a `#17806A` (**4,85:1** sobre blanco, 4,59:1 sobre `--tk-gray-050`, 3,75:1 sobre `--tk-night-900`), porque se usa como **texto** de la insignia «Red de pruebas» (11 px). Se añade la fila correspondiente al modo claro de §2.4, se actualiza la fila del modo oscuro, el bloque de tokens de §6 y la nota de §5.3 regla 5. El resto de la matriz **no cambia**: `contrast.spec.ts` recalcula los 26 pares y verifica que el ratio de cada uno coincide con el publicado (±0,02).

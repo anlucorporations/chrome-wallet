@@ -9,6 +9,8 @@
  * por defecto de cada uno y que el objeto sobrevive a la clonación estructurada que exige
  * `window.postMessage` (§4.1). La transcripción fila a fila de la tabla del diccionario la cubre
  * `errors.spec.ts`; aquí se comprueba la cara observable de los 8 códigos.
+ *
+ * Módulo(s) de contrato: M35 y M45.
  */
 
 import { describe, expect, it } from 'vitest';

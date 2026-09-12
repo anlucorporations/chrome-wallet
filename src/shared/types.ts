@@ -10,6 +10,8 @@
  * - Sin `any`: los escenarios que la especificación tipa como `any` (firmas de listener)
  *   se modelan aquí como `unknown`, que es más estricto y compatible.
  * - Los tipos se declaran con `interface`/`type` puros: este módulo NO importa nada.
+ *
+ * Requisitos: RF-13..RF-25, RF-35 y RF-37 (RNF-13, RNF-14, RT-08).
  */
 
 // ---------------------------------------------------------------------------

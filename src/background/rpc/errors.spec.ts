@@ -9,6 +9,8 @@
  * Normalización necesaria: el diccionario usa comillas latinas («»), negritas markdown y el
  * valor concreto del plazo («120 s»), mientras que `errors.ts` guarda el marcador
  * `<segundos>`. La comparación iguala marcadores y dígitos para exigir el mismo texto.
+ *
+ * Módulo(s) de contrato: M6.
  */
 
 import { readFileSync } from 'node:fs';

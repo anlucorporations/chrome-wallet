@@ -958,9 +958,21 @@ export async function esperarVentanaDeDecision(
   return ventana;
 }
 
-/** Texto del contador visible de la ventana única («N solicitudes en espera»). */
+/**
+ * Texto del contador visible de la ventana única («N solicitudes en espera»).
+ *
+ * H6 · ESPERA A QUE EL CONTADOR EXISTA. Al abrirse, `notification.html` pinta su encabezado de
+ * CARGA (título + marca de agua, sin insignia) y solo añade el contador cuando el Service Worker le
+ * entrega la solicitud. Leerlo nada más abrir la ventana dejaba la lectura esperando un elemento que
+ * puede no llegar a aparecer —y el plazo inyectado de la suite es de solo 3 s
+ * (`VITE_SIGN_TIMEOUT_MS`, §7.4.1.d)—, de modo que la ventana se cerraba antes y la prueba fallaba
+ * con «Target page, context or browser has been closed». La espera es por CONDICIÓN OBSERVABLE, no
+ * un plazo fijo.
+ */
 export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {
-  return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';
+  const contador = ventana.locator('.tk-header__badge');
+  await expect(contador).toBeVisible({ timeout: 10_000 });
+  return (await contador.textContent())?.trim() ?? '';
 }
 
 /** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */
@@ -971,9 +983,38 @@ async function reconocerAvisos(ventana: Page): Promise<void> {
   }
 }
 
-/** Aprueba la solicitud mostrada en la ventana única (marcando antes los avisos bloqueantes). */
+/**
+ * Marca el acuse del aviso **antes de la primera firma** (RNF-23, tarea 6.3) si la ventana lo pide.
+ *
+ * AÑADIDO EN H6 (el arnés, no el producto): el aviso de primera firma bloquea «Aprobar» mientras no
+ * se marque, así que TODAS las pruebas que aprueban una firma sobre una cartera que no ha firmado
+ * todavía (las sembradas con `seedWallet`, que no siembran `truekeate_logs`) necesitan este paso.
+ *
+ * La ventana decide si el aviso aplica leyendo `truekeate_logs` por el canal del runtime, y esa
+ * lectura ocurre al montar la ventana y con cada solicitud nueva: la ventana es ÚNICA y se REUTILIZA
+ * (P-21), así que al mostrar la segunda solicitud el aviso puede tardar un instante en desaparecer.
+ * Por eso la espera es por DOS condiciones observables —la casilla aparece o «Aprobar» se habilita—
+ * y no por un plazo fijo: si el aviso no aplica, la prueba no pierde tiempo; si aplica, se marca.
+ */
+async function reconocerPrimeraFirma(ventana: Page): Promise<void> {
+  const casilla = ventana.locator('#tk-primera-firma-ack');
+  const aprobar = ventana.getByRole('button', { name: 'Aprobar' });
+  await Promise.race([
+    casilla.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => undefined),
+    expect(aprobar).toBeEnabled({ timeout: 15_000 }).catch(() => undefined),
+  ]);
+  if ((await casilla.count()) > 0 && (await casilla.isVisible()) && !(await casilla.isChecked())) {
+    await casilla.check();
+  }
+}
+
+/**
+ * Aprueba la solicitud mostrada en la ventana única (marcando antes los avisos bloqueantes y el
+ * acuse de la primera firma de RNF-23).
+ */
 export async function aprobarEnLaVentana(ventana: Page): Promise<void> {
   await reconocerAvisos(ventana);
+  await reconocerPrimeraFirma(ventana);
   const aprobar = ventana.getByRole('button', { name: 'Aprobar' });
   await expect(aprobar).toBeEnabled();
   await aprobar.click();
@@ -1002,11 +1043,37 @@ export async function contarPendientes(worker: Worker): Promise<number> {
   ).length;
 }
 
-/** Escribe la evidencia de un flujo de H4 en `RepoTecnico/evidencia/<fase>/`. */
+/**
+ * Escribe la evidencia de un flujo de H4 en `RepoTecnico/evidencia/<fase>/`.
+ *
+ * FUSIÓN EN VEZ DE SOBRESCRITURA (añadido en H6): los specs nuevos (`24-accesibilidad`, `26-avisos`)
+ * archivan su evidencia desde VARIAS pruebas del mismo fichero (una vez por superficie). Sobrescribir
+ * el JSON dejaría solo el resultado de la última, así que, si el fichero ya existe, se **fusionan**
+ * las claves de primer nivel (las posteriores ganan) y se conserva el resto. Un mismo nombre con
+ * fichero ausente se comporta como antes.
+ */
 export function archivarEvidencia(nombre: string, contenido: unknown): string {
   mkdirSync(EVIDENCE_DIR, { recursive: true });
   const destino = join(EVIDENCE_DIR, `${nombre}-${RUN_DATE}.json`);
-  writeFileSync(destino, `${JSON.stringify(contenido, null, 2)}\n`, 'utf8');
+  let fusionado: unknown = contenido;
+  if (existsSync(destino)) {
+    try {
+      const previo: unknown = JSON.parse(readFileSync(destino, 'utf8'));
+      if (
+        typeof previo === 'object' &&
+        previo !== null &&
+        !Array.isArray(previo) &&
+        typeof contenido === 'object' &&
+        contenido !== null &&
+        !Array.isArray(contenido)
+      ) {
+        fusionado = { ...(previo as Record<string, unknown>), ...(contenido as Record<string, unknown>) };
+      }
+    } catch {
+      // Fichero ilegible o de una ejecución interrumpida: se escribe el contenido nuevo.
+    }
+  }
+  writeFileSync(destino, `${JSON.stringify(fusionado, null, 2)}\n`, 'utf8');
   return destino;
 }
 

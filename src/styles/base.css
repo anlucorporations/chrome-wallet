@@ -265,6 +265,19 @@ button[aria-disabled='true'] {
   color: var(--tk-navy-800);
 }
 
+/*
+  H6 · el botón fantasma DENTRO de la franja de marca (`--tk-grad-brand`).
+  ADT-32 lo especifica «texto --tk-navy-800 y borde --tk-gold-500» sobre las superficies claras, y
+  esa especificación es la que se conserva; lo que NO puede ocurrir es heredar el color de texto
+  blanco que el encabezado impone a sus hijos (`color: var(--tk-text-on-brand)`), porque el blanco
+  sobre el tramo cian/oro del degradado cae a 1,7:1. El texto se pinta en el marino de marca, que
+  sobre el degradado tiene 12,96:1 en su tramo más claro (cian 2,04:1 · oro 2,22:1 → marino 8,2:1 y
+  6,16:1 respectivamente, ambos por encima de 4,5:1).
+*/
+.tk-header .tk-btn-ghost {
+  color: var(--tk-navy-800);
+}
+
 /* --------------------------------------------------------------------------
    Estructura de las ventanas
    -------------------------------------------------------------------------- */
@@ -290,31 +303,99 @@ button[aria-disabled='true'] {
 body.tk-popup {
   width: var(--tk-popup-width);
   height: var(--tk-popup-height);
+  overflow: hidden;
 }
 
 body.tk-connect {
   width: var(--tk-connect-width);
   height: var(--tk-connect-height);
+  overflow: hidden;
 }
 
 body.tk-notification {
   width: var(--tk-notification-width);
   height: var(--tk-notification-height);
-}
-
-body.tk-popup,
-body.tk-connect,
-body.tk-notification {
-  min-height: 0;
   overflow: hidden;
 }
 
-body.tk-popup > .tk-window,
-body.tk-connect > .tk-window,
-body.tk-notification > .tk-window {
-  height: 100%;
+/*
+  H6 · `#root` ES el contenedor de montaje de React, y sin declararlo el tamaño exacto de DEC-49 no
+  llegaba a la ventana: el árbol real es `body.tk-popup > #root > .tk-window`, así que la regla
+  `body.tk-popup > .tk-window` NO seleccionaba nada y `.tk-window` conservaba su `min-height: 100vh`,
+  con lo que el popup medía la altura del viewport (medido en el arnés: 720 px) en lugar de los
+  600 px de `identidad_visual.md` §5.1. `#root` es ahora la columna flexible intermedia y
+  `.tk-window` la llena; el desplazamiento ocurre DENTRO de `.tk-window` (`overflow-y: auto`).
+  `min-width: 0` evita que un hijo ancho (una dirección larga) ensanche la superficie.
+*/
+body.tk-popup > #root,
+body.tk-connect > #root,
+body.tk-notification > #root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+body.tk-popup > #root > .tk-window,
+body.tk-connect > #root > .tk-window,
+body.tk-notification > #root > .tk-window {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+}
+
+/*
+  Tamaño EXACTO de la superficie cuando el viewport lo permite (identidad_visual.md §5.1 / DEC-49).
+  En producción Chrome dimensiona el popup por el tamaño intrínseco del contenido, así que esta
+  restricción solo actúa cuando la superficie se abre en una pestaña de tamaño suficiente —que es
+  como la mide el arnés—: entonces el `body` mide EXACTAMENTE lo declarado y `.tk-window` lo ocupa
+  entero, sin que un `min-height: 100vh` pueda estirarlo. Por debajo de esa altura, la superficie
+  conserva su altura natural y `.tk-window` se desplaza, de modo que NUNCA se pierde contenido.
+*/
+@media (min-width: 380px) and (min-height: 600px) {
+  body.tk-popup {
+    width: var(--tk-popup-width);
+    height: var(--tk-popup-height);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.tk-popup > #root,
+  body.tk-popup > #root > .tk-window {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (min-width: 420px) and (min-height: 650px) {
+  body.tk-connect {
+    width: var(--tk-connect-width);
+    height: var(--tk-connect-height);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.tk-connect > #root,
+  body.tk-connect > #root > .tk-window {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (min-width: 420px) and (min-height: 640px) {
+  body.tk-notification {
+    width: var(--tk-notification-width);
+    height: var(--tk-notification-height);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.tk-notification > #root,
+  body.tk-notification > #root > .tk-window {
+    height: 100%;
+    min-height: 0;
+  }
 }
 
 /* Encabezado de marca: franja --tk-grad-brand de 72 px con marca de agua del isologo.
@@ -332,6 +413,24 @@ body.tk-notification > .tk-window {
   overflow: hidden;
 }
 
+/* Acciones de la cabecera: insignia de red y contador de pendientes + «Acerca de» (RNF-23).
+   El grupo ocupa un ancho FIJO (`--tk-header-actions-width`) para que el título encoja antes de que
+   los controles se partan en dos líneas, y el hueco del isologo decorativo queda a su derecha. */
+.tk-header__actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  width: var(--tk-header-actions-width);
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+/* Marca de agua del isologo: 96 px al 18 % de opacidad (identidad_visual.md §5.1).
+   Es DECORATIVA (`aria-hidden`), nunca recibe el foco y no puede tapar un control: el hueco lo
+   reserva el ancho fijo de `.tk-header__actions` (`--tk-header-actions-width`). */
 .tk-header__mark {
   position: absolute;
   right: 12px;
@@ -345,11 +444,17 @@ body.tk-notification > .tk-window {
 
 .tk-header__title {
   position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   margin: 0;
   color: var(--tk-text-on-brand);
   font-family: var(--tk-font-display);
   font-size: 20px;
+  line-height: 1.2;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tk-header__subtitle {
@@ -366,6 +471,17 @@ body.tk-notification > .tk-window {
   flex-direction: column;
   gap: 16px;
   padding: 20px 16px;
+}
+
+/* H6 · panel de una pestaña del popup. El `role="tabpanel"` va AQUÍ y no en el `<main>`: axe-core
+   comprueba que un `role="tabpanel"` sobre `<main>` anula el landmark y deja el documento sin
+   `main` ni región (RNF-21). El contenedor hereda el flujo en columna de `.tk-main`. */
+.tk-panel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
 /* Estado vacío: isologo al 30 % y texto secundario. */
@@ -433,26 +549,12 @@ body.tk-notification > .tk-window {
 }
 
 /* --------------------------------------------------------------------------
-   Medidas exactas de las tres superficies
+   Medidas exactas de las tres superficies (dApp de pruebas)
    -------------------------------------------------------------------------- */
 
-body.tk-popup {
-  width: var(--tk-popup-width);
-  height: var(--tk-popup-height);
-  overflow: hidden;
-}
-
-body.tk-connect {
-  width: var(--tk-connect-width);
-  height: var(--tk-connect-height);
-  overflow: hidden;
-}
-
-body.tk-notification {
-  width: var(--tk-notification-width);
-  height: var(--tk-notification-height);
-  overflow: hidden;
-}
+/* Las tres ventanas de la extensión ya declaran su ancho/alto ARRIBA, junto a la regla de `#root`, y
+   su restricción exacta vive en la media query de la superficie (para no perder contenido cuando el
+   viewport es menor). Aquí solo queda el layout fluido de la dApp. */
 
 /* dApp de pruebas: responsive, con el logotipo horizontal centrado. */
 body.tk-dapp {
@@ -488,9 +590,11 @@ body.tk-dapp {
    del QR son los dos únicos literales nuevos y viven en `tokens.css`.
    -------------------------------------------------------------------------- */
 
+/* La insignia de red (o el contador de pendientes) vive ahora dentro de `.tk-header__actions`,
+   que es quien reserva el hueco de la marca de agua: aquí solo se fija que no se encoja. */
 .tk-header__badge {
-  margin-left: auto;
-  margin-right: 104px;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 /* Pestañas: pestaña activa con el acento y subrayado de 2 px (identidad_visual.md §5.2). */
@@ -1239,7 +1343,9 @@ textarea.tk-input {
 }
 
 .tk-risk__item--blocking .tk-risk__title {
-  color: var(--tk-gold-400);
+  /* El oro NUNCA es color de texto (`goldUsage.spec.ts`): sobre el fondo oscuro del aviso el
+     énfasis del título se consigue con el cian claro de la matriz de §2.4 (10,42:1). */
+  color: var(--tk-cyan-200);
 }
 
 .tk-risk__detail {
@@ -1608,6 +1714,92 @@ textarea.tk-input {
 @media (prefers-color-scheme: dark) {
   .tk-log__event {
     color: var(--tk-text-primary);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   H6 — «Acerca de» (RNF-23) y aviso de la primera firma (tarea 6.3)
+
+   Solo tokens de `tokens.css` (RNF-18). El logotipo horizontal se apoya en
+   `--tk-surface-raised` y NUNCA sobre el degradado de marca (regla 3 de §5.3); la tagline usa el
+   `--tk-navy-800` que la matriz de §2.4 da por bueno (13,68:1 sobre blanco, 12,16:1 sobre tarjeta).
+
+   El aviso de la primera firma tiene su PROPIA familia de clases (`tk-notice-first`) y no reutiliza
+   los avisos de riesgo: comparte su lenguaje visual (tramo oscuro + borde dorado, que es un acento
+   de marca decorativo) pero NO su semántica, y las pruebas que buscan `.tk-risk` deben encontrar una
+   sola cosa: los avisos de riesgo de la solicitud.
+   -------------------------------------------------------------------------- */
+
+.tk-dialog--about {
+  gap: 10px;
+  text-align: center;
+}
+
+.tk-about__logo {
+  width: min(320px, 100%);
+  margin: 0 auto;
+}
+
+.tk-about__tagline {
+  margin: 0;
+  font-family: var(--tk-font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tk-navy-800);
+}
+
+/* El cuerpo del «Acerca de» es informativo: se alinea a la izquierda para que la lista de
+   licencias y el aviso de entorno se lean como texto corrido y no como un titular centrado. */
+.tk-dialog--about .tk-dialog__body {
+  text-align: left;
+}
+
+.tk-dialog--about .tk-about__tagline,
+.tk-dialog--about .tk-about__logo {
+  align-self: center;
+}
+
+/* --- Aviso «antes de la primera firma» (RNF-23) ---------------------------------------------- */
+
+.tk-notice-first {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-notice-first__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-night-900);
+  color: var(--tk-gray-100);
+  border-left: 4px solid var(--tk-gold-500);
+}
+
+.tk-notice-first__title {
+  color: var(--tk-gray-100);
+  font-family: var(--tk-font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tk-notice-first__detail {
+  color: var(--tk-cyan-200);
+  font-size: 12px;
+}
+
+.tk-notice-first__ack {
+  align-items: flex-start;
+  color: var(--tk-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tk-about__tagline {
+    color: var(--tk-gray-100);
   }
 }
 

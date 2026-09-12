@@ -409,9 +409,9 @@ export function SecurityView({
       <StatusMessage message={hideNotice} />
 
       <section className="tk-section" aria-labelledby="seguridad-revelar">
-        <h3 className="tk-section__title" id="seguridad-revelar">
+        <h2 className="tk-section__title" id="seguridad-revelar">
           Material de recuperación
-        </h3>
+        </h2>
         <p className="tk-note">
           Guarda la frase y las claves privadas en un lugar seguro y sin conexión. El valor se
           muestra 30 segundos y se oculta también si la ventana pierde el foco.
@@ -490,9 +490,9 @@ export function SecurityView({
       </section>
 
       <section className="tk-section" aria-labelledby="seguridad-reset">
-        <h3 className="tk-section__title" id="seguridad-reset">
+        <h2 className="tk-section__title" id="seguridad-reset">
           Reset de la cartera
-        </h3>
+        </h2>
         <p className="tk-note">
           Elimina la frase, las cuentas y las sesiones de dApps. El registro de actividad se
           conserva.

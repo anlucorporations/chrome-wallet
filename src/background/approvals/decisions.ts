@@ -21,6 +21,8 @@
  * ESTADO VOLÁTIL ADMISIBLE: el mapa de esperas es reconstruible (si el SW se suspende, la cola
  * persistida sigue siendo la verdad y la reconciliación del arranque entrega el `4001` de las
  * huérfanas). No es fuente de verdad y nunca se persiste.
+ *
+ * Requisitos: RF-37 y RF-41 (RNF-08).
  */
 
 import type { Uuid } from '../../shared/types';

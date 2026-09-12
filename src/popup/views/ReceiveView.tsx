@@ -61,9 +61,9 @@ export function ReceiveView({ account }: ReceiveViewProps): JSX.Element {
     <div className="tk-view">
       <StatusMessage error={error} />
       <section className="tk-section" aria-labelledby="recibir-cuenta">
-        <h3 className="tk-section__title" id="recibir-cuenta">
+        <h2 className="tk-section__title" id="recibir-cuenta">
           Recibir en {account.label}
-        </h3>
+        </h2>
         <p className="tk-note">
           Envía criptoactivos de la red local a esta dirección. Comprueba que coincide con la del
           código QR antes de transferir.

@@ -6,6 +6,8 @@
  * Fuente normativa: `documento_tecnico.md` §3.6 regla 4 y §4.4, `diccionario_datos.md` §2.11
  * (regla única de `data`: **primeros 10 bytes** + `dataLength`) y `plan_desarrollo.md` §3.5.7
  * («`logRedaction.spec.ts` (0 claves, 0 payload íntegro, primeros 10 bytes de `data`)»).
+ *
+ * Requisitos: RNF-09 y RNF-16 (H-42 / ADT-12).
  */
 
 import { describe, expect, it } from 'vitest';

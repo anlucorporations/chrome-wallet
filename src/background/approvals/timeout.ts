@@ -21,6 +21,8 @@
  *    pasa a la siguiente `pending` o se cierra, y el badge derivado se purga.
  * 4. **Idempotencia**: si la entrada ya no está `pending` (respuesta duplicada, X-06), el
  *    vencimiento no hace nada salvo limpiar su alarma.
+ *
+ * Requisitos: RF-37, RF-40 y RF-41 (RNF-06, RNF-08).
  */
 
 import type {

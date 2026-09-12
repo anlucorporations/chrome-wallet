@@ -24,6 +24,8 @@
  * Queda FUERA de H2: derivación desde la UI de firma, firmas, difusión, ventanas de aprobación,
  * polling de saldos y log de actividad (solo se escriben `sw_started`, y `sw_reconcile` a
  * partir de H4).
+ *
+ * Requisitos: RF-09, RF-10, RF-13, RF-15, RF-24, RF-37 y RF-41 (RNF-08, RNF-10).
  */
 
 import { STORAGE_KEYS, SCHEMA_VERSION, getStorageQuotaApi, readStorage } from './background/state/schema';

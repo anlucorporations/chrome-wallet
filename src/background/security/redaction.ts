@@ -15,6 +15,8 @@
  * - Por encima de `PREVIEW_INLINE_MAX_BYTES = 4096` solo se persisten `hash` + longitud (§3.9).
  *
  * Este módulo lo consume SOLO el Service Worker (usa `ethers` para los hashes).
+ *
+ * Requisitos: RF-28..RF-31 y RF-50 (RNF-09, RNF-16).
  */
 
 import { LangEn, Mnemonic, sha256, toUtf8Bytes, wordlists } from 'ethers';

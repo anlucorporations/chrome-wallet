@@ -6,6 +6,8 @@
  * Service Worker con `CONNECT_RESPONSE` (o `4001` si se rechaza). Los estilos de marca se cargan
  * aquí (tokens + base) y también en `App.tsx`, para que el módulo sea autosuficiente si se monta
  * desde otra prueba.
+ *
+ * Requisitos: RF-16, RF-17 y RF-36 (RNF-05, RNF-21).
  */
 
 import { StrictMode } from 'react';

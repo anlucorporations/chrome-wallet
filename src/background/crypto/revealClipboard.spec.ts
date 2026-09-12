@@ -8,6 +8,8 @@
  * semilla, que es exactamente lo que exige el plan.
  *
  * Entorno `node`: ver la cabecera de `mnemonic.spec.ts`.
+ *
+ * Requisitos: RF-50 (RNF-09, RNF-22).
  */
 
 import { describe, expect, it } from 'vitest';

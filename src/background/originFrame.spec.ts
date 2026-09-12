@@ -10,6 +10,8 @@
  * Las pruebas son de router real (`handleRPCRequest` + `defaultRouterDeps`): la sesión del top se
  * siembra en el almacén y se comprueba que el iframe responde `[]` mientras el top responde su
  * cuenta — y que el iframe tampoco crea una sesión nueva para sí.
+ *
+ * Requisitos: RNF-10 y RNF-11 (D-J / ADT-07).
  */
 
 import { describe, expect, it, vi } from 'vitest';

@@ -48,10 +48,14 @@ import type {
 import type { SignResponseMessage } from '../shared/protocol';
 import { APPROVAL_PORT_NAME, DEFAULT_CHAIN_SYMBOL } from '../shared/constants';
 import { formatTimestamp, pluralize } from '../shared/format';
+import { ACERCA_DE_BOTON, NOMBRE_PRODUCTO, yaFirmoAntes } from '../shared/i18n';
+import { readLogSignatures, firstSignatureState } from './firstSignature';
 import { StatusMessage } from '../popup/components/StatusMessage';
+import { AboutDialog } from '../popup/components/AboutDialog';
 import { getRuntimeChannel } from '../popup/runtimeChannel';
 import { isEip1193Error, popupError, popupErrorOf, type PopupError } from '../popup/popupErrors';
 import { readSnapshot, type WalletSnapshot } from '../popup/walletState';
+import { FirstSignatureNotice } from './FirstSignatureNotice';
 import { PersonalSignPanel } from './PersonalSignPanel';
 import { RiskBadge, RiskWarnings, type RiskWarning } from './RiskWarnings';
 import { TxPreviewPanel } from './TxPreviewPanel';
@@ -766,6 +770,19 @@ export interface ApprovalWindowProps {
   warnings: readonly RiskWarning[];
   acknowledged: boolean;
   onAcknowledge: (acknowledged: boolean) => void;
+  /**
+   * Aviso «antes de la primera firma» (RNF-23, tarea 6.3): `true` mientras el registro de actividad
+   * no demuestre ninguna firma anterior. Lo decide {@link App} leyendo `wallet_getLogs`, porque esta
+   * superficie es presentacional.
+   */
+  firstSignature: boolean;
+  /** Acuse obligatorio del aviso de primera firma; sin él «Aprobar» queda deshabilitado. */
+  firstSignatureAcknowledged: boolean;
+  onFirstSignatureAcknowledge: (acknowledged: boolean) => void;
+  /** Pantalla «Acerca de» (RNF-23): el otro aviso in-product que exige el criterio. */
+  aboutOpen: boolean;
+  onAboutOpen: () => void;
+  onAboutClose: () => void;
   busy: boolean;
   error: PopupError | null;
   gap: PopupError | null;
@@ -871,6 +888,12 @@ export function ApprovalWindow({
   warnings,
   acknowledged,
   onAcknowledge,
+  firstSignature,
+  firstSignatureAcknowledged,
+  onFirstSignatureAcknowledge,
+  aboutOpen,
+  onAboutOpen,
+  onAboutClose,
   busy,
   error,
   gap,
@@ -879,6 +902,12 @@ export function ApprovalWindow({
   onReject,
 }: ApprovalWindowProps): JSX.Element {
   const blocked = warnings.some((warning) => warning.severity === 'blocking') && !acknowledged;
+  /**
+   * Bloqueo del aviso de primera firma (RNF-23): mientras la cartera no haya firmado nunca, la
+   * ventana exige el acuse explícito. Es un bloqueo INDEPENDIENTE del de los avisos de riesgo: los
+   * dos deben estar resueltos para poder aprobar.
+   */
+  const firstSignatureBlocked = firstSignature && !firstSignatureAcknowledged;
   const decided = outcome === 'approved' || outcome === 'rejected';
   const resolved = request !== null && request.status !== 'pending';
   const canDecide = request !== null && !resolved;
@@ -886,12 +915,24 @@ export function ApprovalWindow({
   return (
     <div className="tk-window tk-notification">
       <header className="tk-header">
-        <h1 className="tk-header__title">TrueKeate Wallet</h1>
-        <span className="tk-badge tk-header__badge" title="Solicitudes pendientes en la cola">
-          {pluralize(pendingCount, 'solicitud en espera', 'solicitudes en espera')}
-        </span>
+        <h1 className="tk-header__title">{NOMBRE_PRODUCTO}</h1>
+        <div className="tk-header__actions">
+          {/*
+            El contador conserva la clase `tk-header__badge` además de `tk-badge`: es la que
+            `leerContadorDeLaVentana` (arnés E2E) usa como ancla estable del contador de pendientes
+            (P-21), y la que evita que la insignia se encoja dentro de la cabecera.
+          */}
+          <span className="tk-badge tk-header__badge" title="Solicitudes pendientes en la cola">
+            {pluralize(pendingCount, 'solicitud en espera', 'solicitudes en espera')}
+          </span>
+          <button type="button" className="tk-btn-ghost tk-btn-small" onClick={onAboutOpen}>
+            {ACERCA_DE_BOTON}
+          </button>
+        </div>
         <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
       </header>
+
+      {aboutOpen ? <AboutDialog onClose={onAboutClose} /> : null}
 
       <main className="tk-main">
         <section className="tk-origin" aria-labelledby="tk-origin-title">
@@ -918,6 +959,18 @@ export function ApprovalWindow({
           acknowledged={acknowledged}
           onAcknowledge={onAcknowledge}
         />
+
+        {/*
+          RNF-23 · aviso «antes de la primera firma» (tarea 6.3): se pinta ANTES de las acciones y,
+          mientras no esté marcado, «Aprobar» queda deshabilitado. En cuanto el registro demuestre
+          una firma anterior, el aviso desaparece y nunca vuelve (sobrevive al reset, RF-32).
+        */}
+        {firstSignature ? (
+          <FirstSignatureNotice
+            acknowledged={firstSignatureAcknowledged}
+            onAcknowledge={onFirstSignatureAcknowledge}
+          />
+        ) : null}
 
         {request !== null ? <RequestPanel request={request} context={context} /> : null}
 
@@ -960,7 +1013,7 @@ export function ApprovalWindow({
             type="button"
             className="tk-btn-primary"
             onClick={onApprove}
-            disabled={busy || !canDecide || decided || blocked}
+            disabled={busy || !canDecide || decided || blocked || firstSignatureBlocked}
           >
             Aprobar
           </button>
@@ -974,6 +1027,12 @@ export function ApprovalWindow({
         {blocked ? (
           <p className="tk-note" role="status">
             Hay avisos de riesgo bloqueantes: marque la casilla de los avisos para poder aprobar.
+          </p>
+        ) : null}
+
+        {firstSignatureBlocked ? (
+          <p className="tk-note" role="status">
+            Es su primera firma con esta cartera: marque el acuse del aviso para poder aprobar.
           </p>
         ) : null}
       </main>
@@ -992,6 +1051,16 @@ export function App(): JSX.Element {
   const [gap, setGap] = useState<PopupError | null>(null);
   const [context, setContext] = useState<WindowContext>(EMPTY_CONTEXT);
   const [acknowledged, setAcknowledged] = useState(false);
+  /**
+   * RNF-23 · aviso de la PRIMERA firma. `firstSignature` solo se activa cuando el registro de
+   * actividad se ha leído y NO contiene ninguna firma anterior; mientras la lectura esté en curso o
+   * haya fallado, el valor es `false` y la firma no se bloquea por un fallo de observabilidad (ver
+   * `firstSignature.ts`).
+   */
+  const [firstSignature, setFirstSignature] = useState(false);
+  const [firstSignatureAcknowledged, setFirstSignatureAcknowledged] = useState(false);
+  /** Pantalla «Acerca de» (RNF-23, tarea 6.3), accesible desde la cabecera de la ventana. */
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<PopupError | null>(null);
   const [outcome, setOutcome] = useState<Outcome>('none');
@@ -1014,6 +1083,35 @@ export function App(): JSX.Element {
   useEffect(() => {
     requestRef.current = request;
   }, [request]);
+
+  /**
+   * RNF-23 · ¿es la PRIMERA firma de esta cartera? Se decide con el registro de actividad
+   * (`wallet_getLogs`, lectura interna del catálogo §5.1.1), no leyendo el almacén: la UI tiene
+   * prohibido `chrome.storage` (RNF-14).
+   *
+   * Se vuelve a evaluar con CADA solicitud nueva: la ventana es ÚNICA y se reutiliza (P-21), así que
+   * tras aprobar la primera firma el componente NO se desmonta y el aviso desaparecería por la
+   * cuenta equivocada (quedándose en pantalla). Releyendo el registro, el aviso solo sigue visible si
+   * la cartera no ha firmado todavía de verdad.
+   */
+  const revisarPrimeraFirma = useCallback(async (): Promise<void> => {
+    const firmaPrevia = await readLogSignatures();
+    setFirstSignature(firstSignatureState(firmaPrevia).visible);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const firmaPrevia = await readLogSignatures();
+      if (!active) {
+        return;
+      }
+      setFirstSignature(firstSignatureState(firmaPrevia).visible);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   /** Cancela el cierre diferido: el SW ha entregado la siguiente solicitud. */
   const cancelClose = useCallback((): void => {
@@ -1042,9 +1140,13 @@ export function App(): JSX.Element {
       setDelivery(next);
       setGap(null);
       setAcknowledged(false);
+      // El acuse del aviso de RNF-23 se rearma con cada solicitud y el aviso se reevalúa contra el
+      // registro: solo desaparece cuando hay una firma de verdad, no al aprobar la primera.
+      setFirstSignatureAcknowledged(false);
       setOutcome('none');
       setError(null);
       setPhase('ready');
+      void revisarPrimeraFirma();
     });
     void (async () => {
       const [delivered, snapshot] = await Promise.all([
@@ -1070,7 +1172,7 @@ export function App(): JSX.Element {
       unsubscribe();
       cancelClose();
     };
-  }, [bootstrap.approvalId, cancelClose]);
+  }, [bootstrap.approvalId, cancelClose, revisarPrimeraFirma]);
 
   /**
    * Re-consulta la solicitud pendiente.
@@ -1088,12 +1190,14 @@ export function App(): JSX.Element {
       decidedRef.current = false;
       setDelivery(delivered.delivery);
       setGap(null);
+      setFirstSignatureAcknowledged(false);
       setOutcome('none');
       setError(null);
+      void revisarPrimeraFirma();
       return;
     }
     setGap(delivered.error);
-  }, [bootstrap.approvalId, cancelClose]);
+  }, [bootstrap.approvalId, cancelClose, revisarPrimeraFirma]);
 
   /** El foco de la ventana es la señal de «muestra la siguiente» de M18. */
   useEffect(() => {
@@ -1161,10 +1265,15 @@ export function App(): JSX.Element {
     };
   }, []);
 
-  /** `Escape` = rechazar (§3.1, RNF-05). */
+  /**
+   * `Escape` = rechazar (§3.1, RNF-05).
+   *
+   * Con la pantalla «Acerca de» abierta NO se rechaza: allí `Escape` cierra la pantalla informativa
+   * y el rechazo de la solicitud sería una acción destructiva no pedida por el usuario.
+   */
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !aboutOpen) {
         event.preventDefault();
         void decide(false);
       }
@@ -1179,7 +1288,7 @@ export function App(): JSX.Element {
     return (
       <div className="tk-window tk-notification">
         <header className="tk-header">
-          <h1 className="tk-header__title">TrueKeate Wallet</h1>
+          <h1 className="tk-header__title">{NOMBRE_PRODUCTO}</h1>
           <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
         </header>
         <main className="tk-main tk-empty" aria-busy="true">
@@ -1202,6 +1311,16 @@ export function App(): JSX.Element {
       warnings={warnings}
       acknowledged={acknowledged}
       onAcknowledge={setAcknowledged}
+      firstSignature={firstSignature}
+      firstSignatureAcknowledged={firstSignatureAcknowledged}
+      onFirstSignatureAcknowledge={setFirstSignatureAcknowledged}
+      aboutOpen={aboutOpen}
+      onAboutOpen={() => {
+        setAboutOpen(true);
+      }}
+      onAboutClose={() => {
+        setAboutOpen(false);
+      }}
       busy={busy}
       error={error}
       gap={gap}

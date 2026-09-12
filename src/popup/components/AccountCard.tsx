@@ -11,11 +11,18 @@
  */
 
 import type { JSX } from 'react';
+import { formatAddress } from '../../shared/format';
 import type { AccountRow } from '../walletState';
 
-/** Trunca una dirección al formato canónico de la identidad visual. */
-export const truncateAddress = (address: string): string =>
-  address.length <= 12 ? address : `${address.slice(0, 6)}…${address.slice(-4)}`;
+/**
+ * Trunca una dirección al formato canónico de la identidad visual (`0x1234…abcd`).
+ *
+ * H6 · delega en `formatAddress` (M62): esta tarjeta tenía su propia copia del recorte, de modo que
+ * un cambio de criterio en `src/shared/format.ts` no llegaba al popup. La constante se conserva
+ * porque es la API pública del módulo, pero ya no hay dos implementaciones del mismo formato
+ * (`CA-RT-10`).
+ */
+export const truncateAddress = (address: string): string => formatAddress(address);
 
 /** Props de la tarjeta de cuenta. */
 export interface AccountCardProps {

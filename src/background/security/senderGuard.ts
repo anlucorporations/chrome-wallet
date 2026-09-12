@@ -17,6 +17,8 @@
  *
  * Este módulo no toca la cola ni la ventana: solo decide si el mensaje puede continuar
  * y hacia dónde debe volver la respuesta.
+ *
+ * Requisitos: RF-14 y RF-23 (RNF-09, RNF-10, RNF-12).
  */
 
 import type { Eip1193Error, WalletMethod } from '../../shared/types';

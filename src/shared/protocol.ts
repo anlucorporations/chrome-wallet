@@ -6,6 +6,8 @@
  * Fuente normativa: `documento_tecnico.md` §2.5.1 y `diccionario_datos.md` §4.1 y §4.2.
  * Son **8** tipos de mensaje (ADT-29), no 6: la tabla heredada de nomenclatura omitía
  * `TRUEKEATE_ANNOUNCE` y `RESUME`.
+ *
+ * Requisitos: RF-13, RF-15, RF-24, RF-37 y RF-45 (RNF-10, RT-13).
  */
 
 import type {

@@ -10,6 +10,8 @@
  *   2. «Artefacto dist/» — necesita un `dist/` construido. Si falta `dist/manifest.json`
  *      (porque el build está bloqueado), el grupo se SALTA con el motivo escrito y visible
  *      en la salida de Vitest; nunca se finge ni se borra la aserción.
+ *
+ * Módulo(s) de contrato: M1.
  */
 
 import { existsSync, readFileSync } from 'node:fs';

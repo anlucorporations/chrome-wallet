@@ -194,21 +194,41 @@ function contentAndInjectBuildsPlugin(): Plugin {
 
 /**
  * Bloque `test` de Vitest (§7.5.2). Se exporta para que `vitest.config.ts` lo reutilice y exista
- * una unica fuente de verdad. Umbrales de cobertura de RNF-17 (§7.4): se activan cuando los
- * modulos de H2-H5 existen; en H1 no hay codigo cubrible y fijarlos aqui pondria en rojo
- * `npm run coverage` sin aportar informacion.
+ * una unica fuente de verdad.
+ *
+ * UMBRALES DE COBERTURA (RNF-17, cierre de la tarea 6.8). La metrica es **cobertura de RAMAS**
+ * con `@vitest/coverage-v8`: **70 % global** y **>= 80 %** en los tres ambitos criticos
+ * (`src/background/crypto/`, `src/background/approvals/` y `src/shared/validation/`, H-19).
+ * Se declaran como umbrales de configuracion —y no como una comprobacion manual— para que
+ * `npm run coverage` **falle** si el hito baja del umbral (RNF-17: «el hito no se cierra por
+ * debajo del umbral»). La clave sin glob es el minimo global; cada clave con glob es un minimo
+ * agregado de ese arbol.
+ *
+ * EXCLUSIONES DECLARADAS (H-19): `*.spec.ts` (no es codigo de producto), `src/manifest.ts`
+ * (fuente de datos congelados del manifest, verificada por `manifest.spec.ts` contra el JSON
+ * generado) y los `*.d.ts`. **No** se excluye ningun modulo funcional.
+ *
+ * UNIVERSO DE SPECS: `src/**` (specs junto al modulo, convencion del corpus) **y**
+ * `test/oracle/**` (specs de cobertura adicional que NO viven junto al modulo por una razon de
+ * terreno: H6 cerro la puerta de cobertura de `approvals/**` sin modificar `src/background/**`).
  */
 export const testConfig: NonNullable<UserConfig['test']> = {
   environment: 'jsdom',
   setupFiles: ['./test/setup/chrome-stub.ts'],
-  include: ['src/**/*.spec.ts'],
+  include: ['src/**/*.spec.ts', 'test/oracle/**/*.spec.ts'],
   globals: true,
   coverage: {
     provider: 'v8',
-    reporter: ['text', 'json-summary', 'html'],
+    reporter: ['text', 'json-summary', 'json', 'html'],
     reportsDirectory: './coverage',
     include: ['src/**/*.{ts,tsx}'],
     exclude: ['src/**/*.spec.ts', 'src/manifest.ts', 'src/**/*.d.ts'],
+    thresholds: {
+      branches: 70,
+      'src/background/crypto/**': { branches: 80 },
+      'src/background/approvals/**': { branches: 80 },
+      'src/shared/validation/**': { branches: 80 },
+    },
   },
 };
 

@@ -1,9 +1,13 @@
-// M1 — Fuente unica del manifest MV3 (RT-05 / ADT-01).
-// El manifest NO se escribe a mano en JSON: lo genera el plugin `closeBundle` de vite.config.ts
-// a partir de este modulo, de modo que `dist/manifest.json` y la suite `manifest.spec.ts`
-// consumen exactamente los mismos valores congelados.
-//
-// Referencias: documento_tecnico.md §2.4 (M1), §7.3 (permisos y su justificacion) y §7.5.4.
+/**
+ * M1 — Fuente unica del manifest MV3 (RT-05 / ADT-01).
+ * El manifest NO se escribe a mano en JSON: lo genera el plugin `closeBundle` de vite.config.ts
+ * a partir de este modulo, de modo que `dist/manifest.json` y la suite `manifest.spec.ts`
+ * consumen exactamente los mismos valores congelados.
+ *
+ * Requisitos: RF-13 (declaracion de inyeccion), RF-23 (hosts) y RNF-04 (Chrome/Edge >= 114).
+ *
+ * Referencias: documento_tecnico.md §2.4 (M1), §7.3 (permisos y su justificacion) y §7.5.4.
+ */
 
 import pkg from '../package.json';
 

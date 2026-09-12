@@ -7,6 +7,8 @@
  *   - `request` devuelve SIEMPRE una promesa rechazada con `4200` y NUNCA lanza de forma síncrona
  *     mientras el catálogo de H1 está vacío (tarea 1.12);
  *   - el anuncio EIP-6963 responde con `name`, `rdns` y `uuid` congelados (CA-RT-13).
+ *
+ * Módulo(s) de contrato: M35 y M55.
  */
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';

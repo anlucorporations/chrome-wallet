@@ -6,6 +6,8 @@
  *
  * Motivo (RT-03): el código propio no puede usar `fetch`, y el anuncio EIP-6963 debe ser
  * síncrono; el icono se incrusta en el bundle en tiempo de compilación.
+ *
+ * Módulo(s) de contrato: M35 y M36.
  */
 
 export const PROVIDER_ICON_DATA_URI: string =

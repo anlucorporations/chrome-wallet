@@ -1,0 +1,16 @@
+{
+  "criterio": "CA-RT-10 · textos visibles en español en las cuatro superficies",
+  "ejemplo": "0x1234…abcd",
+  "saldoMostrado": "9998,9999 ETH",
+  "direccionMostrada": "0xf39F…2266",
+  "direccionCompleta": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "filaValor": "Valor1,0000 ETH",
+  "idiomas": {
+    "popup · Cuentas": "es",
+    "popup · Seguridad": "es",
+    "connect.html": "es",
+    "notification.html": "es",
+    "test.html (dApp)": "es"
+  },
+  "hallazgos": []
+}

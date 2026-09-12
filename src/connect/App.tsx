@@ -37,7 +37,9 @@ import type { ConnectResponseMessage } from '../shared/protocol';
 import { DEFAULT_CHAIN_SYMBOL } from '../shared/constants';
 import { formatAddress } from '../shared/format';
 import { ConnectRow } from './ConnectRow';
+import { AboutDialog } from '../popup/components/AboutDialog';
 import { StatusMessage } from '../popup/components/StatusMessage';
+import { ACERCA_DE_BOTON, NOMBRE_PRODUCTO } from '../shared/i18n';
 import {
   balanceStatusLabel,
   useBalancePolling,
@@ -189,6 +191,8 @@ export function App(): JSX.Element {
   const [selectedRef, setSelectedRef] = useState<AccountRef | null>(null);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>('none');
+  /** Pantalla «Acerca de» (RNF-23, tarea 6.3), accesible desde la cabecera de esta ventana. */
+  const [aboutOpen, setAboutOpen] = useState(false);
   /** Arranque de la URL de M18: solo aporta el `requestId` con el que pedir la solicitud. */
   const bootstrap = useMemo(() => readConnectRequest(window.location.search), []);
 
@@ -351,7 +355,9 @@ export function App(): JSX.Element {
 
   useEffect(() => {
     const onKeyDown = (event: globalThis.KeyboardEvent): void => {
-      if (event.key === 'Escape') {
+      // RNF-23: con la pantalla «Acerca de» abierta, `Escape` la cierra y NO rechaza la conexión
+      // (rechazar es una acción irreversible para la dApp y no puede dispararla un cierre de aviso).
+      if (event.key === 'Escape' && !aboutOpen) {
         event.preventDefault();
         void handleCancel();
       }
@@ -366,13 +372,32 @@ export function App(): JSX.Element {
     <div className="tk-window tk-connect">
       <header className="tk-header">
         <div className="tk-connect__heading">
-          <h1 className="tk-header__title">TrueKeate Wallet</h1>
+          <h1 className="tk-header__title">{NOMBRE_PRODUCTO}</h1>
           <span className="tk-header__subtitle">
             {request?.origin ?? bootstrap?.origin ?? 'Origen pendiente de contrato'}
           </span>
         </div>
+        <div className="tk-header__actions">
+          <button
+            type="button"
+            className="tk-btn-ghost tk-btn-small"
+            onClick={() => {
+              setAboutOpen(true);
+            }}
+          >
+            {ACERCA_DE_BOTON}
+          </button>
+        </div>
         <img className="tk-header__mark" src={MARK_SRC} alt="" aria-hidden="true" />
       </header>
+
+      {aboutOpen ? (
+        <AboutDialog
+          onClose={() => {
+            setAboutOpen(false);
+          }}
+        />
+      ) : null}
 
       <main className="tk-main">
         <section className="tk-section" aria-labelledby="tk-connect-origen">

@@ -20,6 +20,8 @@
  *
  * La DECISIÓN es una función PURA (`consumeRateWindow`) y la persistencia está inyectada: las
  * pruebas fijan el reloj y observan la ventana sin depender de `chrome.storage`.
+ *
+ * Requisitos: RF-28 (RNF-16).
  */
 
 import type { RateWindow, RateWindowsByOrigin } from '../../shared/types';

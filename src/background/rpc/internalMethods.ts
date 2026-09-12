@@ -18,6 +18,8 @@
  * consumidores históricos siguen encontrándola en el catálogo (M4) sin duplicar la declaración.
  *
  * `eth_sign` NO está ni estará en la lista (DEC-22 / H-11a): responde `4200`.
+ *
+ * Requisitos: RF-14 y RF-45 (RNF-10).
  */
 
 import type { InternalMethod } from '../../shared/types';

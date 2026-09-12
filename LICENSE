@@ -1,0 +1,49 @@
+MIT License
+
+Copyright (c) 2026 ANLU corporations
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Alcance de esta licencia
+========================
+
+Esta licencia cubre el codigo fuente de TrueKeate Wallet y los ficheros de
+configuracion, pruebas y documentacion del repositorio, cuyo titular es
+ANLU corporations.
+
+Quedan FUERA de esta licencia, y se rigen por sus propias condiciones:
+
+1. Los activos de marca TrueKeate (carpeta `TrueKeate/` y copias en
+   `public/brand/` y `public/icons/`), cedidos al proyecto por su titular
+   para este uso (decision DEC-15 de `RepoTecnico/estado_proyecto.md`).
+2. Las tipografias auto-hospedadas de `public/fonts/` (Poppins, Inter y
+   JetBrains Mono), distribuidas bajo SIL Open Font License 1.1; sus textos
+   completos acompanan a cada fichero como `LICENSE-poppins.txt`,
+   `LICENSE-inter.txt` y `LICENSE-jetbrains-mono.txt`.
+3. Las dependencias de terceros (npm y Foundry), con sus licencias
+   enumeradas en `NOTICE`.
+
+Aviso de uso
+============
+
+TrueKeate Wallet es una cartera de DESARROLLO para una red local de pruebas:
+funciona sin contrasena y no cifra el almacen local de la extension. No debe
+usarse con fondos reales ni con frases semilla que protejan valor real.

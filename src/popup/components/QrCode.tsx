@@ -40,7 +40,12 @@ export function QrCode({ value, label, size = 168 }: QrCodeProps): JSX.Element {
   const columns = `repeat(${moduleCount}, 1fr)`;
 
   return (
-    <figure className="tk-qr" role="img" aria-label={`${label}: ${value}`}>
+    /*
+     * H6 · accesibilidad: `role="img"` NO es un rol admitido en `<figure>` (axe-core lo marca con
+     * `aria-allowed-role`, RNF-21), así que el QR se declara como lo que es: una `<figure>` con su
+     * `figcaption` visible y el valor de la dirección en el nombre accesible del propio QR.
+     */
+    <figure className="tk-qr" aria-label={`${label}: ${value}`}>
       <div
         className="tk-qr__grid"
         style={{ width: `${size}px`, height: `${size}px`, gridTemplateColumns: columns }}

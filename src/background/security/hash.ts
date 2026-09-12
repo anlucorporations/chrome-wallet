@@ -18,6 +18,8 @@
  *
  * Este módulo debe importarse ANTES de usar `sha256`; basta con que lo importe cualquier módulo que
  * lo invoque (`security/redaction.ts` y `crypto/mnemonic.ts` lo hacen).
+ *
+ * Requisitos: RT-02 (RNF-22).
  */
 
 import { sha256 } from 'ethers';
