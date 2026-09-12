@@ -389,6 +389,15 @@ export interface ShowOldestOptions {
   storage?: StorageLocalLike | null;
   windows?: WindowsApiLike | null;
   getUrl?: (path: string) => string;
+  /**
+   * **Re-entrega del cuerpo** (cierre de la carrera de D-H4-E10): cuando la pasada encuentra la
+   * MISMA solicitud ya mostrada, vuelve a empujarle el cuerpo a la ventana. Hace falta porque la
+   * respuesta de `SIGN_RESPONSE` puede llegar a la ventana DESPUÉS del empuje de la siguiente
+   * solicitud y dejar su vista marcada como resuelta (botón deshabilitado) aunque el cuerpo sea el
+   * correcto; una segunda entrega idempotente la rehabilita. Sin esta opción el comportamiento es
+   * el de siempre (`unchanged` sin tocar la ventana).
+   */
+  repush?: boolean;
 }
 
 /**
@@ -574,12 +583,20 @@ const runShowOldestPending = async (options: ShowOldestOptions): Promise<FocusOu
     };
   }
 
+  // Pasada de RE-ENTREGA (`repush`, ver {@link ShowOldestOptions}): la ventana ya mostraba esta
+  // solicitud, pero la respuesta de la decisión puede haber llegado después del empuje y haber
+  // dejado su vista marcada como resuelta. Se le vuelve a entregar el cuerpo: es idempotente y la
+  // ventana lo usa para rearmar la vista de la solicitud que sigue `pending`.
+  if (options.repush === true) {
+    await pushApprovalRequest(candidate, { pendingCount: pending, tabId: existing.tabId });
+  }
+
   return {
     action: 'unchanged',
     windowId: existing.windowId,
     shownApprovalId: state.shownApprovalId,
     pendingCount: pending,
-    reason: 'ya-mostraba-la-misma',
+    reason: options.repush === true ? 're-entrega-del-cuerpo' : 'ya-mostraba-la-misma',
   };
 };
 

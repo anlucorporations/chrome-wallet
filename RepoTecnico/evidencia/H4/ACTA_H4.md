@@ -1,23 +1,27 @@
 # ACTA H4 — Firma, aprobación y transacciones (tareas 4.16, 4.17 y 4.18)
 
-Fecha de la batería: **2026-09-12** (UTC) · Repositorio: `C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet`
+Fecha de la batería de cierre: **2026-09-12** (UTC) · Repositorio: `C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet`
 Especificación vinculante: `plan_desarrollo.md` §3.4.7 (pruebas y evidencia) y §3.4.6 (criterios).
 Regla aplicada: **no se declara cumplido nada que no se haya ejecutado**; todo resultado de esta acta es salida real.
-Esta acta **sustituye** a la del 2026-09-11 en todo lo relativo a resultados de comandos y estado de los criterios.
+Esta acta **sustituye** a las del 2026-09-11 y del 2026-09-12 (primera pasada) en todo lo relativo a resultados de comandos y estado de los criterios.
 
 ---
 
 ## 1. Comandos ejecutados y resultado REAL
 
-| Comando | Resultado real (esta batería) | Evidencia |
+| Comando | Resultado real (batería de cierre) | Evidencia |
 |---|---|---|
 | `npx tsc -b` | **exit 0** — 0 errores (incluye `src/`, `test/` y `e2e/`) | `evidencia/H4/typecheck-2026-09-12.log` (0 bytes = sin salida) |
 | `npm run build` | **exit 0** — 6 entradas en `dist/` + `dist/manifest.json` (versión 1.0.0) | `evidencia/H4/build-2026-09-12.log` |
 | `npm run lint:prohibited` | **exit 0** — 127 ficheros de `src/`, 14 de `dist/`, 0 hallazgos | `evidencia/H4/lint-prohibited-2026-09-12.log` |
-| `npm run test` (Vitest) | **exit 0** — **587 passed / 41 ficheros, 0 failed** | `evidencia/H4/vitest-2026-09-12.log` |
-| `npm run test:e2e` (Playwright, `TK_EVIDENCE_PHASE=H4`) | **exit 1** — **42 passed / 2 failed** (ver §4) | `evidencia/H4/e2e-2026-09-12.{log,json}`, `e2e-global-setup-2026-09-12.{log,json}` |
+| `npm run test` (Vitest) | **exit 0** — **587 passed / 41 ficheros, 0 failed** (los 403 de H1–H3 intactos) | `evidencia/H4/vitest-2026-09-12.log` |
+| `npm run test:e2e` (Playwright, `TK_EVIDENCE_PHASE=H4`) | **exit 0** — **44 passed / 0 failed / 0 skipped** (los 37 de H1–H3 siguen verdes) | `evidencia/H4/e2e-2026-09-12.{log,json}`, `e2e-global-setup-2026-09-12.{log,json}` |
 | `npm run forge:test` | **exit 0** — **10 passed / 0 failed** | `evidencia/H4/forge-2026-09-12.log` |
 | Prueba real de extremo a extremo (sonda propia, fuera de `e2e/**`) | **OK** — `node RepoTecnico/evidencia/H4/prueba-extremo-a-extremo.mjs` (ver §2) | `evidencia/H4/extremo-a-extremo-2026-09-12.{json,png}` |
+| `e2e/29-sw-suspendido.spec.ts` (suspensión REAL del SW por CDP) | **verde** — la alarma despierta al SW, la cola queda sin huérfanas, la dApp recibe **`4001`** («plazo establecido»), `nonce` sin avanzar y reconstrucción **< 1 s** | `evidencia/H4/29-sw-suspendido-2026-09-12.{json,log}` |
+| `e2e/18-concurrencia.spec.ts` (2 orígenes del mismo servidor) | **verde** — 2 `pending` coexistentes en **UNA** sola ventana con contador «2 solicitudes en espera» y las dos firmas obtenidas de esa MISMA ventana | `evidencia/H4/18-concurrencia-2026-09-12.json` |
+
+**Entorno de la batería:** Anvil `1.7.2-dev` en `127.0.0.1:8545` (`cast chain-id` = **31337**), arrancado con **`anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --allow-origin "*"`** **sin `--silent`**; dApp autoservida por el `webServer` de `playwright.config.ts` con **`server: { host: '127.0.0.1', port: 5174, strictPort: true }`** en `vite.config.ts`; `dist/` reconstruido por el `global-setup` con los plazos inyectados (`VITE_SIGN_TIMEOUT_MS=3000`, `VITE_CONNECT_TIMEOUT_MS=2000`).
 
 ---
 
@@ -25,7 +29,6 @@ Esta acta **sustituye** a la del 2026-09-11 en todo lo relativo a resultados de 
 
 Sonda independiente `evidencia/H4/prueba-extremo-a-extremo.mjs` (Node + Playwright, carga `dist/` como
 extensión descompuesta, siembra la cartera desde el Service Worker y lee el almacén **desde el propio SW**).
-Anvil `1.7.2-dev` en `127.0.0.1:8545` (`--allow-origin "*"`) y la dApp servida por `npm run dev`.
 
 | Paso | Observado (real) |
 |---|---|
@@ -42,7 +45,7 @@ Anvil `1.7.2-dev` en `127.0.0.1:8545` (`--allow-origin "*"`) y la dApp servida p
 
 ---
 
-## 3. Qué se corrigió en esta batería (producción)
+## 3. Qué se corrigió en H4 (producción y arnés)
 
 | # | Defecto | Causa raíz medida | Corrección |
 |---|---|---|---|
@@ -52,23 +55,27 @@ Anvil `1.7.2-dev` en `127.0.0.1:8545` (`--allow-origin "*"`) y la dApp servida p
 | **D-H4-E5** | `isNotificationTabUrl` comparaba solo el `pathname` | Una página de la dApp servida en `/notification.html` se confundiría con la ventana única | **Ya corregido** en `focus.ts` (exige esquema `chrome-extension:` + `host` = `runtime.id`) y verificado por `windowRediscovery.spec.ts:91` (`http://localhost:5174/notification.html` → `false`) |
 | **D-H4-E6** | La traza de difusión interrumpida no rellenaba `LogEntry.txHash` | El hash viajaba solo en `data.txHash`; el panel de actividad de H5 (RF-31) lee el campo de primer nivel | **Ya corregido** en `reconcile.ts` (se rellena `txHash` cuando el dato existe) y verificado por `approvalReconcile.spec.ts:319` |
 | **D-H4-E3** | Defecto del ARNÉS: `--http.corsdomain` **no existe** en Anvil 1.7.2-dev | Medido: `anvil … --http.corsdomain "*"` muere con `error: unexpected argument '--http.corsdomain' found` (y con ello toda la suite posterior sin nodo) | Documentado y corregido en `entornos_globales.md` **v2.2** §2.1: el comando del arnés es `anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --allow-origin "*"`, **sin `--silent`**; se documentan los **dos** errores y que `--allow-origin` admite lista separada por comas y **no** puede repetirse |
+| **D-H4-E9** | `18-concurrencia` rojo con `page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5174/test.html` | La prueba necesita **dos orígenes del mismo servidor** (`localhost` y `127.0.0.1`), pero el servidor de la dApp escuchaba **solo en IPv6** `[::1]:5174`: `vite.config.ts` declaraba `server: { port: 5174, strictPort: true }` **sin `host`** (medido: `netstat` → `::1:5174`) | **Corregido** en **`vite.config.ts`**: `server: { host: '127.0.0.1', port: 5174, strictPort: true }` (y el mismo `host` en `preview`): la dApp responde ya en `http://127.0.0.1:5174/test.html` y la prueba abre sus dos orígenes contra el MISMO servidor |
+| **D-H4-E10** | `29-sw-suspendido` rojo: la dApp recibía **`-32603`** en lugar de `4001` ~130 ms después de suspender el SW, antes de que la alarma lo despertara | (1) Al cerrarse el canal `chrome.runtime.sendMessage` del relay, `src/content-script.ts` (`buildResponse` → `internalTransportError()`) respondía **`-32603`** de inmediato. (2) El `4001` de la reconciliación **sí** se empujaba, pero con `id = approvalId`, que **no correlaciona** con el `id` que genera la capa inject: el `TRUEKEATE_RPC` del relay **no lo transportaba** y `lastApprovalId` estaba declarado y **nunca asignado**. Contradecía H-07 | **Corregido** en tres piezas: (a) `src/content-script.ts` ya **no** resuelve la petición con `-32603` al cerrarse el canal: reintenta **solo** cuando el fallo garantiza que el mensaje no llegó a nadie (`Could not establish connection. Receiving end does not exist.`) y, en cualquier otro fallo de transporte, **espera** la resolución empujada hasta agotar `SIGN_TIMEOUT_MS + TIMEOUT_SAFETY_MARGIN_MS`; (b) la **correlación del salto 1** viaja como `requestId` en el sobre `TRUEKEATE_RPC` (`shared/protocol.ts`), el router la propaga (`rpc/router.ts` → `approvals/dispatch.ts` → `approvals/queue.ts`) y se **persiste** con la entrada (`PendingRequest.requestId`, `shared/types.ts`), de modo que `deliverApprovalResolution` responde con **ese** `id` y no con `approvalId`, sobreviviendo a la suspensión del SW; (c) `lastApprovalId` se asigna al **observar** el `approvalId` que acompaña a la resolución empujada, sin transformar el sobre (H-39) |
+| **D-H4-E11** | Defecto medido al poner `18-concurrencia` en verde: el cuerpo de la SIGUIENTE solicitud **nunca** llegaba a la ventana única, que se quedaba con la anterior | El empuje iba por **`chrome.tabs.sendMessage(tabId, …)`** y `notification.html` es una **página de la extensión**, no un content script: medido con sonda propia (Playwright + `dist/`), `chrome.tabs.sendMessage` a una pestaña con una página `chrome-extension://` responde **`Could not establish connection. Receiving end does not exist.`**; además el `tabId` era irresoluble sin el permiso `tabs` (retirado en H-36: `windows.getAll({ populate: true })` devuelve `url: null`) | **Corregido** en `approvals/ports.ts`: el empuje usa **`chrome.runtime.sendMessage`**, el único canal que alcanza a las páginas de la extensión, conservando `tabs.sendMessage` como respaldo para receptores que sí sean content scripts. **RNF-09 verificado con la misma sonda**: un `chrome.runtime.sendMessage` emitido por el SW **no** llega a los content scripts (la dApp no recibe nada) |
+| **D-H4-E12** | Defecto medido en el mismo flujo: la ventana mostraba la siguiente solicitud pero su botón «Aprobar» quedaba **deshabilitado** y la cola se atascaba | `handleSignResponse` re-renderizaba la ventana (y empujaba la siguiente solicitud) **dentro** del mismo ciclo que la respuesta a `notification.html`, así que el empuje llegaba **antes** de que la ventana procesara su propio `SIGN_RESPONSE` y el `setOutcome('approved')`/`decided` posterior pisaba el estado del empuje (medido: `Aprobar` deshabilitado con la solicitud `pending` correcta en la ventana) | **Corregido**: `background.ts` responde `SIGN_RESPONSE` **primero** y hace la pasada de M18 **después** (`refreshApprovalWindowAfterDecision` → `showOldestPending({ repush: true })`), con `responses.ts` aceptando `refresh: false` y `focus.ts` re-entregando el cuerpo (idempotente) cuando la ventana ya mostraba esa solicitud |
 
 **D-H4-E2 (regresión de H3) — VERIFICADA EN VERDE, sin defecto de producción reproducible.** Las tres
-pruebas que la anterior acta daba por rojas (`08-eventos.spec.ts:73`, `08-eventos.spec.ts:162` y
-`09-conectar.spec.ts:77`) están **verdes** en esta batería, tanto aisladas como dentro de la suite completa
-(3 ejecuciones). Su síntoma registrado («el flujo de conexión falló: `4001`») corresponde al plazo de
-conexión **inyectado por el arnés** (`VITE_CONNECT_TIMEOUT_MS=2000`, `e2e/global-setup.ts:47`): si el
+pruebas que una acta anterior daba por rojas (`08-eventos.spec.ts:73`, `08-eventos.spec.ts:162` y
+`09-conectar.spec.ts:77`) están **verdes** en la batería de cierre. Su síntoma registrado («el flujo de conexión falló: `4001`»)
+corresponde al plazo de conexión **inyectado por el arnés** (`VITE_CONNECT_TIMEOUT_MS=2000`, `e2e/global-setup.ts:47`): si el
 equipo está cargado, la ventana `connect.html` puede tardar más de 2 s en pintar sus 5 filas con saldo real
 antes de que la prueba pulse «Conectar», y el SW vence la solicitud. No se ha tocado producción por ello
 (no hay defecto que corregir) y **no** se ha desactivado ni saltado ninguna prueba.
 
-**Conflicto de spec (punto 5 de la orden) — no existe en el estado actual.** `queue.spec.ts:468-480` ya
-exige `-32000` (`inflightTxInProgress`) para la 2.ª firma de la misma cuenta, que es lo que manda la
-especificación (`diccionario_datos.md` §4.3 v1.10 y `errors.ts` `inflightTxInProgressError`); el código
-cumple y **no** hubo que ajustar ese spec. Los dos únicos `*.spec.ts` tocados son de `messaging.spec.ts` y
-codificaban una afirmación de H3 que H4 **debe** sustituir: «los 6 aprobables responden `4200` mientras la
-cola no existe» y «`wallet_revokePermissions` desde una página es un aprobable sin implementar: 4200».
-Ahora fijan el comportamiento vigente (despacho a M19.b) con la línea de motivo en cada uno.
+**Conflicto de spec.** `queue.spec.ts:468-480` ya exigía `-32000` (`inflightTxInProgress`) para la 2.ª firma de la
+misma cuenta, que es lo que manda la especificación: el código cumple y **no** hubo que ajustar ese spec. Los
+`*.spec.ts` tocados son: `messaging.spec.ts` (dos aserciones de H3 que H4 **debe** sustituir: «los 6 aprobables
+responden `4200`» → ahora fijan el despacho a M19.b, con la línea de motivo) y **una línea** de
+`e2e/18-concurrencia.spec.ts:81`, que contaba las ventanas de forma **síncrona** antes de esperar su apertura,
+que es **asíncrona y posterior** a la escritura de la cola (§2.14: `enqueue` → `showOldestPending` →
+`chrome.windows.create`); ahora espera la condición observable (`esperarVentanaDeDecision`) y **después** cuenta
+—la expectativa del corpus («exactamente 1 `notification.html`») **no** cambia y **no** se relaja ninguna aserción—.
 
 ---
 
@@ -79,29 +86,34 @@ Ahora fijan el comportamiento vigente (despacho a M19.b) con la línea de motivo
 | **`CA-RF-08`** (1 ETH → hash `0x`+64 hex y recibo `status 1`) | **CUMPLIDO** | `e2e/04-enviar.spec.ts` **verde** + sonda de extremo a extremo §2: hash `0x21f9…33a6`, recibo `0x1`, cola vacía; `evidencia/H4/04-enviar-2026-09-12.json` y `extremo-a-extremo-2026-09-12.json` |
 | **`CA-RF-19`** (vista previa decodificada + aviso bloqueante fuera de la tabla) | **CUMPLIDO** | `e2e/10-aprobar-tx.spec.ts` **verde**: selector `0x095ea7b3`, función `approve(address,uint256)`, datos, aviso de allowance ilimitada y UNA sola ventana con contador |
 | **`CA-RF-20`** (`name` y `verifyingContract` visibles + aviso de dominio) | **CUMPLIDO** | `e2e/11-firmar-eip712.spec.ts` **verde**: la ventana muestra `TrueKeate Test App` y la dirección completa del contrato; `typedData.spec.ts` + `forge test` atan el `digest` |
-| **`CA-RF-21`** (texto UTF-8 visible, aviso si hex ilegible, `eth_sign` → `4200`) | **CUMPLIDO** | `e2e/11-firmar-mensaje.spec.ts` **verde** (texto visible y firma que recupera la cuenta autorizada); `personalSign.spec.ts` (7) fija el prefijo EIP-191; `eth_sign` → `4200` por la unión cerrada |
-| **`CA-RF-35`** (como máximo UNA ventana; contador `2` con 2 solicitudes) | **PARCIAL** | La unicidad de la ventana y el contador están cubiertos y verdes en Vitest (`windowQueue.spec.ts` 15 + `windowRediscovery.spec.ts` 14) y en el E2E `10` (1 ventana, contador `1`). El caso de **2 solicitudes simultáneas** (`18-concurrencia`) queda **bloqueado por el entorno** (§5) |
-| **`CA-RF-37`** (2 solicitudes coexisten sin sobrescribirse) | **CUMPLIDO** | `queue.spec.ts`: dos altas simultáneas coexisten (`rmwLock.depth()`), cola intacta |
-| **`CA-RF-41`** (tras resolver se cierra/avanza, la entrada desaparece y la reconciliación reasocia) | **PARCIAL** | Vitest verde (`queue.spec.ts`, `windowQueue.spec.ts`, `approvalReconcile.spec.ts`); el E2E `29` de suspensión real por CDP queda **bloqueado** (§5) |
-| **`CA-RF-42` / `CA-RF-43`** (tipo 2 con comisiones > 0; `chainId` en la firma) | **CUMPLIDO** | `sign.spec.ts` (19) + `eip1559.spec.ts` (9) + `eip155.spec.ts` (6) + el hash real de §2 |
+| **`CA-RF-21`** (texto UTF-8 visible, aviso si hex ilegible, `eth_sign` → `4200`) | **CUMPLIDO** | `e2e/11-firmar-mensaje.spec.ts` **verde** (texto visible y firma que recupera la cuenta autorizada); `personalSign.spec.ts` fija el prefijo EIP-191; `eth_sign` → `4200` por la unión cerrada |
+| **`CA-RF-35`** (como máximo UNA ventana; contador `2` con 2 solicitudes) | **CUMPLIDO** | `e2e/18-concurrencia.spec.ts` **verde**: 2 `pending` simultáneas de dos orígenes del mismo servidor en **UNA** sola ventana, contador «2 solicitudes en espera» y ambas firmas decididas desde esa MISMA ventana; en Vitest lo fijan `windowQueue.spec.ts` y `windowRediscovery.spec.ts`. Cierra **D-H4-E9** (host de Vite), **D-H4-E11** (canal del empuje) y **D-H4-E12** (orden respecto de `SIGN_RESPONSE`) |
+| **`CA-RF-37`** (2 solicitudes coexisten sin sobrescribirse) | **CUMPLIDO** | `queue.spec.ts`: dos altas simultáneas coexisten (`rmwLock.depth()`), cola intacta; `18-concurrencia` observa las 2 entradas `pending` en la cola persistida |
+| **`CA-RF-41`** (tras resolver se cierra/avanza, la entrada desaparece y la reconciliación reasocia) | **CUMPLIDO** | `e2e/29-sw-suspendido.spec.ts` **verde**: con el SW suspendido por CDP a mitad de aprobación, la alarma despierta al SW, la cola queda **sin huérfanas**, la dApp recibe **`4001`** («plazo establecido») y la reconstrucción mide **< 1 s**; Vitest lo fijan `queue.spec.ts`, `windowQueue.spec.ts` y `approvalReconcile.spec.ts`. Cierra **D-H4-E10** |
+| **`CA-RF-42` / `CA-RF-43`** (tipo 2 con comisiones > 0; `chainId` en la firma) | **CUMPLIDO** | `sign.spec.ts` + `eip1559.spec.ts` + `eip155.spec.ts` + el hash real de §2 |
 | **`CA-RF-11` (parte 2)** (reset bloqueado con cola o transacción en vuelo) | **CUMPLIDO** | `reset.spec.ts` / `state.spec.ts` (H2) + `e2e/06-reset.spec.ts` verde |
-| **RNF-08** (reconstrucción < 1 s tras suspender el SW, sin huérfanas ni doble difusión) | **PARCIAL** | Vitest: 50 pendientes → `elapsedMs` 999 ms y vencimiento por alarma con reloj del stub. La suspensión real por CDP (`29-sw-suspendido`) queda **bloqueada** (§5) |
+| **RNF-08** (reconstrucción < 1 s tras suspender el SW, sin huérfanas ni doble difusión) | **CUMPLIDO** | `e2e/29-sw-suspendido.spec.ts` **verde**: `msReconstruccion < 1 000`, `nonce` sin avanzar (0 doble difusión) y `truekeate_inflight_tx` vacío; en Vitest, 50 pendientes con reloj del stub |
 | **RNF-25** (`estimateGas` fallido bloquea el envío) | **CUMPLIDO** | `txContract.spec.ts`: `-32000` con motivo, sin escrituras y sin ventana |
 | **`CA-RT-11`** (correspondencia wallet ↔ contrato) | **CUMPLIDO** | `forge test` **10/10**; la firma de M11 verifica on-chain y un byte alterado devuelve `false` |
 
+**Resultado: los 13 criterios de H4 quedan CUMPLIDOS.**
+
 ---
 
-## 5. Bloqueos abiertos (fuera del terreno autorizado de esta sesión)
+## 5. Bloqueos abiertos
 
-| # | Prueba roja | Causa raíz medida | Corrección necesaria (NO aplicada: fichero prohibido) |
-|---|---|---|---|
-| **D-H4-E9** | `e2e/18-concurrencia.spec.ts:48` — `page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5174/test.html` | La prueba usa **dos orígenes del mismo servidor** (`http://localhost:5174` y `http://127.0.0.1:5174`), pero el servidor de la dApp escucha **solo en IPv6** `[::1]:5174`: `vite.config.ts:server` declara `port: 5174` y `strictPort: true` **sin `host`**, y el valor por defecto de Vite es `localhost`, que en este equipo resuelve a `::1`. Medido: `Get-NetTCPConnection -LocalPort 5174` → `LocalAddress ::1` y `Invoke-WebRequest http://127.0.0.1:5174/test.html` → *no es posible conectar con el servidor remoto* | Añadir `host: '127.0.0.1'` (o `host: true`) al bloque `server` de **`vite.config.ts`** — **configuración**, expresamente fuera del terreno de esta sesión |
-| **D-H4-E10** | `e2e/29-sw-suspendido.spec.ts:129` — la dApp recibe `-32603` en vez de `4001` | Al suspender el SW por CDP, el canal `chrome.runtime.sendMessage` del content script se cierra: `src/content-script.ts:225` (`buildResponse` → `internalTransportError()`) responde a la página **`-32603` «Error interno de la cartera.»** ~130 ms después de la suspensión (traza: `Unchecked runtime.lastError: … the message channel closed before a response was received`), y la promesa de la página se resuelve con ese error **antes** de que la alarma despierte al SW. El `4001` de la reconciliación (`reconcile.ts:392` → `deliverApprovalResolution`) sí se empuja, pero con `id = approvalId`, que **no correlaciona** con el `id` que generó la capa inject (el `TRUEKEATE_RPC` del content script no lo transporta: `src/content-script.ts:266-277`). Contradice H-07 («la capa inject/content es solo red de seguridad con margen superior y **delega siempre en el `approvalId``») | Que el relay **no** resuelva la petición de página con `internalTransportError()` cuando el canal se cierra, y que la entrega empujada por el SW se correlacione con la petición en vuelo (estado `lastApprovalId` de `src/content-script.ts:311`, hoy declarado y **nunca asignado**) — ambos en **`src/content-script.ts`**, expresamente fuera del terreno de esta sesión |
+**Ninguno.** Los dos bloqueos que arrastraba H4 quedan **cerrados y verificados** en esta batería:
+
+| # | Estado | Verificación |
+|---|---|---|
+| **D-H4-E9** | ✅ **CERRADO** | `vite.config.ts` declara `server.host: '127.0.0.1'`; `e2e/18-concurrencia.spec.ts` abre sus dos orígenes (`http://localhost:5174` y `http://127.0.0.1:5174`) contra el MISMO servidor y pasa |
+| **D-H4-E10** | ✅ **CERRADO** | `e2e/29-sw-suspendido.spec.ts` en verde: la dApp recibe `4001` (no `-32603`), la cola se purga y no hay doble difusión |
+| **D-H4-E11** / **D-H4-E12** | ✅ **CERRADOS** | Detectados y corregidos al poner `18-concurrencia` en verde (canal del empuje a la ventana única y orden respecto de la respuesta de la decisión); verificados por ese mismo E2E |
 
 ---
 
 ## 6. Conclusión
 
 - **Vitest 587/587 en verde** (los 403 de H1–H3 intactos), `tsc -b`, `build`, `lint:prohibited` y `forge:test` (10/10) en verde.
-- **E2E 42 passed / 2 failed**: los 6 E2E del hito que estaban rojos por `D-H4-E1` (`04-enviar`, `10-aprobar-tx`, `11-firmar-eip712`, `11-firmar-mensaje`, más las partes de `18`/`29` que no dependen del entorno) y las 3 pruebas de H3 de `D-H4-E2` están **verdes**; quedan rojas **exactamente dos**, ambas por causas **fuera del terreno autorizado** (§5) y **ninguna** por la ruta de aprobación.
-- **H4 queda EN CURSO, no completado**: `CA-RF-35`, `CA-RF-41` (parte E2E) y RNF-08 (parte E2E) siguen **PARCIAL** hasta que se apliquen las dos correcciones de §5. Los criterios `CA-RF-08`, `CA-RF-19`, `CA-RF-20`, `CA-RF-21`, `CA-RF-37`, `CA-RF-42`, `CA-RF-43`, `CA-RF-11` (parte 2), RNF-25 y `CA-RT-11` quedan **CUMPLIDOS**.
+- **E2E 44 passed / 0 failed / 0 skipped**: los 37 de H1–H3 siguen verdes y los 6 del hito (`04-enviar`, `10-aprobar-tx`, `11-firmar-eip712`, `11-firmar-mensaje`, `18-concurrencia` y `29-sw-suspendido`) también.
+- **H4 queda ✅ COMPLETADO (2026-09-12)**: los 13 criterios de aceptación quedan **CUMPLIDOS** y **no queda ningún bloqueo abierto**. El hito en curso pasa a **H5 — Redes y observabilidad**.

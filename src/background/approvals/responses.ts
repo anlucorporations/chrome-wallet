@@ -65,6 +65,16 @@ const isEip1193Error = (value: unknown): value is Eip1193Error =>
 export interface SignResponseOptions {
   now?: number;
   storage?: StorageLocalLike | null;
+  /**
+   * Re-renderizar la ventana única con la siguiente `pending` al terminar (por defecto sí).
+   *
+   * El llamador de PRODUCCIÓN lo desactiva y hace esa pasada **después** de responder
+   * `SIGN_RESPONSE` (`background.ts`): el empuje del cuerpo al re-renderizar compite con la
+   * respuesta de la decisión, y si la ventana recibe la respuesta después del empuje se queda con
+   * la vista marcada como resuelta (botón «Aprobar» deshabilitado) aunque el cuerpo sea el de la
+   * siguiente solicitud. Responder primero y re-empujar después cierra esa carrera (D-H4-E10).
+   */
+  refresh?: boolean;
 }
 
 /**
@@ -172,12 +182,16 @@ export const handleSignResponse = async (
     return null;
   });
 
-  // 3. La MISMA ventana pasa a la siguiente `pending` o se cierra (M18).
+  // 3. La MISMA ventana pasa a la siguiente `pending` o se cierra (M18). El llamador de producción
+  //    lo difiere a DESPUÉS de responder al emisor (`refresh: false`) para no correr por delante de
+  //    la respuesta de la decisión; ver {@link SignResponseOptions.refresh}.
   let refresh: FocusOutcome | null = null;
-  try {
-    refresh = await showOldestPending({ now, storage });
-  } catch (error) {
-    console.warn('[truekeate] no se pudo re-renderizar la ventana única', error);
+  if (options.refresh !== false) {
+    try {
+      refresh = await showOldestPending({ now, storage });
+    } catch (error) {
+      console.warn('[truekeate] no se pudo re-renderizar la ventana única', error);
+    }
   }
 
   return {

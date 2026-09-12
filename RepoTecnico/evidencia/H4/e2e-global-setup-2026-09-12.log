@@ -27,8 +27,8 @@ dist/connect.js                              7.78 kB │ gzip:   3.07 kB │ map
 dist/notification.js                        27.60 kB │ gzip:   7.95 kB │ map:   101.35 kB
 dist/index.js                               42.64 kB │ gzip:  13.44 kB │ map:   187.80 kB
 dist/chunks/base-B0OlKNiW.js               230.67 kB │ gzip:  72.40 kB │ map: 1,093.17 kB
-dist/background.js                         446.27 kB │ gzip: 161.38 kB │ map: 2,204.64 kB
-✓ built in 3.88s
+dist/background.js                         447.44 kB │ gzip: 161.68 kB │ map: 2,216.46 kB
+✓ built in 4.42s
 [manifest] dist/manifest.json generado (version 1.0.0).
 
 ## Artefacto

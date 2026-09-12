@@ -27,9 +27,11 @@
  *    frame EXACTO (D-J/ADT-07); (3) sin destinatario → la solicitud se marca y se registra, nunca
  *    se resuelve «en el vacío».
  * 5. `portsByApprovalId` es estado VOLÁTIL admisible: solo índice de transporte, reconstruible.
- * 6. **El cuerpo de la solicitud NO se difunde**: el empuje va a la pestaña de la PROPIA ventana
- *    única (`chrome.tabs.sendMessage`), nunca por `chrome.runtime.sendMessage`, que alcanzaría a
- *    todos los content scripts y filtraría la solicitud a las dApp (RNF-09).
+ * 6. **El cuerpo de la solicitud NO se difunde fuera de la extensión**: el empuje del cuerpo a la
+ *    ventana ya abierta viaja por `chrome.runtime.sendMessage`, que entrega a las **páginas de la
+ *    extensión** (`notification.html`, popup, `connect.html`) y **no** a los content scripts —
+ *    medido: la dApp no recibe nada (ver {@link pushApprovalRequest})—, de modo que la solicitud
+ *    nunca alcanza a la página que la pidió ni a otra dApp (RNF-09).
  */
 
 import type {
@@ -116,6 +118,15 @@ export interface TabsSendLike {
   sendMessage(tabId: number, message: unknown, options?: { frameId?: number }): Promise<unknown>;
 }
 
+/**
+ * Superficie mínima de `chrome.runtime.sendMessage` — el canal de las **páginas de la extensión**
+ * (`notification.html`, popup, `connect.html`). Es el único que alcanza a `notification.html`: ver
+ * la medición en {@link pushApprovalRequest}.
+ */
+export interface RuntimeSendLike {
+  sendMessage(message: unknown): Promise<unknown>;
+}
+
 // ---------------------------------------------------------------------------
 // Estado volátil admisible
 // ---------------------------------------------------------------------------
@@ -195,6 +206,26 @@ export const getTabsSend = (): TabsSendLike | null => {
   }
   const candidate = tabs as { sendMessage?: unknown };
   return typeof candidate.sendMessage === 'function' ? (tabs as TabsSendLike) : null;
+};
+
+/** Devuelve `chrome.runtime.sendMessage` sin `any`, o `null` (canal de las páginas de la extensión). */
+export const getRuntimeSend = (): RuntimeSendLike | null => {
+  const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
+  if (typeof chromeNs !== 'object' || chromeNs === null) {
+    return null;
+  }
+  const runtime: unknown = (chromeNs as { runtime?: unknown }).runtime;
+  if (typeof runtime !== 'object' || runtime === null) {
+    return null;
+  }
+  const candidate = runtime as { sendMessage?: unknown };
+  if (typeof candidate.sendMessage !== 'function') {
+    return null;
+  }
+  const send = candidate.sendMessage as (message: unknown) => Promise<unknown>;
+  return {
+    sendMessage: (message: unknown): Promise<unknown> => send.call(runtime, message),
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -286,15 +317,28 @@ export interface ApprovalPushOptions {
   tabId: number | null;
   /** `chrome.tabs.sendMessage` inyectable (pruebas); por defecto, la API real. */
   tabs?: TabsSendLike | null;
+  /** `chrome.runtime.sendMessage` inyectable (pruebas); por defecto, la API real. */
+  runtime?: RuntimeSendLike | null;
 }
 
 /**
  * Empuja la solicitud a la ventana de decisión **ya abierta**.
  *
  * La ventana única reutiliza su página para la SIGUIENTE `pending` (§2.14) y esa página no vuelve
- * a leer su URL, así que el cuerpo tiene que llegarle: se entrega con el sobre
- * {@link approvalDeliveryMessage} por `chrome.tabs.sendMessage` a la pestaña de la PROPIA ventana
- * (la ruta alternativa con `frameId` de §3.4 no aplica: la ventana es el frame superior).
+ * a leer su URL, así que el cuerpo tiene que llegarle.
+ *
+ * CANAL (D-H4-E10, medido en este repositorio con Chromium 153 / Playwright 1.63):
+ *   1. `chrome.runtime.sendMessage` — **es el único canal que alcanza `notification.html`**. La
+ *      ventana es una PÁGINA DE LA EXTENSIÓN, no un content script.
+ *   2. `chrome.tabs.sendMessage(tabId, …)` — se conserva como respaldo, pero **no** sirve para este
+ *      caso: medido, responde `Could not establish connection. Receiving end does not exist.` para
+ *      una página `chrome-extension://`, y además su `tabId` no se puede resolver sin el permiso
+ *      `tabs` (retirado en H-36): con `windows.getAll({ populate: true })` el campo `url` de las
+ *      pestañas llega a `null`.
+ *
+ * RNF-09 queda a salvo: medido también que un `chrome.runtime.sendMessage` emitido por el SW **no**
+ * llega a los content scripts (la dApp no recibe nada; el relay no reenvía ningún mensaje), de modo
+ * que el cuerpo de la solicitud no se difunde fuera de los contextos confiables de la extensión.
  *
  * Devuelve `true` solo si el mensaje se entregó; un fallo se registra y NO rompe la pasada de la
  * ventana (la solicitud sigue `pending` y el usuario puede reabrirla/enfocarla).
@@ -303,6 +347,20 @@ export const pushApprovalRequest = async (
   request: PendingRequest,
   options: ApprovalPushOptions,
 ): Promise<boolean> => {
+  const message = approvalDeliveryMessage(request, options.pendingCount);
+
+  // 1. Canal de las páginas de la extensión: alcanza a `notification.html`.
+  const runtime = options.runtime === undefined ? getRuntimeSend() : options.runtime;
+  if (runtime !== null) {
+    try {
+      await runtime.sendMessage(message);
+      return true;
+    } catch (error) {
+      console.warn('[truekeate] no se pudo empujar la solicitud por el canal del runtime', error);
+    }
+  }
+
+  // 2. Respaldo por pestaña: solo alcanza a content scripts; para la ventana única no hay ninguno.
   if (options.tabId === null) {
     return false;
   }
@@ -311,7 +369,7 @@ export const pushApprovalRequest = async (
     return false;
   }
   try {
-    await tabs.sendMessage(options.tabId, approvalDeliveryMessage(request, options.pendingCount));
+    await tabs.sendMessage(options.tabId, message);
     return true;
   } catch (error) {
     console.warn('[truekeate] no se pudo empujar la solicitud a la ventana de decisión', error);
@@ -377,6 +435,36 @@ export const handleResume = async (
 // ---------------------------------------------------------------------------
 
 /**
+ * `id` de correlación con el que viaja una respuesta al solicitante (§4.1/§4.2).
+ *
+ * Si la solicitud llegó por el relay (salto 1), la promesa de la dApp está esperando el `id` que
+ * generó la capa inject y que el relay transportó en `requestId`; responder con `approvalId` la
+ * dejaría COLGADA hasta su red de seguridad (D-H4-E10, H-07). Sin correlación declarada —solicitud
+ * nacida en la extensión o emisor que no la envió— se conserva `approvalId`.
+ */
+export const responseCorrelationId = (request: PendingRequest): string =>
+  typeof request.requestId === 'string' && request.requestId.length > 0
+    ? request.requestId
+    : request.approvalId;
+
+/**
+ * Sobre con el que se entrega una resolución al solicitante.
+ *
+ * `approvalId` viaja además del `id` de correlación por dos motivos: el relay lo OBSERVA para su
+ * `RESUME` de reconexión (H-02 / ADT-15) y no cambia el reenvío LITERAL a la página (nota H-39: los
+ * campos extra viajan con el sobre; la capa inject solo lee `id`, `result` y `error`).
+ */
+const resolutionEnvelope = (
+  request: PendingRequest,
+  response: ApprovalResponse,
+): Record<string, unknown> => ({
+  type: 'TRUEKEATE_RESPONSE',
+  id: responseCorrelationId(request),
+  approvalId: request.approvalId,
+  ...response,
+});
+
+/**
  * Entrega la respuesta de una solicitud por el orden de preferencia del diccionario §3.4:
  *
  * 1. **puerto vivo** → se publica por él y se CIERRA el puerto (la correlación se agota);
@@ -389,10 +477,11 @@ export const deliverApprovalResolution = async (
   response: ApprovalResponse,
   options: { tabs?: TabsSendLike | null } = {},
 ): Promise<ApprovalDelivery> => {
+  const message = resolutionEnvelope(request, response);
   const port = portsByApprovalId.get(request.approvalId);
   if (port !== undefined) {
     try {
-      port.postMessage({ type: 'TRUEKEATE_RESPONSE', id: request.approvalId, ...response });
+      port.postMessage(message);
     } catch (error) {
       console.warn('[truekeate] el puerto de aprobación estaba cerrado al responder', error);
     } finally {
@@ -413,7 +502,6 @@ export const deliverApprovalResolution = async (
   if (tabs === null) {
     return 'none';
   }
-  const message = { type: 'TRUEKEATE_RESPONSE', id: request.approvalId, ...response };
   try {
     if (request.frameId !== null && request.frameId !== 0) {
       await tabs.sendMessage(request.tabId, message, { frameId: request.frameId });

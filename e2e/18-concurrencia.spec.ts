@@ -77,9 +77,12 @@ test.describe('18 · concurrencia: una ventana única con contador 2 (CA-RF-35/3
       })
       .toBe(2);
 
-    // Y sigue habiendo UNA sola ventana: es el oráculo bloqueante de `CA-RF-35`.
-    expect(ventanasDeDecision(context)).toHaveLength(1);
+    // Y sigue habiendo UNA sola ventana: es el oráculo bloqueante de `CA-RF-35`. La apertura es
+    // ASÍNCRONA y POSTERIOR a la escritura de la cola (§2.14: `enqueue` → `showOldestPending` →
+    // `chrome.windows.create`), así que primero se espera la condición observable y solo entonces se
+    // cuenta: la expectativa del corpus («nunca dos `notification.html`») no cambia.
     const ventana = await esperarVentanaDeDecision(context);
+    expect(ventanasDeDecision(context)).toHaveLength(1);
 
     // El contador de la ventana es el índice derivado de la cola: se lee tras re-pedir el registro
     // persistido (una recarga de la MISMA ventana, que es lo que haría el SW al re-renderizarla).

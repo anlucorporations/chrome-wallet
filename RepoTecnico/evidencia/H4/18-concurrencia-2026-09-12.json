@@ -1,11 +1,13 @@
 {
-  "spec": "e2e/18-concurrencia.spec.ts",
-  "flujo": "2 solicitudes simultáneas → EXACTAMENTE una ventana con contador 2 (CA-RF-35/CA-RF-37)",
-  "comando": "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-  "fecha": "2026-09-12",
-  "resultado": "FALLIDO · 1 test, 1 failed",
-  "causaRaiz": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5174/test.html (D-H4-E9). La prueba necesita DOS orígenes del mismo servidor de pruebas (http://localhost:5174 y http://127.0.0.1:5174), pero el servidor de la dApp escucha SOLO en IPv6: vite.config.ts declara server { port: 5174, strictPort: true } SIN host, y el valor por defecto de Vite (localhost) resuelve a ::1 en este equipo. Medido: Get-NetTCPConnection -LocalPort 5174 -> LocalAddress ::1; Invoke-WebRequest http://127.0.0.1:5174/test.html -> «no es posible conectar con el servidor remoto». Fallo en el paso 2 (apertura del segundo origen), antes de lanzar las dos solicitudes.",
-  "correccionNecesaria": "Añadir host: '127.0.0.1' (o host: true) al bloque server de vite.config.ts. Es una CONFIGURACION, fuera del terreno autorizado de esta sesión: pendiente de autorización.",
-  "loQueSiEstaCubierto": "La ventana global única y el contador están verdes en Vitest (windowQueue.spec.ts 15 + windowRediscovery.spec.ts 14) y en el E2E 10 (1 ventana, contador «1 solicitud en espera»).",
-  "artefacto": "test-results/18-concurrencia-*/trace.zip"
+  "flujo": "2 personal_sign simultáneos desde 2 orígenes",
+  "origenes": [
+    "http://localhost:5174/test.html",
+    "http://127.0.0.1:5174/test.html"
+  ],
+  "pendientesCoexistentes": 2,
+  "contadorVentana": "2 solicitudes en espera",
+  "ventanasDeDecisionMaximas": 1,
+  "firmaA": "0x4d3ebe847f13485d0268d289b1653b4d77595596a0c32a8da7b95ba8dd69a0c34738b00f309aa64dd4bbb1ced2b7fcd6f610ec913e9f8dccfcfdf778c3ac2f0c1b",
+  "firmaB": "0x05e09c96b5217706b2fca91d24df2951ec26f0fc9c6ffbec46ac8746b8c6f952010cce3c4566f57431556d8b7566c8fc8612ba84e8cb300fbd356d9f1f2e9aca1c",
+  "colaFinal": 0
 }

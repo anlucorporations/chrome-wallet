@@ -2,7 +2,7 @@
   "flujo": "iframe cross-origin: aislamiento de la sesión",
   "fecha": "2026-09-12",
   "origenDelTop": "http://localhost:5174",
-  "origenDelIframe": "http://127.0.0.1:56919",
+  "origenDelIframe": "http://127.0.0.1:52708",
   "cuentaDelTop": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   "cuentasTop": [
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
@@ -12,5 +12,5 @@
     "http://localhost:5174"
   ],
   "ethRequestAccountsDelIframe": "rechazado:4001",
-  "origenMostradoEnConnectHtml": "http://127.0.0.1:56919"
+  "origenMostradoEnConnectHtml": "http://127.0.0.1:52708"
 }

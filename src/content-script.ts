@@ -32,12 +32,32 @@
  * 6. **Puerto de larga vida** `truekeate_approval` con reconexión y backoff 1/2/4/8/16 s (tope
  *    30 s) y `RESUME` al conectar (H-02/ADT-15): es un canal de transporte y correlación, **no**
  *    un *keep-alive* del Service Worker.
+ * 7. **Transporte con espera acotada y reintento seguro (cierre de D-H4-E10)**: un
+ *    `chrome.runtime.sendMessage` que vuelve vacío **no** se traduce en `-32603` inmediato —el SW
+ *    puede estar suspendido y despertar después, que es justo lo que hace la alarma de M15—. El
+ *    relay **reintenta** solo cuando el fallo garantiza que el mensaje no se entregó a nadie
+ *    (`Could not establish connection. Receiving end does not exist.`) y, en cualquier otro fallo
+ *    de transporte, **espera** la resolución que el SW empuja (por el puerto o por
+ *    `chrome.tabs.sendMessage`) hasta agotar `SIGN_TIMEOUT_MS + TIMEOUT_SAFETY_MARGIN_MS` (H-07:
+ *    la capa content es solo red de seguridad con margen superior al dueño del plazo). Solo
+ *    entonces responde `-32603`.
+ * 8. **Correlación del salto 1 (cierre de D-H4-E10)**: el `id` que la página generó viaja al SW
+ *    como `requestId` del sobre `TRUEKEATE_RPC`; el SW lo persiste con la solicitud aprobable y la
+ *    resolución empujada vuelve con ESE `id`, de modo que la promesa correcta de la dApp se
+ *    resuelve (y ninguna otra recibe una respuesta ajena). El relay además OBSERVA el `approvalId`
+ *    que acompaña a la resolución para su `RESUME` de reconexión, sin transformar el sobre (H-39).
  *
  * Ningún secreto cruza `window.postMessage` ni este relay (RNF-09): solo método, `params` y el
  * resultado público del catálogo.
  */
 
-import { APPROVAL_PORT_NAME, PORT_RECONNECT_BASE_MS, PORT_RECONNECT_MAX_MS } from './shared/constants';
+import {
+  APPROVAL_PORT_NAME,
+  PORT_RECONNECT_BASE_MS,
+  PORT_RECONNECT_MAX_MS,
+  SIGN_TIMEOUT_MS,
+  TIMEOUT_SAFETY_MARGIN_MS,
+} from './shared/constants';
 import type { Eip1193Error } from './shared/types';
 
 /** Ruta del bundle del provider dentro del paquete (entry `inject.js`, IIFE). */
@@ -74,6 +94,33 @@ const internalTransportError = (): Eip1193Error => ({
   message: 'Error interno de la cartera.',
 });
 
+/**
+ * Cota de TRANSPORTE del relay: el plazo del SW (dueño único del reloj) más el margen de seguridad
+ * de H-07. Mientras no se agote NO se responde `-32603`: el SW puede estar suspendido y volver por
+ * la alarma de M15, y su resolución llegará empujada hasta aquí.
+ */
+const TRANSPORT_TIMEOUT_MS = SIGN_TIMEOUT_MS + TIMEOUT_SAFETY_MARGIN_MS;
+
+/** Primer retardo del reintento de transporte y tope del backoff (temporizadores LOCALES). */
+const TRANSPORT_RETRY_BASE_MS = 250;
+const TRANSPORT_RETRY_MAX_MS = 2_000;
+
+/**
+ * Fallo de transporte que GARANTIZA que el mensaje no llegó a ningún receptor: reintentarlo es
+ * seguro (no hay efecto duplicado) y es lo que despierta a un Service Worker dormido.
+ */
+const UNRECEIVED_TRANSPORT_PATTERN = /could not establish connection|receiving end does not exist/i;
+
+/**
+ * Fallo de transporte IRRECUPERABLE: la extensión se recargó o quedó huérfana y ya no existe a
+ * quién entregar la petición. Se responde de inmediato en lugar de esperar en balde.
+ *
+ * OJO: el cierre del canal con el SW suspendido (`The message port closed before a response was
+ * received.`) **no** es un fallo irrecuperable —D-H4-E10 consistía justo en tratarlo como tal—: en
+ * ese caso el SW puede seguir trabajando en la solicitud y despertar después por `chrome.alarms`.
+ */
+const FATAL_TRANSPORT_PATTERN = /extension context invalidated/i;
+
 // ---------------------------------------------------------------------------
 // Forma de los sobres del protocolo (diccionario_datos.md §4.1 y §4.2)
 // ---------------------------------------------------------------------------
@@ -104,6 +151,12 @@ interface RelayRpcMessage {
   origin: string;
   tabId: number | null;
   frameId: number | null;
+  /**
+   * `id` de correlación del salto 1: es el `id` que la página puso en su `TRUEKEATE_REQUEST` y
+   * viaja LITERAL para que el SW lo persista con la solicitud aprobable y la resolución empujada
+   * vuelva con él (D-H4-E10). El SW **no** lo interpreta (§2.2): no decide nada.
+   */
+  requestId: string;
 }
 
 /** Superficie mínima del puerto de `chrome.runtime.connect`. */
@@ -117,6 +170,8 @@ interface PortLike {
 /** Superficie mínima de `chrome.runtime` que usa el relay. */
 interface RuntimeLike {
   id?: string;
+  /** Error de la última llamada: se lee SÍNCRONAMENTE dentro del callback de `sendMessage`. */
+  lastError?: { message?: string };
   getURL(path: string): string;
   connect(info: { name: string }): PortLike;
   sendMessage(message: unknown, callback: (response: unknown) => void): void;
@@ -234,24 +289,122 @@ const buildResponse = (id: string, response: unknown): unknown => {
   return { type: 'TRUEKEATE_RESPONSE', id, result: envelope.result };
 };
 
-/** Envía el sobre del salto 2 al Service Worker y entrega su respuesta (nunca lanza). */
-const sendRpcToExtension = (
-  message: RelayRpcMessage,
-  onResponse: (response: unknown) => void,
-): void => {
+/**
+ * Petición de la página EN VUELO, indexada por el `id` del salto 1.
+ *
+ * Es estado VOLÁTIL del relay (no fuente de verdad: la verdad es la cola persistida del SW) y
+ * existe para dos cosas: no responder `-32603` antes de agotar la cota de transporte y aceptar como
+ * propia la resolución que el SW empuje. Los temporizadores son LOCALES a este contexto (permitidos:
+ * no son plazos de aprobación, el plazo lo posee `chrome.alarms` en el SW).
+ */
+interface InFlightCall {
+  /** Sobre del salto 2 que se reintenta (el mismo `requestId` en cada intento). */
+  message: RelayRpcMessage;
+  /** Intentos de ESCRITURA realizados (diagnóstico y backoff). */
+  attempts: number;
+  /** Reintento programado, si lo hay. */
+  retryTimer: number | null;
+  /** Cota de transporte: al agotarse y sin respuesta, se responde `-32603`. */
+  deadlineTimer: number;
+}
+
+/** Peticiones de página en vuelo: `id` de la página → llamada viva. */
+const inFlight = new Map<string, InFlightCall>();
+
+/** Retardo del siguiente reintento de transporte: 250/500/1000/2000 ms (tope). */
+const nextRetryDelayMs = (attempts: number): number =>
+  Math.min(TRANSPORT_RETRY_BASE_MS * 2 ** Math.max(0, attempts - 1), TRANSPORT_RETRY_MAX_MS);
+
+/** Cancela los temporizadores de una llamada en vuelo y la retira del índice. */
+const forgetCall = (id: string, call: InFlightCall | undefined): void => {
+  inFlight.delete(id);
+  if (call === undefined) {
+    return;
+  }
+  if (call.retryTimer !== null) {
+    window.clearTimeout(call.retryTimer);
+  }
+  window.clearTimeout(call.deadlineTimer);
+};
+
+/** Entrega a la página la respuesta de una llamada y la da por cerrada (una sola respuesta). */
+const respondOnce = (id: string, message: unknown): void => {
+  const call = inFlight.get(id);
+  forgetCall(id, call);
+  postToPage(message);
+};
+
+/**
+ * Cota de transporte agotada: nadie respondió a la petición de la página. La capa inject tiene su
+ * propia red de seguridad con el MISMO margen (H-07); aquí se responde el error interno tipado para
+ * no dejar la promesa pendiente si esa red no llegara a dispararse.
+ */
+const onTransportDeadline = (id: string): void => {
+  if (!inFlight.has(id)) {
+    return;
+  }
+  respondOnce(id, { type: 'TRUEKEATE_RESPONSE', id, error: internalTransportError() });
+};
+
+/** Lectura SÍNCRONA del `lastError` de `chrome.runtime` (solo válida dentro del callback). */
+const lastTransportMessage = (): string => {
+  const message: unknown = runtimeApi()?.lastError?.message;
+  return typeof message === 'string' ? message : '';
+};
+
+/** Escribe (o reescribe) el sobre del salto 2 y decide qué hacer con un fallo de transporte. */
+const writeRpc = (id: string): void => {
+  const call = inFlight.get(id);
+  if (call === undefined) {
+    return;
+  }
+  call.attempts += 1;
   const runtime = runtimeApi();
   if (runtime === undefined || typeof runtime.sendMessage !== 'function') {
-    // Sin API de mensajería (página abierta fuera de la extensión): error tipado.
-    onResponse(undefined);
+    // Sin API de mensajería (la extensión se recargó o el documento no es suyo): error tipado.
+    respondOnce(id, { type: 'TRUEKEATE_RESPONSE', id, error: internalTransportError() });
     return;
   }
   try {
-    runtime.sendMessage(message, onResponse);
+    runtime.sendMessage(call.message, (response: unknown) => {
+      onRpcResponse(id, response);
+    });
   } catch {
-    // Extensión recargada o canal no disponible: error tipado, jamás una excepción que rompa la
-    // página. El content script NO interpreta ni decide nada sobre el método (§2.2).
-    onResponse(undefined);
+    // `sendMessage` lanzó de forma síncrona: el contexto de la extensión ya no es válido.
+    respondOnce(id, { type: 'TRUEKEATE_RESPONSE', id, error: internalTransportError() });
   }
+};
+
+/**
+ * Respuesta del salto 2 (o su AUSENCIA). Un sobre válido se entrega tal cual; un fallo de
+ * transporte **no** se convierte en error definitivo mientras quede margen (D-H4-E10).
+ */
+const onRpcResponse = (id: string, response: unknown): void => {
+  const call = inFlight.get(id);
+  if (call === undefined) {
+    // La petición ya se resolvió por la vía empujada: la respuesta tardía se descarta (X-06).
+    return;
+  }
+  if (asRecord(response) !== null) {
+    respondOnce(id, buildResponse(id, response));
+    return;
+  }
+  const transport = lastTransportMessage();
+  if (FATAL_TRANSPORT_PATTERN.test(transport)) {
+    // Extensión recargada/desinstalada: no hay a quién entregar la petición.
+    respondOnce(id, { type: 'TRUEKEATE_RESPONSE', id, error: internalTransportError() });
+    return;
+  }
+  if (UNRECEIVED_TRANSPORT_PATTERN.test(transport) && call.retryTimer === null) {
+    // El mensaje no llegó a nadie: reescribirlo es seguro y es lo que despierta al SW dormido.
+    call.retryTimer = window.setTimeout(() => {
+      call.retryTimer = null;
+      writeRpc(id);
+    }, nextRetryDelayMs(call.attempts));
+    return;
+  }
+  // Cualquier otro fallo (p. ej. el canal se cerró con el SW ya trabajando en la solicitud): NO se
+  // reescribe —sería un efecto duplicado— y se espera la resolución empujada hasta la cota.
 };
 
 /** Traduce un `TRUEKEATE_REQUEST` de la página al salto 2 y devuelve la respuesta al salto 1. */
@@ -274,10 +427,24 @@ const handlePageRequest = (envelope: RawPageEnvelope): void => {
     origin: location.origin,
     tabId: null,
     frameId: null,
+    // Correlación del salto 1 (D-H4-E10): el `id` de la página viaja LITERAL hasta la cola.
+    requestId: id,
   };
-  sendRpcToExtension(message, (response) => {
-    postToPage(buildResponse(id, response));
+
+  // Un `id` repetido no puede dejar dos promesas vivas: la anterior se descarta con su error.
+  const previous = inFlight.get(id);
+  if (previous !== undefined) {
+    respondOnce(id, { type: 'TRUEKEATE_RESPONSE', id, error: internalTransportError() });
+  }
+  inFlight.set(id, {
+    message,
+    attempts: 0,
+    retryTimer: null,
+    deadlineTimer: window.setTimeout(() => {
+      onTransportDeadline(id);
+    }, TRANSPORT_TIMEOUT_MS),
   });
+  writeRpc(id);
 };
 
 // ---------------------------------------------------------------------------
@@ -288,12 +455,30 @@ const handlePageRequest = (envelope: RawPageEnvelope): void => {
  * Reenvía LITERALMENTE a la página un sobre llegado de la extensión (respuesta empujada o
  * evento). El objeto NO se reconstruye: `eventName`, `data` y cualquier campo extra (p. ej. el
  * `origin` del sobre) viajan idénticos (nota H-39).
+ *
+ * Efectos de OBSERVACIÓN (no de transformación), los dos necesarios para cerrar D-H4-E10:
+ * - una respuesta empujada que correlaciona con una petición en vuelo la da por resuelta aquí (así
+ *   no se responde `-32603` por la cota de transporte ni se entrega una segunda respuesta);
+ * - el `approvalId` que acompaña a la resolución se recuerda para el `RESUME` de reconexión.
  */
 const forwardToPage = (message: unknown): void => {
   const envelope = asRecord(message);
   const type: unknown = envelope?.type;
   if (typeof type !== 'string' || !FORWARDED_TO_PAGE.includes(type)) {
     return;
+  }
+  if (type === 'TRUEKEATE_RESPONSE') {
+    const id: unknown = envelope?.id;
+    if (typeof id === 'string' && inFlight.has(id)) {
+      // Resolución EMPUJADA por el SW (aprobación, rechazo o vencimiento): cierra la llamada y se
+      // entrega una sola vez, con el `id` de la página que el SW conservó en `requestId`.
+      respondOnce(id, message);
+      return;
+    }
+  }
+  const approvalId: unknown = envelope?.approvalId;
+  if (typeof approvalId === 'string' && approvalId !== '') {
+    state.lastApprovalId = approvalId;
   }
   postToPage(message);
 };
@@ -307,7 +492,12 @@ interface RelayState {
   port: PortLike | null;
   reconnectAttempt: number;
   reconnectTimer: number | null;
-  /** Último `approvalId` observado, para el `RESUME` de la reconexión. */
+  /**
+   * Último `approvalId` OBSERVADO en una resolución empujada por el SW, para el `RESUME` de la
+   * reconexión (H-02/ADT-15). Antes estaba declarado y nunca se asignaba (D-H4-E10); ahora lo
+   * alimenta {@link forwardToPage}. La correlación de la RESPUESTA con la promesa de la dApp no
+   * depende de él: la hace el `requestId` persistido en la cola (§8 de la cabecera).
+   */
   lastApprovalId: string | null;
 }
 
@@ -343,8 +533,9 @@ const connectPort = (): void => {
       scheduleReconnect();
     });
 
-    // `RESUME` al conectar: la cola persistida real llega con M17/H4, así que solo se envía si ya
-    // se había observado un `approvalId`.
+    // `RESUME` al conectar: se envía solo si ya se OBSERVÓ un `approvalId` (lo publica una
+    // resolución empujada por el SW), tal y como exige H-02/ADT-15: el puerto es canal de
+    // transporte y correlación, nunca un *keep-alive*.
     if (state.lastApprovalId !== null) {
       port.postMessage({ type: 'RESUME', approvalId: state.lastApprovalId });
     }

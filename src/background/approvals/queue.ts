@@ -189,6 +189,10 @@ export const asPendingRequest = (approvalId: string, value: unknown): PendingReq
   if (typeof value.errorCode === 'number') {
     request.errorCode = value.errorCode;
   }
+  // Correlación del salto 1 (D-H4-E10): se conserva tal cual llegó, sin inventarla.
+  if (typeof value.requestId === 'string' && value.requestId.length > 0) {
+    request.requestId = value.requestId;
+  }
   return request;
 };
 
@@ -353,6 +357,12 @@ export interface PendingRequestDraft {
   frameId?: number | null;
   account: Address;
   chainId: ChainIdHex;
+  /**
+   * `id` de correlación del salto 1 (`TRUEKEATE_REQUEST.id` de la página), cuando la solicitud
+   * llegó por el relay. Se persiste con la entrada para que la resolución empujada (H-07,
+   * D-H4-E10) llegue a la promesa correcta de la dApp incluso después de una suspensión del SW.
+   */
+  requestId?: string;
   txPreview?: TxPreview;
   typedDataPreview?: TypedDataPreview;
   signMessagePreview?: PersonalSignPreview;
@@ -511,6 +521,10 @@ export const enqueueApprovalRequest = async (
       expiresAt: now + timeoutMs,
       status: 'pending',
     };
+    // Correlación del salto 1 (D-H4-E10): solo se persiste si el emisor la declaró no vacía.
+    if (typeof draft.requestId === 'string' && draft.requestId.length > 0) {
+      request.requestId = draft.requestId;
+    }
     if (draft.txPreview !== undefined) {
       request.txPreview = draft.txPreview;
     }

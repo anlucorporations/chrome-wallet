@@ -279,6 +279,18 @@ export interface PendingRequest {
   resolvedAt?: number;
   /** Código EIP-1193 emitido al resolver. */
   errorCode?: number;
+  /**
+   * **Correlación con el salto 1** (H-07, D-H4-E10 corregido): `id` que la capa inject
+   * (`crypto.randomUUID()`) puso en el `TRUEKEATE_REQUEST` que originó esta aprobación, tal y como
+   * lo transportó el relay en el campo homónimo de su `TRUEKEATE_RPC`.
+   *
+   * Es la ÚNICA forma de que la resolución EMPUJADA por el SW (aprobación, rechazo o vencimiento)
+   * llegue a la promesa correcta de la dApp cuando el canal `chrome.runtime.sendMessage` ya no
+   * existe (SW suspendido y despertado después por `chrome.alarms`). Se persiste para sobrevivir a
+   * esa suspensión. Ausente cuando la solicitud nació en un contexto de la extensión (popup) o
+   * cuando el emisor no declaró correlación: entonces se usa `approvalId` como hasta ahora.
+   */
+  requestId?: string;
 }
 
 /** Solicitud de conexión `truekeate_connect_request` (§2.9). */

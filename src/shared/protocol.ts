@@ -110,6 +110,13 @@ export interface TruekeateRpcMessage {
   tabId: number | null;
   /** `0` = top frame; distinto de 0 exige responder SOLO a ese frame. */
   frameId: number | null;
+  /**
+   * **Correlación del salto 1** (H-07, D-H4-E10): `id` que la página (capa inject) puso en su
+   * `TRUEKEATE_REQUEST`. Es dato NO fiable y el SW **no** lo interpreta: solo lo persiste con la
+   * solicitud aprobable para que la resolución empujada vuelva con el `id` que la promesa de la
+   * dApp está esperando. Ausente en los emisores internos (popup, ventanas de la extensión).
+   */
+  requestId?: string;
 }
 
 /** `notification.html` → SW: decisión del usuario sobre una aprobación. */

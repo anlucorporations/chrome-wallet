@@ -40,7 +40,7 @@ import { isTruekeateMessageType } from './shared/protocol';
 // de decisión global única. Se importan por sus puntos de entrada públicos.
 import { registerApprovalPortListener } from './background/approvals/ports';
 import { registerExpiryAlarmListener } from './background/approvals/timeout';
-import { registerApprovalWindowListeners } from './background/approvals/focus';
+import { registerApprovalWindowListeners, showOldestPending } from './background/approvals/focus';
 import { handleSignResponse } from './background/approvals/responses';
 import { reconcileApprovals, releaseInflightOnAlarm } from './background/approvals/reconcile';
 import type {
@@ -575,13 +575,34 @@ const handleConnectResponseMessage = async (message: unknown): Promise<void> => 
  * —`{ approvalId, success }`— y aquí se resuelve la entrada de `truekeate_pending_requests` (M14),
  * se entrega la respuesta a la dApp (M17) y la MISMA ventana pasa a la siguiente `pending` (M18).
  *
+ * ORDEN OBLIGATORIO (cierre de D-H4-E10): la resolución y la entrega se hacen aquí, pero la pasada
+ * de la ventana única se DIFIERE a {@link refreshApprovalWindowAfterDecision}, que corre **después**
+ * de responder al emisor. Motivo: al re-renderizar, M18 empuja el cuerpo de la siguiente solicitud a
+ * la ventana; si ese empuje llega antes que la respuesta de su propio `SIGN_RESPONSE`, la ventana
+ * marca la vista como resuelta (botón «Aprobar» deshabilitado) aunque muestre la solicitud correcta
+ * y la cola se quede atascada. Responder primero y re-empujar después elimina la carrera.
+ *
  * La ventana **decide, no firma** (`CA-RF-35`): la firma y la difusión las aplica el despacho de
  * M19.b, que está esperando el desenlace de esa misma entrada.
  */
 const handleSignResponseMessage = async (
   message: unknown,
   sender: unknown,
-): Promise<unknown> => handleSignResponse(message, toSenderLike(sender));
+): Promise<unknown> =>
+  handleSignResponse(message, toSenderLike(sender), { refresh: false });
+
+/**
+ * Pasada DIFERIDA de la ventana única tras una decisión (§2.14): muestra la siguiente `pending`,
+ * la cierra si no queda ninguna o **re-entrega** el cuerpo a la que ya estaba mostrada (`repush`).
+ * Nunca rompe el listener: un fallo se avisa por consola (la cola persistida sigue siendo la verdad).
+ */
+const refreshApprovalWindowAfterDecision = async (): Promise<void> => {
+  try {
+    await showOldestPending({ repush: true });
+  } catch (error) {
+    console.warn('[truekeate] no se pudo re-renderizar la ventana única tras la decisión', error);
+  }
+};
 
 /**
  * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3),
@@ -606,8 +627,11 @@ const registerRpcMessageListener = (): void => {
     }
     if (record.type === 'SIGN_RESPONSE') {
       void handleSignResponseMessage(message, sender)
-        .then((outcome) => {
+        .then(async (outcome) => {
+          // 1º la respuesta a la ventana (que ya marcó la solicitud como decidida) y 2º la pasada de
+          // M18: así el empuje de la siguiente solicitud llega DESPUÉS y rearma su vista.
           sendResponse({ ok: true, outcome });
+          await refreshApprovalWindowAfterDecision();
         })
         .catch((error: unknown) => {
           sendResponse({

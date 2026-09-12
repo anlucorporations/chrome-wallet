@@ -158,6 +158,12 @@ export type ApprovalInvoker = (options: {
   params: unknown[];
   context: TrustedSenderContext;
   now: number;
+  /**
+   * `id` de correlación del salto 1 declarado por el relay (dato NO fiable que el SW **no**
+   * interpreta): viaja hasta la entrada persistida de la cola para que la resolución empujada
+   * conserve el `id` que espera la promesa de la dApp (H-07, D-H4-E10).
+   */
+  requestId?: string;
 }) => Promise<ApprovalDispatchOutcome>;
 /** Decisor del *token bucket* por origen (H3, tarea 3.13). */
 export type RateLimitDecider = (input: {
@@ -241,6 +247,11 @@ export interface HandleRpcRequestParams {
   declared?: DeclaredContext;
   method: string;
   params?: unknown[];
+  /**
+   * `id` de correlación del salto 1 (la página lo generó en la capa inject). NO es identidad ni
+   * permiso: solo se persiste con la solicitud aprobable para correlacionar la respuesta empujada.
+   */
+  requestId?: string;
 }
 
 /**
@@ -267,7 +278,7 @@ export const handleRPCRequest = async (
   input: HandleRpcRequestParams,
   deps: RouterDeps = defaultRouterDeps,
 ): Promise<RouterResult> => {
-  const { sender, declared = {}, method } = input;
+  const { sender, declared = {}, method, requestId } = input;
   const params = Array.isArray(input.params) ? input.params : [];
 
   // 1. Redacción ANTES de cualquier traza o persistencia (H-42 / RNF-09).
@@ -335,6 +346,9 @@ export const handleRPCRequest = async (
         params,
         context,
         now: deps.now(),
+        // Correlación del salto 1 (D-H4-E10): el SW no la interpreta, solo la transporta hasta la
+        // entrada persistida de la cola.
+        ...(requestId === undefined ? {} : { requestId }),
       });
       return outcome.ok
         ? { ok: true, result: outcome.result, context, target, redactedParams }
@@ -440,6 +454,10 @@ export const handleRpcMessage = async (
       },
       method: typeof record.method === 'string' ? record.method : '',
       params: Array.isArray(record.params) ? record.params : [],
+      // Correlación declarada por el relay (dato NO fiable): solo se transporta.
+      ...(typeof record.requestId === 'string' && record.requestId.length > 0
+        ? { requestId: record.requestId }
+        : {}),
     },
     deps,
   );

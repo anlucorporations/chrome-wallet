@@ -41,13 +41,13 @@
     "account": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     "chainId": "0x7a69",
     "connected": true,
-    "connectedAt": 1789222116301,
-    "expiresAt": 1789308517114,
-    "lastUsedAt": 1789222117114,
+    "connectedAt": 1789223821887,
+    "expiresAt": 1789310223539,
+    "lastUsedAt": 1789223823539,
     "origin": "http://localhost:5174",
     "tabIds": [
-      1913727207,
-      1913727208
+      809078328,
+      809078329
     ]
   },
   "walletGetState": {
@@ -137,16 +137,16 @@
       "requirePasswordOnOpen": false,
       "schemaVersion": "1.4",
       "hiddenAccounts": [],
-      "devNoticeAcceptedAt": 1789222116899
+      "devNoticeAcceptedAt": 1789223823115
     },
     "connectedSites": [
       {
         "origin": "http://localhost:5174",
         "account": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
         "chainId": "0x7a69",
-        "connectedAt": 1789222116301,
-        "lastUsedAt": 1789222117114,
-        "expiresAt": 1789308517114,
+        "connectedAt": 1789223821887,
+        "lastUsedAt": 1789223823539,
+        "expiresAt": 1789310223539,
         "current": true
       }
     ]

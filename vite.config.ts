@@ -217,8 +217,8 @@ export default defineConfig({
   // (H-33/CA-RT-09) y `public/` se copie a `dist/` sin configuracion extra.
   root: rootDir,
   plugins: [react(), htmlRootOutputPlugin(), contentAndInjectBuildsPlugin()],
-  server: { port: 5174, strictPort: true },
-  preview: { port: 5174, strictPort: true },
+  server: { host: '127.0.0.1', port: 5174, strictPort: true },
+  preview: { host: '127.0.0.1', port: 5174, strictPort: true },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

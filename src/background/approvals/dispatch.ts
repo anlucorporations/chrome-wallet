@@ -619,6 +619,12 @@ export interface DispatchApprovalOptions {
   context: TrustedSenderContext;
   deps?: ApprovalDispatchDeps;
   now?: number;
+  /**
+   * `id` de correlación del salto 1 (lo declaró la página). Viaja al borrador de la cola para que
+   * la entrada persistida conserve el `id` que espera la promesa de la dApp cuando la resolución
+   * llega EMPUJADA por el SW (H-07, D-H4-E10).
+   */
+  requestId?: string;
 }
 
 /**
@@ -631,6 +637,11 @@ export const dispatchApproval = async (
   const deps = options.deps ?? defaultApprovalDispatchDeps;
   const { method, params, context } = options;
   const now = options.now ?? Date.now();
+  // Correlación del salto 1 (D-H4-E10): se propaga a TODAS las altas de la cola de este despacho.
+  const correlation: { requestId?: string } =
+    typeof options.requestId === 'string' && options.requestId.length > 0
+      ? { requestId: options.requestId }
+      : {};
 
   try {
     const originContext = await resolveApprovalOrigin(context);
@@ -666,6 +677,7 @@ export const dispatchApproval = async (
           frameId: context.frameId,
           account,
           chainId,
+          ...correlation,
         },
         deps,
         now,
@@ -743,6 +755,7 @@ export const dispatchApproval = async (
         frameId: context.frameId,
         account: from,
         chainId,
+        ...correlation,
         ...previewFields,
       },
       deps,

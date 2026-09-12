@@ -1,11 +1,17 @@
 {
-  "spec": "e2e/29-sw-suspendido.spec.ts",
-  "flujo": "suspensión del SW por CDP a mitad de una aprobación → 4001 al solicitante, reconstrucción < 1 s y 0 doble difusión (CA-RF-41/RNF-08)",
-  "comando": "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-  "fecha": "2026-09-12",
-  "resultado": "FALLIDO · 1 test, 1 failed (en la aserción del código de error: esperado 4001, recibido -32603)",
-  "causaRaiz": "D-H4-E10. Al suspender el SW por CDP se cierra el canal chrome.runtime.sendMessage del relay y src/content-script.ts:225 (buildResponse -> internalTransportError()) responde a la pagina -32603 «Error interno de la cartera.» ~130 ms despues de la suspension (traza: «Unchecked runtime.lastError: ... the message channel closed before a response was received»), ANTES de que la alarma (3 s inyectados) despierte al SW. El 4001 de la reconciliacion SI se empuja (reconcile.ts:392 -> deliverApprovalResolution), pero con id = approvalId, que no correlaciona con el id que genero la capa inject (el TRUEKEATE_RPC del relay no lo transporta: content-script.ts:266-277; el estado lastApprovalId de content-script.ts:311 esta declarado y nunca asignado). Contradice H-07 («la capa inject/content delega siempre en el approvalId»).",
-  "correccionNecesaria": "Que el relay no resuelva la peticion de pagina con internalTransportError() al cerrarse el canal y que la entrega empujada por el SW se correlacione con la peticion en vuelo: ambos cambios viven en src/content-script.ts, fuera del terreno autorizado de esta sesion: pendiente de autorizacion.",
-  "loQueSiEstaCubierto": "El rearme de alarmas, el 4001 de vencimiento, la cota < 1 s con 50 pendientes y la reconstruccion de truekeate_inflight_tx estan verdes en Vitest: approvalTimeout.spec.ts (17) y approvalReconcile.spec.ts (14). El propio E2E 29 comprobo antes del fallo que la solicitud se persiste, que hay UNA sola ventana y que la cola se purga al re-arrancar (sin doble difusion).",
-  "artefacto": "test-results/29-sw-suspendido-*/trace.zip"
+  "flujo": "SW suspendido por CDP con una aprobación pendiente",
+  "rpc": "http://127.0.0.1:8545",
+  "approvalId": "d01ac756-bd74-482b-a3ea-a27aeb895219",
+  "estadoTrasSuspender": "stopped",
+  "msHastaArrancar": 1891,
+  "msReconstruccion": 470,
+  "errorAlSolicitante": {
+    "estado": "error",
+    "code": 4001,
+    "message": "El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado."
+  },
+  "nonceAntes": "0x0",
+  "nonceDespues": "0x0",
+  "dobleDifusion": false,
+  "inflightVacio": true
 }
