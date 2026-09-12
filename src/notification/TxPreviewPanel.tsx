@@ -135,7 +135,14 @@ export function TxPreviewPanel({
         </p>
       ) : null}
 
-      <div className="tk-section">
+      {/*
+        El bloque «Llamada a contrato» NO repite la clase `tk-section`: el panel ya es una
+        `tk-section` y anidar otra con el MISMO texto de título hacía que cualquier selector
+        `.tk-section` con `hasText` («Llamada a contrato») resolviera a DOS elementos (la sección
+        del panel y este bloque), lo que rompe la lectura del panel por su título. La utilidad
+        `tk-view` conserva el apilado en columna sin duplicar la identidad de la sección.
+      */}
+      <div className="tk-view">
         <h3 className="tk-section__title">Llamada a contrato</h3>
         {!preview.isContractCall ? (
           <p className="tk-note">

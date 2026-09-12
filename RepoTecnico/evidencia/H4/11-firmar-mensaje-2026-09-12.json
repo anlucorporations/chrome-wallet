@@ -1,9 +1,7 @@
-﻿{
-    "spec":  "e2e/11-firmar-mensaje.spec.ts",
-    "flujo":  "personal_sign con texto UTF-8 legible (CA-RF-21)",
-    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-    "resultado":  "FALLIDO · 1 test, 1 failed",
-    "causaRaiz":  "TimeoutError: browserContext.waitForEvent \"page\" (20 s): la extensión no abrió la ventana de confirmación porque no hay ruta de producción que encole personal_sign.",
-    "defecto":  "src/background/rpc/router.ts · src/background/rpc/catalog.ts:378-401 · src/background/approvals/queue.ts:409",
-    "artefacto":  "RepoTecnico/evidencia/H4/diagnostico-11-2026-09-12.png"
+{
+  "flujo": "personal_sign · texto UTF-8",
+  "dapp": "http://localhost:5174",
+  "texto": "TrueKeate Wallet: autorizo esta sesión de pruebas el 11/09/2026.",
+  "firma": "0x9a91a1ee36b601f0a08b18e7d2591dde96791509832e0220869fb4d5fc5377164452c67d218f12d14d3ae62ef86bb4c4929e0e51c2bb76af8beea0cdc5b05f181c",
+  "firmanteRecuperado": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 }

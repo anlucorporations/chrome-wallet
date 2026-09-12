@@ -187,14 +187,16 @@ describe('M20 · allowlist de métodos internos (RNF-10 / RNF-11)', () => {
     expect(context.tabId).toBe(4);
   });
 
-  it('`wallet_revokePermissions` desde una página es un aprobable sin implementar: 4200', async () => {
-    const { deps, invokeInternal } = buildDeps();
+  it('`wallet_revokePermissions` desde una página es un aprobable de H4: se despacha a M19.b', async () => {
+    const { deps, invokeInternal, approve } = buildDeps();
     const routed = await handleRpcMessage(
       rpcMessage({ method: 'wallet_revokePermissions', params: [{ origin: 'http://x.test' }] }),
       SENDER_PAGINA,
       deps,
     );
-    expect(routed?.response).toEqual({ error: unsupportedMethodError() });
+    // H4 sustituye el `4200` de H3: la revocación desde una dApp abre ventana de confirmación.
+    expect(routed?.response).toEqual({ result: 'aprobado' });
+    expect(approve).toHaveBeenCalledTimes(1);
     expect(invokeInternal).not.toHaveBeenCalled();
   });
 });
@@ -289,8 +291,8 @@ describe('M22/M6 · redacción previa y errores tipados', () => {
     }
   });
 
-  it('los 6 aprobables de página responden 4200 mientras la cola no existe', async () => {
-    const { deps, invokePage, invokeInternal } = buildDeps();
+  it('los 6 aprobables de página se despachan a M19.b (H4) y nunca por la vía de lectura', async () => {
+    const { deps, invokePage, invokeInternal, approve } = buildDeps();
     const aprobables = [
       'eth_sendTransaction',
       'eth_signTypedData_v4',
@@ -301,10 +303,12 @@ describe('M22/M6 · redacción previa y errores tipados', () => {
     ];
     for (const method of aprobables) {
       const routed = await handleRpcMessage(rpcMessage({ method }), SENDER_PAGINA, deps);
-      expect(routed?.response, `${method} debería responder 4200`).toEqual({
-        error: unsupportedMethodError(),
+      // H4: estaban declarados sin implementar y respondían `4200`; ahora abren la ventana única.
+      expect(routed?.response, `${method} debería despacharse a la aprobación`).toEqual({
+        result: 'aprobado',
       });
     }
+    expect(approve).toHaveBeenCalledTimes(aprobables.length);
     expect(invokePage).not.toHaveBeenCalled();
     expect(invokeInternal).not.toHaveBeenCalled();
   });

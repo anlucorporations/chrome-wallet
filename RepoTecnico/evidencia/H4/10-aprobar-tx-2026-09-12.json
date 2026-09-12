@@ -1,9 +1,17 @@
-﻿{
-    "spec":  "e2e/10-aprobar-tx.spec.ts",
-    "flujo":  "aprobación con foco/origen/ventana única y contador, con vista previa decodificada (CA-RF-19/CA-RF-35)",
-    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-    "resultado":  "FALLIDO · 1 test, 1 failed",
-    "causaRaiz":  "TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event \"page\": la extensión nunca abrió notification.html porque ninguna ruta de producción encola la solicitud aprobable.",
-    "defecto":  "src/background/rpc/router.ts · src/background/rpc/catalog.ts:378-401 · src/background/approvals/queue.ts:409",
-    "artefacto":  "RepoTecnico/evidencia/H4/10-aprobar-tx-2026-09-12.png; test-results/10-aprobar-tx-*/trace.zip"
+{
+  "spec": "e2e/10-aprobar-tx.spec.ts",
+  "flujo": "aprobación con foco/origen/ventana única y contador, con vista previa decodificada (CA-RF-19/CA-RF-35)",
+  "comando": "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
+  "fecha": "2026-09-12",
+  "resultado": "PASA (1 test, 0 failed)",
+  "queSeComprobo": [
+    "UNA sola notification.html abierta y enfocada (document.hasFocus() === true)",
+    "origen http://localhost:5174 visible y contador «1 solicitud en espera»",
+    "preview decodificada: selector 0x095ea7b3, función approve(address,uint256), datos y tipo 2 (EIP-1559)",
+    "aviso de riesgo de allowance ilimitada visible antes de decidir",
+    "solo dos acciones: Rechazar y Aprobar; al aprobar la dApp recibe un hash 0x+64 hex"
+  ],
+  "causaDelDiagnosticoAnterior": "D-H4-E1: los 6 aprobables no se despachaban porque el catálogo los declaraba implemented:false y fuera de supportedMethods (el router respondía 4200 antes del despacho de M19.b). Corregido en src/background/rpc/catalog.ts y src/background/rpc/router.ts",
+  "defectoAdicionalCorregido": "D-H4-E7: la sección «Llamada a contrato» repetía la clase tk-section dentro del panel y el selector .tk-section con hasText resolvía a DOS elementos (strict mode violation). Se usa la utilidad tk-view en src/notification/TxPreviewPanel.tsx",
+  "artefacto": "RepoTecnico/evidencia/H4/10-aprobar-tx-2026-09-12.png"
 }

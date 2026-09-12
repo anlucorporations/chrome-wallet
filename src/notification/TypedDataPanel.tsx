@@ -139,10 +139,16 @@ export function TypedDataPanel({
         </div>
         <div className="tk-summary__row">
           <dt className="tk-summary__label">Contrato verificador</dt>
+          {/*
+            CA-RF-20: el contrato verificador se muestra EN CLARO. Se pinta la dirección
+            COMPLETA (no `shortHex`): es el dato con el que el usuario contrasta contra qué
+            contrato va a firmar, y una forma truncada obligaba a depender del `title` para
+            leerlo. Se conserva el `title` con el mismo valor como refuerzo.
+          */}
           <dd className="tk-summary__value tk-mono" title={preview.verifyingContract ?? undefined}>
             {preview.verifyingContract === null
               ? 'Sin contrato verificador'
-              : shortHex(preview.verifyingContract)}
+              : preview.verifyingContract}
           </dd>
         </div>
         <div className="tk-summary__row">

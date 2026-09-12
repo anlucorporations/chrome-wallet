@@ -1,10 +1,10 @@
-﻿{
-    "spec":  "e2e/04-enviar.spec.ts",
-    "flujo":  "eth_sendTransaction · 1 ETH entre cuentas de Anvil (CA-RF-08)",
-    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-    "resultado":  "FALLIDO · 1 test, 1 failed",
-    "causaRaiz":  "El Service Worker NO abre la ventana de confirmación para una petición aprobable de la dApp: eth_sendTransaction no se encola ni se aprueba. Medido en la primera ejecución: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event \"page\" (no apareció ninguna notification.html); en la última ejecución el propio paso previo de conexión de la dApp falló con 4001.",
-    "defecto":  "src/background/rpc/router.ts (sin despacho de los 6 métodos aprobables) · src/background/rpc/catalog.ts:378-401 (requiresApproval sin consumidor) · src/background/approvals/queue.ts:409 (enqueueApprovalRequest sin llamador de producción)",
-    "artefacto":  "RepoTecnico/evidencia/H4/04-enviar-2026-09-12.png; test-results/04-enviar-*/trace.zip",
-    "evidenciaJson":  "RepoTecnico/evidencia/H4/e2e-2026-09-12.json"
+{
+  "flujo": "eth_sendTransaction · 1 ETH entre cuentas de Anvil",
+  "dapp": "http://localhost:5174",
+  "contadorVentana": "1 solicitud en espera",
+  "ventanasDeDecision": 0,
+  "hash": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6",
+  "reciboStatus": "0x1",
+  "gastadoWei": "1000042000000000000",
+  "colaVacia": true
 }

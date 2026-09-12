@@ -25,12 +25,12 @@
   "providerDelDetailEsElPublicado": true,
   "flujoLecturas": "provider: lecturas contra Anvil",
   "ethChainId": "0x7a69",
-  "ethBlockNumber": "0x2",
-  "ethBlockNumberDelNodo": "0x2",
-  "ethBlockNumberDecimal": 2,
-  "bloqueDelNodoDecimal": 2,
-  "ethGetBalance": "0x21e19e0c9bab2400000",
-  "ethGetBalanceDelNodo": "0x21e19e0c9bab2400000",
+  "ethBlockNumber": "0x3",
+  "ethBlockNumberDelNodo": "0x3",
+  "ethBlockNumberDecimal": 3,
+  "bloqueDelNodoDecimal": 3,
+  "ethGetBalance": "0x21e0bffecd427c76000",
+  "ethGetBalanceDelNodo": "0x21e0bffecd427c76000",
   "coincideConElNodo": true,
   "coincideElBloque": true
 }

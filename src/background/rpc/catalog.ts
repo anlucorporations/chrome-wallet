@@ -19,15 +19,19 @@
  *    `resolve: true`): el router las despacha a `rpc/pageMethods.ts`, que es donde viven los
  *    manejadores. Ver `documento_tecnico.md` §3.2 y `plan_desarrollo.md` §3.3.5 tareas 3.2, 3.3
  *    y 3.7.
- * 3. Los **6 aprobables de página** siguen DECLARADOS pero **sin implementar** en H3
- *    (`implemented: false`): el router responde `4200` **sin lanzar de forma síncrona** y sin
- *    abrir ventana ni crear entrada en la cola. Su implementación llega en H4/H5.
+ * 3. Los **6 aprobables de página** están IMPLEMENTADOS desde H4 (`implemented: true`): el router
+ *    los despacha a `approvals/dispatch.ts` (M19.b), que recorre la ruta completa —vista previa
+ *    (M19) → cola (M14) → plazo (M15) → ventana única (M18) → decisión → firma (M11) y difusión
+ *    (M7)—. Mientras el metadato decía `implemented: false`, `getCatalogEntry` devolvía `undefined`
+ *    y el router respondía `4200` ANTES de llegar al despacho: eso es `D-H4-E1`, la causa medida de
+ *    que la ventana de confirmación nunca se abriera (`waitForEvent("page") Timeout`).
  * 4. Los `wallet_*` internos son invocables SOLO desde contextos de la extensión; el metadato
  *    `context: 'extension'` es la fuente que el router consulta para responder `4200`
  *    (`methodNotAllowedInContext`) cuando la petición nace en una página.
  * 5. `wallet_revokePermissions` es el ÚNICO método con **doble contexto**: desde una página es un
- *    APROBABLE (aún sin implementar → `4200`); desde el popup es la **revocación de la tarea 3.11**
- *    (elimina el origen de `truekeate_connected_sites` y emite `accountsChanged []`).
+ *    APROBABLE que recorre la ruta de M19.b (con `PendingRequest`); desde el popup es la
+ *    **revocación de la tarea 3.11** (elimina el origen de `truekeate_connected_sites` y emite
+ *    `accountsChanged []`) y NO abre ventana, porque el emisor es contexto de la extensión.
  * 6. Ningún método interno abre la ventana única (P-21): `requiresApproval` es `false` en los
  *    dieciséis. La aprobación del revelado es una **confirmación explícita dentro del propio
  *    contexto** (§5.1.1 regla (b) y §3.8), no una `PendingRequest`.
@@ -370,8 +374,9 @@ const PAGE_READ_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.freeze(
 );
 
 /**
- * Entradas de los 6 APROBABLES de página: declarados y **sin implementar** en H3. El router
- * responde `4200` con la causa `unsupportedMethod` **sin lanzar de forma síncrona**.
+ * Entradas de los 6 APROBABLES de página: declarados e IMPLEMENTADOS en H4 (`implemented: true`).
+ * El router los despacha a `approvals/dispatch.ts` (M19.b) y es ahí donde se construye la vista
+ * previa (M19), se da de alta la solicitud (M14) y se abre la ventana única (M18).
  */
 const PAGE_APPROVAL_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.freeze(
   Object.fromEntries(
@@ -382,7 +387,7 @@ const PAGE_APPROVAL_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.fre
         kind: 'approval' as const,
         context: 'page' as const,
         requiresApproval: true,
-        implemented: false,
+        implemented: true,
         resolve: false,
       },
     ]),
@@ -390,9 +395,9 @@ const PAGE_APPROVAL_ENTRIES: Readonly<Record<string, CatalogEntry>> = Object.fre
 );
 
 /**
- * Entrada ESPECIAL de `wallet_revokePermissions`: es aprobable desde una página (aún sin
- * implementar → `4200`) y, desde el popup, la revocación de la tarea 3.11. El contexto es `any`
- * porque ese doble uso es deliberado; la implementación real se registra abajo.
+ * Entrada ESPECIAL de `wallet_revokePermissions`: es aprobable desde una página (ruta de M19.b con
+ * `PendingRequest`) y, desde el popup, la revocación de la tarea 3.11. El contexto es `any` porque
+ * ese doble uso es deliberado; la implementación real se registra abajo.
  */
 const REVOKE_ENTRY: CatalogEntry = {
   method: 'wallet_revokePermissions',
@@ -403,11 +408,14 @@ const REVOKE_ENTRY: CatalogEntry = {
   resolve: false,
 };
 
-/** Métodos IMPLEMENTADOS hoy: los 16 internos y las 10 lecturas de página (H3). */
+/**
+ * Métodos IMPLEMENTADOS hoy: los 16 internos, las 10 lecturas de página (H3) y los 6 aprobables
+ * (H4). `eth_sign` NO está: sigue fuera del catálogo (DEC-22 / H-11a) y responde `4200`.
+ */
 export const supportedMethods: readonly WalletMethod[] = Object.freeze([
   ...PAGE_READ_METHODS,
+  ...PAGE_APPROVAL_METHODS,
   ...INTERNAL_METHODS,
-  'wallet_revokePermissions',
 ]);
 
 /** Mapa de métodos implementados: lo consulta el router (M3) antes de despachar. */
@@ -448,9 +456,9 @@ export const exposesEthSign = (): boolean =>
   (CATALOG_METHODS as readonly string[]).includes('eth_sign');
 
 /**
- * Devuelve la entrada del catálogo SOLO si el método está declarado **e implementado**; para un
- * método declarado sin implementación (los 6 aprobables en H3) devuelve `undefined`, que es la
- * señal con la que el router responde `4200` **sin lanzar de forma síncrona**.
+ * Devuelve la entrada del catálogo SOLO si el método está declarado **e implementado**. Desde H4
+ * TODOS los métodos declarados lo están (los 6 aprobables se despachan por M19.b); un `undefined`
+ * solo puede venir de un método fuera del catálogo, que el router rechaza antes con `4200`.
  */
 export const getCatalogEntry = (method: string): CatalogEntry | undefined =>
   isSupportedMethod(method) ? CATALOG[method] : undefined;

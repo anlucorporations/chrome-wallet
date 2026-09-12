@@ -18,7 +18,8 @@
  *   4. **Allowlist de contextos** por metadato del catálogo: los `wallet_*` internos solo se
  *      aceptan desde el popup (contexto `extension`); desde una página se responde `4200`
  *      con la causa `methodNotAllowedInContext`. La revocación del popup
- *      (`wallet_revokePermissions`) es la única excepción declarada.
+ *      (`wallet_revokePermissions`) es la única excepción declarada: desde una PÁGINA es un
+ *      aprobable de H4 y sigue al despacho del paso 6.
  *   5. ***Token bucket*** **por origen** (H3, tarea 3.13): la ventana de 6 solicitudes/60 s cubre
  *      **TODO** el catálogo —también las lecturas— y está **persistida** en
  *      `truekeate_rate_windows`, de modo que sobrevive a la suspensión del SW. Al exceder se
@@ -299,15 +300,14 @@ export const handleRPCRequest = async (
     }
 
     // 4. Allowlist de contextos: los `wallet_*` internos SOLO desde páginas de la extensión. La
-    //    revocación (`wallet_revokePermissions`, tarea 3.11) es la única excepción declarada,
-    //    porque desde una PÁGINA es un aprobable que H4 implementará (y aquí responde `4200`).
+    //    revocación (`wallet_revokePermissions`, tarea 3.11) es la única excepción declarada: desde
+    //    el POPUP la atiende su manejador interno y desde una PÁGINA es un aprobable de H4, así que
+    //    NO se cortocircuita aquí: sigue al despacho de aprobaciones del paso 6 (M19.b).
     const extensionOnly = isInternalMethod(method) || method === 'wallet_revokePermissions';
-    if (extensionOnly && !context.isExtensionContext) {
+    if (extensionOnly && !context.isExtensionContext && method !== 'wallet_revokePermissions') {
       return {
         ok: false,
-        error: method === 'wallet_revokePermissions'
-          ? unsupportedMethodError()
-          : methodNotAllowedInContextError(),
+        error: methodNotAllowedInContextError(),
         context,
         target,
         redactedParams,

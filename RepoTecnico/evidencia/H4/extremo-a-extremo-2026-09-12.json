@@ -1,0 +1,64 @@
+{
+  "flujo": "prueba real de extremo a extremo de H4",
+  "fecha": "2026-09-12",
+  "dapp": "http://localhost:5174/test.html",
+  "cuentaAutorizada": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "ventana": {
+    "ventanasAbiertas": 1,
+    "origenMostrado": "http://localhost:5174",
+    "contador": "1 solicitud en espera",
+    "tituloPanel": "Envío de transacción",
+    "etiquetasPreview": [
+      "Cuenta",
+      "Destino",
+      "Valor",
+      "Red",
+      "Comisión estimada",
+      "Tipo de transacción",
+      "Plazo"
+    ],
+    "avisosDeRiesgo": 1
+  },
+  "desenlaceDapp": {
+    "estado": "ok",
+    "valor": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6"
+  },
+  "hash": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6",
+  "recibo": {
+    "status": "0x1",
+    "blockNumber": "0x1",
+    "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+    "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+  },
+  "estadoPersistido": {
+    "colaVacia": true,
+    "entradasEnCola": 0,
+    "inflight": [
+      {
+        "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "approvalId": "557930d1-6584-4faf-806e-56275fb52bac",
+        "expiresAt": 1789221676446,
+        "nonce": 0,
+        "phase": "broadcast",
+        "startedAt": 1789221496446,
+        "txHash": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6"
+      }
+    ],
+    "marcaEnVueloLiberada": true,
+    "fasesInflight": [
+      "broadcast"
+    ],
+    "trazasTx": [
+      {
+        "event": "tx_sent",
+        "txHash": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6",
+        "origin": "http://localhost:5174"
+      }
+    ]
+  },
+  "saldo": {
+    "antesWei": "0x21e19e0c9bab2400000",
+    "despuesWei": "0x21e0bffecd427c76000",
+    "gastadoWei": "1000042000000000000"
+  }
+}

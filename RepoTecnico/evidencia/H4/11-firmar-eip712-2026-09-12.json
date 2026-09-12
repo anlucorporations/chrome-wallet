@@ -1,9 +1,15 @@
-﻿{
-    "spec":  "e2e/11-firmar-eip712.spec.ts",
-    "flujo":  "eth_signTypedData_v4 sobre TrueKeate Test App (chainId 31337) + correspondencia con el contrato verificador (CA-RF-20/CA-RT-11)",
-    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
-    "resultado":  "FALLIDO · 1 test, 1 failed",
-    "causaRaiz":  "El paso previo de conexión de la dApp falló: \"la conexión de la dApp falló: Error sin código: Sin respuesta en 5000 ms\" (no se llegó a solicitar la firma). La correspondencia wallet ↔ contrato SÍ está demostrada por Forge (10/10 en contracts/test/EIP712Verifier.t.sol, incluida la firma firmada por M11).",
-    "defecto":  "Flujo de conexión de la dApp (e2e/09-conectar.spec.ts también rojo en la misma ejecución) · regresión de los cambios de H4 en curso, fuera de mi alcance",
-    "artefacto":  "RepoTecnico/evidencia/H4/diagnostico-11-2026-09-12.png; contracts/test/fixtures/eip712-wallet-signature.json; RepoTecnico/evidencia/H4/forge-2026-09-11.log"
+{
+  "flujo": "eth_signTypedData_v4 · SaludoTipado del dominio TrueKeate Test App",
+  "dapp": "http://localhost:5174",
+  "dominio": {
+    "name": "TrueKeate Test App",
+    "version": "1",
+    "chainId": 31337,
+    "verifyingContract": "0x8464135c8F25Da09e49BC8782676a84730C318bC"
+  },
+  "primaryType": "SignMessage",
+  "digest": "0x21415eb9375a79f1d6f570962b09759e4c5c545a6a63082c66d2d8b8dcaae5fb",
+  "firmanteRecuperado": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "firma": "0x5dbadab9ae6de0a71b634ed5821e1913ca174c61e1b8ea361ca7070a7c0b9d8c764223693804f8eea7ffb4b246475c647ee539a4152d376f1f86453e300a7df51b",
+  "contratoVerificador": "0x8464135c8F25Da09e49BC8782676a84730C318bC"
 }

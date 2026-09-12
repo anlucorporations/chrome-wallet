@@ -1,0 +1,44 @@
+{
+  "hito": "H4 — Firma, aprobación y transacciones",
+  "fecha": "2026-09-12",
+  "estado": "EN CURSO (no completado): 2 de 44 E2E rojos por causas fuera del producto",
+  "comandos": {
+    "npx tsc -b": { "exitCode": 0, "evidencia": "typecheck-2026-09-12.log" },
+    "npm run build": { "exitCode": 0, "evidencia": "build-2026-09-12.log" },
+    "npm run lint:prohibited": { "exitCode": 0, "evidencia": "lint-prohibited-2026-09-12.log" },
+    "npm run test": { "exitCode": 0, "passed": 587, "failed": 0, "ficheros": 41, "evidencia": "vitest-2026-09-12.log" },
+    "npm run test:e2e": { "exitCode": 1, "passed": 42, "failed": 2, "evidencia": "e2e-2026-09-12.log" },
+    "npm run forge:test": { "exitCode": 0, "passed": 10, "failed": 0, "evidencia": "forge-2026-09-12.log" }
+  },
+  "pruebaExtremoAExtremo": {
+    "comando": "node RepoTecnico/evidencia/H4/prueba-extremo-a-extremo.mjs",
+    "resultado": "OK",
+    "ventanasDeDecisionAbiertas": 1,
+    "origen": "http://localhost:5174",
+    "contador": "1 solicitud en espera",
+    "panel": "Envío de transacción",
+    "etiquetasPreview": ["Cuenta", "Destino", "Valor", "Red", "Comisión estimada", "Tipo de transacción", "Plazo"],
+    "hash": "0x21f97614e3117d6e9083ba46b8b2be20c428008e5f6801adcc19fc00741833a6",
+    "reciboStatus": "0x1",
+    "colaVacia": true,
+    "inflightPhase": "broadcast",
+    "inflightLiberada": true,
+    "traza": "tx_sent con txHash",
+    "gastadoWei": "1000042000000000000",
+    "evidencia": ["extremo-a-extremo-2026-09-12.json", "extremo-a-extremo-2026-09-12.png"]
+  },
+  "desviaciones": {
+    "D-H4-E1": "CORREGIDO · la causa era el metadato del catálogo (implemented:false y fuera de supportedMethods): el router respondía 4200 antes del despacho de M19.b",
+    "D-H4-E2": "VERIFICADO EN VERDE · 08-eventos x2 y 09-conectar verdes en 3 ejecuciones; el 4001 registrado es el plazo de conexión inyectado (VITE_CONNECT_TIMEOUT_MS=2000), sin defecto de producción",
+    "D-H4-E3": "CORREGIDO · --http.corsdomain no existe en Anvil 1.7.2-dev; el comando del arnés es --allow-origin \"*\" sin --silent (entornos_globales.md v2.2)",
+    "D-H4-E5": "YA CORREGIDO · isNotificationTabUrl exige esquema chrome-extension: y host = runtime.id (windowRediscovery.spec.ts:91)",
+    "D-H4-E6": "YA CORREGIDO · la traza de difusión interrumpida rellena LogEntry.txHash (approvalReconcile.spec.ts:319)",
+    "D-H4-E7": "CORREGIDO · se elimina la tk-section anidada de TxPreviewPanel.tsx (strict mode violation en el E2E 10)",
+    "D-H4-E8": "CORREGIDO · TypedDataPanel.tsx pinta la dirección completa del contrato verificador (CA-RF-20)",
+    "D-H4-E9": "ABIERTO · 18-concurrencia: el servidor de la dApp escucha solo en [::1] porque vite.config.ts no declara server.host; necesita host (configuración, fuera del terreno autorizado)",
+    "D-H4-E10": "ABIERTO · 29-sw-suspendido: src/content-script.ts:225 responde -32603 a la página al cerrarse el canal antes de que la alarma despierte al SW, y el 4001 empujado no correlaciona por approvalId (fuera del terreno autorizado)"
+  },
+  "criteriosCumplidos": ["CA-RF-08", "CA-RF-19", "CA-RF-20", "CA-RF-21", "CA-RF-37", "CA-RF-42", "CA-RF-43", "CA-RF-11 (parte 2)", "RNF-25", "CA-RT-11"],
+  "criteriosParciales": ["CA-RF-35", "CA-RF-41 (parte E2E)", "RNF-08 (parte E2E)"],
+  "nota": "Esta batería sustituye a la del 2026-09-11. Los diagnósticos por spec de esa batería (10-aprobar-tx, 18-concurrencia, 29-sw-suspendido) quedan reescritos con el estado medido de esta."
+}
