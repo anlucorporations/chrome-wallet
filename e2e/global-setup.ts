@@ -23,7 +23,7 @@
  * `TK_EVIDENCE_PHASE` cambia de hito.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,6 +57,17 @@ const PLAZOS_PRODUCCION = {
 /** RPC local de Anvil (`entornos_globales.md` §3). */
 const ANVIL_RPC_URL = 'http://127.0.0.1:8545';
 const ANVIL_CHAIN_ID = '31337';
+
+/**
+ * SEGUNDA red de los flujos de cambio y alta (H5, `plan_desarrollo.md` §3.5.7): Anvil secundario en
+ * `127.0.0.1:8546` con `chainId 31338`. Este `globalSetup` lo arranca si no está; si no se puede
+ * arrancar, la suite NO se aborta (a diferencia del nodo principal): las pruebas de red que lo
+ * necesitan se marcan como NO VERIFICADAS con el motivo escrito (§3.5.8).
+ */
+const ANVIL_SECUNDARIO_RPC_URL = 'http://127.0.0.1:8546';
+const ANVIL_SECUNDARIO_CHAIN_ID = '31338';
+const COMANDO_ANVIL_SECUNDARIO =
+  'anvil --host 127.0.0.1 --port 8546 --chain-id 31338 --allow-origin "*"';
 
 // ---------------------------------------------------------------------------
 // Utilidades
@@ -227,7 +238,60 @@ export default async function globalSetup(): Promise<void> {
     );
   }
 
-  // --- 5. Evidencia ------------------------------------------------------------------------
+  // --- 5. Anvil SECUNDARIO (8546 / 31338): se arranca si falta, sin abortar la suite -------------
+  // Los flujos de cambio y alta de red necesitan una SEGUNDA red dada de alta. Si no está, se
+  // intenta arrancar aquí (formato exacto de §3.5.7, SIN `--silent`); si aun así no responde, la
+  // suite sigue y las pruebas que la necesitan quedan marcadas como NO VERIFICADAS.
+  let anvilSecundario = ejecutar(
+    'cast',
+    ['chain-id', '--rpc-url', ANVIL_SECUNDARIO_RPC_URL],
+    process.env,
+    30_000,
+  );
+  let arrancadoPorElArnes = false;
+  if (!(anvilSecundario.ok && anvilSecundario.salida.trim() === ANVIL_SECUNDARIO_CHAIN_ID)) {
+    log.push('## Anvil secundario: no responde; se arranca desde el arnés', formatear(anvilSecundario));
+    try {
+      const hijo = spawn(
+        'anvil',
+        ['--host', '127.0.0.1', '--port', '8546', '--chain-id', '31338', '--allow-origin', '*'],
+        { detached: true, stdio: 'ignore' },
+      );
+      hijo.unref();
+      arrancadoPorElArnes = true;
+    } catch (error) {
+      log.push(`No se pudo arrancar el Anvil secundario: ${String(error)}`);
+    }
+    const limite = Date.now() + 20_000;
+    while (Date.now() < limite) {
+      anvilSecundario = ejecutar(
+        'cast',
+        ['chain-id', '--rpc-url', ANVIL_SECUNDARIO_RPC_URL],
+        process.env,
+        15_000,
+      );
+      if (anvilSecundario.ok && anvilSecundario.salida.trim() === ANVIL_SECUNDARIO_CHAIN_ID) break;
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 500);
+      });
+    }
+  }
+  const anvilSecundarioOk =
+    anvilSecundario.ok && anvilSecundario.salida.trim() === ANVIL_SECUNDARIO_CHAIN_ID;
+  log.push(
+    '## Anvil secundario (segunda red)',
+    anvilSecundarioOk
+      ? `OK: cast chain-id --rpc-url ${ANVIL_SECUNDARIO_RPC_URL} = ${anvilSecundario.salida.trim()}${arrancadoPorElArnes ? ' (arrancado por el arnés)' : ''}`
+      : `NO DISPONIBLE: las pruebas de cambio/alta de red que lo necesitan se marcarán como NO VERIFICADAS.\n  Comando: ${COMANDO_ANVIL_SECUNDARIO}`,
+    '',
+  );
+  if (!anvilSecundarioOk) {
+    advertencias.push(
+      `Anvil secundario no disponible en ${ANVIL_SECUNDARIO_RPC_URL}: los casos de red que lo necesitan quedan NO VERIFICADOS`,
+    );
+  }
+
+  // --- 6. Evidencia ------------------------------------------------------------------------
   const registro = {
     fase: EVIDENCE_PHASE,
     fecha: RUN_DATE,
@@ -240,6 +304,13 @@ export default async function globalSetup(): Promise<void> {
     buildAlternativo:
       buildAlternativo === null ? null : { comando: buildAlternativo.comando, exitCode: buildAlternativo.exitCode, ok: buildAlternativo.ok },
     anvil: { rpcUrl: ANVIL_RPC_URL, disponible: anvilOk, chainId: chainId.slice(0, 40) },
+    anvilSecundario: {
+      rpcUrl: ANVIL_SECUNDARIO_RPC_URL,
+      disponible: anvilSecundarioOk,
+      chainId: anvilSecundario.salida.trim().slice(0, 40),
+      arrancadoPorElArnes,
+      comando: COMANDO_ANVIL_SECUNDARIO,
+    },
     advertencias,
   };
 
@@ -250,7 +321,7 @@ export default async function globalSetup(): Promise<void> {
     'utf8',
   );
 
-  // --- 6. Resumen por consola ---------------------------------------------------------------
+  // --- 7. Resumen por consola ---------------------------------------------------------------
   console.log(`[e2e/global-setup] fase ${EVIDENCE_PHASE} · evidencia en RepoTecnico/evidencia/${EVIDENCE_PHASE}/`);
   console.log(
     `[e2e/global-setup] plazos inyectados ${PLAZOS_INYECTADOS.VITE_SIGN_TIMEOUT_MS}/${PLAZOS_INYECTADOS.VITE_CONNECT_TIMEOUT_MS} ms · producción 120000/60000/30000 ms (verificados)`,
@@ -259,9 +330,16 @@ export default async function globalSetup(): Promise<void> {
   console.log(
     `[e2e/global-setup] Anvil ${ANVIL_RPC_URL}: ${anvilOk ? `OK (chainId ${chainId})` : 'NO DISPONIBLE → la suite se aborta'}`,
   );
+  console.log(
+    `[e2e/global-setup] Anvil secundario ${ANVIL_SECUNDARIO_RPC_URL}: ${
+      anvilSecundarioOk
+        ? `OK (chainId ${anvilSecundario.salida.trim()}${arrancadoPorElArnes ? ', arrancado por el arnés' : ''})`
+        : 'NO DISPONIBLE → los casos de red que lo necesitan quedan NO VERIFICADOS'
+    }`,
+  );
   for (const advertencia of advertencias) console.warn(`[e2e/global-setup] AVISO: ${advertencia}`);
 
-  // --- 7. Aborto por Anvil ausente (siempre DESPUÉS de archivar la evidencia) ----------------
+  // --- 8. Aborto por Anvil ausente (siempre DESPUÉS de archivar la evidencia) ----------------
   // El mensaje lleva el comando EXACTO que arranca el nodo: el fallo deja de ser confuso.
   if (abortoAnvil !== null) {
     throw new Error(abortoAnvil);

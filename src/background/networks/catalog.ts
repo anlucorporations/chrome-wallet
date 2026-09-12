@@ -163,15 +163,42 @@ export const resolveActiveNetwork = (
 ): StoredNetwork => networkFor(catalog, activeChainId) ?? defaultNetworkOf(catalog);
 
 /**
+ * Cerrojo de escritura del catálogo de redes (mismo patrón que M29/M30).
+ *
+ * DEFECTO MEDIDO Y CORREGIDO AQUÍ (H5, `D-H5-P`): `truekeate_networks` se escribe con
+ * **lectura-modificación-escritura** (`seedDefaultNetwork` al arrancar el SW y `upsertNetwork` en
+ * cada alta). Sin serialización, una siembra que lee el catálogo **antes** de un alta y escribe
+ * **después** pisa el alta con `{ ...catálogo_leído, Anvil }` y **la red nueva desaparece** (lost
+ * update). Medido en el arnés: la escritura de una segunda red se perdía de forma intermitente
+ * cuando el Service Worker se despertaba a la vez (siembra de arranque vs escritura del catálogo).
+ * El cerrojo encadena las dos operaciones —y sus lecturas— dentro del MISMO contexto del SW.
+ */
+let networkWriteTail: Promise<unknown> = Promise.resolve();
+
+/** Serializa una escritura del catálogo: la siguiente no empieza hasta que la anterior termina. */
+const runSerializedNetworkWrite = <T>(task: () => Promise<T>): Promise<T> => {
+  const result = networkWriteTail.then(task, task);
+  networkWriteTail = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
+};
+
+/**
  * Siembra `truekeate_networks` con Anvil y fija `truekeate_chain_id` si falta o es inválido.
  *
  * Es **idempotente**: si Anvil ya está dado de alta no reescribe el mapa, y respeta el `chainId`
  * activo que ya sea válido (no pisa una elección previa). Devuelve la red activa resultante.
+ *
+ * La lectura y la escritura van **dentro del cerrojo** para no perder un alta concurrente
+ * (`D-H5-P`); con `snapshot` inyectado se respeta la instantánea que ya tiene el llamador.
  */
 export const seedDefaultNetwork = async (
   storage: StorageLocalLike | null | undefined = undefined,
   snapshot?: StorageSnapshot,
-): Promise<StoredNetwork> => {
+): Promise<StoredNetwork> =>
+  runSerializedNetworkWrite(async () => {
   const stored = snapshot ?? (await readStorage([STORAGE_KEYS.networks, STORAGE_KEYS.chainId], storage));
   const catalog = readNetworksFromSnapshot(stored);
   const items: Record<string, unknown> = {};
@@ -192,7 +219,7 @@ export const seedDefaultNetwork = async (
     ...items,
   });
   return resolveActiveNetwork(items[STORAGE_KEYS.chainId] ?? storedChainId, nextCatalog);
-};
+  });
 
 /** Dirección de red: la de la red activa, o la de Anvil si aún no hay catálogo (`RE-04`). */
 export const rpcUrlFor = (network: StoredNetwork | null | undefined): string =>
@@ -529,22 +556,25 @@ export const storedNetworkFromDeclaration = (declaration: ChainDeclaration): Sto
  * Da de alta (o reemplaza) una red en `truekeate_networks` **sin tocar `truekeate_chain_id`**:
  * es la escritura de la tarea 5.2, `ADT-25`/`P-22`. Devuelve el catálogo resultante.
  *
- * Se escribe la clave COMPLETA (nunca subclaves), como exige la regla de escritura de §2.6/§2.8.
+ * Se escribe la clave COMPLETA (nunca subclaves), como exige la regla de escritura de §2.6/§2.8, y
+ * la lectura-modificación-escritura va **dentro del cerrojo** del catálogo (`D-H5-P`) para que una
+ * siembra de arranque simultánea no pierda el alta.
  */
 export const upsertNetwork = async (
   network: StoredNetwork,
   storage: NetworkStorage = undefined,
-): Promise<NetworksCatalog> => {
-  const current = await readNetworks(storage);
-  const next: NetworksCatalog = { ...current, [network.chainId]: network };
-  const written =
-    storage === undefined
-      ? await writeStorage({ [STORAGE_KEYS.networks]: next })
-      : await writeStorage({ [STORAGE_KEYS.networks]: next }, storage);
-  if (!written) {
-    // Clave crítica: la operación se ABORTA con el `code` de §4.3 (`-32603`) y el estado no queda
-    // a medias; el detalle de la red va en `data` de una traza, nunca en el literal de la tabla.
-    throw storageQuotaExceededError();
-  }
-  return next;
-};
+): Promise<NetworksCatalog> =>
+  runSerializedNetworkWrite(async () => {
+    const current = await readNetworks(storage);
+    const next: NetworksCatalog = { ...current, [network.chainId]: network };
+    const written =
+      storage === undefined
+        ? await writeStorage({ [STORAGE_KEYS.networks]: next })
+        : await writeStorage({ [STORAGE_KEYS.networks]: next }, storage);
+    if (!written) {
+      // Clave crítica: la operación se ABORTA con el `code` de §4.3 (`-32603`) y el estado no queda
+      // a medias; el detalle de la red va en `data` de una traza, nunca en el literal de la tabla.
+      throw storageQuotaExceededError();
+    }
+    return next;
+  });

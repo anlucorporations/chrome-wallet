@@ -25,6 +25,8 @@
 
 import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
 import { AccountsView } from './views/AccountsView';
+import { LogsView } from './views/LogsView';
+import { NetworksView } from './views/NetworksView';
 import { ReceiveView } from './views/ReceiveView';
 import { SecurityView } from './views/SecurityView';
 import { SendView } from './views/SendView';
@@ -47,14 +49,16 @@ export const TAGLINE = 'PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS';
 const MARK_SRC = 'brand/truekeate-mark-96.png';
 
 /**
- * Pestañas del popup: las de H2, «Sitios» (tarea 3.11) y «Enviar» (H4, tarea 4.14).
+ * Pestañas del popup: las de H2, «Sitios» (tarea 3.11), «Enviar» (H4, tarea 4.14) y las dos de H5
+ * —«Redes» (M43, tareas 5.1 a 5.3) y «Actividad» (M45, tarea 5.10)—.
  *
  * La pestaña de envío se identifica como `send-tab` —no como la palabra suelta `send`— porque
  * `CA-RT-10` (`i18n.spec.ts`) revisa los literales de cadena de la UI: una palabra inglesa suelta
  * se marcaría como texto visible, mientras que un identificador con separador queda exento por su
- * forma (el texto que ve el usuario es «Enviar»).
+ * forma (el texto que ve el usuario es «Enviar»). Por el mismo motivo las dos pestañas nuevas usan
+ * identificadores con separador.
  */
-type TabId = 'accounts' | 'receive' | 'send-tab' | 'sites' | 'security';
+type TabId = 'accounts' | 'receive' | 'send-tab' | 'sites' | 'security' | 'networks-tab' | 'activity-tab';
 
 /** Definición de una pestaña. */
 interface TabDefinition {
@@ -62,13 +66,15 @@ interface TabDefinition {
   label: string;
 }
 
-/** Las cinco pestañas, en orden de tabulación. */
+/** Las siete pestañas, en orden de tabulación. */
 const TABS: readonly TabDefinition[] = [
   { id: 'accounts', label: 'Cuentas' },
   { id: 'receive', label: 'Recibir' },
   { id: 'send-tab', label: 'Enviar' },
   { id: 'sites', label: 'Sitios' },
   { id: 'security', label: 'Seguridad' },
+  { id: 'networks-tab', label: 'Redes' },
+  { id: 'activity-tab', label: 'Actividad' },
 ];
 
 /** Estado de arranque del popup. */
@@ -236,7 +242,7 @@ export function App(): JSX.Element {
         ) : (
           <>
             <nav className="tk-tabs" aria-label="Secciones del popup">
-              <div className="tk-tabs__list tk-tabs__list--five" role="tablist">
+              <div className="tk-tabs__list tk-tabs__list--seven" role="tablist">
                 {TABS.map((definition) => (
                   <button
                     key={definition.id}
@@ -295,6 +301,19 @@ export function App(): JSX.Element {
                 />
               ) : null}
               {tab === 'sites' ? <SitesView accounts={accounts} /> : null}
+              {/*
+                «Redes» (M43, H5): lista de `truekeate_networks` con la activa marcada, cambio con
+                aprobación y alta con `chrome.permissions.request` en runtime, que NO activa la red.
+              */}
+              {tab === 'networks-tab' ? (
+                <NetworksView
+                  networks={snapshot.networks}
+                  currentChainId={snapshot.currentChainId}
+                  onChanged={handleChanged}
+                />
+              ) : null}
+              {/* «Actividad» (M45, H5): panel de logs con exportación JSON; el popup solo lee. */}
+              {tab === 'activity-tab' ? <LogsView /> : null}
               {tab === 'security' ? (
                 <SecurityView
                   accounts={accounts}

@@ -1,0 +1,35 @@
+{
+  "fase": "H5",
+  "fecha": "2026-09-12",
+  "repositorio": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet",
+  "dist": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\dist",
+  "manifestDisponible": true,
+  "plazosInyectados": {
+    "VITE_SIGN_TIMEOUT_MS": "3000",
+    "VITE_CONNECT_TIMEOUT_MS": "2000"
+  },
+  "plazosProduccion": {
+    "VITE_SIGN_TIMEOUT_MS": 120000,
+    "VITE_CONNECT_TIMEOUT_MS": 60000,
+    "VITE_REVEAL_HIDE_MS": 30000
+  },
+  "build": {
+    "comando": "npm run build",
+    "exitCode": 0,
+    "ok": true
+  },
+  "buildAlternativo": null,
+  "anvil": {
+    "rpcUrl": "http://127.0.0.1:8545",
+    "disponible": true,
+    "chainId": "31337"
+  },
+  "anvilSecundario": {
+    "rpcUrl": "http://127.0.0.1:8546",
+    "disponible": true,
+    "chainId": "31338",
+    "arrancadoPorElArnes": true,
+    "comando": "anvil --host 127.0.0.1 --port 8546 --chain-id 31338 --allow-origin \"*\""
+  },
+  "advertencias": []
+}

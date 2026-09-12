@@ -113,11 +113,18 @@ test.describe('29 · SW suspendido a mitad de una aprobación (RNF-08)', () => {
     const msHastaArrancar = performance.now() - inicioEspera;
 
     // Reconstrucción: desde que el SW está `running` hasta que la cola queda sin huérfanas.
+    //
+    // MEDICIÓN de H5: se muestrea con intervalo FIJO de 50 ms (`intervals: [50]`). El intervalo
+    // adaptativo por defecto de `expect.poll` (50 → 100 → 250 → 500 → 1000 ms) añadía hasta ~1,5 s
+    // de sobrecoste PROPIO del arnés a una medida que se compara con el umbral de < 1 s de RNF-08,
+    // de modo que la prueba medía su propia espera y no la reconstrucción del Service Worker. El
+    // umbral NO cambia.  ✓
     const inicioReconstruccion = performance.now();
     await expect
       .poll(async () => Object.keys(((await leerAlmacen(popup, CLAVE_COLA)) ?? {}) as object).length, {
         message: 'la solicitud huérfana no se purgó al re-arrancar el SW',
         timeout: 20_000,
+        intervals: [50],
       })
       .toBe(0);
     const msReconstruccion = performance.now() - inicioReconstruccion;

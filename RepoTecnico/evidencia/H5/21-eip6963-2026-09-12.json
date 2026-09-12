@@ -1,0 +1,22 @@
+{
+  "flujo": "anuncio EIP-6963 recibido por la dApp de pruebas",
+  "fecha": "2026-09-12",
+  "anuncios": [
+    {
+      "name": "TrueKeate",
+      "rdns": "academy.codecrypto.truekeate",
+      "uuid": "9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90",
+      "iconBytes": 20350
+    },
+    {
+      "name": "TrueKeate",
+      "rdns": "academy.codecrypto.truekeate",
+      "uuid": "9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90",
+      "iconBytes": 20350
+    }
+  ],
+  "anunciosTrasSolicitar": 3,
+  "uuidEstable": true,
+  "providerIdentico": true,
+  "aliasCongelado": true
+}

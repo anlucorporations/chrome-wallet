@@ -42,7 +42,9 @@ const instalarFallo = (veces: number, mensaje = 'QUOTA_BYTES quota exceeded'): {
 
 /** Lee `truekeate_logs` del stub. */
 const leerLogs = async (): Promise<LogEntry[]> => {
-  const items = await chromeStub.storage.local.get(STORAGE_KEYS.logs);
+  // El `get` del stub puede resolverse como `undefined` (sobrecarga con callback de la API real):
+  // una lectura ausente es una instantánea VACÍA, nunca un fallo de la prueba.
+  const items = (await chromeStub.storage.local.get(STORAGE_KEYS.logs)) ?? {};
   const value = items[STORAGE_KEYS.logs];
   return Array.isArray(value) ? (value as LogEntry[]) : [];
 };
@@ -72,6 +74,9 @@ describe('M30 · 1 reintento tras la retención FIFO', () => {
     expect(await leerLogs()).toHaveLength(200);
 
     // El PRIMER `set` falla por cuota (el 2.º es el reintento, que sí escribe).
+    // La siembra de las 200 entradas ya contó su propio intento en la contabilidad del logger: se
+    // reinicia para medir EXCLUSIVAMENTE el ciclo de la entrada que se está probando (1 + 1).
+    resetLogDiagnostics();
     const fallo = instalarFallo(1);
     const entry = await logEvent(
       { event: 'tx_sent', origin: 'http://localhost:5174', data: { txHash: `0x${'11'.repeat(32)}` } },
@@ -98,7 +103,6 @@ describe('M30 · 1 reintento tras la retención FIFO', () => {
 
     expect(entry).toBeNull();
     // Un único intento: ni reintento del log, ni entrada de diagnóstico (no es cuota).
-    console.log('DEBUG no-cuota intentos', fallo.intentos(), JSON.stringify(readLogDiagnostics()), JSON.stringify(await leerLogs()).slice(0, 200));
     expect(fallo.intentos()).toBe(1);
     expect(readLogDiagnostics()).toMatchObject({ dropped: 0, retries: 0, attempts: 1 });
     expect(await leerLogs()).toEqual([]);

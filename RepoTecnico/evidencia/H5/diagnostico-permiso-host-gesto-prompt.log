@@ -1,0 +1,29 @@
+﻿node.exe : [WebServer] (node:3676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] AVISO: «npm run build» falló (exit 1): dist/ puede quedar incompleto. Ver e2e-global-setup en la 
+evidencia y ACTA_H1.md.
+(node:3060) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:13776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SONDA request(sw)= {"resuelto":true,"error":"This function must be called during a user gesture"}
+SONDA request(popup-sin-gesto)= {"resuelto":false}
+SONDA request(popup-con-gesto)= {"resuelto":false}
+SONDA contains(tras todo)= false
+  ok 1 [chromium-extension] › e2e\91-sonda-redes.spec.ts:15:1 › sonda: chrome.permissions.request acotado (15.3s)
+
+  1 passed (37.7s)

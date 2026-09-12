@@ -1,0 +1,23 @@
+{
+  "flujo": "eventos: accountsChanged en dos pestañas",
+  "fecha": "2026-09-12",
+  "origen": "http://localhost:5174",
+  "cuentaAutorizada": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "pestanaA": [
+    {
+      "eventName": "accountsChanged",
+      "data": []
+    }
+  ],
+  "pestanaB": [
+    {
+      "eventName": "accountsChanged",
+      "data": []
+    }
+  ],
+  "pestanaCNoConectada": [],
+  "cuentasTrasRevocar": {
+    "A": [],
+    "B": []
+  }
+}

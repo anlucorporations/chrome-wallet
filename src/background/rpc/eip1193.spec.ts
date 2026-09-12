@@ -53,9 +53,10 @@ describe('M6 · lista cerrada de 8 códigos EIP-1193 (CA-RF-14)', () => {
     expect([...ERROR_CODES]).toEqual([...CODIGOS_ESPERADOS]);
     expect(new Set(ERROR_CODES).size).toBe(8);
     // La tabla del diccionario NO se queda corta: 25 causas del núcleo + 7 de la v1.9 + 2 de la
-    // v1.10 (§4.3.2, H4: `inflightTxInProgress` y `broadcastRejected`, ambas con `code: -32000`).
+    // v1.10 (§4.3.2, H4: `inflightTxInProgress` y `broadcastRejected`, ambas con `code: -32000`) +
+    // 3 de la v1.11 (H5: `invalidRpcUrl`, `invalidNetworkDefinition` y `chainIdMismatch`).
     expect(ERROR_CATALOG).toHaveLength(25);
-    expect(ALL_ERROR_DEFINITIONS.length).toBe(ERROR_CATALOG.length + 9);
+    expect(ALL_ERROR_DEFINITIONS.length).toBe(ERROR_CATALOG.length + 12);
     // Un mismo `code` admite varias causas: por eso hay más causas que códigos.
     expect(new Set(ALL_ERROR_DEFINITIONS.map((fila) => fila.code)).size).toBe(8);
     expect(ALL_ERROR_DEFINITIONS.length).toBeGreaterThan(8);

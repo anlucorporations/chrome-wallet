@@ -249,6 +249,20 @@ export async function watchServiceWorker(
   return {
     status: () => actual()?.runningStatus,
     async stop() {
+      /**
+       * Suspensión por CDP: UNA petición `ServiceWorker.stopWorker` y espera acotada a observarla.
+       *
+       * MEDICIÓN de H5 (dos efectos opuestos, y por eso NO se reintenta en bucle):
+       *   · reintentar `stopWorker` cada 250 ms ROMPE el E2E `29-sw-suspendido`: cuando la alarma
+       *     despierta al SW —que es justo lo que esa prueba mide—, el reintento lo mata a mitad de la
+       *     reconciliación y la reconstrucción se alarga a ~1,3-1,9 s (RNF-08 exige < 1 s);
+       *   · con una sola petición la suspensión se aplica de inmediato salvo que el SW esté siendo
+       *     despertado de forma continua: el *polling* de saldos del popup (pestaña «Cuentas», cada
+       *     5 s) mantiene el worker en `running` y Chrome no lo suspende. Eso dejaba en rojo, de forma
+       *     intermitente en la suite completa, el E2E `09-conectar` (que abre el popup justo antes de
+       *     suspender). La solución es del lado de la prueba que suspende: dejar de alimentar ese
+       *     *polling* antes de pedir la suspensión (ver `09-conectar.spec.ts`).
+       */
       const version = actual();
       if (version === undefined) throw new Error(`[e2e] no se localizó la versión del SW ${scriptURL}`);
       if (version.runningStatus === 'stopped') return;
@@ -261,7 +275,7 @@ export async function watchServiceWorker(
       await expect
         .poll(() => actual()?.runningStatus, {
           message: 'el Service Worker no llegó a suspenderse',
-          timeout: 15_000,
+          timeout: 20_000,
         })
         .toBe('stopped');
     },
@@ -653,21 +667,61 @@ export interface DesenlaceDeConexion {
 }
 
 /**
- * Ejecuta el flujo completo de conexión: pulsa «Conectar» en `test.html`, espera la ventana
- * `connect.html` que abre el Service Worker, elige la cuenta (o rechaza) y devuelve lo que la
- * dApp recibió. No usa esperas fijas: todo son condiciones observables (ventana, filas, clase del
- * resultado).
+ * Ejecuta `accion` registrando ANTES la espera de la ventana ÚNICA de decisión (`notification.html`)
+ * y devuelve la ventana junto al resultado de la acción.
+ *
+ * Es imprescindible en H5 por dos motivos medidos:
+ *   1. el plazo inyectado por el arnés es `VITE_SIGN_TIMEOUT_MS=3000`, así que una ventana que se
+ *      abre y se cierra dentro de ese margen puede perderse si la espera se registra DESPUÉS del clic
+ *      (el evento `page` es efímero);
+ *   2. la ventana es ÚNICA (P-21) y el Service Worker puede **REUTILIZAR** la que ya está abierta
+ *      para la siguiente solicitud (`showOldestPending`), en cuyo caso **no** se emite ningún
+ *      `page` nuevo: se admite tanto la ventana recién creada como la que ya estaba abierta.
  */
-export async function conectarDapp(
+export async function conVentanaDeDecision<T>(
   context: BrowserContext,
+  accion: () => Promise<T>,
+): Promise<{ ventana: Page; resultado: T }> {
+  const esperaNueva = context.waitForEvent('page', { timeout: 20_000 }).catch(() => null);
+  const resultado = await accion();
+
+  const reutilizada = ventanasDeDecision(context)[0];
+  if (reutilizada !== undefined) {
+    await reutilizada.waitForLoadState('domcontentloaded');
+    return { ventana: reutilizada, resultado };
+  }
+  const ventana = await esperaNueva;
+  if (ventana === null) {
+    throw new Error('[e2e] no apareció la ventana única de decisión (notification.html)');
+  }
+  await ventana.waitForLoadState('domcontentloaded');
+  return { ventana, resultado };
+}
+
+/**
+ * Pulsa el botón de un flujo de `test.html` que abre la ventana ÚNICA y devuelve esa ventana.
+ *
+ * Separar «pulsar» de «resolver» permite medir el resultado en pantalla del flujo ANTES de decidir
+ * en la ventana (tarea 5.11: resultado en < 5000 ms).
+ */
+export async function pulsarFlujoConVentana(
+  context: BrowserContext,
+  dapp: Page,
+  idBoton: string,
+): Promise<Page> {
+  const { ventana } = await conVentanaDeDecision(context, () => dapp.click(`#${idBoton}`));
+  return ventana;
+}
+
+/**
+ * Resuelve la ventana de conexión (`connect.html`) YA abierta: elige la cuenta (o rechaza) y
+ * devuelve lo que la dApp recibió. No usa esperas fijas: todo son condiciones observables.
+ */
+export async function resolverConexionEnVentana(
+  ventana: Page,
   dapp: Page,
   opciones: OpcionesDeConexion = {},
 ): Promise<DesenlaceDeConexion> {
-  const esperaVentana = context.waitForEvent('page', { timeout: 20_000 });
-  await dapp.click('#btn-conectar');
-  const ventana = await esperaVentana;
-  await ventana.waitForLoadState('domcontentloaded');
-
   const filas = ventana.locator('.tk-connect-row');
   await expect(filas.first()).toBeVisible({ timeout: 15_000 });
   if (opciones.indice !== undefined) {
@@ -686,6 +740,20 @@ export async function conectarDapp(
     resultado: (await fila.locator('.resultado__cuerpo').textContent()) ?? '',
     ok: clase.includes('resultado--ok'),
   };
+}
+
+/**
+ * Ejecuta el flujo completo de conexión: pulsa «Conectar» en `test.html`, espera la ventana
+ * `connect.html` que abre el Service Worker, elige la cuenta (o rechaza) y devuelve lo que la
+ * dApp recibió.
+ */
+export async function conectarDapp(
+  context: BrowserContext,
+  dapp: Page,
+  opciones: OpcionesDeConexion = {},
+): Promise<DesenlaceDeConexion> {
+  const ventana = await pulsarFlujoConVentana(context, dapp, 'btn-conectar');
+  return resolverConexionEnVentana(ventana, dapp, opciones);
 }
 
 /** Envía una petición del catálogo DESDE una página de la extensión (contexto `extension`). */
@@ -940,4 +1008,141 @@ export function archivarEvidencia(nombre: string, contenido: unknown): string {
   const destino = join(EVIDENCE_DIR, `${nombre}-${RUN_DATE}.json`);
   writeFileSync(destino, `${JSON.stringify(contenido, null, 2)}\n`, 'utf8');
   return destino;
+}
+
+// ---------------------------------------------------------------------------
+// H5 · Segunda red (Anvil secundario en 8546/31338) y lectura del catálogo
+// ---------------------------------------------------------------------------
+
+/**
+ * Endpoint del **Anvil secundario**: red de 31338 exigida por los flujos de cambio y alta de red
+ * (`plan_desarrollo.md` §3.5.7 y riesgo «Segunda red ausente» de §3.5.8).
+ *
+ * El `globalSetup` lo arranca si no está (con `anvil --host 127.0.0.1 --port 8546 --chain-id 31338
+ * --allow-origin "*"`), y las pruebas que lo necesitan comprueban su disponibilidad y, si falta, se
+ * marcan como NO VERIFICADAS con el motivo escrito.
+ */
+export const SECONDARY_ANVIL_RPC_URL = 'http://127.0.0.1:8546';
+
+/** `chainId` decimal del Anvil secundario. */
+export const SECONDARY_ANVIL_CHAIN_ID = '31338';
+
+/** `chainId` hexadecimal del Anvil secundario (`0x7a6a`). */
+export const SECONDARY_ANVIL_CHAIN_ID_HEX = '0x7a6a';
+
+/** ¿Responde el Anvil secundario con `chainId 0x7a6a`? Condición observable, sin esperas fijas. */
+export async function anvilSecundarioResponde(): Promise<boolean> {
+  try {
+    const respuesta = await fetch(SECONDARY_ANVIL_RPC_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }),
+      signal: AbortSignal.timeout(2_000),
+    });
+    const cuerpo = (await respuesta.json()) as { result?: unknown };
+    return cuerpo.result === SECONDARY_ANVIL_CHAIN_ID_HEX;
+  } catch {
+    return false;
+  }
+}
+
+/** Espera a que el Anvil secundario responda (o devuelve `false` al agotar el plazo). */
+export async function esperarAnvilSecundario(timeoutMs = 20_000): Promise<boolean> {
+  const limite = Date.now() + timeoutMs;
+  while (Date.now() < limite) {
+    if (await anvilSecundarioResponde()) return true;
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 250);
+    });
+  }
+  return false;
+}
+
+/**
+ * Arranca el Anvil secundario desacoplado, con el formato exacto de `plan_desarrollo.md` §3.5.7
+ * (`--allow-origin "*"`). Se usa para RESTAURAR el nodo tras la prueba que lo detiene.
+ */
+export function arrancarAnvilSecundario(): void {
+  const hijo = spawn(
+    anvilBinario(),
+    ['--host', '127.0.0.1', '--port', '8546', '--chain-id', '31338', '--allow-origin', '*'],
+    { detached: true, stdio: 'ignore' },
+  );
+  hijo.unref();
+}
+
+/** Declaración EIP-3085 del Anvil secundario: es la que se envía en `wallet_addEthereumChain`. */
+export const RED_SECUNDARIA_EIP3085: Readonly<Record<string, unknown>> = {
+  chainId: SECONDARY_ANVIL_CHAIN_ID_HEX,
+  chainName: 'Anvil Secundario',
+  rpcUrls: [SECONDARY_ANVIL_RPC_URL],
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  blockExplorerUrls: [],
+};
+
+/** Red persistida tal y como la lee una prueba (subconjunto de `StoredNetwork`). */
+export interface RedPersistida {
+  chainId?: string;
+  chainIdDecimal?: number;
+  name?: string;
+  rpcUrl?: string;
+  symbol?: string;
+  isTestnet?: boolean;
+  isDefault?: boolean;
+}
+
+/** `truekeate_networks` persistido (mapa `chainId → red`), leído DESDE el Service Worker. */
+export async function redesPersistidas(worker: Worker): Promise<Record<string, RedPersistida>> {
+  const almacen = await readChromeStorage(worker, ['truekeate_networks']);
+  const redes = almacen.truekeate_networks;
+  return typeof redes === 'object' && redes !== null ? (redes as Record<string, RedPersistida>) : {};
+}
+
+/** `chainId` activo persistido (`truekeate_chain_id`), leído DESDE el Service Worker. */
+export async function chainIdPersistido(worker: Worker): Promise<unknown> {
+  return (await readChromeStorage(worker, ['truekeate_chain_id'])).truekeate_chain_id;
+}
+
+/** Entradas de `truekeate_logs`, leídas DESDE el Service Worker (fuente de verdad del registro). */
+export async function leerLogsPersistidos(
+  worker: Worker,
+): Promise<Array<Record<string, unknown>>> {
+  const almacen = await readChromeStorage(worker, ['truekeate_logs']);
+  const logs = almacen.truekeate_logs;
+  return Array.isArray(logs) ? (logs as Array<Record<string, unknown>>) : [];
+}
+
+/** Espera a que aparezca en `truekeate_logs` una entrada que cumpla el predicado. */
+export async function esperarEntradaDeLog(
+  worker: Worker,
+  predicado: (entrada: Record<string, unknown>) => boolean,
+  timeoutMs = 15_000,
+): Promise<Record<string, unknown>> {
+  await expect
+    .poll(async () => (await leerLogsPersistidos(worker)).some(predicado), {
+      message: 'no apareció en truekeate_logs la entrada esperada',
+      timeout: timeoutMs,
+    })
+    .toBe(true);
+  const encontrada = (await leerLogsPersistidos(worker)).find(predicado);
+  if (encontrada === undefined) {
+    throw new Error('[e2e] la entrada de log desapareció entre la espera y la lectura');
+  }
+  return encontrada;
+}
+
+// ---------------------------------------------------------------------------
+// H5 · Pestañas del popup (redes y actividad)
+// ---------------------------------------------------------------------------
+
+/** Abre el popup, espera a que esté listo y devuelve la página con su estado inicial. */
+export async function abrirPestanaDelPopup(
+  context: BrowserContext,
+  extensionId: string,
+  nombre: string,
+): Promise<Page> {
+  const popup = await openPopupReady(context, extensionId);
+  await popup.getByRole('tab', { name: nombre }).click();
+  await expect(popup.getByRole('tab', { name: nombre })).toHaveAttribute('aria-selected', 'true');
+  return popup;
 }

@@ -1,0 +1,86 @@
+﻿node.exe : [WebServer] (node:20288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338, arrancado por el arnés)
+(node:13660) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 58 tests using 1 worker
+
+(node:6124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium-extension] › e2e\01-onboarding.spec.ts:48:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › la extensión carga desde dist/ y el ID se descubre del Service Worker (1.1s)
+  ok  2 [chromium-extension] › e2e\01-onboarding.spec.ts:64:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola (1.9s)
+  ok  3 [chromium-extension] › e2e\01-onboarding.spec.ts:124:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10) (1.2s)
+  ok  4 [chromium-extension] › e2e\01-onboarding.spec.ts:157:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08) (2.1s)
+  ok  5 [chromium-extension] › e2e\01-onboarding.spec.ts:198:3 › 01 · Onboarding H2: crear, importar y sin contraseña › crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03) (2.2s)
+  ok  6 [chromium-extension] › e2e\01-onboarding.spec.ts:252:3 › 01 · Onboarding H2: crear, importar y sin contraseña › importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02) (2.4s)
+  ok  7 [chromium-extension] › e2e\02-cuentas.spec.ts:23:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04) (2.2s)
+  ok  8 [chromium-extension] › e2e\02-cuentas.spec.ts:65:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › importar por clave privada la marca como importada y su etiqueta se renombra (CA-RF-05) (2.5s)
+  ok  9 [chromium-extension] › e2e\02-cuentas.spec.ts:105:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la sesión de dApp vigente bloquea la eliminación con `-32000` y se desbloquea al revocarla (2.7s)
+  ok 10 [chromium-extension] › e2e\03-recibir.spec.ts:25:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › la pestaña «Recibir» muestra la dirección de la cuenta activa y su QR la codifica (CA-RF-07) (2.2s)
+  ok 11 [chromium-extension] › e2e\03-recibir.spec.ts:55:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › «Copiar» deja en el portapapeles la misma dirección que se muestra (CA-RF-07) (2.1s)
+  ok 12 [chromium-extension] › e2e\04-enviar.spec.ts:54:3 › 04 · envío de 1 ETH con aprobación y recibo status 1 (CA-RF-08) › la dApp recibe el hash al aprobar y el recibo del nodo es status 1 (3.9s)
+  ok 13 [chromium-extension] › e2e\05-persistencia.spec.ts:36:3 › 05 · Persistencia: reabrir el popup restaura el estado › reabrir el popup restaura cuenta activa e importadas SIN pedir la frase (CA-RF-09 / CA-RF-10) (2.2s)
+  ok 14 [chromium-extension] › e2e\05-persistencia.spec.ts:68:3 › 05 · Persistencia: reabrir el popup restaura el estado › la suspensión del Service Worker por CDP no pierde el estado persistido (RNF-08) (2.5s)
+  ok 15 [chromium-extension] › e2e\05-persistencia.spec.ts:100:3 › 05 · Persistencia: reabrir el popup restaura el estado › una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22) (1.9s)
+  ok 16 [chromium-extension] › e2e\06-reset.spec.ts:56:3 › 06 · Reset de la cartera › el reset enumera las importadas, borra cartera y sesiones y CONSERVA los logs (CA-RF-11 / RF-32) (2.2s)
+  ok 17 [chromium-extension] › e2e\06-reset.spec.ts:126:3 › 06 · Reset de la cartera › con una solicitud `pending` el reset se bloquea con `-32000` y no toca el almacén (DEC-46) (2.2s)
+  ok 18 [chromium-extension] › e2e\06-reset.spec.ts:159:3 › 06 · Reset de la cartera › con una transacción en vuelo vigente el reset también se bloquea (DEC-46) (2.0s)
+  ok 19 [chromium-extension] › e2e\07-provider.spec.ts:76:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa (1.8s)
+  ok 20 [chromium-extension] › e2e\07-provider.spec.ts:127:3 › 07 · Provider, alias e identidad EIP-6963 › el ID de la extensión es el derivado de la `key` del manifest (estable entre ejecuciones) (1.4s)
+  ok 21 [chromium-extension] › e2e\07-provider.spec.ts:160:3 › 07 · Provider, alias e identidad EIP-6963 › el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px (1.8s)
+  ok 22 [chromium-extension] › e2e\07-provider.spec.ts:230:3 › 07 · Provider, alias e identidad EIP-6963 › el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido (1.8s)
+  ok 23 [chromium-extension] › e2e\07-provider.spec.ts:261:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18) (1.9s)
+  ok 24 [chromium-extension] › e2e\08-eventos.spec.ts:73:3 › 08 · Eventos del provider en dos pestañas › `accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más (4.2s)
+  ok 25 [chromium-extension] › e2e\08-eventos.spec.ts:162:3 › 08 · Eventos del provider en dos pestañas › el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15) (4.2s)
+  ok 26 [chromium-extension] › e2e\09-conectar.spec.ts:53:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito) (1.8s)
+  ok 27 [chromium-extension] › e2e\09-conectar.spec.ts:77:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW (4.2s)
+  ok 28 [chromium-extension] › e2e\09-conectar.spec.ts:180:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › rechazar en connect.html responde 4001 y NO persiste ninguna sesión (2.7s)
+  ok 29 [chromium-extension] › e2e\10-aprobar-tx.spec.ts:46:3 › 10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35) › la vista previa decodifica el calldata, la ventana es única y está enfocada (4.2s)
+  ok 30 [chromium-extension] › e2e\11-firmar-eip712.spec.ts:67:3 › 11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20) › la ventana muestra name/verifyingContract y la firma verifica el digest del contrato (3.6s)
+  ok 31 [chromium-extension] › e2e\11-firmar-mensaje.spec.ts:39:3 › 11 · personal_sign: texto legible y firma verificable (CA-RF-21) › la ventana muestra el texto y la firma recupera la cuenta autorizada (3.4s)
+  ok 32 [chromium-extension] › e2e\12-redes.spec.ts:116:3 › 12 · Redes: cambio aprobado y alta sin activación › la red destino YA activa responde `null` sin abrir la ventana de confirmación (CA-RF-22) (1.9s)
+  ok 33 [chromium-extension] › e2e\12-redes.spec.ts:137:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) (2.9s)
+  ok 34 [chromium-extension] › e2e\12-redes.spec.ts:182:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) (2.3s)
+  ok 35 [chromium-extension] › e2e\12-redes.spec.ts:216:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) (3.1s)
+  ok 36 [chromium-extension] › e2e\12-redes.spec.ts:250:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) (8.4s)
+  ok 37 [chromium-extension] › e2e\13-revocar.spec.ts:53:3 › 13 · Revocación de la sesión de una dApp desde el popup › revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones (4.0s)
+  ok 38 [chromium-extension] › e2e\14-polling.spec.ts:45:3 › 14 · Polling de saldos: 1 RPC por cuenta visible y ciclo › el contador real del popup marca 5 RPC por ciclo, arranca y para con la vista (14.8s)
+  ok 39 [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) (1.6s)
+  ok 40 [chromium-extension] › e2e\15-logs.spec.ts:172:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) (1.8s)
+  ok 41 [chromium-extension] › e2e\15-logs.spec.ts:238:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) (1.7s)
+  ok 42 [chromium-extension] › e2e\16-validacion.spec.ts:39:3 › 16 · Validación inline de formularios (CA-RF-33) › la frase inválida muestra el error inline y no envía la operación (1.8s)
+  ok 43 [chromium-extension] › e2e\16-validacion.spec.ts:73:3 › 16 · Validación inline de formularios (CA-RF-33) › la clave privada inválida muestra el error inline y no añade ninguna cuenta (2.1s)
+  ok 44 [chromium-extension] › e2e\16-validacion.spec.ts:101:3 › 16 · Validación inline de formularios (CA-RF-33) › la etiqueta inválida se señala inline y no renombra la cuenta (CA-RF-33) (2.0s)
+  ok 45 [chromium-extension] › e2e\18-concurrencia.spec.ts:48:3 › 18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37) › dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2 (5.1s)
+  ok 46 [chromium-extension] › e2e\21-eip6963.spec.ts:69:3 › 21 · EIP-6963: anuncio del provider › la dApp recibe el anuncio con la identidad vinculante y el icono incrustado (1.8s)
+  ok 47 [chromium-extension] › e2e\22-dapp.spec.ts:125:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › flujos 1 a 4 (detectar, conectar, saldo y envío) con resultado en pantalla en menos de 5000 ms (4.0s)
+  ok 48 [chromium-extension] › e2e\22-dapp.spec.ts:211:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › flujos 5 a 7 (EIP-712, cambio de red y eventos) con resultado en pantalla en menos de 5000 ms (4.3s)
+  ok 49 [chromium-extension] › e2e\22-dapp.spec.ts:301:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los errores 4001 y 4901 se muestran con su código y su acción sugerida (2.8s)
+  ok 50 [chromium-extension] › e2e\22-dapp.spec.ts:340:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura (11.1s)
+  ok 51 [chromium-extension] › e2e\22-dapp.spec.ts:405:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46) (3.0s)
+  ok 52 [chromium-extension] › e2e\25-recuperacion.spec.ts:54:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado exige confirmación, dura 30 s, descarta la memoria y NO pasa por postMessage (CA-RF-50) (2.9s)
+  ok 53 [chromium-extension] › e2e\25-recuperacion.spec.ts:110:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado se oculta al PERDER el foco y vacía el portapapeles (CA-RF-50) (3.0s)
+  ok 54 [chromium-extension] › e2e\25-recuperacion.spec.ts:138:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar (3.0s)
+  ok 55 [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia (12.7s)
+  ok 56 [chromium-extension] › e2e\28-iframe-hostil.spec.ts:57:3 › 28 · Iframe cross-origin: aislamiento de la sesión del top › el iframe de otro origen recibe [] y nunca la cuenta del top (4.6s)
+  ok 57 [chromium-extension] › e2e\29-sw-suspendido.spec.ts:67:3 › 29 · SW suspendido a mitad de una aprobación (RNF-08) › la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s (5.7s)
+SONDA conexion= "[\n  \"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\"\n]" true
+SONDA resultado= {"estado":"pendiente"}
+SONDA ventanas= 1
+SONDA cola= {"e005e42a-c67e-41a4-b5f1-79e758b6a974":{"account":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","approvalId":"e005e42a-c67e-41a4-b5f1-79e758b6a974","chainId":"0x7a69","createdAt":1789248368009,"expiresAt":1789248371009,"frameId":0,"method":"personal_sign","origin":"http://localhost:5174","params":["hola","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"],"requestId":"c7d5b2c0-d469-47ec-9aac-baef28eaaa8f","signMessagePreview":{"byteLength":4,"bytesHex":"0x686f6c61","isHexPayload":false,"payloadHash":"sha256:b221d9dbb083a7f33428d7c2a3c3198ae925614d70210e28716ccaa7cd4ddb79","text":"hola","truncated":false},"status":"pending","tabId":1119121216}}
+SONDA logs= [{"category":"call","data":{"params":["0x70997970C51812dc3A010C7d01b50e0d17dc79C8","latest"]},"event":"rpc_call","id":"2450325f-18fc-4b9a-91e3-a46a47a15b2a","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789248367651},{"category":"call","data":{"params":["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC","latest"]},"event":"rpc_call","id":"fba81293-6629-4e3b-a6e4-b5f3829519cd","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789248367672},{"category":"call","data":{"params":["0x90F79bf6EB2c4f870365E785982E1f101E93b906","latest"]},"event":"rpc_call","id":"0d77ed7c-3a33-4d39-b7e3-a645fd85af96","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789248367698},{"category":"call","data":{"params":["0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65","latest"]},"event":"rpc_call","id":"374732f4-3ef8-4d32-bc3e-2b13af41b151","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789248367729},{"category":"call","data":{"params":[]},"event":"rpc_call","id":"60c1947d-8541-4cd3-9fe0-00caee69e86c","level":"info","message":"Llamada RPC del catálogo","method":"eth_requestAccounts","origin":"http://localhost:5174","ts":1789248367887},{"category":"call","data":{"params":[]},"event":"rpc_call","id":"12a97a36-98e7-4420-ac76-46f2f0673f27","level":"info","message":"Llamada RPC del catálogo","method":"wallet_getState","origin":"extension","ts":1789248368308}]
+  ok 58 [chromium-extension] › e2e\90-sonda.spec.ts:22:1 › sonda: personal_sign con diagnostico (5.5s)
+
+  58 passed (3.6m)

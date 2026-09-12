@@ -1,0 +1,30 @@
+﻿node.exe : [WebServer] (node:5820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338)
+(node:3060) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:18940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SONDA conexion= true
+SONDA ventana SW tras aprobar= {"guardado":{"openedAt":null,"shownApprovalId":null,"updatedAt":1789244958180,"windowId":null},"ids":[861280443]}
+SONDA ventana eip712= chrome-extension://oiahebaliobknoeeonhgaacapjcpgblo/notification.html?
+SONDA eip712= {"clase":"resultado resultado--ok","code":null,"cuerpo":"\"0x09c7bbd61a16919b72d77ff4df7dd36a656e3799cc7259d024058e4cb2adbdca77ecf8833228b6b110a79d44f47b50783a828bc9fbce666787b3e0551d3b25c01c\"","ventanasPlaywright":0}
+SONDA estado SW= {"guardado":{"openedAt":null,"shownApprovalId":null,"updatedAt":1789244958681,"windowId":null},"pendientes":0,"ids":[861280443]}
+SONDA logs= [{"event":"rpc_call","method":"eth_accounts","data":{"params":[]}},{"event":"rpc_call","method":"wallet_getState","data":{"params":[]}},{"event":"approval_resolved","method":"eth_sendTransaction","data":{"approvalId":"c443fb98-e177-4606-9f0b-272892d74af1","entrega":"none","errorCode":null,"status":"approved"}},{"event":"tx_sent","method":"eth_sendTransaction","data":{"state":"pending","txHash":"0x7fc75a49fbde1e8383ad85c3e4cbe7da5309a2475b7993f294761c0d43af39e0"}},{"event":"rpc_call","method":"eth_sendTransaction","data":{"params":{"data":"","dataLength":0,"from":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","nonce":null,"to":"0x70997970C51812dc3A010C7d01b50e0d17dc79C8","value":"0x2386F26FC10000"}}},{"event":"rpc_call","method":"wallet_getState","data":{"params":[]}},{"event":"approval_resolved","method":"eth_signTypedData_v4","data":{"approvalId":"7ad45e8c-6e23-476e-9bba-7faab91bd0f0","entrega":"none","errorCode":null,"status":"approved"}},{"event":"rpc_call","method":"eth_signTypedData_v4","data":{"params":{"domain":{"chainId":null,"name":null,"verifyingContract":null},"messageBytes":0,"messageHash":null,"primaryType":null}}}]
+  ok 1 [chromium-extension] › e2e\95-sonda-ventana.spec.ts:18:1 › sonda: envío aprobado y EIP-712 inmediato (9.4s)
+
+  1 passed (24.2s)

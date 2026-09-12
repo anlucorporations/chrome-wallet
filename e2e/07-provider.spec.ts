@@ -133,6 +133,16 @@ test.describe('07 · Provider, alias e identidad EIP-6963', () => {
     // Y el Service Worker vive en ESE ID: el oráculo no depende del orden de arranque.
     expect(background.url()).toBe(extensionUrl(extensionId, 'background.js'));
 
+    // La siembra del catálogo la hace el ARRANQUE del Service Worker: se espera la condición
+    // observable (la clave existe) en lugar de suponer que ya se escribió (mismo criterio que el
+    // resto del arnés: sin esperas fijas). El oráculo no cambia.
+    await expect
+      .poll(
+        async () =>
+          Object.keys(await readChromeStorage(background, 'truekeate_networks')).length,
+        { message: 'la red por defecto no se sembró al arrancar el SW', timeout: 10_000 },
+      )
+      .toBeGreaterThan(0);
     const almacen = await readChromeStorage(background, 'truekeate_networks');
     expect(almacen).toHaveProperty('truekeate_networks');
 

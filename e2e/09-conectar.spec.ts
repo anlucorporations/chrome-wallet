@@ -132,6 +132,14 @@ test.describe('09 · Conexión de la dApp: test negativo, elección y sesión de
 
     // --- CA-RF-25: y con el Service Worker SUSPENDIDO tampoco (la sesión vive en el almacén) -----
     const popup = await openPopup(context, extensionId);
+    /**
+     * El popup se abre como ANFITRIÓN de la sesión CDP, no como sujeto de la prueba. Se sale de la
+     * pestaña «Cuentas» ANTES de suspender porque su *polling* de saldos (M47, cada 5 s) despierta al
+     * Service Worker de forma continua y Chrome entonces NO aplica `ServiceWorker.stopWorker`
+     * (medido en H5: la suspensión fallaba de forma intermitente en la suite completa, y siempre por
+     * este motivo). La aserción de la prueba —la sesión sobrevive a la suspensión del SW— no cambia.
+     */
+    await popup.getByRole('tab', { name: 'Seguridad' }).click();
     const watch = await stopServiceWorker(context, extensionId, { page: popup });
     expect(watch.status()).toBe('stopped');
 

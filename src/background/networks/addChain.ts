@@ -263,6 +263,8 @@ const normalizeProbeResult = (value: string | null): ChainIdHex | null =>
 /** Superficie mínima de `chrome.permissions` que usa el alta (sin `any`). */
 export interface PermissionsLike {
   request(permissions: { origins?: string[] }): Promise<boolean>;
+  /** Consulta de una concesión VIGENTE. Si falta, se intenta siempre `request`. */
+  contains?(permissions: { origins?: string[] }): Promise<boolean>;
 }
 
 /** Lee `chrome.permissions` sin `any`; `null` si la API no está (pruebas o contexto sin permisos). */
@@ -283,11 +285,39 @@ export const getPermissionsApi = (): PermissionsLike | null => {
 };
 
 /**
+ * Patrón de `optional_host_permissions` del origen de un `rpcUrl` (`origen/*`); `null` si el
+ * `rpcUrl` no es una URL utilizable.
+ */
+export const hostPermissionPattern = (rpcUrl: string): string | null => {
+  try {
+    return `${new URL(rpcUrl).origin}/*`;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Solicita el permiso de host del `rpcUrl` (patrón de `optional_host_permissions`: `origen/*`).
  *
- * Regla dura (DEC-36/DEC-41): se pide **SIEMPRE**, también cuando el alta nace en el popup; la
- * aprobación del usuario en la ventana única es el gesto válido que exige la API. Devuelve `true`
- * si la concesión está verificada.
+ * Regla dura (DEC-36/DEC-41): el alta pide el permiso en runtime **siempre**, también cuando nace
+ * en el popup; nunca se da por concedido lo que no lo esté.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO AQUÍ (H5, `D-H5-A`): antes se llamaba a `chrome.permissions.request`
+ * sin más, y ese API **exige un gesto de usuario en el contexto que llama**: desde el Service Worker
+ * Chrome lo rechaza siempre con «This function must be called during a user gesture» —medido incluso
+ * con el origen YA concedido—, de modo que el alta terminaba **siempre** en `4001` y RF-23 era
+ * inalcanzable. La corrección tiene dos partes:
+ *
+ *   1. si la concesión **ya está vigente** (`contains`) se acepta sin llamar a `request`, que es lo
+ *      que hace útil el gesto previo del popup (M43) y lo que hace verificable el permiso concedido;
+ *   2. si no lo está, se intenta `request` y un rechazo (o un gesto ausente) se responde como
+ *      **denegación**: `4001` y la red NO se persiste.
+ *
+ * El gesto de usuario lo aporta la superficie que TIENE usuario: `popup/views/NetworksView.tsx` pide
+ * el permiso en el propio clic antes de invocar el alta (documentado como desviación aceptada en
+ * `plan_desarrollo.md` §3.5.10). Para un alta nacida en una dApp el gesto tendría que aportarlo la
+ * ventana de confirmación (`src/notification/**`, fuera del terreno de H5): queda reportado como
+ * defecto `D-H5-B` y su modo de fallo es el observable `4001` sin persistir.
  */
 export const requestHostPermission = async (
   rpcUrl: string,
@@ -297,14 +327,18 @@ export const requestHostPermission = async (
     // Sin API de permisos: no hay nada que conceder (arnés de pruebas).
     return true;
   }
-  let origin: string;
-  try {
-    origin = new URL(rpcUrl).origin;
-  } catch {
+  const pattern = hostPermissionPattern(rpcUrl);
+  if (pattern === null) {
     return false;
   }
   try {
-    return (await permissions.request({ origins: [`${origin}/*`] })) === true;
+    if (typeof permissions.contains === 'function') {
+      const already = await permissions.contains({ origins: [pattern] });
+      if (already === true) {
+        return true;
+      }
+    }
+    return (await permissions.request({ origins: [pattern] })) === true;
   } catch {
     return false;
   }

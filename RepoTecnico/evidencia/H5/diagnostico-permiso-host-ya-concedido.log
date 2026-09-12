@@ -1,0 +1,24 @@
+﻿node.exe : [WebServer] (node:5552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+(node:15188) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:9004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SONDA request(sw, ya concedido)= {"contiene":true,"desenlace":{"resuelto":true,"error":"This function must be called during a user gesture"}}
+  ok 1 [chromium-extension] › e2e\91-sonda-redes.spec.ts:13:1 › sonda: request de un origen ya concedido desde el SW (6.9s)
+
+  1 passed (46.8s)

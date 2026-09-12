@@ -1,0 +1,1340 @@
+﻿node.exe : [WebServer] (node:19932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338)
+(node:9904) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 57 tests using 1 worker
+
+(node:16452) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium-extension] › e2e\01-onboarding.spec.ts:48:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › la extensión carga desde dist/ y el ID se descubre del Service Worker (2.2s)
+  ok  2 [chromium-extension] › e2e\01-onboarding.spec.ts:64:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola (2.7s)
+  ok  3 [chromium-extension] › e2e\01-onboarding.spec.ts:124:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10) (5.5s)
+  ok  4 [chromium-extension] › e2e\01-onboarding.spec.ts:157:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08) (13.4s)
+  ok  5 [chromium-extension] › e2e\01-onboarding.spec.ts:198:3 › 01 · Onboarding H2: crear, importar y sin contraseña › crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03) (5.9s)
+  ok  6 [chromium-extension] › e2e\01-onboarding.spec.ts:252:3 › 01 · Onboarding H2: crear, importar y sin contraseña › importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02) (4.8s)
+  ok  7 [chromium-extension] › e2e\02-cuentas.spec.ts:23:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04) (3.7s)
+  ok  8 [chromium-extension] › e2e\02-cuentas.spec.ts:65:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › importar por clave privada la marca como importada y su etiqueta se renombra (CA-RF-05) (15.9s)
+  ok  9 [chromium-extension] › e2e\02-cuentas.spec.ts:105:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la sesión de dApp vigente bloquea la eliminación con `-32000` y se desbloquea al revocarla (4.6s)
+  ok 10 [chromium-extension] › e2e\03-recibir.spec.ts:25:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › la pestaña «Recibir» muestra la dirección de la cuenta activa y su QR la codifica (CA-RF-07) (8.5s)
+  ok 11 [chromium-extension] › e2e\03-recibir.spec.ts:55:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › «Copiar» deja en el portapapeles la misma dirección que se muestra (CA-RF-07) (4.0s)
+  ok 12 [chromium-extension] › e2e\04-enviar.spec.ts:54:3 › 04 · envío de 1 ETH con aprobación y recibo status 1 (CA-RF-08) › la dApp recibe el hash al aprobar y el recibo del nodo es status 1 (11.0s)
+  ok 13 [chromium-extension] › e2e\05-persistencia.spec.ts:36:3 › 05 · Persistencia: reabrir el popup restaura el estado › reabrir el popup restaura cuenta activa e importadas SIN pedir la frase (CA-RF-09 / CA-RF-10) (10.3s)
+  ok 14 [chromium-extension] › e2e\05-persistencia.spec.ts:68:3 › 05 · Persistencia: reabrir el popup restaura el estado › la suspensión del Service Worker por CDP no pierde el estado persistido (RNF-08) (9.0s)
+[WebServer] node:internal/fs/watchers:321
+[WebServer]     const error = new UVException({
+[WebServer]                   ^
+[WebServer] 
+[WebServer] Error: EBUSY: resource busy or locked, watch 'C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\back
+ground\networks\.networks.spec.ts.6616.96feebc8-8c47-4ca4-8134-608facbfeabf.tmpdir\networks.spec.ts.tmp'
+[WebServer]     at FSWatcher.<computed> (node:internal/fs/watchers:321:19)
+[WebServer]     at Object.watch (node:fs:2548:36)
+[WebServer]     at createFsWatchInstance 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:12958:16)
+[WebServer]     at setFsWatchListener 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:13000:14)
+[WebServer]     at NodeFsHandler$1._watchWithNodeFs 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:13114:20)
+[WebServer]     at NodeFsHandler$1._handleFile 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:13158:24)
+[WebServer]     at NodeFsHandler$1._addToNodeFs 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:13332:26)
+[WebServer] Emitted 'error' event on FSWatcher instance at:
+[WebServer]     at FSWatcher._handleError 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:14133:148)
+[WebServer]     at NodeFsHandler$1._addToNodeFs 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/vite/dist/node/chunks/config.js:13337:18) {
+[WebServer]   errno: -4082,
+[WebServer]   syscall: 'watch',
+[WebServer]   code: 'EBUSY',
+[WebServer]   path: 'C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\src\\background\\networks\\.networks.sp
+ec.ts.6616.96feebc8-8c47-4ca4-8134-608facbfeabf.tmpdir\\networks.spec.ts.tmp',
+[WebServer]   filename: 'C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\src\\background\\networks\\.network
+s.spec.ts.6616.96feebc8-8c47-4ca4-8134-608facbfeabf.tmpdir\\networks.spec.ts.tmp'
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v24.16.0
+  ok 15 [chromium-extension] › e2e\05-persistencia.spec.ts:100:3 › 05 · Persistencia: reabrir el popup restaura el estado › una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22) (15.8s)
+  ok 16 [chromium-extension] › e2e\06-reset.spec.ts:56:3 › 06 · Reset de la cartera › el reset enumera las importadas, borra cartera y sesiones y CONSERVA los logs (CA-RF-11 / RF-32) (12.8s)
+  ok 17 [chromium-extension] › e2e\06-reset.spec.ts:126:3 › 06 · Reset de la cartera › con una solicitud `pending` el reset se bloquea con `-32000` y no toca el almacén (DEC-46) (4.3s)
+  ok 18 [chromium-extension] › e2e\06-reset.spec.ts:159:3 › 06 · Reset de la cartera › con una transacción en vuelo vigente el reset también se bloquea (DEC-46) (10.8s)
+  x  19 [chromium-extension] › e2e\07-provider.spec.ts:76:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa (4.6s)
+(node:19124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 20 [chromium-extension] › e2e\07-provider.spec.ts:127:3 › 07 · Provider, alias e identidad EIP-6963 › el ID de la extensión es el derivado de la `key` del manifest (estable entre ejecuciones) (5.5s)
+  x  21 [chromium-extension] › e2e\07-provider.spec.ts:150:3 › 07 · Provider, alias e identidad EIP-6963 › el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px (5.5s)
+(node:19864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  22 [chromium-extension] › e2e\07-provider.spec.ts:220:3 › 07 · Provider, alias e identidad EIP-6963 › el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido (3.7s)
+(node:20392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  23 [chromium-extension] › e2e\07-provider.spec.ts:251:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18) (2.2s)
+(node:19332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  24 [chromium-extension] › e2e\08-eventos.spec.ts:73:3 › 08 · Eventos del provider en dos pestañas › `accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más (2.8s)
+(node:18380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  25 [chromium-extension] › e2e\08-eventos.spec.ts:162:3 › 08 · Eventos del provider en dos pestañas › el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15) (3.8s)
+(node:6072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  26 [chromium-extension] › e2e\09-conectar.spec.ts:53:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito) (3.9s)
+(node:15052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  27 [chromium-extension] › e2e\09-conectar.spec.ts:77:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW (2.1s)
+(node:18748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  28 [chromium-extension] › e2e\09-conectar.spec.ts:172:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › rechazar en connect.html responde 4001 y NO persiste ninguna sesión (3.5s)
+(node:16952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  29 [chromium-extension] › e2e\10-aprobar-tx.spec.ts:46:3 › 10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35) › la vista previa decodifica el calldata, la ventana es única y está enfocada (5.9s)
+(node:13068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  30 [chromium-extension] › e2e\11-firmar-eip712.spec.ts:67:3 › 11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20) › la ventana muestra name/verifyingContract y la firma verifica el digest del contrato (2.2s)
+(node:2268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  31 [chromium-extension] › e2e\11-firmar-mensaje.spec.ts:39:3 › 11 · personal_sign: texto legible y firma verificable (CA-RF-21) › la ventana muestra el texto y la firma recupera la cuenta autorizada (2.6s)
+(node:16280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 32 [chromium-extension] › e2e\12-redes.spec.ts:115:3 › 12 · Redes: cambio aprobado y alta sin activación › la red destino YA activa responde `null` sin abrir la ventana de confirmación (CA-RF-22) (3.0s)
+  x  33 [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) (24.4s)
+(node:17796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  34 [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) (23.0s)
+(node:7484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  35 [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) (5.8s)
+(node:6124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  36 [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) (7.6s)
+(node:6948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  37 [chromium-extension] › e2e\13-revocar.spec.ts:53:3 › 13 · Revocación de la sesión de una dApp desde el popup › revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones (3.1s)
+(node:18624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 38 [chromium-extension] › e2e\14-polling.spec.ts:45:3 › 14 · Polling de saldos: 1 RPC por cuenta visible y ciclo › el contador real del popup marca 5 RPC por ciclo, arranca y para con la vista (14.0s)
+  x  39 [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) (1.3s)
+(node:7300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  40 [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) (13.2s)
+(node:7448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  41 [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) (12.2s)
+(node:11560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 42 [chromium-extension] › e2e\16-validacion.spec.ts:39:3 › 16 · Validación inline de formularios (CA-RF-33) › la frase inválida muestra el error inline y no envía la operación (3.5s)
+  ok 43 [chromium-extension] › e2e\16-validacion.spec.ts:73:3 › 16 · Validación inline de formularios (CA-RF-33) › la clave privada inválida muestra el error inline y no añade ninguna cuenta (12.8s)
+  ok 44 [chromium-extension] › e2e\16-validacion.spec.ts:101:3 › 16 · Validación inline de formularios (CA-RF-33) › la etiqueta inválida se señala inline y no renombra la cuenta (CA-RF-33) (6.6s)
+  x  45 [chromium-extension] › e2e\18-concurrencia.spec.ts:48:3 › 18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37) › dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2 (5.9s)
+(node:4052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  46 [chromium-extension] › e2e\21-eip6963.spec.ts:69:3 › 21 · EIP-6963: anuncio del provider › la dApp recibe el anuncio con la identidad vinculante y el icono incrustado (1.6s)
+(node:8132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  47 [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms (1.8s)
+(node:15776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  48 [chromium-extension] › e2e\22-dapp.spec.ts:230:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los errores 4001 y 4901 se muestran con su código y su acción sugerida (1.6s)
+(node:13212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  49 [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura (2.0s)
+(node:7752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  50 [chromium-extension] › e2e\22-dapp.spec.ts:328:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46) (6.9s)
+(node:11964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 51 [chromium-extension] › e2e\25-recuperacion.spec.ts:54:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado exige confirmación, dura 30 s, descarta la memoria y NO pasa por postMessage (CA-RF-50) (15.1s)
+  ok 52 [chromium-extension] › e2e\25-recuperacion.spec.ts:110:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado se oculta al PERDER el foco y vacía el portapapeles (CA-RF-50) (3.9s)
+  ok 53 [chromium-extension] › e2e\25-recuperacion.spec.ts:138:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar (4.3s)
+  x  54 [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia (21.4s)
+(node:16920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  55 [chromium-extension] › e2e\28-iframe-hostil.spec.ts:57:3 › 28 · Iframe cross-origin: aislamiento de la sesión del top › el iframe de otro origen recibe [] y nunca la cuenta del top (7.8s)
+(node:2952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  56 [chromium-extension] › e2e\29-sw-suspendido.spec.ts:67:3 › 29 · SW suspendido a mitad de una aprobación (RNF-08) › la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s (6.1s)
+(node:18532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  57 [chromium-extension] › e2e\90-sonda.spec.ts:22:1 › sonda: personal_sign con diagnostico (2.9s)
+
+
+  1) [chromium-extension] › e2e\07-provider.spec.ts:76:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\07-provider.spec.ts:81:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\07-provider-07-·-Provider--554fe--con-la-superficie-completa-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-extension] › e2e\07-provider.spec.ts:150:3 › 07 · Provider, alias e identidad EIP-6963 › el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\07-provider.spec.ts:154:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\07-provider-07-·-Provider--f1274-dns-y-un-icono-PNG-de-96-px-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-extension] › e2e\07-provider.spec.ts:220:3 › 07 · Provider, alias e identidad EIP-6963 › el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\07-provider.spec.ts:223:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\07-provider-07-·-Provider--922f2--ante-un-método-desconocido-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-extension] › e2e\07-provider.spec.ts:251:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\07-provider.spec.ts:254:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\07-provider-07-·-Provider--88458-LDO-real-de-Anvil-CA-RF-18--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium-extension] › e2e\08-eventos.spec.ts:73:3 › 08 · Eventos del provider en dos pestañas › `accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\08-eventos.spec.ts:82:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\08-eventos-08-·-Eventos-de-bbb28--conectadas-y-a-ninguna-más-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium-extension] › e2e\08-eventos.spec.ts:162:3 › 08 · Eventos del provider en dos pestañas › el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\08-eventos.spec.ts:171:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\08-eventos-08-·-Eventos-de-e3cf9-n-la-cuenta-nueva-CA-RF-15--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium-extension] › e2e\09-conectar.spec.ts:53:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\09-conectar.spec.ts:58:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\09-conectar-09-·-Conexión--29dcc-ntana-sin-prompt-implícito--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium-extension] › e2e\09-conectar.spec.ts:77:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\09-conectar.spec.ts:83:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\09-conectar-09-·-Conexión--f0c0d-gar-ni-tras-reiniciar-el-SW-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium-extension] › e2e\09-conectar.spec.ts:172:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › rechazar en connect.html responde 4001 y NO persiste ninguna sesión 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\09-conectar.spec.ts:176:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\09-conectar-09-·-Conexión--688cb--NO-persiste-ninguna-sesión-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium-extension] › e2e\10-aprobar-tx.spec.ts:46:3 › 10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35) › la vista previa decodifica el calldata, la ventana es única y está enfocada 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\10-aprobar-tx.spec.ts:54:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\10-aprobar-tx-10-·-aprobac-8da5c-na-es-única-y-está-enfocada-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium-extension] › e2e\11-firmar-eip712.spec.ts:67:3 › 11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20) › la ventana muestra name/verifyingContract y la firma verifica el digest del contrato 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\11-firmar-eip712.spec.ts:75:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\11-firmar-eip712-11-·-firm-1185d-fica-el-digest-del-contrato-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\11-firmar-eip712-11-·-firm-1185d-fica-el-digest-del-contrato-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\11-firmar-eip712-11-·-firm-1185d-fica-el-digest-del-contrato-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\11-firmar-eip712-11-·-firm-1185d-fica-el-digest-del-contrato-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\11-firmar-eip712-11-·-firm-1185d-fica-el-digest-del-contrato-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium-extension] › e2e\11-firmar-mensaje.spec.ts:39:3 › 11 · personal_sign: texto legible y firma verificable (CA-RF-21) › la ventana muestra el texto y la firma recupera la cuenta autorizada 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\11-firmar-mensaje.spec.ts:47:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\11-firmar-mensaje-11-·-per-1b790-cupera-la-cuenta-autorizada-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\11-firmar-mensaje-11-·-per-1b790-cupera-la-cuenta-autorizada-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\11-firmar-mensaje-11-·-per-1b790-cupera-la-cuenta-autorizada-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\11-firmar-mensaje-11-·-per-1b790-cupera-la-cuenta-autorizada-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\11-firmar-mensaje-11-·-per-1b790-cupera-la-cuenta-autorizada-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) 
+
+    TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event "page"
+
+       at fixtures\extension.ts:911
+
+      909 |     return existente;
+      910 |   }
+    > 911 |   const ventana = await context.waitForEvent('page', {
+          |                                 ^
+      912 |     predicate: (page) => page.url().includes(RUTA_NOTIFICACION),
+      913 |     timeout: timeoutMs,
+      914 |   });
+        at esperarVentanaDeDecision (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:911:33)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:162:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#red-rpc-error')
+    Expected substring: "http solo se admite 127.0.0.1"
+    Received string:    "-32602La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.Revisar el `rpcUrl` de la red y volver a darla de alta"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('#red-rpc-error') with timeout 10000ms
+      - waiting for locator('#red-rpc-error')
+        23 × locator resolved to <p role="alert" id="red-rpc-error" class="tk-field__error">…</p>
+           - unexpected value "-32602La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.Revisar el `rpcUrl` de la red y volver a darla de alta"
+
+
+      209 |     await popup.locator('#red-alta-enviar').click();
+      210 |     await expect(popup.locator('#red-rpc')).toHaveAttribute('aria-invalid', 'true');
+    > 211 |     await expect(popup.locator('#red-rpc-error')).toContainText('http solo se admite 127.0.0.1');
+          |                                                   ^
+      212 |     expect(ventanasDeDecision(context)).toHaveLength(0);
+      213 |     expect(await redesPersistidas(background)).toHaveProperty(ANVIL_CHAIN_ID_HEX);
+      214 |     expect(Object.keys(await redesPersistidas(background))).not.toContain('0x1');
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:211:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:225:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:292:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [chromium-extension] › e2e\13-revocar.spec.ts:53:3 › 13 · Revocación de la sesión de una dApp desde el popup › revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\13-revocar.spec.ts:59:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\13-revocar-13-·-Revocación-60d39-O-crea-cola-de-aprobaciones-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:99:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#actividad-entradas > li')
+    Expected: 4
+    Received: 12
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#actividad-entradas > li') with timeout 10000ms
+      - waiting for locator('#actividad-entradas > li')
+        2 × locator resolved to 0 elements
+          - unexpected value "0"
+        21 × locator resolved to 12 elements
+           - unexpected value "12"
+
+
+      174 |
+      175 |     const filas = popup.locator('#actividad-entradas > li');
+    > 176 |     await expect(filas).toHaveCount(4);
+          |                         ^
+      177 |
+      178 |     // La llamada muestra su método, su origen y su instante (CA-RF-28).
+      179 |     const filaLlamada = popup.locator('li[data-event="rpc_call"]');
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:176:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#actividad-entradas > li')
+    Expected: 4
+    Received: 13
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#actividad-entradas > li') with timeout 10000ms
+      - waiting for locator('#actividad-entradas > li')
+        - locator resolved to 0 elements
+        - unexpected value "0"
+        22 × locator resolved to 13 elements
+           - unexpected value "13"
+
+
+      223 |     const popup = await openPopupReady(context, extensionId);
+      224 |     await popup.getByRole('tab', { name: 'Actividad' }).click();
+    > 225 |     await expect(popup.locator('#actividad-entradas > li')).toHaveCount(4);
+          |                                                             ^
+      226 |
+      227 |     // Se vigilan TODAS las peticiones que hace el popup durante la exportación: no puede haber red.
+      228 |     const peticiones: string[] = [];
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:225:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [chromium-extension] › e2e\18-concurrencia.spec.ts:48:3 › 18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37) › dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\18-concurrencia.spec.ts:57:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\18-concurrencia-18-·-concu-786bd--UNA-ventana-con-contador-2-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [chromium-extension] › e2e\21-eip6963.spec.ts:69:3 › 21 · EIP-6963: anuncio del provider › la dApp recibe el anuncio con la identidad vinculante y el icono incrustado 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\21-eip6963.spec.ts:73:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\21-eip6963-21-·-EIP-6963-a-b07dc-lante-y-el-icono-incrustado-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\21-eip6963-21-·-EIP-6963-a-b07dc-lante-y-el-icono-incrustado-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\21-eip6963-21-·-EIP-6963-a-b07dc-lante-y-el-icono-incrustado-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\21-eip6963-21-·-EIP-6963-a-b07dc-lante-y-el-icono-incrustado-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\21-eip6963-21-·-EIP-6963-a-b07dc-lante-y-el-icono-incrustado-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:128:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [chromium-extension] › e2e\22-dapp.spec.ts:230:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los errores 4001 y 4901 se muestran con su código y su acción sugerida 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:238:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-56dee-código-y-su-acción-sugerida-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-56dee-código-y-su-acción-sugerida-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-56dee-código-y-su-acción-sugerida-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-56dee-código-y-su-acción-sugerida-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-56dee-código-y-su-acción-sugerida-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:277:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [chromium-extension] › e2e\22-dapp.spec.ts:328:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:336:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-ec064-001-con-su-acción-CA-RF-46--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-ec064-001-con-su-acción-CA-RF-46--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-ec064-001-con-su-acción-CA-RF-46--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-ec064-001-con-su-acción-CA-RF-46--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-ec064-001-con-su-acción-CA-RF-46--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia 
+
+    Error: el RPC caído modificó el almacén
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "truekeate_logs_dropped",
+    + ]
+
+      114 |         `Claves comparadas (sin truekeate_logs): ${claves.length}; cambiadas: ${cambiadas.join(', ') || 'ninguna'}`,
+      115 |       );
+    > 116 |       expect(cambiadas, 'el RPC caído modificó el almacén').toEqual([]);
+          |                                                             ^
+      117 |       // Y el estado de cartera sigue ahí: nada se ha perdido.
+      118 |       expect(despues.truekeate_accounts).toEqual(antes.truekeate_accounts);
+      119 |     } catch (error) {
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\27-rpc-caido.spec.ts:116:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [chromium-extension] › e2e\28-iframe-hostil.spec.ts:57:3 › 28 · Iframe cross-origin: aislamiento de la sesión del top › el iframe de otro origen recibe [] y nunca la cuenta del top 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\28-iframe-hostil.spec.ts:80:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\28-iframe-hostil-28-·-Ifra-64acd-e-y-nunca-la-cuenta-del-top-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [chromium-extension] › e2e\29-sw-suspendido.spec.ts:67:3 › 29 · SW suspendido a mitad de una aprobación (RNF-08) › la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\29-sw-suspendido.spec.ts:77:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\29-sw-suspendido-29-·-SW-s-621ec-fusión-y-reconstrucción-1-s-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [chromium-extension] › e2e\90-sonda.spec.ts:22:1 › sonda: personal_sign con diagnostico ──────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5174/test.html
+    Call log:
+      - navigating to "http://localhost:5174/test.html", waiting until "load"
+
+
+       at fixtures\extension.ts:181
+
+      179 |  */
+      180 | export async function openDapp(page: Page, url: string = DAPP_URL): Promise<void> {
+    > 181 |   await page.goto(url);
+          |              ^
+      182 |   await page.waitForLoadState('domcontentloaded');
+      183 | }
+      184 |
+        at openDapp (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:181:14)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\90-sonda.spec.ts:26:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\90-sonda-sonda-personal-sign-con-diagnostico-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30 failed
+    [chromium-extension] › e2e\07-provider.spec.ts:76:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa 
+    [chromium-extension] › e2e\07-provider.spec.ts:150:3 › 07 · Provider, alias e identidad EIP-6963 › el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px 
+    [chromium-extension] › e2e\07-provider.spec.ts:220:3 › 07 · Provider, alias e identidad EIP-6963 › el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido 
+    [chromium-extension] › e2e\07-provider.spec.ts:251:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18) 
+    [chromium-extension] › e2e\08-eventos.spec.ts:73:3 › 08 · Eventos del provider en dos pestañas › `accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más 
+    [chromium-extension] › e2e\08-eventos.spec.ts:162:3 › 08 · Eventos del provider en dos pestañas › el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15) 
+    [chromium-extension] › e2e\09-conectar.spec.ts:53:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito) 
+    [chromium-extension] › e2e\09-conectar.spec.ts:77:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW 
+    [chromium-extension] › e2e\09-conectar.spec.ts:172:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › rechazar en connect.html responde 4001 y NO persiste ninguna sesión 
+    [chromium-extension] › e2e\10-aprobar-tx.spec.ts:46:3 › 10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35) › la vista previa decodifica el calldata, la ventana es única y está enfocada 
+    [chromium-extension] › e2e\11-firmar-eip712.spec.ts:67:3 › 11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20) › la ventana muestra name/verifyingContract y la firma verifica el digest del contrato 
+    [chromium-extension] › e2e\11-firmar-mensaje.spec.ts:39:3 › 11 · personal_sign: texto legible y firma verificable (CA-RF-21) › la ventana muestra el texto y la firma recupera la cuenta autorizada 
+    [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) 
+    [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) 
+    [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) 
+    [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) 
+    [chromium-extension] › e2e\13-revocar.spec.ts:53:3 › 13 · Revocación de la sesión de una dApp desde el popup › revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones 
+    [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) 
+    [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) 
+    [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) 
+    [chromium-extension] › e2e\18-concurrencia.spec.ts:48:3 › 18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37) › dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2 
+    [chromium-extension] › e2e\21-eip6963.spec.ts:69:3 › 21 · EIP-6963: anuncio del provider › la dApp recibe el anuncio con la identidad vinculante y el icono incrustado 
+    [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms 
+    [chromium-extension] › e2e\22-dapp.spec.ts:230:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los errores 4001 y 4901 se muestran con su código y su acción sugerida 
+    [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura 
+    [chromium-extension] › e2e\22-dapp.spec.ts:328:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46) 
+    [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia 
+    [chromium-extension] › e2e\28-iframe-hostil.spec.ts:57:3 › 28 · Iframe cross-origin: aislamiento de la sesión del top › el iframe de otro origen recibe [] y nunca la cuenta del top 
+    [chromium-extension] › e2e\29-sw-suspendido.spec.ts:67:3 › 29 · SW suspendido a mitad de una aprobación (RNF-08) › la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s 
+    [chromium-extension] › e2e\90-sonda.spec.ts:22:1 › sonda: personal_sign con diagnostico ────────
+  27 passed (8.3m)

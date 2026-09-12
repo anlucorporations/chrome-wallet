@@ -1389,3 +1389,225 @@ textarea.tk-input {
   flex: 1 1 0;
   min-width: 0;
 }
+
+/* --------------------------------------------------------------------------
+   H5 — Redes (M43) y panel de actividad (M45)
+
+   Solo tokens de `tokens.css` (RNF-18): el rojo de los errores del panel es
+   `--tk-danger-dark` (AA sobre la tarjeta), el aviso de cuota `--tk-danger` y el
+   oro `--tk-gold-500` se reserva para el borde, nunca para texto.
+   -------------------------------------------------------------------------- */
+
+/* Siete pestañas en el popup de 380 px: el texto se compacta sin bajar de 11 px. */
+.tk-tabs__list--seven .tk-tab {
+  padding: 6px 1px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+/* --- Redes dadas de alta ------------------------------------------------- */
+
+.tk-networks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-network {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-left: 3px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-network--active {
+  border-left-color: var(--tk-success);
+  background: var(--tk-surface-selected);
+}
+
+.tk-network__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tk-network__name {
+  color: var(--tk-navy-800);
+  font-family: var(--tk-font-display);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tk-network__meta {
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+  word-break: break-all;
+}
+
+.tk-network__warning {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tk-danger-dark);
+}
+
+.tk-network__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tk-network__name {
+    color: var(--tk-text-primary);
+  }
+}
+
+/* Insignias de red: texto siempre legible y con el dato en TEXTO, no solo en color. */
+.tk-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-pill);
+  background: var(--tk-surface-raised);
+  color: var(--tk-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tk-tag--testnet {
+  border-color: var(--tk-success);
+  color: var(--tk-success);
+}
+
+.tk-tag--real {
+  border-color: var(--tk-danger-dark);
+  color: var(--tk-danger-dark);
+}
+
+/* --- Filtros del panel de actividad -------------------------------------- */
+
+.tk-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tk-filter {
+  display: flex;
+  flex: 1 1 140px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tk-quota {
+  padding: 8px 10px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  font-size: 12px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-quota--warn {
+  border-color: var(--tk-danger);
+  color: var(--tk-danger-dark);
+  font-weight: 600;
+}
+
+/* --- Entradas del registro ---------------------------------------------- */
+
+.tk-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-left: 3px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+}
+
+/* Errores en ROJO (identidad_visual.md §5.2 y CA-RF-30): con su `code` a la vista. */
+.tk-log--error {
+  border-left-color: var(--tk-danger-dark);
+  background: var(--tk-surface-raised);
+}
+
+.tk-log--error .tk-log__level,
+.tk-log--error .tk-log__code {
+  color: var(--tk-danger-dark);
+}
+
+.tk-log__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--tk-text-secondary);
+}
+
+.tk-log__level {
+  font-weight: 600;
+}
+
+.tk-log__event {
+  font-family: var(--tk-font-mono);
+  font-size: 11px;
+  color: var(--tk-navy-800);
+}
+
+.tk-log__time {
+  margin-left: auto;
+  font-family: var(--tk-font-mono);
+}
+
+.tk-log__message {
+  font-size: 13px;
+  color: var(--tk-text-primary);
+}
+
+.tk-log__meta {
+  font-size: 11px;
+  color: var(--tk-text-secondary);
+  word-break: break-all;
+}
+
+.tk-log__code,
+.tk-log__hash {
+  align-self: flex-start;
+  padding: 1px 6px;
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-surface-raised);
+  font-family: var(--tk-font-mono);
+  font-size: 11px;
+  color: var(--tk-text-secondary);
+  word-break: break-all;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tk-log__event {
+    color: var(--tk-text-primary);
+  }
+}
+

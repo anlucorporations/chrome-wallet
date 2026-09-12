@@ -1,0 +1,13 @@
+{
+  "flujo": "4900 con el RPC local caído",
+  "fecha": "2026-09-12",
+  "pidsDetenidos": [
+    13388,
+    19764
+  ],
+  "code": 4900,
+  "cuerpo": "Error 4900: Sin conexión con la red local (Anvil).\n{\n  \"reason\": \"rpc-error\",\n  \"detail\": \"Failed to fetch\",\n  \"method\": \"eth_getBalance\",\n  \"attempts\": 4,\n  \"retries\": 3,\n  \"backoffMs\": [\n    1000,\n    2000,\n    4000\n  ],\n  \"timeoutMs\": 5000,\n  \"rpcUrl\": \"http://127.0.0.1:8545\"\n}",
+  "accion": "Acción sugerida: Arrancar Anvil en 127.0.0.1:8545",
+  "anvilRestaurado": true,
+  "anvilSecundarioRestaurado": true
+}

@@ -27,7 +27,9 @@ import { LOG_CATEGORIES } from './events';
 
 /** Lee `truekeate_logs` del stub. */
 const leerLogs = async (): Promise<LogEntry[]> => {
-  const items = await chromeStub.storage.local.get(STORAGE_KEYS.logs);
+  // El `get` del stub puede resolverse como `undefined` (sobrecarga con callback de la API real):
+  // una lectura ausente es una instantánea VACÍA, nunca un fallo de la prueba.
+  const items = (await chromeStub.storage.local.get(STORAGE_KEYS.logs)) ?? {};
   const value = items[STORAGE_KEYS.logs];
   return Array.isArray(value) ? (value as LogEntry[]) : [];
 };

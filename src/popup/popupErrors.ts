@@ -145,6 +145,36 @@ const POPUP_ERRORS = {
     action: 'Exportar los logs en JSON y reintentar; si persiste, resetear la cartera',
   },
   // --- Bloque «Causas añadidas en la v1.10 (H4)» de §4.3, transcrito literalmente ---
+  // --- Bloque de red (H5): §4.3 (núcleo), §4.3.2 v1.11 y las filas de red de la tabla ---
+  /**
+   * Permiso de host denegado al dar de alta una red (§4.3, fila «`4001` | Permiso de host
+   * denegado…», ACU-27 / D-G): la red **no** se persiste. La marca `<rpcUrl>` la rellena el SW.
+   */
+  hostPermissionDenied: {
+    code: 4001,
+    message: 'No se concedió el permiso de acceso a <rpcUrl>; la red no se ha añadido.',
+    action: 'Repetir el alta y aceptar el permiso',
+  },
+  /** `4901` — `chainId` no dado de alta (§4.3): se resuelve dándola de alta. */
+  chainNotRegistered: {
+    code: 4901,
+    message: 'La red solicitada no está dada de alta.',
+    action: 'Darla de alta con wallet_addEthereumChain',
+  },
+  /** `-32602` — `rpcUrl` rechazado por la validación previa de §3.5 (v1.11 de §4.3). */
+  invalidRpcUrl: {
+    code: -32602,
+    message:
+      'La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.',
+    action: 'Revisar el `rpcUrl` de la red y volver a darla de alta',
+  },
+  /** `-32602` — `chainId`, nombre o símbolo no utilizables (v1.11 de §4.3). */
+  invalidNetworkDefinition: {
+    code: -32602,
+    message:
+      'Los datos de la red no son válidos: revisa el `chainId`, el nombre y el símbolo de la moneda nativa.',
+    action: 'Revisar los datos declarados por la dApp',
+  },
   inflightTxInProgress: {
     code: -32000,
     message:

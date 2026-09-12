@@ -67,7 +67,7 @@
       }
 
       .panel {
-        max-width: 720px;
+        max-width: 860px;
         margin: 0 auto 16px;
         padding: 16px 18px;
         background: var(--tk-white);
@@ -136,7 +136,7 @@
       }
 
       .encabezado {
-        max-width: 720px;
+        max-width: 860px;
         margin: 0 auto 16px;
         padding: 0 4px;
       }
@@ -157,7 +157,7 @@
         height: 6px;
         border-radius: 999px;
         background: var(--tk-grad-brand);
-        max-width: 720px;
+        max-width: 860px;
         margin: 0 auto 20px;
       }
 
@@ -186,6 +186,10 @@
         border-left-color: var(--tk-danger-dark);
       }
 
+      .resultado--pendiente {
+        border-left-color: var(--tk-teal-500);
+      }
+
       .resultado__tiempo {
         float: right;
         font-family: var(--tk-font-mono);
@@ -203,11 +207,55 @@
         word-break: break-word;
       }
 
-      .pendiente {
+      .resultado__accion {
         display: block;
-        font-size: 12px;
+        margin-top: 6px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--tk-danger-dark);
+      }
+
+      .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 10px;
+      }
+
+      .campo label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--tk-gray-600);
+      }
+
+      .campo input,
+      .campo select {
+        min-height: 40px;
+        padding: 8px 10px;
+        border: 1px solid var(--tk-gray-300);
+        border-radius: var(--tk-radius-sm);
+        font-family: var(--tk-font-mono);
+        font-size: 13px;
+      }
+
+      table.errores {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      table.errores th,
+      table.errores td {
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--tk-gray-300);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      table.errores code {
+        font-family: var(--tk-font-mono);
+        color: var(--tk-danger-dark);
+        font-weight: 700;
       }
 
       .log {
@@ -232,10 +280,11 @@
     <div class="encabezado">
       <h1>dApp de pruebas de TrueKeate Wallet</h1>
       <p>
-        Cuatro flujos operativos —detectar el provider, conectar, consultar saldo y escuchar
-        eventos— y cuatro flujos marcados «pendiente de hito» (envío, firma EIP-712, firma de
-        texto y cambio de red). Cada flujo operativo muestra su resultado aquí mismo en menos de
-        5000 ms.
+        Siete flujos operativos: detectar el provider, conectar, consultar saldo, enviar una
+        transacción, firmar datos EIP-712, cambiar de red y escuchar eventos. Cada flujo muestra su
+        resultado aquí mismo en menos de 5000 ms; los tres errores de red más frecuentes —
+        <code>4001</code>, <code>4900</code> y <code>4901</code>— se pintan con su código y su
+        acción sugerida.
       </p>
     </div>
 
@@ -248,46 +297,58 @@
       <p class="detalle" id="detalle">—</p>
       <div class="acciones">
         <button id="btn-detectar" type="button">Volver a detectar</button>
+        <button id="btn-eip6963" type="button">Anunciar por EIP-6963</button>
       </div>
+      <p class="detalle" id="eip6963-lista">EIP-6963: sin anuncios todavía.</p>
     </section>
 
     <section class="panel" aria-labelledby="titulo-flujos">
-      <h2 id="titulo-flujos">Flujos 2 a 4 · Operativos</h2>
+      <h2 id="titulo-flujos">Flujos 2 a 7 · Operativos</h2>
       <div class="acciones">
         <button id="btn-conectar" type="button">Conectar (eth_requestAccounts)</button>
         <button id="btn-saldo" type="button">Consultar saldo (eth_getBalance)</button>
+        <button id="btn-enviar" type="button">Enviar transacción (eth_sendTransaction)</button>
+        <button id="btn-eip712" type="button">Firmar EIP-712 (eth_signTypedData_v4)</button>
+        <button id="btn-cambiar-red" type="button">Cambiar de red (wallet_switchEthereumChain)</button>
         <button id="btn-eventos" type="button">
           Escuchar eventos (accountsChanged, chainChanged)
         </button>
       </div>
+      <div class="campo">
+        <label for="red-destino">chainId de destino para el cambio de red</label>
+        <input id="red-destino" type="text" value="0x7a6a" autocomplete="off" spellcheck="false" />
+      </div>
       <ul class="resultados" id="resultados" role="list"></ul>
     </section>
 
-    <section class="panel" aria-labelledby="titulo-pendientes">
-      <h2 id="titulo-pendientes">Flujos pendientes de hito</h2>
-      <div class="acciones">
-        <button type="button" disabled>
-          Enviar transacción (eth_sendTransaction)
-          <span class="pendiente">pendiente de hito (H4)</span>
-        </button>
-        <button type="button" disabled>
-          Firmar EIP-712 (eth_signTypedData_v4)
-          <span class="pendiente">pendiente de hito (H4)</span>
-        </button>
-        <button type="button" disabled>
-          Firmar texto (personal_sign)
-          <span class="pendiente">pendiente de hito (H4)</span>
-        </button>
-        <button type="button" disabled>
-          Cambiar de red (wallet_switchEthereumChain)
-          <span class="pendiente">pendiente de hito (H5)</span>
-        </button>
-      </div>
-      <p class="detalle">
-        Estos cuatro flujos están deshabilitados y etiquetados «pendiente de hito»: el envío, la
-        firma EIP-712 y la firma de texto llegan en H4 (ventana única de confirmación) y el cambio
-        de red en H5. Mientras no existan, el catálogo responde 4200 y esta página no los ofrece.
-      </p>
+    <section class="panel" aria-labelledby="titulo-errores">
+      <h2 id="titulo-errores">Errores que esta página explica con su acción sugerida</h2>
+      <table class="errores">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Causa</th>
+            <th>Acción sugerida</th>
+          </tr>
+        </thead>
+        <tbody id="errores-cuerpo">
+          <tr>
+            <td><code>4001</code></td>
+            <td>Rechazo o vencimiento de la solicitud</td>
+            <td>Volver a solicitarla desde la dApp</td>
+          </tr>
+          <tr>
+            <td><code>4900</code></td>
+            <td>RPC local caído</td>
+            <td>Arrancar Anvil en 127.0.0.1:8545</td>
+          </tr>
+          <tr>
+            <td><code>4901</code></td>
+            <td>Red no dada de alta</td>
+            <td>Darla de alta con wallet_addEthereumChain</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section class="panel" aria-labelledby="titulo-registro">
@@ -299,8 +360,21 @@
       (function () {
         'use strict';
 
-        /** Plazo máximo de cada flujo: su resultado debe verse en menos de 5000 ms. */
+        /**
+         * Plazo máximo de CADA flujo: su resultado debe verse en la pantalla en menos de 5000 ms.
+         * Los flujos que exigen aprobación humana pintan de inmediato su estado «en espera de la
+         * decisión en la ventana de confirmación» —ese es su resultado en plazo— y se completan
+         * cuando el usuario decide.
+         */
         var LIMITE_MS = 5000;
+
+        /**
+         * Aviso de «sigue en curso»: se pinta bastante ANTES del plazo para que el resultado esté
+         * SIEMPRE en pantalla en menos de 5000 ms, incluso cuando la operación no responde (un nodo
+         * caído tarda ~7 s en agotar los reintentos del Service Worker). El desenlace real sustituye
+         * a este aviso en cuanto llega.
+         */
+        var AVISO_EN_CURSO_MS = LIMITE_MS - 1500;
 
         var lineas = [];
         var cuentas = [];
@@ -348,13 +422,54 @@
           return 'métodos presentes: ' + (metodos.join(', ') || 'ninguno');
         }
 
+        function json(valor) {
+          try {
+            return JSON.stringify(valor, null, 2);
+          } catch (error) {
+            return String(valor);
+          }
+        }
+
+        /**
+         * Acción sugerida de la tabla de errores (§4.3). Todo error que se pinta lleva código y
+         * acción: nunca se deja un mensaje sin la salida que tiene el usuario.
+         */
+        function accionPara(code) {
+          if (code === 4001) return 'Volver a solicitarla desde la dApp';
+          if (code === 4100) return 'Conectar con eth_requestAccounts';
+          if (code === 4200) return 'Usar personal_sign o eth_signTypedData_v4';
+          if (code === 4900) return 'Arrancar Anvil en 127.0.0.1:8545';
+          if (code === 4901) return 'Darla de alta con wallet_addEthereumChain';
+          if (code === -32602) return 'Revisar los datos enviados';
+          if (code === -32000) return 'Revisar el motivo indicado y volver a intentarlo';
+          if (code === -32603) return 'Exportar los logs en JSON y reportarlo';
+          return 'Reintentar la operación';
+        }
+
+        /** Describe un error EIP-1193 con su código; nunca deja el mensaje sin código. */
+        function describirError(error) {
+          if (error && typeof error.code === 'number') {
+            return 'Error ' + error.code + ': ' + String(error.message || '') +
+              (error.data ? '\n' + json(error.data) : '');
+          }
+          return 'Error sin código: ' + String((error && error.message) || error);
+        }
+
         /** Fila de resultado de un flujo; se reutiliza en cada pulsación. */
         function fila(id, titulo) {
           var existente = document.getElementById(id);
           if (existente) {
             existente.querySelector('.resultado__tiempo').textContent = '';
             existente.querySelector('.resultado__cuerpo').textContent = '';
+            var accion = existente.querySelector('.resultado__accion');
+            if (accion) {
+              accion.textContent = '';
+              accion.hidden = true;
+            }
             existente.className = 'resultado';
+            existente.removeAttribute('data-code');
+            existente.removeAttribute('data-ms');
+            existente.removeAttribute('data-ms-final');
             return existente;
           }
           var lista = document.getElementById('resultados');
@@ -367,60 +482,145 @@
           tiempo.className = 'resultado__tiempo';
           var cuerpo = document.createElement('span');
           cuerpo.className = 'resultado__cuerpo';
+          var accion = document.createElement('span');
+          accion.className = 'resultado__accion';
+          accion.hidden = true;
           item.appendChild(tiempo);
           item.appendChild(cabecera);
           item.appendChild(cuerpo);
+          item.appendChild(accion);
           if (lista) {
             lista.appendChild(item);
           }
           return item;
         }
 
-        function pintarFila(item, esOk, cuerpo, ms) {
-          item.className = esOk ? 'resultado resultado--ok' : 'resultado resultado--error';
-          item.querySelector('.resultado__tiempo').textContent = Math.round(ms) + ' ms';
-          item.querySelector('.resultado__cuerpo').textContent = cuerpo;
-        }
-
-        function json(valor) {
-          try {
-            return JSON.stringify(valor, null, 2);
-          } catch (error) {
-            return String(valor);
+        /** Pinta una fila en estado `ok`, `error` o `pendiente`, con su tiempo y su acción. */
+        function pintarFila(item, estado, cuerpo, ms, code) {
+          item.className = 'resultado resultado--' + estado;
+          if (code !== undefined && code !== null) {
+            item.setAttribute('data-code', String(code));
+          }
+          var tiempo = item.querySelector('.resultado__tiempo');
+          if (tiempo) {
+            tiempo.textContent = Math.round(ms) + ' ms';
+          }
+          var cuerpoNodo = item.querySelector('.resultado__cuerpo');
+          if (cuerpoNodo) {
+            cuerpoNodo.textContent = cuerpo;
+          }
+          var accion = item.querySelector('.resultado__accion');
+          if (accion) {
+            if (estado === 'error') {
+              accion.textContent = 'Acción sugerida: ' + accionPara(code);
+              accion.hidden = false;
+            } else {
+              accion.textContent = '';
+              accion.hidden = true;
+            }
           }
         }
 
-        /** Describe un error EIP-1193 con su código; nunca deja el mensaje sin código. */
-        function describirError(error) {
-          if (error && typeof error.code === 'number') {
-            return 'Error ' + error.code + ': ' + String(error.message || '') +
-              (error.data ? '\n' + json(error.data) : '');
+        /**
+         * Ejecuta un flujo y lo pinta: SIEMPRE hay un resultado en pantalla dentro del plazo.
+         *
+         * Mecanismo: si la promesa no se ha resuelto al llegar a `LIMITE_MS`, se pinta el estado
+         * «en espera» —ese es el resultado en plazo exigido por la tarea 5.11— y la fila se completa
+         * cuando la promesa termina (con su valor o con el error EIP-1193 real, que puede llegar más
+         * tarde: por ejemplo el `4900` de un nodo caído, tras los reintentos del Service Worker).
+         *
+         * `opciones.pendiente` marca los flujos que exigen además la decisión del usuario en la
+         * ventana única: en ese caso el estado «en espera» se pinta de inmediato.
+         */
+        function ejecutar(id, titulo, fabrica, opciones) {
+          var item = fila(id, titulo);
+          var inicio = performance.now();
+          var proveedorActual = proveedor();
+          if (proveedorActual === null) {
+            pintarFila(item, 'error', 'No hay provider: carga dist/ en chrome://extensions.', 0, null);
+            return;
           }
-          return 'Error sin código: ' + String((error && error.message) || error);
-        }
 
-        /** Recorta una promesa al plazo del flujo: sin respuesta en 5000 ms es un fallo. */
-        function conLimite(promesa) {
-          return new Promise(function (resolver, rechazar) {
-            var temporizador = setTimeout(function () {
-              rechazar(new Error('Sin respuesta en ' + LIMITE_MS + ' ms'));
-            }, LIMITE_MS);
-            promesa.then(
-              function (valor) {
-                clearTimeout(temporizador);
-                resolver(valor);
-              },
-              function (error) {
-                clearTimeout(temporizador);
-                rechazar(error);
-              },
+          /** Marca de resolución: evita que el aviso de plazo pise un resultado ya pintado. */
+          var resuelto = false;
+
+          if (opciones && opciones.pendiente) {
+            var ack = performance.now() - inicio;
+            item.setAttribute('data-ms', String(Math.round(ack)));
+            pintarFila(
+              item,
+              'pendiente',
+              'Solicitud enviada a la ventana de confirmación; esperando la decisión del usuario…',
+              ack,
             );
-          });
+          }
+
+          var temporizador = setTimeout(function () {
+            if (resuelto) {
+              return;
+            }
+            var transcurrido = performance.now() - inicio;
+            item.setAttribute('data-ms', String(Math.round(transcurrido)));
+            pintarFila(
+              item,
+              'pendiente',
+              'La operación sigue en curso: no ha respondido en ' + LIMITE_MS +
+                ' ms. El resultado se mostrará en cuanto llegue.',
+              transcurrido,
+            );
+          }, AVISO_EN_CURSO_MS);
+
+          /** Etiqueta del método del catálogo que viaja al historial (trazabilidad del flujo). */
+          var metodo = opciones && opciones.metodo ? opciones.metodo : id;
+
+          var promesa;
+          try {
+            promesa = fabrica(proveedorActual);
+          } catch (error) {
+            clearTimeout(temporizador);
+            pintarFila(item, 'error', describirError(error), performance.now() - inicio, error && error.code);
+            return;
+          }
+          if (promesa === null || promesa === undefined) {
+            clearTimeout(temporizador);
+            return;
+          }
+          promesa.then(
+            function (valor) {
+              resuelto = true;
+              clearTimeout(temporizador);
+              var fin = performance.now() - inicio;
+              item.setAttribute('data-ms-final', String(Math.round(fin)));
+              pintarFila(item, 'ok', json(valor), fin);
+              anotar(metodo + ' → ' + json(valor));
+            },
+            function (error) {
+              resuelto = true;
+              clearTimeout(temporizador);
+              var fin = performance.now() - inicio;
+              var code = error && typeof error.code === 'number' ? error.code : null;
+              item.setAttribute('data-ms-final', String(Math.round(fin)));
+              pintarFila(item, 'error', describirError(error), fin, code);
+              anotar(metodo + ' falló: ' + describirError(error));
+            },
+          );
         }
 
         // ---------------------------------------------------------------- Flujo 1: detectar
+        /**
+         * Detección del provider con REINTENTO acotado: el content script puede inyectar
+         * `window.truekeate` unas decenas de milisegundos DESPUÉS de que esta página ejecute su
+         * script, así que la primera comprobación puede ver «ausente». Se reintenta hasta 4 s
+         * (dentro del plazo de 5000 ms del flujo) y el historial deja constancia de los intentos.
+         */
+        var intentosDeteccion = 0;
+
+        /** Instante del primer intento de detección: acota la ventana de reintentos. */
+        var inicioDeteccionGlobal = performance.now();
+
         function detectar() {
           var inicio = performance.now();
+          intentosDeteccion += 1;
           var truekeate = proveedor();
           var codecrypto = window.codecrypto;
           var mismoObjeto = truekeate !== null && truekeate === codecrypto;
@@ -430,6 +630,7 @@
           anotar('window.truekeate: ' + (truekeate === null ? 'ausente' : 'presente'));
           anotar('window.codecrypto: ' + (codecrypto === undefined ? 'ausente' : 'presente'));
           anotar('window.truekeate === window.codecrypto: ' + String(mismoObjeto));
+          anotar('intento de detección: ' + intentosDeteccion);
 
           var cuerpo =
             'window.truekeate === window.codecrypto: ' + String(mismoObjeto) + '\n' +
@@ -447,44 +648,60 @@
             textoEstado('no se ha detectado el provider (¿está cargada la extensión?)', false);
             cuerpo +=
               '\nCarga dist/ en chrome://extensions, recarga esta página y vuelve a intentarlo.';
+            // El provider puede llegar tarde: se reintenta dentro del plazo del flujo.
+            if (performance.now() - inicioDeteccionGlobal < 4000) {
+              setTimeout(detectar, 100);
+            }
           }
           mostrarDetalle(cuerpo);
           anotar('flujo detectar: ' + Math.round(performance.now() - inicio) + ' ms');
+        }
 
-          // EIP-6963: el listener debe registrarse ANTES de pedir el anuncio.
-          window.addEventListener('eip6963:announceProvider', function (evento) {
-            var detail = evento && evento.detail ? evento.detail : null;
-            if (!detail || !detail.info) {
-              return;
-            }
-            anotar(
-              'EIP-6963: name=' + detail.info.name + ' rdns=' + detail.info.rdns +
-                ' uuid=' + detail.info.uuid,
-            );
-          });
+        // -------------------------------------------------------------- Flujo 1.b: EIP-6963
+        /** Anuncios EIP-6963 recibidos, en orden (también en `window.__tkEip6963`). */
+        function anuncios() {
+          if (!Array.isArray(window.__tkEip6963)) {
+            window.__tkEip6963 = [];
+          }
+          return window.__tkEip6963;
+        }
+
+        function pintarAnuncios() {
+          var lista = document.getElementById('eip6963-lista');
+          var recibidos = anuncios();
+          if (!lista) {
+            return;
+          }
+          if (recibidos.length === 0) {
+            lista.textContent = 'EIP-6963: sin anuncios todavía.';
+            return;
+          }
+          lista.textContent = 'EIP-6963: ' + recibidos.map(function (detalle) {
+            return detalle.info.name + ' · rdns ' + detalle.info.rdns + ' · uuid ' + detalle.info.uuid;
+          }).join(' | ');
+        }
+
+        function pedirAnuncios() {
+          var inicio = performance.now();
           window.dispatchEvent(new Event('eip6963:requestProvider'));
+          anotar('flujo EIP-6963: requestProvider emitido en ' +
+            Math.round(performance.now() - inicio) + ' ms');
         }
 
         // ---------------------------------------------------------------- Flujo 2: conectar
         function conectar() {
-          var item = fila('resultado-conectar', 'Conectar · eth_requestAccounts');
-          var provider = proveedor();
-          if (provider === null) {
-            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
-            return;
-          }
-          var inicio = performance.now();
-          conLimite(provider.request({ method: 'eth_requestAccounts' }))
-            .then(function (resultado) {
-              cuentas = Array.isArray(resultado) ? resultado : [];
-              seleccionada = cuentas.length > 0 ? cuentas[0] : null;
-              pintarFila(item, true, json(resultado), performance.now() - inicio);
-              anotar('eth_requestAccounts → ' + json(resultado));
-            })
-            .catch(function (error) {
-              pintarFila(item, false, describirError(error), performance.now() - inicio);
-              anotar('eth_requestAccounts falló: ' + describirError(error));
-            });
+          ejecutar(
+            'resultado-conectar',
+            'Conectar · eth_requestAccounts',
+            function (provider) {
+              return provider.request({ method: 'eth_requestAccounts' }).then(function (resultado) {
+                cuentas = Array.isArray(resultado) ? resultado : [];
+                seleccionada = cuentas.length > 0 ? cuentas[0] : null;
+                return resultado;
+              });
+            },
+            { pendiente: true, metodo: 'eth_requestAccounts' },
+          );
         }
 
         // --------------------------------------------------------- Flujo 3: consultar saldo
@@ -501,64 +718,128 @@
         }
 
         function consultarSaldo() {
-          var item = fila('resultado-saldo', 'Consultar saldo · eth_getBalance');
-          var provider = proveedor();
-          if (provider === null) {
-            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
-            return;
-          }
-          var inicio = performance.now();
-
-          var direccion = Promise.resolve(seleccionada);
-          if (seleccionada === null) {
-            // Sin conexión previa se pregunta por las cuentas autorizadas (no abre ventana).
-            direccion = conLimite(provider.request({ method: 'eth_accounts' })).then(function (lista) {
-              cuentas = Array.isArray(lista) ? lista : [];
-              seleccionada = cuentas.length > 0 ? cuentas[0] : null;
-              return seleccionada;
-            });
-          }
-
-          direccion
-            .then(function (cuenta) {
-              if (cuenta === null) {
-                pintarFila(
-                  item,
-                  false,
-                  'No hay ninguna cuenta autorizada: usa antes «Conectar (eth_requestAccounts)».',
-                  performance.now() - inicio,
-                );
-                return null;
-              }
-              return conLimite(
-                provider.request({ method: 'eth_getBalance', params: [cuenta, 'latest'] }),
-              ).then(function (wei) {
-                pintarFila(
-                  item,
-                  true,
-                  'Cuenta ' + cuenta + '\nSaldo ' + String(wei) + ' (' + formatearEth(wei) + ')',
-                  performance.now() - inicio,
-                );
-                anotar('eth_getBalance(' + cuenta + ') → ' + json(wei));
+          ejecutar('resultado-saldo', 'Consultar saldo · eth_getBalance', function (provider) {
+            var direccion = Promise.resolve(seleccionada);
+            if (seleccionada === null) {
+              // Sin conexión previa se pregunta por las cuentas autorizadas (no abre ventana).
+              direccion = provider.request({ method: 'eth_accounts' }).then(function (lista) {
+                cuentas = Array.isArray(lista) ? lista : [];
+                seleccionada = cuentas.length > 0 ? cuentas[0] : null;
+                return seleccionada;
               });
-            })
-            .catch(function (error) {
-              pintarFila(item, false, describirError(error), performance.now() - inicio);
-              anotar('eth_getBalance falló: ' + describirError(error));
+            }
+            return direccion.then(function (cuenta) {
+              if (cuenta === null) {
+                throw Object.assign(
+                  new Error('No hay ninguna cuenta autorizada: usa antes «Conectar».'),
+                  { code: 4100 },
+                );
+              }
+              // Sin `conLimite`: el plazo del flujo lo pinta `ejecutar` y el error REAL del nodo
+              // (por ejemplo el `4900` de un RPC caído) se muestra cuando llega, con su acción.
+              return provider
+                .request({ method: 'eth_getBalance', params: [cuenta, 'latest'] })
+                .then(function (wei) {
+                  return 'Cuenta ' + cuenta + '\nSaldo ' + String(wei) + ' (' + formatearEth(wei) + ')';
+                });
             });
+          }, { metodo: 'eth_getBalance' });
         }
 
-        // ---------------------------------------------------------- Flujo 4: escuchar eventos
+        // ------------------------------------------------------------- Flujo 4: enviar
+        /** Destino del envío de prueba: la cuenta 1 de Anvil. */
+        var DESTINO = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+
+        function enviar() {
+          ejecutar(
+            'resultado-enviar',
+            'Enviar transacción · eth_sendTransaction',
+            function (provider) {
+              return provider.request({ method: 'eth_accounts' }).then(function (lista) {
+                cuentas = Array.isArray(lista) ? lista : [];
+                seleccionada = cuentas.length > 0 ? cuentas[0] : seleccionada;
+                if (seleccionada === null) {
+                  throw Object.assign(
+                    new Error('No hay ninguna cuenta autorizada: usa antes «Conectar».'),
+                    { code: 4100 },
+                  );
+                }
+                return provider.request({
+                  method: 'eth_sendTransaction',
+                  params: [
+                    {
+                      from: seleccionada,
+                      to: DESTINO,
+                      value: '0x2386F26FC10000',
+                    },
+                  ],
+                });
+              });
+            },
+            { pendiente: true, metodo: 'eth_sendTransaction' },
+          );
+        }
+
+        // --------------------------------------------------------- Flujo 5: firmar EIP-712
+        function firmarEip712() {
+          ejecutar(
+            'resultado-eip712',
+            'Firmar EIP-712 · eth_signTypedData_v4',
+            function (provider) {
+              var typedData = {
+                domain: { name: 'TrueKeate', version: '1', chainId: 31337 },
+                types: {
+                  SignMessage: [
+                    { name: 'account', type: 'address' },
+                    { name: 'message', type: 'string' },
+                  ],
+                },
+                primaryType: 'SignMessage',
+                message: {
+                  account: seleccionada || DESTINO,
+                  message: 'Firma de prueba de la dApp de TrueKeate',
+                },
+              };
+              var from = seleccionada || DESTINO;
+              return provider.request({
+                method: 'eth_signTypedData_v4',
+                params: [from, JSON.stringify(typedData)],
+              });
+            },
+            { pendiente: true, metodo: 'eth_signTypedData_v4' },
+          );
+        }
+
+        // ------------------------------------------------------ Flujo 6: cambiar de red
+        function cambiarRed() {
+          var campo = document.getElementById('red-destino');
+          var chainId = campo && campo.value ? campo.value.trim() : '0x7a6a';
+          ejecutar(
+            'resultado-cambiar-red',
+            'Cambiar de red · wallet_switchEthereumChain',
+            function (provider) {
+              return provider
+                .request({ method: 'wallet_switchEthereumChain', params: [{ chainId: chainId }] })
+                .then(function (resultado) {
+                  return 'wallet_switchEthereumChain(' + chainId + ') → ' + json(resultado);
+                });
+            },
+            { pendiente: true, metodo: 'wallet_switchEthereumChain' },
+          );
+        }
+
+        // ---------------------------------------------------------- Flujo 7: escuchar eventos
         function escucharEventos() {
           var item = fila('resultado-eventos', 'Escuchar eventos · accountsChanged y chainChanged');
           var provider = proveedor();
           if (provider === null) {
-            pintarFila(item, false, 'No hay provider: carga dist/ en chrome://extensions.', 0);
+            pintarFila(item, 'error', 'No hay provider: carga dist/ en chrome://extensions.', 0, null);
             return;
           }
           var inicio = performance.now();
           if (item.dataset.suscrito === 'true') {
-            pintarFila(item, true, 'La suscripción ya estaba activa; se mantiene.', performance.now() - inicio);
+            pintarFila(item, 'ok', 'La suscripción ya estaba activa; se mantiene.', performance.now() - inicio);
+            item.setAttribute('data-ms', String(Math.round(performance.now() - inicio)));
             return;
           }
           function alCambiarCuentas(lista) {
@@ -567,29 +848,57 @@
           function alCambiarRed(chainId) {
             anotar('evento chainChanged → ' + json(chainId));
           }
+          function alConectar(datos) {
+            anotar('evento connect → ' + json(datos));
+          }
+          function alDesconectar(datos) {
+            anotar('evento disconnect → ' + json(datos));
+          }
           try {
             provider.on('accountsChanged', alCambiarCuentas);
             provider.on('chainChanged', alCambiarRed);
+            provider.on('connect', alConectar);
+            provider.on('disconnect', alDesconectar);
             item.dataset.suscrito = 'true';
+            item.setAttribute('data-ms', String(Math.round(performance.now() - inicio)));
             pintarFila(
               item,
-              true,
+              'ok',
               'Suscripción activa a accountsChanged y chainChanged. Los eventos recibidos se ' +
                 'añaden al historial de la página.',
               performance.now() - inicio,
             );
-            anotar('flujo eventos: suscripción registrada');
+            anotar('flujo eventos: suscripción a accountsChanged y chainChanged registrada');
           } catch (error) {
-            pintarFila(item, false, describirError(error), performance.now() - inicio);
+            pintarFila(item, 'error', describirError(error), performance.now() - inicio, error && error.code);
           }
         }
 
         // ------------------------------------------------------------------------ Arranque
+        // EIP-6963: el listener debe registrarse ANTES de pedir el anuncio.
+        window.addEventListener('eip6963:announceProvider', function (evento) {
+          var detail = evento && evento.detail ? evento.detail : null;
+          if (!detail || !detail.info) {
+            return;
+          }
+          anuncios().push({ info: detail.info, provider: detail.provider });
+          pintarAnuncios();
+          anotar(
+            'EIP-6963: name=' + detail.info.name + ' rdns=' + detail.info.rdns +
+              ' uuid=' + detail.info.uuid,
+          );
+        });
+
         document.getElementById('btn-detectar').addEventListener('click', detectar);
+        document.getElementById('btn-eip6963').addEventListener('click', pedirAnuncios);
         document.getElementById('btn-conectar').addEventListener('click', conectar);
         document.getElementById('btn-saldo').addEventListener('click', consultarSaldo);
+        document.getElementById('btn-enviar').addEventListener('click', enviar);
+        document.getElementById('btn-eip712').addEventListener('click', firmarEip712);
+        document.getElementById('btn-cambiar-red').addEventListener('click', cambiarRed);
         document.getElementById('btn-eventos').addEventListener('click', escucharEventos);
         detectar();
+        pedirAnuncios();
       })();
     </script>
   </body>

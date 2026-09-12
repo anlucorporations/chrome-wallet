@@ -1,0 +1,32 @@
+﻿node.exe : [WebServer] (node:13804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338, arrancado por el arnés)
+(node:19864) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:3772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SONDA state.networks= [{"chainId":"0x7a69","chainIdDecimal":31337,"decimals":18,"isDefault":true,"isTestnet":true,"name":"Anvil Local","rpcUrl":"http://127.0.0.1:8545","symbol":"ETH"},{"chainId":"0x7a6a","chainIdDecimal":31338,"decimals":18,"isDefault":false,"isTestnet":true,"name":"Anvil Secundario","rpcUrl":"http://127.0.0.1:8546","symbol":"ETH"}]
+SONDA filas de red= 2 botones= 2 ids= ["red-cambiar-31337","red-cambiar-31338"]
+SONDA conexion= true [
+  "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+]
+SONDA enviar= {"clase":"resultado resultado--error","code":"4001","cuerpo":"Error 4001: El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado.","ventanas":0}
+SONDA registro= "window.truekeate: ausente\nwindow.codecrypto: ausente\nwindow.truekeate === window.codecrypto: false\nintento de detección: 1\nflujo detectar: 1 ms\nflujo EIP-6963: requestProvider emitido en 0 ms\nEIP-6963: name=TrueKeate rdns=academy.codecrypto.truekeate uuid=9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90\nEIP-6963: name=TrueKeate rdns=academy.codecrypto.truekeate uuid=9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90\nwindow.truekeate: presente\nwindow.codecrypto: presente\nwindow.truekeate === window.codecrypto: true\nintento de detección: 2\nflujo detectar: 1 ms\nresultado-conectar → [\n  \"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\"\n]\neth_sendTransaction falló: Error 4001: El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado."
+SONDA logs= [{"event":"rpc_call","method":"eth_getBalance","data":{"params":["0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65","latest"]}},{"event":"rpc_call","method":"eth_requestAccounts","data":{"params":[]}},{"event":"rpc_call","method":"eth_accounts","data":{"params":[]}},{"event":"rpc_call","method":"wallet_getState","data":{"params":[]}},{"event":"approval_expired","method":"eth_sendTransaction","data":{"approvalId":"41cc5b84-b1ac-45d4-a1cc-d29586b2ace9","errorCode":4001,"method":"eth_sendTransaction","origin":"http://localhost:5174","segundos":3}},{"event":"rpc_error","method":"eth_sendTransaction","data":{"code":4001,"message":"Operación cancelada por el usuario."}}]
+  ok 1 [chromium-extension] › e2e\93-sonda-envio.spec.ts:19:1 › sonda: redes del popup y flujo de envío (15.3s)
+
+  1 passed (32.9s)

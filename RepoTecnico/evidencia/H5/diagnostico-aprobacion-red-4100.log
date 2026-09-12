@@ -1,0 +1,29 @@
+﻿node.exe : [WebServer] (node:13232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338, arrancado por el arnés)
+(node:17564) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:20112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SONDA switch(0x7a6a, popup)= {"estado":"resuelto","respuesta":{"error":{"code":4100,"message":"Esta dApp no tiene permiso para usar la cartera.","data":{"reason":"no-session-for-approval","origin":"extension"}}}} ventanas= 0
+SONDA add(8545, popup)= {"estado":"resuelto","respuesta":{"error":{"code":4100,"message":"Esta dApp no tiene permiso para usar la cartera.","data":{"reason":"no-session-for-approval","origin":"extension"}}}} ventanas= 0
+SONDA cola= undefined
+SONDA logs= [{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x90F79bf6EB2c4f870365E785982E1f101E93b906","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x70997970C51812dc3A010C7d01b50e0d17dc79C8","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x90F79bf6EB2c4f870365E785982E1f101E93b906","latest"]}},{"event":"rpc_call","method":"eth_getBalance","level":"info","data":{"params":["0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65","latest"]}}]
+SONDA chainId= "0x7a69"
+  ok 1 [chromium-extension] › e2e\92-sonda-redes.spec.ts:15:1 › sonda: aprobación de red desde el popup y desde la dApp (20.4s)
+
+  1 passed (40.1s)

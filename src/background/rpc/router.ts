@@ -46,7 +46,9 @@
  */
 
 import type {
+  Address,
   ApprovalMethod,
+  ChainIdHex,
   Eip1193Error,
   InternalMethod,
   WalletMethod,
@@ -88,10 +90,17 @@ import {
 } from './errors';
 import { decideRateLimit, type RateLimitDecision } from './rateLimit';
 import { getBalanceWei, rpcSend } from './client';
+import { logEvent } from '../logging/logger';
+import { EXTENSION_ORIGIN } from '../../shared/constants';
 import { emitProviderEvent, defaultEventsDeps } from '../events';
-import { readSessions, revokeSession, touchSession, currentSessionFor } from '../sessions';
+import { readSessions, revokeSession, touchSession, currentSessionFor, authorizedAccountFor } from '../sessions';
 import { openConnectWindow } from '../connections';
-import { dispatchApproval, type ApprovalDispatchOutcome } from '../approvals/dispatch';
+import {
+  dispatchApproval,
+  defaultApprovalDispatchDeps,
+  runApprovalCycle,
+  type ApprovalDispatchOutcome,
+} from '../approvals/dispatch';
 import {
   dispatchAddEthereumChain,
   type AddChainResult,
@@ -204,12 +213,14 @@ export interface NetworkDispatchDeps {
   readonly switchChain: (options: {
     params: readonly unknown[];
     context: TrustedSenderContext;
+    sessionAccount?: Address | null;
     runner: NetworkApprovalRunner;
     now?: number;
   }) => Promise<NetworkDispatchOutcome>;
   readonly addChain: (options: {
     params: readonly unknown[];
     context: TrustedSenderContext;
+    sessionAccount?: Address | null;
     runner: NetworkApprovalRunner;
     now?: number;
   }) => Promise<NetworkDispatchOutcome>;
@@ -220,6 +231,26 @@ export type NetworkDispatchOutcome =
   | { ok: true; result: unknown }
   | { ok: false; error: Eip1193Error };
 
+/**
+ * Entrada del ciclo aprobable de los métodos de RED (M24/M25).
+ *
+ * Se declara AQUÍ —y no reutilizando `DispatchApprovalOptions`— porque el ciclo de una red **no**
+ * exige sesión de dApp cuando el emisor es el popup: la cuenta y la red las resuelve M24/M25
+ * (`resolveApprovalAccount`) y viajan ya resueltas en el borrador.
+ */
+export interface NetworkCycleInput {
+  method: ApprovalMethod;
+  params: readonly unknown[];
+  context: TrustedSenderContext;
+  account: Address;
+  chainId: ChainIdHex;
+  requestId?: string;
+  now: number;
+}
+
+/** Invocador del ciclo aprobable (cola → plazo → ventana única → decisión) de los métodos de red. */
+export type NetworkCycleInvoker = (input: NetworkCycleInput) => Promise<NetworkApprovalOutcome>;
+
 /** Dependencias del router: puntos de extensión, todos con su valor real por defecto. */
 export interface RouterDeps {
   readonly redactParams: RedactParams;
@@ -229,6 +260,11 @@ export interface RouterDeps {
   readonly approve: ApprovalInvoker;
   /** Invocador de los 2 métodos de RED (M24/M25), en ambos contextos. */
   readonly network: NetworkDispatchDeps;
+  /**
+   * Ciclo aprobable de los métodos de RED. Es opcional para no romper los dobles de prueba que ya
+   * declaran `network`: si falta, se usa el real (`runApprovalCycle` + las dependencias de M19.b).
+   */
+  readonly runNetworkCycle?: NetworkCycleInvoker;
   readonly decideRateLimit: RateLimitDecider;
   readonly page: PageHandlerDeps;
   /** Reloj inyectable (las pruebas fijan `now` sin depender del reloj real). */
@@ -271,33 +307,77 @@ const openConnect = async (input: OpenConnectInput): Promise<ConnectOutcome> =>
   });
 
 /**
- * Construye el **runner** que los métodos de red (M24/M25) necesitan para recorrer la cola de
- * aprobaciones: es el `dispatchApproval` de H4 (M19.b) invocado con el método de red, **el contexto
- * confiable REAL** del emisor y los datos del borrador. Se conserva `requestId` (correlación del
- * salto 1, D-H4-E10) porque la resolución empujada debe llegar a la promesa correcta de la dApp.
+ * Runner del ciclo aprobable de los métodos de RED (M24/M25).
  *
- * El desenlace del ciclo se traduce a la forma que consume M24/M25: `{ ok, approved, status }`,
- * donde `status: 'approved'` es lo único que autoriza el efecto (activar la red o persistir el
- * alta).
+ * DEFECTO MEDIDO Y CORREGIDO AQUÍ (H5, `D-H5-B`): antes este runner llamaba a `dispatchApproval`,
+ * que empieza resolviendo la **sesión de dApp** (`resolveApprovalOrigin`); desde el POPUP no hay
+ * sesión (su origen es `extension`), así que un cambio de red o un alta nacidos en el popup
+ * respondían **`4100`** («Esta dApp no tiene permiso para usar la cartera», `reason:
+ * no-session-for-approval`) **sin abrir nunca la ventana única**; y desde una dApp tampoco llegaba
+ * la cuenta de la sesión a M24/M25, de modo que el ciclo no podía aprobarse con la cuenta correcta.
+ *
+ * El ciclo correcto es el de M19.b —cola (M14) → plazo (M15) → ventana única (M18) → decisión— pero
+ * SIN exigir sesión: la cuenta y la red ya las resolvió M24/M25 (`resolveApprovalAccount`) y viajan
+ * en el borrador, así que el `PendingRequest` conserva el contrato de §2.8 y el popup puede aprobar
+ * su propio cambio de red (P-19/DEC-29). `requestId` (correlación del salto 1, D-H4-E10) se
+ * conserva porque la resolución empujada debe llegar a la promesa correcta de la dApp.
  */
 const networkRunner =
   (
     method: ApprovalMethod,
     context: TrustedSenderContext,
     requestId: string | undefined,
+    runCycle: NetworkCycleInvoker,
   ): NetworkApprovalRunner =>
-  async (draft, now): Promise<NetworkApprovalOutcome> => {
-    const outcome = await dispatchApproval({
+  async (draft, now): Promise<NetworkApprovalOutcome> =>
+    runCycle({
       method,
       params: draft.params,
       context,
-      now,
+      account: draft.account,
+      chainId: draft.chainId,
       ...(requestId === undefined ? {} : { requestId }),
+      now,
     });
-    return outcome.ok
-      ? { ok: true, approved: true, status: 'approved', error: null }
-      : { ok: true, approved: false, status: 'rejected', error: outcome.error };
-  };
+
+/**
+ * Ciclo aprobable REAL de los métodos de red: el de M19.b (`runApprovalCycle`) con las dependencias
+ * de producción (cola M14, plazo M15, ventana única M18 y decisión).
+ */
+const runNetworkCycle: NetworkCycleInvoker = async (input) => {
+  const cycle = await runApprovalCycle(
+    {
+      method: input.method,
+      params: [...input.params],
+      origin: input.context.origin,
+      tabId: input.context.tabId,
+      frameId: input.context.frameId,
+      account: input.account,
+      chainId: input.chainId,
+      ...(input.requestId === undefined ? {} : { requestId: input.requestId }),
+    },
+    defaultApprovalDispatchDeps,
+    input.now,
+  );
+  if (!cycle.ok) {
+    return { ok: false, approved: false, status: 'rejected-by-queue', error: cycle.error };
+  }
+  if (!cycle.approved) {
+    return { ok: true, approved: false, status: 'rejected', error: cycle.error };
+  }
+  return { ok: true, approved: true, status: 'approved', error: null };
+};
+
+/**
+ * Cuenta de la sesión vigente de una dApp (`null` en el popup y cuando el origen no tiene sesión):
+ * es lo que M24/M25 necesitan para saber con qué cuenta se aprueba el cambio o el alta (RNF-11).
+ */
+const sessionAccountFor = async (context: TrustedSenderContext): Promise<Address | null> => {
+  if (context.isExtensionContext) {
+    return null;
+  }
+  return authorizedAccountFor(await readSessions(), context.origin);
+};
 
 /** Dependencias reales: M22 (redacción), M4/M4.b (catálogos), M3.b (tasa), M5/M26/M27 y M24/M25. */
 export const defaultRouterDeps: RouterDeps = {
@@ -305,6 +385,7 @@ export const defaultRouterDeps: RouterDeps = {
   invokeInternal: invokeInternalMethod,
   invokePage: invokePageMethod,
   approve: (options) => dispatchApproval(options),
+  runNetworkCycle,
   network: {
     switchChain: async (options) => {
       const outcome = await dispatchSwitchEthereumChain(options);
@@ -358,13 +439,78 @@ const redactSafely = (method: string, params: unknown[], deps: RouterDeps): unkn
 };
 
 /**
- * Único punto de entrada del router.
+ * Único punto de entrada del router, CON la traza de observabilidad de H5 (tareas 5.6 y 5.9).
  *
  * Devuelve siempre la forma `RouterResult`; el llamador (M2) la traduce con `toRpcResponse` y
  * entrega la respuesta con `target` (SOLO al frame de origen cuando `frameId !== 0`).
  * Ninguna excepción escapa: cualquier fallo se convierte en un error EIP-1193 tipado.
+ *
+ * Cada llamada del catálogo deja **EXACTAMENTE 1 entrada** en `truekeate_logs` (RNF-16):
+ * `rpc_call` (`category: 'call'`, `level: 'info'`) cuando se resolvió —con el `method`, el `origin`
+ * y el `ts` que exige `CA-RF-28`, y los `params` YA redactados por M22— o `rpc_error`
+ * (`category: 'call'`, `level: 'warn'`) con el `code` y el mensaje de §4.3 cuando falló.
+ *
+ * La traza se escribe DESPUÉS de resolver el despacho y **nunca** puede cambiar la respuesta: si el
+ * almacén la rechaza por cuota, el descarte es observable por `wallet_getLogs.dropped` (§2.15) y la
+ * dApp recibe igualmente su resultado.
  */
 export const handleRPCRequest = async (
+  input: HandleRpcRequestParams,
+  deps: RouterDeps = defaultRouterDeps,
+): Promise<RouterResult> => {
+  const result = await dispatchRPCRequest(input, deps);
+  await traceRouteCall(input, result);
+  return result;
+};
+
+/** Origen normalizado del emisor para la traza, sin fiarse nunca del que declara la página. */
+const traceOrigin = (result: RouterResult, sender: SenderLike): string => {
+  if (result.context !== null) {
+    return result.context.origin;
+  }
+  const url = typeof sender.url === 'string' ? sender.url : '';
+  try {
+    return new URL(url).origin.toLowerCase();
+  } catch {
+    return EXTENSION_ORIGIN;
+  }
+};
+
+/**
+ * Escribe la traza de UNA llamada del catálogo. Nunca lanza: la observabilidad no puede romper la
+ * respuesta a la dApp (un fallo de escritura queda en el contador de descartes y en la consola).
+ */
+const traceRouteCall = async (
+  input: HandleRpcRequestParams,
+  result: RouterResult,
+): Promise<void> => {
+  const method = typeof input.method === 'string' ? input.method : '';
+  try {
+    if (result.ok) {
+      await logEvent({
+        event: 'rpc_call',
+        origin: result.context.origin,
+        method,
+        data: { params: result.redactedParams },
+      });
+      return;
+    }
+    await logEvent({
+      event: 'rpc_error',
+      origin: traceOrigin(result, input.sender),
+      method,
+      data: { code: result.error.code, message: result.error.message },
+    });
+  } catch (error) {
+    console.warn('[truekeate] no se pudo dejar la traza de la llamada', method, error);
+  }
+};
+
+/**
+ * Despacho PURO de una petición del catálogo (sin observabilidad): es el cuerpo histórico del
+ * router, conservado tal cual para que la traza sea lo ÚNICO que envuelve la resolución.
+ */
+const dispatchRPCRequest = async (
   input: HandleRpcRequestParams,
   deps: RouterDeps = defaultRouterDeps,
 ): Promise<RouterResult> => {
@@ -475,7 +621,15 @@ export const handleRPCRequest = async (
       const networkOptions = {
         params,
         context,
-        runner: networkRunner(method as ApprovalMethod, context, requestId),
+        // Cuenta de la sesión vigente cuando la petición nace en una dApp; `null` en el popup, que
+        // resuelve la suya con la cuenta activa (`resolveApprovalAccount`, M24/M25).
+        sessionAccount: await sessionAccountFor(context),
+        runner: networkRunner(
+          method as ApprovalMethod,
+          context,
+          requestId,
+          deps.runNetworkCycle ?? runNetworkCycle,
+        ),
         now: deps.now(),
       };
       const outcome =

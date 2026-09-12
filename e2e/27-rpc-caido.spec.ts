@@ -101,17 +101,25 @@ test.describe('27 · RPC caído: 4900, UI desconectada y almacén intacto', () =
       await expect(popup.getByText(/sin respuesta del nodo local/i)).toBeVisible({ timeout: 40_000 });
       lineas.push('UI: el popup muestra «Desconectado: sin respuesta del nodo local».');
 
-      // --- El almacén queda INTACTO (RNF-07) ---------------------------------------------------
+      // --- El almacén de la CARTERA queda INTACTO (RNF-07) -------------------------------------
       const swDespues = await getBackgroundWorker(context);
       const despues = await readChromeStorage(swDespues, null);
+      /**
+       * Claves de la OBSERVABILIDAD, excluidas a propósito desde H5: el Service Worker escribe
+       * **una traza por llamada del catálogo** (`rpc_call`/`rpc_error`, `CA-RF-28`) y su contador de
+       * descartes por cuota (`truekeate_logs_dropped`, §2.15), así que estas claves **cambian por
+       * diseño** —también con el nodo caído, que es justo lo que hay que registrar—. Lo que RNF-07
+       * exige es que no se pierda ni se modifique el estado de la CARTERA, que se comprueba abajo.
+       */
+      const CLAVES_OBSERVABILIDAD = ['truekeate_logs', 'truekeate_logs_dropped'];
       const claves = [...new Set([...Object.keys(antes), ...Object.keys(despues)])].filter(
-        (clave) => clave !== 'truekeate_logs',
+        (clave) => !CLAVES_OBSERVABILIDAD.includes(clave),
       );
       const cambiadas = claves.filter(
         (clave) => JSON.stringify(antes[clave]) !== JSON.stringify(despues[clave]),
       );
       lineas.push(
-        `Claves comparadas (sin truekeate_logs): ${claves.length}; cambiadas: ${cambiadas.join(', ') || 'ninguna'}`,
+        `Claves comparadas (sin ${CLAVES_OBSERVABILIDAD.join(', ')}): ${claves.length}; cambiadas: ${cambiadas.join(', ') || 'ninguna'}`,
       );
       expect(cambiadas, 'el RPC caído modificó el almacén').toEqual([]);
       // Y el estado de cartera sigue ahí: nada se ha perdido.

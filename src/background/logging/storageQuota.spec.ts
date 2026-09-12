@@ -51,19 +51,31 @@ const restaurarAlmacen = (): void => {
   chromeStub.storage.local.set = setOriginal as typeof chromeStub.storage.local.set;
 };
 
-/** Instala un rechazo de cuota sobre TODAS las escrituras de `storage.local.set`. */
-const instalarCuotaAgotada = (): { intentos: () => number } => {
+/**
+ * Instala un rechazo de cuota sobre las `rechazos` PRIMERAS escrituras de `storage.local.set`.
+ *
+ * Modela el modo de fallo de §2.15 con precisión: el **lote** de la traza se rechaza (intento +
+ * reintento) mientras que las escrituras PEQUEÑAS que vienen después —el contador de descartes y
+ * la propia entrada de diagnóstico `storage_quota_exceeded`— sí caben; con `rechazos` igual al
+ * total de escrituras (4) se modela el caso extremo en el que NADA cabe.
+ */
+const instalarCuotaAgotada = (rechazos: number): { intentos: () => number } => {
   let intentos = 0;
-  chromeStub.storage.local.set = ((_items: Record<string, unknown>) => {
+  chromeStub.storage.local.set = ((items: Record<string, unknown>) => {
     intentos += 1;
-    return Promise.reject(new Error('QUOTA_BYTES quota exceeded'));
+    if (intentos <= rechazos) {
+      return Promise.reject(new Error('QUOTA_BYTES quota exceeded'));
+    }
+    return setOriginal(items);
   }) as typeof chromeStub.storage.local.set;
   return { intentos: () => intentos };
 };
 
 /** Lee `truekeate_logs` del stub. */
 const leerLogs = async (): Promise<Record<string, unknown>[]> => {
-  const items = await chromeStub.storage.local.get(STORAGE_KEYS.logs);
+  // El `get` del stub puede resolverse como `undefined` (sobrecarga con callback de la API real):
+  // una lectura ausente es una instantánea VACÍA, nunca un fallo de la prueba.
+  const items = (await chromeStub.storage.local.get(STORAGE_KEYS.logs)) ?? {};
   const value = items[STORAGE_KEYS.logs];
   return Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
 };
@@ -88,8 +100,9 @@ describe('M33/M30 · cuota de 10 MB observable (§2.15, R13)', () => {
     await chromeStub.storage.local.set({ truekeate_relleno: 'x'.repeat(20_000) });
     expect(await chromeStub.storage.local.getBytesInUse(null)).toBeGreaterThan(20_000);
 
-    // 2. A partir de aquí, TODA escritura se rechaza por cuota, como con el almacén lleno.
-    const cuota = instalarCuotaAgotada();
+    // 2. El LOTE del log se rechaza por cuota (intento + reintento), como con el almacén lleno;
+    //    las escrituras pequeñas posteriores (contador y diagnóstico) sí caben.
+    const cuota = instalarCuotaAgotada(2);
 
     // 3. Se emite un evento del catálogo: su entrada NO puede persistirse.
     const entrada = await logEvent(
@@ -138,13 +151,13 @@ describe('M33/M30 · cuota de 10 MB observable (§2.15, R13)', () => {
     expect(logs).toHaveLength(1);
 
     // (c) El contador de descartes es VISIBLE y queda persistido para sobrevivir al SW.
-    const persistido = await chromeStub.storage.local.get(LOG_DROPPED_COUNTER_KEY);
+    const persistido = (await chromeStub.storage.local.get(LOG_DROPPED_COUNTER_KEY)) ?? {};
     expect(persistido[LOG_DROPPED_COUNTER_KEY]).toMatchObject({ dropped: 1, retries: 1 });
     expect((await readLogsView()).dropped).toBe(1);
   });
 
   it('`wallet_getLogs` publica `dropped` y `truncated` (tarea 5.9): el descarte es visible en el panel', async () => {
-    const cuota = instalarCuotaAgotada();
+    const cuota = instalarCuotaAgotada(2);
     await logEvent({ event: 'tx_sent', origin: 'http://localhost:5174' }, { now: STUB_EPOCH_MS });
     restaurarAlmacen();
     expect(cuota.intentos()).toBe(4);
@@ -165,7 +178,8 @@ describe('M33/M30 · cuota de 10 MB observable (§2.15, R13)', () => {
   });
 
   it('si NADA cabe (ni el diagnóstico), el descarte sigue siendo visible por el contador', async () => {
-    const cuota = instalarCuotaAgotada();
+    // Caso extremo: las CUATRO escrituras (lote, reintento, contador y diagnóstico) se rechazan.
+    const cuota = instalarCuotaAgotada(4);
     await logEvent({ event: 'rpc_call', origin: 'http://localhost:5174' }, { now: STUB_EPOCH_MS });
 
     expect(cuota.intentos()).toBe(4);

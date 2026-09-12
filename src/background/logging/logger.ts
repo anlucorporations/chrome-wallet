@@ -134,6 +134,17 @@ export interface LogQuotaDiagnostics {
 /** Contabilidad en memoria del Service Worker (se reconstruye al arrancar). */
 const diagnostics: LogQuotaDiagnostics = { dropped: 0, retries: 0, attempts: 0 };
 
+/**
+ * Últimos valores de `(dropped, retries)` YA persistidos.
+ *
+ * El contador solo se reescribe cuando CAMBIA: antes se escribía en `truekeate_logs_dropped` en
+ * **cada** escritura de log, de modo que toda traza costaba DOS operaciones de almacén en lugar de
+ * una. Medido en H5 con el E2E `29-sw-suspendido` (RNF-08: reconstrucción < 1 s): esa escritura
+ * redundante —más el arranque del módulo de red— llevaba la reconstrucción a ~2 s en la suite
+ * completa. `-1` significa «aún no persistido» y fuerza la primera escritura.
+ */
+let persistedDiagnostics: { dropped: number; retries: number } = { dropped: -1, retries: -1 };
+
 /** ¿Es un contador persistido utilizable? */
 const isCounter = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0;
@@ -165,6 +176,8 @@ export const hydrateLogDiagnostics = async (
   } catch (error) {
     console.warn('[truekeate] no se pudo leer el contador de descartes de log', error);
   }
+  // Lo hidratado ES lo persistido: no hace falta reescribirlo en la primera traza del arranque.
+  persistedDiagnostics = { dropped: diagnostics.dropped, retries: diagnostics.retries };
   return { ...diagnostics };
 };
 
@@ -176,11 +189,24 @@ export const resetLogDiagnostics = (): void => {
   diagnostics.dropped = 0;
   diagnostics.retries = 0;
   diagnostics.attempts = 0;
+  persistedDiagnostics = { dropped: -1, retries: -1 };
 };
 
-/** Persiste el contador de descartes sin poder romper la escritura del log. */
+/**
+ * Persiste el contador de descartes sin poder romper la escritura del log.
+ *
+ * Solo escribe si los contadores CAMBIARON respecto a lo último persistido (o si nunca se
+ * persistieron): el valor que sobrevive a la suspensión del SW es el último cambio, no una copia
+ * idéntica en cada traza.
+ */
 const persistDiagnostics = async (storage: StorageLocalLike | null): Promise<void> => {
   if (storage === null) {
+    return;
+  }
+  if (
+    persistedDiagnostics.dropped === diagnostics.dropped &&
+    persistedDiagnostics.retries === diagnostics.retries
+  ) {
     return;
   }
   try {
@@ -191,6 +217,7 @@ const persistDiagnostics = async (storage: StorageLocalLike | null): Promise<voi
         updatedAt: Date.now(),
       },
     });
+    persistedDiagnostics = { dropped: diagnostics.dropped, retries: diagnostics.retries };
   } catch {
     // El contador es diagnóstico: si no cabe en el almacén, el aviso por consola y el valor en
     // memoria siguen haciendo visible el descarte (§2.15: nunca un fallo silencioso).
@@ -448,6 +475,10 @@ const writeWithQuotaPolicy = async (
  * y la política de cuota tengan UNA sola implementación.
  *
  * Un `event` fuera del catálogo lanza `RangeError`: es un **error de programación** (RNF-16).
+ *
+ * Devuelve la entrada del evento PEDIDO cuando quedó escrita; `null` si no se persistió —incluido
+ * el descarte por cuota, en el que lo que sí se guarda es la entrada de diagnóstico
+ * `storage_quota_exceeded`, que **no** se devuelve como si fuera la traza solicitada—.
  */
 export const logEvent = async (
   request: LogRequest,
@@ -478,7 +509,9 @@ export const logEvent = async (
     ],
     options,
   );
-  return written[0] ?? null;
+  // Solo cuenta como escrita la entrada del evento PEDIDO: si el descarte por cuota dejó en su
+  // lugar la entrada de diagnóstico `storage_quota_exceeded`, la operación no se da por escrita.
+  return written.find((entry) => entry.event === request.event) ?? null;
 };
 
 /**
@@ -543,7 +576,10 @@ export const writeLogEntries = async (
     }
     const diagnostic = await persistQuotaDiagnostic(
       storage,
-      plan.retained,
+      // Lo que se vuelve a escribir es el HISTÓRICO que ya estaba persistido —no el plan con las
+      // entradas nuevas—: las entradas descartadas por cuota NO pueden colarse en el almacén por la
+      // puerta de atrás de la escritura de diagnóstico (RNF-16 / §2.15).
+      previous,
       created,
       options.limits,
       now,
@@ -558,13 +594,17 @@ export const writeLogEntries = async (
  * `code: -32603` con el mensaje «no se pudo guardar el registro por falta de espacio» e intenta
  * persistir la entrada `storage_quota_exceeded` (`category: 'system'`, `level: 'error'`).
  *
+ * Lo que se reescribe es el **histórico ya persistido** (`history`) más la entrada de diagnóstico:
+ * las entradas descartadas por cuota (`dropped`) NO se persisten —ni por esta vía—, de modo que el
+ * almacén nunca queda con una traza que la API declaró descartada (RNF-16 / §2.15).
+ *
  * El descarte NO puede quedar en silencio: aunque el almacén esté lleno, el aviso por consola, el
  * contador persistido (`truekeate_logs_dropped`) y el `dropped` de `wallet_getLogs` lo publican.
  * Devuelve la entrada persistida, o `null` si tampoco ella pudo guardarse.
  */
 const persistQuotaDiagnostic = async (
   storage: StorageLocalLike | null,
-  retained: readonly LogEntry[],
+  history: readonly LogEntry[],
   dropped: readonly LogEntry[],
   limits: Partial<RetentionLimits> | undefined,
   now: number,
@@ -600,7 +640,7 @@ const persistQuotaDiagnostic = async (
   if (storage === null) {
     return diagnostic;
   }
-  const plan = planRetention([...retained, diagnostic], limits);
+  const plan = planRetention([...history, diagnostic], limits);
   const outcome = await writeOnce(storage, plan.retained);
   return outcome === 'ok' ? diagnostic : null;
 };

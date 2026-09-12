@@ -1,0 +1,520 @@
+﻿node.exe : [WebServer] (node:2592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[e2e/global-setup] fase H5 · evidencia en RepoTecnico/evidencia/H5/
+[e2e/global-setup] plazos inyectados 3000/2000 ms · producción 120000/60000/30000 ms (verificados)
+[e2e/global-setup] dist/ presente
+[e2e/global-setup] Anvil http://127.0.0.1:8545: OK (chainId 31337)
+[e2e/global-setup] Anvil secundario http://127.0.0.1:8546: OK (chainId 31338, arrancado por el arnés)
+(node:8892) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security 
+vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 57 tests using 1 worker
+
+(node:6656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium-extension] › e2e\01-onboarding.spec.ts:48:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › la extensión carga desde dist/ y el ID se descubre del Service Worker (1.0s)
+  ok  2 [chromium-extension] › e2e\01-onboarding.spec.ts:64:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el popup abre en 380×600, muestra el estado vacío en español y no hay errores de consola (1.9s)
+  ok  3 [chromium-extension] › e2e\01-onboarding.spec.ts:124:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el Service Worker arranca y deja la entrada `sw_started` en `truekeate_logs` (tarea 1.10) (1.5s)
+  ok  4 [chromium-extension] › e2e\01-onboarding.spec.ts:157:3 › 01 · Onboarding: carga de dist/ y popup en estado vacío › el arnés suspende el Service Worker por CDP y la extensión se recupera (RNF-08) (1.9s)
+  ok  5 [chromium-extension] › e2e\01-onboarding.spec.ts:198:3 › 01 · Onboarding H2: crear, importar y sin contraseña › crear cartera deja 5 cuentas y NINGÚN prompt de contraseña (CA-RF-01 / CA-RF-03) (2.3s)
+  ok  6 [chromium-extension] › e2e\01-onboarding.spec.ts:252:3 › 01 · Onboarding H2: crear, importar y sin contraseña › importar la frase de Anvil da la cuenta 0 conocida y normaliza la entrada (CA-RF-02) (2.7s)
+  ok  7 [chromium-extension] › e2e\02-cuentas.spec.ts:23:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la cartera tiene 5 cuentas con las direcciones de Anvil y «Añadir cuenta» crea la 6.ª (CA-RF-04) (2.7s)
+  ok  8 [chromium-extension] › e2e\02-cuentas.spec.ts:65:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › importar por clave privada la marca como importada y su etiqueta se renombra (CA-RF-05) (2.5s)
+  ok  9 [chromium-extension] › e2e\02-cuentas.spec.ts:105:3 › 02 · Cuentas: 5 derivadas, la 6.ª y la importada › la sesión de dApp vigente bloquea la eliminación con `-32000` y se desbloquea al revocarla (3.4s)
+  ok 10 [chromium-extension] › e2e\03-recibir.spec.ts:25:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › la pestaña «Recibir» muestra la dirección de la cuenta activa y su QR la codifica (CA-RF-07) (2.6s)
+  ok 11 [chromium-extension] › e2e\03-recibir.spec.ts:55:3 › 03 · Recibir: dirección, portapapeles y QR coinciden › «Copiar» deja en el portapapeles la misma dirección que se muestra (CA-RF-07) (2.2s)
+  ok 12 [chromium-extension] › e2e\04-enviar.spec.ts:54:3 › 04 · envío de 1 ETH con aprobación y recibo status 1 (CA-RF-08) › la dApp recibe el hash al aprobar y el recibo del nodo es status 1 (3.9s)
+  ok 13 [chromium-extension] › e2e\05-persistencia.spec.ts:36:3 › 05 · Persistencia: reabrir el popup restaura el estado › reabrir el popup restaura cuenta activa e importadas SIN pedir la frase (CA-RF-09 / CA-RF-10) (2.2s)
+  ok 14 [chromium-extension] › e2e\05-persistencia.spec.ts:68:3 › 05 · Persistencia: reabrir el popup restaura el estado › la suspensión del Service Worker por CDP no pierde el estado persistido (RNF-08) (2.3s)
+  ok 15 [chromium-extension] › e2e\05-persistencia.spec.ts:100:3 › 05 · Persistencia: reabrir el popup restaura el estado › una cartera dañada se anuncia como «Wallet dañada» y no deriva cuentas nuevas (RNF-22) (2.1s)
+  ok 16 [chromium-extension] › e2e\06-reset.spec.ts:56:3 › 06 · Reset de la cartera › el reset enumera las importadas, borra cartera y sesiones y CONSERVA los logs (CA-RF-11 / RF-32) (2.4s)
+  ok 17 [chromium-extension] › e2e\06-reset.spec.ts:126:3 › 06 · Reset de la cartera › con una solicitud `pending` el reset se bloquea con `-32000` y no toca el almacén (DEC-46) (2.1s)
+  ok 18 [chromium-extension] › e2e\06-reset.spec.ts:159:3 › 06 · Reset de la cartera › con una transacción en vuelo vigente el reset también se bloquea (DEC-46) (2.0s)
+  ok 19 [chromium-extension] › e2e\07-provider.spec.ts:76:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp recibe `window.truekeate === window.codecrypto` con la superficie completa (1.7s)
+  ok 20 [chromium-extension] › e2e\07-provider.spec.ts:127:3 › 07 · Provider, alias e identidad EIP-6963 › el ID de la extensión es el derivado de la `key` del manifest (estable entre ejecuciones) (1.3s)
+  ok 21 [chromium-extension] › e2e\07-provider.spec.ts:150:3 › 07 · Provider, alias e identidad EIP-6963 › el anuncio EIP-6963 publica uuid literal, name, rdns y un icono PNG de 96 px (1.9s)
+  ok 22 [chromium-extension] › e2e\07-provider.spec.ts:220:3 › 07 · Provider, alias e identidad EIP-6963 › el provider responde 4200 SIN lanzar de forma síncrona ante un método desconocido (1.9s)
+  ok 23 [chromium-extension] › e2e\07-provider.spec.ts:251:3 › 07 · Provider, alias e identidad EIP-6963 › la dApp lee `eth_chainId` 0x7a69, bloque ≥ 1 y el SALDO real de Anvil (CA-RF-18) (2.0s)
+  ok 24 [chromium-extension] › e2e\08-eventos.spec.ts:73:3 › 08 · Eventos del provider en dos pestañas › `accountsChanged []` llega a las DOS pestañas conectadas y a ninguna más (4.2s)
+  ok 25 [chromium-extension] › e2e\08-eventos.spec.ts:162:3 › 08 · Eventos del provider en dos pestañas › el cambio de cuenta activa desde el popup emite `accountsChanged` con la cuenta nueva (CA-RF-15) (4.3s)
+  ok 26 [chromium-extension] › e2e\09-conectar.spec.ts:53:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › un origen NO conectado devuelve [] y NO abre ninguna ventana (sin prompt implícito) (1.9s)
+  ok 27 [chromium-extension] › e2e\09-conectar.spec.ts:77:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › elegir la cuenta 2 resuelve [cuenta2], persiste 24 h y no vuelve a pedir tras recargar ni tras reiniciar el SW (4.2s)
+  ok 28 [chromium-extension] › e2e\09-conectar.spec.ts:172:3 › 09 · Conexión de la dApp: test negativo, elección y sesión de 24 h › rechazar en connect.html responde 4001 y NO persiste ninguna sesión (2.8s)
+  ok 29 [chromium-extension] › e2e\10-aprobar-tx.spec.ts:46:3 › 10 · aprobación de una transacción: foco, origen y ventana única (CA-RF-19/35) › la vista previa decodifica el calldata, la ventana es única y está enfocada (4.0s)
+  ok 30 [chromium-extension] › e2e\11-firmar-eip712.spec.ts:67:3 › 11 · firma EIP-712: dominio visible y correspondencia con el contrato (CA-RF-20) › la ventana muestra name/verifyingContract y la firma verifica el digest del contrato (3.4s)
+  ok 31 [chromium-extension] › e2e\11-firmar-mensaje.spec.ts:39:3 › 11 · personal_sign: texto legible y firma verificable (CA-RF-21) › la ventana muestra el texto y la firma recupera la cuenta autorizada (3.2s)
+  ok 32 [chromium-extension] › e2e\12-redes.spec.ts:115:3 › 12 · Redes: cambio aprobado y alta sin activación › la red destino YA activa responde `null` sin abrir la ventana de confirmación (CA-RF-22) (1.8s)
+  x  33 [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) (22.2s)
+(node:10820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  34 [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) (11.8s)
+(node:20420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  35 [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) (22.4s)
+(node:19240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  36 [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) (22.5s)
+(node:13064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 37 [chromium-extension] › e2e\13-revocar.spec.ts:53:3 › 13 · Revocación de la sesión de una dApp desde el popup › revocar elimina la sesión, emite accountsChanged [] y NO crea cola de aprobaciones (3.9s)
+  ok 38 [chromium-extension] › e2e\14-polling.spec.ts:45:3 › 14 · Polling de saldos: 1 RPC por cuenta visible y ciclo › el contador real del popup marca 5 RPC por ciclo, arranca y para con la vista (14.4s)
+  x  39 [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) (15.9s)
+(node:1140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  40 [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) (11.8s)
+(node:3080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  41 [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) (11.7s)
+(node:1768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 42 [chromium-extension] › e2e\16-validacion.spec.ts:39:3 › 16 · Validación inline de formularios (CA-RF-33) › la frase inválida muestra el error inline y no envía la operación (1.8s)
+  ok 43 [chromium-extension] › e2e\16-validacion.spec.ts:73:3 › 16 · Validación inline de formularios (CA-RF-33) › la clave privada inválida muestra el error inline y no añade ninguna cuenta (1.7s)
+  ok 44 [chromium-extension] › e2e\16-validacion.spec.ts:101:3 › 16 · Validación inline de formularios (CA-RF-33) › la etiqueta inválida se señala inline y no renombra la cuenta (CA-RF-33) (1.5s)
+  ok 45 [chromium-extension] › e2e\18-concurrencia.spec.ts:48:3 › 18 · concurrencia: una ventana única con contador 2 (CA-RF-35/37) › dos solicitudes simultáneas de orígenes distintos comparten UNA ventana con contador 2 (3.9s)
+  ok 46 [chromium-extension] › e2e\21-eip6963.spec.ts:69:3 › 21 · EIP-6963: anuncio del provider › la dApp recibe el anuncio con la identidad vinculante y el icono incrustado (1.6s)
+  x  47 [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms (7.1s)
+(node:7016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 48 [chromium-extension] › e2e\22-dapp.spec.ts:230:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los errores 4001 y 4901 se muestran con su código y su acción sugerida (3.0s)
+  x  49 [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura (2.7s)
+(node:19440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 50 [chromium-extension] › e2e\22-dapp.spec.ts:328:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › un rechazo del usuario en una firma EIP-712 deja el 4001 con su acción (CA-RF-46) (3.8s)
+  ok 51 [chromium-extension] › e2e\25-recuperacion.spec.ts:54:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado exige confirmación, dura 30 s, descarta la memoria y NO pasa por postMessage (CA-RF-50) (2.8s)
+  ok 52 [chromium-extension] › e2e\25-recuperacion.spec.ts:110:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › el revelado se oculta al PERDER el foco y vacía el portapapeles (CA-RF-50) (2.6s)
+  ok 53 [chromium-extension] › e2e\25-recuperacion.spec.ts:138:3 › 25 · Recuperación: revelado temporal, portapapeles y bloqueo › con una sesión de dApp vigente el revelado se bloquea con `-32000` y se desbloquea al revocar (3.1s)
+  x  54 [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia (12.7s)
+(node:19976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 55 [chromium-extension] › e2e\28-iframe-hostil.spec.ts:57:3 › 28 · Iframe cross-origin: aislamiento de la sesión del top › el iframe de otro origen recibe [] y nunca la cuenta del top (4.8s)
+  ok 56 [chromium-extension] › e2e\29-sw-suspendido.spec.ts:67:3 › 29 · SW suspendido a mitad de una aprobación (RNF-08) › la alarma despierta al SW: 4001 sin doble difusión y reconstrucción < 1 s (6.0s)
+SONDA conexion= "[\n  \"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\"\n]" true
+SONDA resultado= {"estado":"error","code":4001,"message":"El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado."}
+SONDA ventanas= 0
+SONDA cola= {}
+SONDA logs= [{"category":"call","data":{"params":["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC","latest"]},"event":"rpc_call","id":"e54bddd8-5026-403c-9259-f71acc8c5ae1","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789243931786},{"category":"call","data":{"params":["0x90F79bf6EB2c4f870365E785982E1f101E93b906","latest"]},"event":"rpc_call","id":"070297d2-a6b4-4736-bbaf-5bcde37ab6ca","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789243931814},{"category":"call","data":{"params":["0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65","latest"]},"event":"rpc_call","id":"514c1be1-4a72-493d-a3c5-75f18286bb5f","level":"info","message":"Llamada RPC del catálogo","method":"eth_getBalance","origin":"extension","ts":1789243931844},{"category":"call","data":{"params":[]},"event":"rpc_call","id":"ca7be718-434c-4eaa-b6bd-468131d44365","level":"info","message":"Llamada RPC del catálogo","method":"eth_requestAccounts","origin":"http://localhost:5174","ts":1789243932037},{"category":"call","data":{"params":[]},"event":"rpc_call","id":"5db78d49-ddf3-49e8-8757-b489d402a102","level":"info","message":"Llamada RPC del catálogo","method":"wallet_getState","origin":"extension","ts":1789243932403},{"category":"call","data":{"code":4001,"message":"Operación cancelada por el usuario."},"event":"rpc_error","id":"af5b73ac-2b11-42c2-9ac9-20a0b47b9bc7","level":"warn","message":"Llamada RPC que devolvió un error EIP-1193 del catálogo","method":"personal_sign","origin":"http://localhost:5174","ts":1789243935115}]
+  ok 57 [chromium-extension] › e2e\90-sonda.spec.ts:22:1 › sonda: personal_sign con diagnostico (5.3s)
+
+
+  1) [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) 
+
+    TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event "page"
+
+       at fixtures\extension.ts:911
+
+      909 |     return existente;
+      910 |   }
+    > 911 |   const ventana = await context.waitForEvent('page', {
+          |                                 ^
+      912 |     predicate: (page) => page.url().includes(RUTA_NOTIFICACION),
+      913 |     timeout: timeoutMs,
+      914 |   });
+        at esperarVentanaDeDecision (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:911:33)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:162:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-3dbcd-ruekeate-chain-id-CA-RF-23--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#red-rpc-error')
+    Expected substring: "http solo se admite 127.0.0.1"
+    Received string:    "-32602La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.Revisar el `rpcUrl` de la red y volver a darla de alta"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('#red-rpc-error') with timeout 10000ms
+      - waiting for locator('#red-rpc-error')
+        23 × locator resolved to <p role="alert" id="red-rpc-error" class="tk-field__error">…</p>
+           - unexpected value "-32602La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.Revisar el `rpcUrl` de la red y volver a darla de alta"
+
+
+      209 |     await popup.locator('#red-alta-enviar').click();
+      210 |     await expect(popup.locator('#red-rpc')).toHaveAttribute('aria-invalid', 'true');
+    > 211 |     await expect(popup.locator('#red-rpc-error')).toContainText('http solo se admite 127.0.0.1');
+          |                                                   ^
+      212 |     expect(ventanasDeDecision(context)).toHaveLength(0);
+      213 |     expect(await redesPersistidas(background)).toHaveProperty(ANVIL_CHAIN_ID_HEX);
+      214 |     expect(Object.keys(await redesPersistidas(background))).not.toContain('0x1');
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:211:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-6051b-ine-bloquea-el-alta-RNF-23--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) 
+
+    TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event "page"
+
+       at fixtures\extension.ts:911
+
+      909 |     return existente;
+      910 |   }
+    > 911 |   const ventana = await context.waitForEvent('page', {
+          |                                 ^
+      912 |     predicate: (page) => page.url().includes(RUTA_NOTIFICACION),
+      913 |     timeout: timeoutMs,
+      914 |   });
+        at esperarVentanaDeDecision (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:911:33)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:234:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-b4a98--red-NO-se-persiste-DEC-36--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) 
+
+    TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event "page"
+
+       at fixtures\extension.ts:911
+
+      909 |     return existente;
+      910 |   }
+    > 911 |   const ventana = await context.waitForEvent('page', {
+          |                                 ^
+      912 |     predicate: (page) => page.url().includes(RUTA_NOTIFICACION),
+      913 |     timeout: timeoutMs,
+      914 |   });
+        at esperarVentanaDeDecision (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:911:33)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\12-redes.spec.ts:308:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\12-redes-12-·-Redes-cambio-74edf-odas-las-pestañas-CA-RF-24--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) 
+
+    Error: no apareció en truekeate_logs la entrada esperada
+
+    no apareció en truekeate_logs la entrada esperada
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+       at fixtures\extension.ts:1084
+
+      1082 |       timeout: timeoutMs,
+      1083 |     })
+    > 1084 |     .toBe(true);
+           |      ^
+      1085 |   const encontrada = (await leerLogsPersistidos(worker)).find(predicado);
+      1086 |   if (encontrada === undefined) {
+      1087 |     throw new Error('[e2e] la entrada de log desapareció entre la espera y la lectura');
+        at esperarEntradaDeLog (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\fixtures\extension.ts:1084:6)
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:139:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-bd564--el-POPUP-CERRADO-CA-RF-28--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#actividad-entradas > li')
+    Expected: 4
+    Received: 14
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#actividad-entradas > li') with timeout 10000ms
+      - waiting for locator('#actividad-entradas > li')
+        23 × locator resolved to 14 elements
+           - unexpected value "14"
+
+
+      174 |
+      175 |     const filas = popup.locator('#actividad-entradas > li');
+    > 176 |     await expect(filas).toHaveCount(4);
+          |                         ^
+      177 |
+      178 |     // La llamada muestra su método, su origen y su instante (CA-RF-28).
+      179 |     const filaLlamada = popup.locator('li[data-event="rpc_call"]');
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:176:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-137e5-es-con-su-hash-CA-RF-30-31--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#actividad-entradas > li')
+    Expected: 4
+    Received: 13
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('#actividad-entradas > li') with timeout 10000ms
+      - waiting for locator('#actividad-entradas > li')
+        2 × locator resolved to 0 elements
+          - unexpected value "0"
+        21 × locator resolved to 13 elements
+           - unexpected value "13"
+
+
+      223 |     const popup = await openPopupReady(context, extensionId);
+      224 |     await popup.getByRole('tab', { name: 'Actividad' }).click();
+    > 225 |     await expect(popup.locator('#actividad-entradas > li')).toHaveCount(4);
+          |                                                             ^
+      226 |
+      227 |     // Se vigilan TODAS las peticiones que hace el popup durante la exportación: no puede haber red.
+      228 |     const peticiones: string[] = [];
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\15-logs.spec.ts:225:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\15-logs-15-·-Observabilida-2d285--entradas-del-panel-RNF-16--chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#estado-texto')
+    Expected substring: "provider detectado"
+    Received string:    "no se ha detectado el provider (¿está cargada la extensión?)"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('#estado-texto') with timeout 5000ms
+      - waiting for locator('#estado-texto')
+        13 × locator resolved to <span id="estado-texto">no se ha detectado el provider (¿está cargada la …</span>
+           - unexpected value "no se ha detectado el provider (¿está cargada la extensión?)"
+
+
+      134 |     // --- Flujo 1 · Detectar el provider (se ejecuta al cargar la página) ------------------------
+      135 |     const inicioDeteccion = Date.now();
+    > 136 |     await expect(dapp.locator('#estado-texto')).toContainText('provider detectado', {
+          |                                                 ^
+      137 |       timeout: LIMITE_MS,
+      138 |     });
+      139 |     tiempos.detectar = Date.now() - inicioDeteccion;
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:136:49
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-24448-antalla-en-menos-de-5000-ms-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4900
+    Received: 4100
+
+      286 |       expect(transcurrido).toBeLessThan(LIMITE_MS);
+      287 |       const code4900 = await esperarError(dapp, 'resultado-saldo', 60_000);
+    > 288 |       expect(code4900).toBe(4900);
+          |                        ^
+      289 |       expect(await cuerpo(dapp, 'resultado-saldo')).toContain('Sin conexión con la red local');
+      290 |       await expect(dapp.locator('#resultado-saldo .resultado__accion')).toHaveText(
+      291 |         'Acción sugerida: Arrancar Anvil en 127.0.0.1:8545',
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\22-dapp.spec.ts:288:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\22-dapp-22-·-dApp-de-prueb-7250f-erida-y-el-nodo-se-restaura-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia 
+
+    Error: el RPC caído modificó el almacén
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "truekeate_logs_dropped",
+    + ]
+
+      114 |         `Claves comparadas (sin truekeate_logs): ${claves.length}; cambiadas: ${cambiadas.join(', ') || 'ninguna'}`,
+      115 |       );
+    > 116 |       expect(cambiadas, 'el RPC caído modificó el almacén').toEqual([]);
+          |                                                             ^
+      117 |       // Y el estado de cartera sigue ahí: nada se ha perdido.
+      118 |       expect(despues.truekeate_accounts).toEqual(antes.truekeate_accounts);
+      119 |     } catch (error) {
+        at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\e2e\27-rpc-caido.spec.ts:116:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\27-rpc-caido-27-·-RPC-caíd-534e4-ntos-y-el-almacén-no-cambia-chromium-extension\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    [chromium-extension] › e2e\12-redes.spec.ts:136:3 › 12 · Redes: cambio aprobado y alta sin activación › el alta se aprueba, persiste la red SIN activarla y deja intacto `truekeate_chain_id` (CA-RF-23) 
+    [chromium-extension] › e2e\12-redes.spec.ts:183:3 › 12 · Redes: cambio aprobado y alta sin activación › el aviso de red NO testnet se muestra y la validación inline bloquea el alta (RNF-23) 
+    [chromium-extension] › e2e\12-redes.spec.ts:217:3 › 12 · Redes: cambio aprobado y alta sin activación › la denegación del permiso de host responde 4001 y la red NO se persiste (DEC-36) 
+    [chromium-extension] › e2e\12-redes.spec.ts:249:3 › 12 · Redes: cambio aprobado y alta sin activación › el cambio de red aprobado persiste el chainId y emite `chainChanged` a todas las pestañas (CA-RF-24) 
+    [chromium-extension] › e2e\15-logs.spec.ts:92:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la llamada de la dApp se registra con método, origen y `ts` con el POPUP CERRADO (CA-RF-28) 
+    [chromium-extension] › e2e\15-logs.spec.ts:165:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › el panel pinta método/origen/`ts`, los ERRORES en rojo con su `code` y las operaciones con su hash (CA-RF-30/31) 
+    [chromium-extension] › e2e\15-logs.spec.ts:216:3 › 15 · Observabilidad: `truekeate_logs` y panel de actividad › la exportación JSON descarga el histórico SIN red y con las entradas del panel (RNF-16) 
+    [chromium-extension] › e2e\22-dapp.spec.ts:119:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › los siete flujos dan su resultado en pantalla en menos de 5000 ms 
+    [chromium-extension] › e2e\22-dapp.spec.ts:269:3 › 22 · dApp de pruebas: los siete flujos (CA-RF-46) › el error 4900 (RPC local caído) se muestra con su acción sugerida y el nodo se restaura 
+    [chromium-extension] › e2e\27-rpc-caido.spec.ts:47:3 › 27 · RPC caído: 4900, UI desconectada y almacén intacto › con Anvil detenido la lectura responde 4900 tras 4 intentos y el almacén no cambia 
+  47 passed (5.1m)
