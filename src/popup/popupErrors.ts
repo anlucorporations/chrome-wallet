@@ -3,9 +3,10 @@
  * Catálogo de los literales de error que ve el usuario en el popup.
  *
  * FUENTE ÚNICA: la tabla cerrada «Código | Causa | Mensaje | Acción sugerida» de
- * `diccionario_datos.md` §4.3 —las 25 filas del núcleo **más** el bloque «Causas añadidas en la
- * v1.9 (H2)»—. Este módulo **transcribe** las causas que el popup puede encontrarse y las
- * expone como `PopupError` para pintarlas siempre con su `code` y su acción sugerida (ACU-05 /
+ * `diccionario_datos.md` §4.3 —las 25 filas del núcleo, el bloque «Causas añadidas en la v1.9
+ * (H2)» y el bloque «Causas añadidas en la v1.10 (H4)» (§4.3.2: `inflightTxInProgress` y
+ * `broadcastRejected`)—. Este módulo **transcribe** las causas que el popup puede encontrarse y
+ * las expone como `PopupError` para pintarlas siempre con su `code` y su acción sugerida (ACU-05 /
  * RNF-06: ningún error sin `code`, ningún literal inventado).
  *
  * No sustituye a `src/background/rpc/errors.ts` (M6), que es el catálogo del Service Worker:
@@ -142,6 +143,18 @@ const POPUP_ERRORS = {
     message:
       'No se pudo guardar la migración del esquema: los datos se han quedado sin actualizar.',
     action: 'Exportar los logs en JSON y reintentar; si persiste, resetear la cartera',
+  },
+  // --- Bloque «Causas añadidas en la v1.10 (H4)» de §4.3, transcrito literalmente ---
+  inflightTxInProgress: {
+    code: -32000,
+    message:
+      'Ya hay una transacción de esta cuenta en vuelo; espera a que se difunda antes de firmar otra.',
+    action: 'Esperar a que la transacción en vuelo se difunda y reintentar',
+  },
+  broadcastRejected: {
+    code: -32000,
+    message: 'La red rechazó la transacción: <motivo>.',
+    action: 'Revisar el motivo indicado y volver a intentarlo',
   },
 } as const satisfies Record<string, { code: number; message: string; action: string }>;
 

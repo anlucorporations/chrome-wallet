@@ -1,11 +1,14 @@
 /**
  * Entry de la ventana de confirmación (`src/notification.html` → `dist/notification.html`).
- * Monta `Notification` en `#root`.
+ * Monta `App` (M50) en `#root`.
+ *
+ * El esqueleto de H1 (`Notification.tsx`) queda superado por M50: la ventana única decide con los
+ * paneles M51–M54 y entrega `SIGN_RESPONSE`; este entry es el que la publica en el paquete.
  */
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Notification } from './Notification';
+import { App } from './App';
 import '../styles/tokens.css';
 import '../styles/base.css';
 
@@ -17,7 +20,7 @@ export const mountNotification = (): HTMLElement => {
   }
   createRoot(container).render(
     <StrictMode>
-      <Notification />
+      <App />
     </StrictMode>,
   );
   return container;

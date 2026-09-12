@@ -226,7 +226,13 @@ export interface TypedDataPreview {
   verifyingContract: Address | null;
   /** SIN `EIP712Domain`. */
   types: Record<string, Array<{ name: string; type: string }>>;
-  message: Record<string, unknown>;
+  /**
+   * Datos a firmar. `null` cuando la serialización canónica supera `PREVIEW_INLINE_MAX_BYTES`
+   * (4096 bytes): entonces se persiste **redactado** (`messageHash` + `messageBytes`) y la UI
+   * muestra el aviso «mensaje demasiado largo» (`diccionario_datos.md` §3.2 / §3.9, ADT-21/D-L).
+   * El payload íntegro de firma (≤ 64 KiB) sigue en `params`.
+   */
+  message: Record<string, unknown> | null;
   primaryType: string;
   /** `domain.chainId` ≠ `chainId` activo → aviso destacado. */
   domainChainMismatch: boolean;

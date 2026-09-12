@@ -26,17 +26,23 @@
  * partir de H4).
  */
 
-import { APPROVAL_PORT_NAME, logLimit } from './shared/constants';
+import { logLimit } from './shared/constants';
 import { STORAGE_KEYS, SCHEMA_VERSION, readStorage } from './background/state/schema';
 import { applyStorageAccessLevel } from './background/security/accessLevel';
-import { unsupportedMethodError, userRejectedError, internalError } from './background/rpc/errors';
+import { internalError } from './background/rpc/errors';
 import { handleRpcMessage, type RpcResponse, type RoutedMessage } from './background/rpc/router';
-import { reconcileRateWindows } from './background/rpc/rateLimit';
 import { seedDefaultNetwork } from './background/networks/catalog';
 import { applyConnectResponse, clearPendingConnects } from './background/connections';
 import { runMigrations } from './background/state/migrations';
 import { checkWalletIntegrity } from './background/crypto/integrity';
 import { isTruekeateMessageType } from './shared/protocol';
+// H4 (M15/M16/M17/M18): dueño del plazo, reconciliación al arrancar, puerto de larga vida y ventana
+// de decisión global única. Se importan por sus puntos de entrada públicos.
+import { registerApprovalPortListener } from './background/approvals/ports';
+import { registerExpiryAlarmListener } from './background/approvals/timeout';
+import { registerApprovalWindowListeners } from './background/approvals/focus';
+import { handleSignResponse } from './background/approvals/responses';
+import { reconcileApprovals, releaseInflightOnAlarm } from './background/approvals/reconcile';
 import type {
   LogEntry,
   LogLevel,
@@ -249,7 +255,7 @@ export interface BootSnapshot {
   migration: MigrationSnapshot;
   integrity: IntegritySnapshot;
   autoLoaded: AutoLoadedState;
-  reconciliation: { pendingProcessed: number; elapsedMs: number };
+  reconciliation: ReconciliationSnapshot;
 }
 
 /** Estado de arranque reconstruido en cada despertar del SW. */
@@ -465,98 +471,58 @@ const seedDefaultNetworkPhase = async (): Promise<void> => {
   }
 };
 
+/** Informe de la reconciliación de plazos que se persiste en `sw_started`. */
+export interface ReconciliationSnapshot {
+  /** Entradas de la cola vistas al arrancar (antes de purgar). */
+  pendingProcessed: number;
+  /** Coste medido de la reconciliación (cota: < 1 s, RNF-08). */
+  elapsedMs: number;
+  /** Entradas ya resueltas que se retiraron. */
+  purgedResolved?: number;
+  /** Huérfanas (vencidas) retiradas tras responderles `4001`. */
+  purgedExpired?: number;
+  /** Alarmas de vencimiento rearmadas desde el `expiresAt` persistido. */
+  rearmedAlarms?: number;
+  /** `true` cuando la reconciliación escribió su entrada `sw_reconcile`. */
+  logged?: boolean;
+}
+
 /**
- * Fase 6 — reconciliación de plazos. La cola persistida llega en H4 (M16): aquí no existe
- * `truekeate_pending_requests` que purgar, ni huérfanas que resolver, ni `alarms` que rearmar.
+ * Fase 6 — reconciliación de plazos (M16, tarea 4.5). En cada arranque:
  *
- * Lo que SÍ hace ya en H3, además de ser idempotente:
- * - Reconstruye la ventana de tasa por origen (M3.b / tarea 3.13): purga las entradas inactivas
- *   (`rateWindowTtlMs`), reinicia las que tienen el reloj en el futuro y conserva el resto, de
- *   modo que el *token bucket* **sobrevive a la suspensión** del SW.
- * - No usa `setTimeout` ni `setInterval` (prohibidos en el SW: no sobreviven a la suspensión).
- * - Devuelve su coste medido, que se persiste en `bootMs` de la entrada `sw_started`.
+ * 1. purga las entradas de `truekeate_pending_requests` con `status !== 'pending'` o vencidas;
+ * 2. responde `4001` a las huérfanas (por el puerto vivo o por su pestaña/frame);
+ * 3. rearma los `chrome.alarms` de vencimiento desde el `expiresAt` persistido (M15);
+ * 4. reconstruye `truekeate_inflight_tx` (§2.12) y `truekeate_rate_windows` (M3.b);
+ * 5. restablece el invariante de la ventana única (M18);
+ * 6. escribe **UNA** entrada `sw_reconcile` en `truekeate_logs`.
+ *
+ * Nunca usa `setTimeout` ni `setInterval` (prohibidos en el SW: no sobreviven a la suspensión) y
+ * nunca rompe el arranque: un fallo se avisa por consola y el SW sigue operativo.
  */
-const runEmptyReconciliation = async (): Promise<{ pendingProcessed: number; elapsedMs: number }> => {
+const runApprovalReconciliation = async (): Promise<ReconciliationSnapshot> => {
   const startedAt = Date.now();
-  // H4: no hay cola que purgar, huérfanas que resolver ni `alarms` que rearmar.
-  const pendingProcessed = 0;
   try {
-    const rateWindows = await reconcileRateWindows();
-    if (rateWindows.purged > 0 || rateWindows.reset > 0) {
-      console.info(
-        `[truekeate] ventana de tasa reconciliada: ${rateWindows.purged} purgadas, ${rateWindows.reset} reiniciadas, ${rateWindows.retained} conservadas`,
-      );
-    }
+    const report = await reconcileApprovals({ now: startedAt, clock: () => Date.now() });
+    return {
+      pendingProcessed: report.pendingBefore,
+      elapsedMs: report.elapsedMs,
+      purgedResolved: report.purgedResolved,
+      purgedExpired: report.purgedExpired,
+      rearmedAlarms: report.rearm.armed,
+      logged: report.logWritten,
+    };
   } catch (error) {
-    // La reconciliación de la tasa NUNCA rompe el arranque: el bucket se reconstruye al usarse.
-    console.warn('[truekeate] no se pudo reconciliar truekeate_rate_windows', error);
+    // La reconciliación NUNCA rompe el arranque: el estado persistido sigue siendo la verdad y el
+    // siguiente arranque lo vuelve a intentar.
+    console.warn('[truekeate] la reconciliación de aprobaciones falló', error);
+    return { pendingProcessed: 0, elapsedMs: Date.now() - startedAt, logged: false };
   }
-  const elapsedMs = Date.now() - startedAt;
-  if (elapsedMs > 1_000) {
-    console.warn('[truekeate] la reconciliación superó 1 s:', elapsedMs);
-  }
-  return { pendingProcessed, elapsedMs };
 };
 
 // ---------------------------------------------------------------------------
 // Arranque
 // ---------------------------------------------------------------------------
-
-/** Publica una respuesta de error EIP-1193 en el puerto (literales de M6, fuente única). */
-const replyUnsupported = (port: RuntimePortLike, type: string): void => {
-  try {
-    port.postMessage({
-      type: 'TRUEKEATE_RESPONSE',
-      id: type,
-      // Los tipos que no son `TRUEKEATE_RPC` sobre este puerto llegan en H4/H5.
-      error: unsupportedMethodError(),
-    });
-  } catch {
-    // Puerto cerrado: nada que responder.
-  }
-};
-
-/**
- * Registra el listener del puerto de larga vida `truekeate_approval`.
- *
- * El puerto es un CANAL de transporte y correlación, NO un *keep-alive*: el navegador
- * suspende el SW a los ~30 s de inactividad y el puerto se cierra con él (ADT-15/R16).
- * En H2 el SW solo acusa recibo: la cola persistida y el mensaje `RESUME` operativo llegan
- * en H4 (M17).
- */
-const registerApprovalPortListener = (): void => {
-  const runtime = runtimeApi();
-  if (runtime === undefined || typeof runtime.onConnect?.addListener !== 'function') {
-    return;
-  }
-  runtime.onConnect.addListener((port) => {
-    if (port.name !== APPROVAL_PORT_NAME) {
-      return;
-    }
-    port.onMessage.addListener((message) => {
-      const record = asRecord(message);
-      const type = record?.type;
-      if (isTruekeateMessageType(type) && type === 'RESUME') {
-        // Sin cola persistida en H2: la solicitud no puede estar `pending`.
-        try {
-          port.postMessage({
-            type: 'TRUEKEATE_RESPONSE',
-            id: 'RESUME',
-            error: userRejectedError({ via: 'approval-port', reason: 'no-pending-queue-h2' }),
-          });
-        } catch {
-          // Puerto cerrado: nada que responder.
-        }
-        return;
-      }
-      // Cualquier otra petición por el puerto: catálogo público sin implementar → 4200.
-      replyUnsupported(port, typeof type === 'string' ? type : 'TRUEKEATE_RPC');
-    });
-    port.onDisconnect.addListener(() => {
-      // Nada que limpiar: el estado volátil admisible de H2 es la instantánea del arranque.
-    });
-  });
-};
 
 /**
  * Entrega la respuesta de una lectura de página a su pestaña y, con `frameId !== 0`, SOLO a ese
@@ -605,8 +571,22 @@ const handleConnectResponseMessage = async (message: unknown): Promise<void> => 
 };
 
 /**
- * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3) y
- * `CONNECT_RESPONSE` → sesión por origen (M26).
+ * Atiende `SIGN_RESPONSE` (H4, tarea 4.1): `notification.html` entrega la DECISIÓN del usuario
+ * —`{ approvalId, success }`— y aquí se resuelve la entrada de `truekeate_pending_requests` (M14),
+ * se entrega la respuesta a la dApp (M17) y la MISMA ventana pasa a la siguiente `pending` (M18).
+ *
+ * La ventana **decide, no firma** (`CA-RF-35`): la firma y la difusión las aplica el despacho de
+ * M19.b, que está esperando el desenlace de esa misma entrada.
+ */
+const handleSignResponseMessage = async (
+  message: unknown,
+  sender: unknown,
+): Promise<unknown> => handleSignResponse(message, toSenderLike(sender));
+
+/**
+ * Registra el listener de `chrome.runtime.onMessage`: `TRUEKEATE_RPC` → router (M3),
+ * `CONNECT_RESPONSE` → sesión por origen (M26) y `SIGN_RESPONSE` → decisión de la ventana única
+ * (M14.c, H4).
  *
  * Se responde de forma ASÍNCRONA (`return true`) porque el despacho de los métodos internos
  * toca el almacén. Un mensaje que no pertenece al protocolo (ningún tipo `TRUEKEATE_*`) no se
@@ -623,6 +603,21 @@ const registerRpcMessageListener = (): void => {
     if (record === null || !isTruekeateMessageType(record.type)) {
       // No es un mensaje del protocolo: no se responde ni se retiene el canal.
       return undefined;
+    }
+    if (record.type === 'SIGN_RESPONSE') {
+      void handleSignResponseMessage(message, sender)
+        .then((outcome) => {
+          sendResponse({ ok: true, outcome });
+        })
+        .catch((error: unknown) => {
+          sendResponse({
+            error: internalError({
+              reason: 'sign-response',
+              detail: error instanceof Error ? error.message : 'unhandled',
+            }),
+          });
+        });
+      return true;
     }
     if (record.type === 'CONNECT_RESPONSE') {
       void handleConnectResponseMessage(message)
@@ -683,9 +678,10 @@ export const bootstrap = async (): Promise<void> => {
   const integrity = await runIntegrityPhase();
   // 5. Auto-carga del estado (M33/M28/M29).
   const autoLoaded = await autoLoadStatePhase();
-  // 6. Reconciliación: la cola persistida llega en H4 (vacía aquí) y la ventana de tasa (M3.b) se
-  //    normaliza y se purga en cada arranque para sobrevivir a la suspensión del SW.
-  const reconciliation = await runEmptyReconciliation();
+  // 6. Reconciliación de plazos (M16): purga la cola, responde `4001` a las huérfanas, rearma los
+  //    `chrome.alarms` (M15), reconstruye `truekeate_inflight_tx`/`truekeate_rate_windows`,
+  //    restablece la ventana única (M18) y escribe UNA entrada `sw_reconcile`.
+  const reconciliation = await runApprovalReconciliation();
 
   const bootMs = Date.now() - bootStartedAt;
   const snapshot: BootSnapshot = {
@@ -699,13 +695,19 @@ export const bootstrap = async (): Promise<void> => {
   };
   bootSnapshot = snapshot;
 
-  // 6. UNA sola entrada `sw_started` por arranque.
+  // 7. UNA sola entrada `sw_started` por arranque.
   await writeStartupLog(snapshot);
 };
 
-// Los listeners se registran de forma SÍNCRONA: si el SW se despierta por una conexión o por un
-// mensaje, ambos deben existir ya al final del primer ciclo de evaluación.
+// Los listeners se registran de forma SÍNCRONA: si el SW se despierta por una conexión, una alarma,
+// un mensaje o el cierre de la ventana única, todos deben existir ya al final del primer ciclo de
+// evaluación. M17 (puerto `truekeate_approval`), M15 (alarmas de vencimiento y de liberación de la
+// marca en vuelo) y M18 (ventana de decisión global única).
 registerApprovalPortListener();
+registerExpiryAlarmListener({
+  onInflightRelease: (account) => releaseInflightOnAlarm(account),
+});
+registerApprovalWindowListeners();
 registerRpcMessageListener();
 
 const runtime = runtimeApi();

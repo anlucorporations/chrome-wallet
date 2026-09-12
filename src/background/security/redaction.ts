@@ -17,7 +17,10 @@
  * Este módulo lo consume SOLO el Service Worker (usa `ethers` para los hashes).
  */
 
-import { LangEn, Mnemonic, sha256, wordlists } from 'ethers';
+import { LangEn, Mnemonic, sha256, toUtf8Bytes, wordlists } from 'ethers';
+// Normaliza la implementación de sha256 de ethers (ver security/hash.ts): sin esto, un
+// Buffer de otro reino hace fallar el hash con invalid BytesLike value.
+import './hash';
 import { PREVIEW_INLINE_MAX_BYTES } from '../../shared/constants';
 import { formatAddress } from '../../shared/format';
 
@@ -52,9 +55,16 @@ export const SENSITIVE_PARAM_KEYS: readonly string[] = [
 export const isSensitiveKey = (key: string): boolean =>
   SENSITIVE_PARAM_KEYS.includes(key.toLowerCase().replace(/[_\-\s]/g, ''));
 
-/** `sha256:<hex>` de un texto: lo único que llega a los logs (nunca el valor). */
+/**
+ * `sha256:<hex>` de un texto: lo único que llega a los logs (nunca el valor).
+ *
+ * Los bytes se crean con `toUtf8Bytes` de `ethers`, y no con `TextEncoder`, por una razón MEDIDA:
+ * `TextEncoder` puede devolver una vista de OTRO reino (jsdom, en las pruebas) que la comprobación
+ * interna de `ethers` rechaza con `invalid BytesLike value`. `toUtf8Bytes` produce exactamente los
+ * mismos bytes UTF-8 en el reino que los consume.
+ */
 export const hashValue = (value: string): string =>
-  `sha256:${sha256(new TextEncoder().encode(value)).slice(2)}`;
+  `sha256:${sha256(toUtf8Bytes(value)).slice(2)}`;
 
 /** Primeros 10 bytes de un hexadecimal, con `dataLength` (regla única de D-T). */
 export const previewData = (value: unknown): { data: string; dataLength: number } => {
@@ -145,6 +155,29 @@ export const redactLargePayload = (value: string): Record<string, unknown> => ({
   truncated: true,
 });
 
+/**
+ * Redacción del **payload firmado** (H4 / M11): lo ÚNICO que puede persistirse de un mensaje
+ * firmado es su `sha256` y su longitud. Vale para `personal_sign` (texto o hexadecimal) y para el
+ * `message` de EIP-712 (serialización canónica), de modo que la regla «hash + longitud» tiene una
+ * sola implementación (§3.4 regla 4, §2.11, H-42).
+ */
+export const redactSignedPayload = (payload: unknown): { payloadHash: string; payloadBytes: number } => {
+  let text: string;
+  if (typeof payload === 'string') {
+    text = payload;
+  } else {
+    try {
+      text = JSON.stringify(payload) ?? '';
+    } catch {
+      text = '';
+    }
+  }
+  return {
+    payloadHash: hashValue(text),
+    payloadBytes: new TextEncoder().encode(text).length,
+  };
+};
+
 /** Tamaño en bytes del payload serializado (cota de 64 KiB, ADT-21). */
 export const measurePayloadBytes = (params: unknown): number => {
   try {
@@ -190,6 +223,9 @@ export const redactParams = (method: string, params: unknown): unknown => {
       }
       const domain = typedData !== null && isRecord(typedData.domain) ? typedData.domain : {};
       const message = typedData?.message;
+      // H4 (M22 ampliado): del payload firmado se registra el HASH y su LONGITUD, nunca el
+      // `message` completo ni el `types` íntegro (§3.4 regla 4, §2.11).
+      const signed = message === undefined ? null : redactSignedPayload(message);
       return {
         primaryType: typeof typedData?.primaryType === 'string' ? typedData.primaryType : null,
         domain: {
@@ -198,7 +234,8 @@ export const redactParams = (method: string, params: unknown): unknown => {
           verifyingContract:
             typeof domain.verifyingContract === 'string' ? domain.verifyingContract : null,
         },
-        messageHash: message === undefined ? null : hashValue(JSON.stringify(message)),
+        messageHash: signed === null ? null : signed.payloadHash,
+        messageBytes: signed === null ? 0 : signed.payloadBytes,
       };
     }
     case 'eth_sendTransaction': {

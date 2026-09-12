@@ -1,0 +1,8 @@
+﻿
+> truekeate-wallet@1.0.0 lint:prohibited
+> node scripts/lint-prohibited.mjs
+
+[lint:prohibited] src/: 122 ficheros revisados.
+[lint:prohibited] dist/: 14 ficheros revisados (0 URLs de CDN exigido por CA-RT-05).
+[lint:prohibited] OK: sin dependencias prohibidas, sin fetch propio, sin chrome.storage.sync,
+[lint:prohibited]     sin prefijo codecrypto_, sin colores fuera de tokens.css y sin ethers en el popup.

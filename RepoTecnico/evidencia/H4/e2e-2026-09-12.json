@@ -1,0 +1,150 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/90-sonda.spec.ts"
+    ],
+    "configFile": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\playwright.config.ts",
+    "rootDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\lucci\\MasterCodeCripto\\GitLab\\chrome-wallet\\e2e\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-extension",
+        "name": "chromium-extension",
+        "testDir": "C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "RepoTecnico/evidencia/H4/e2e-2026-09-12.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5174/test.html",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "90-sonda.spec.ts",
+      "file": "90-sonda.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sonda: personal_sign con diagnostico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-extension",
+              "projectName": "chromium-extension",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6127,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "SONDA conexion= \"[\\n  \\\"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\\\"\\n]\" \u001b[33mtrue\u001b[39m\n"
+                    },
+                    {
+                      "text": "SONDA resultado= {\"estado\":\"error\",\"code\":4200,\"message\":\"El método solicitado no está soportado por TrueKeate Wallet.\"}\n"
+                    },
+                    {
+                      "text": "SONDA ventanas= \u001b[33m0\u001b[39m\n"
+                    },
+                    {
+                      "text": "SONDA cola= \u001b[90mundefined\u001b[39m\n"
+                    },
+                    {
+                      "text": "SONDA logs= [{\"category\":\"system\",\"data\":{\"inflight\":{\"alarmsArmed\":0,\"alarmsCleared\":0,\"confirmed\":0,\"dropped\":0,\"failed\":0,\"released\":0,\"retained\":0},\"orphansDelivered\":0,\"orphansUndelivered\":0,\"pendingAfter\":0,\"pendingBefore\":0,\"purgedExpired\":0,\"purgedResolved\":0,\"rateWindows\":{\"applied\":true,\"purged\":0,\"reset\":0,\"retained\":0},\"rearm\":{\"armed\":0,\"cleared\":0,\"pending\":0},\"window\":\"none\"},\"event\":\"sw_reconcile\",\"id\":\"7ff8f55c-29e0-474b-a46d-035ddae6d9c7\",\"level\":\"info\",\"message\":\"Reconciliación al arrancar el Service Worker\",\"method\":\"\",\"origin\":\"extension\",\"ts\":1789179653331},{\"category\":\"system\",\"data\":{\"inflight\":{\"alarmsArmed\":0,\"alarmsCleared\":0,\"confirmed\":0,\"dropped\":0,\"failed\":0,\"released\":0,\"retained\":0},\"orphansDelivered\":0,\"orphansUndelivered\":0,\"pendingAfter\":0,\"pendingBefore\":0,\"purgedExpired\":0,\"purgedResolved\":0,\"rateWindows\":{\"applied\":true,\"purged\":0,\"reset\":0,\"retained\":0},\"rearm\":{\"armed\":0,\"cleared\":0,\"pending\":0},\"window\":\"none\"},\"event\":\"sw_reconcile\",\"id\":\"753a8117-12ad-49f1-b281-35b388814b52\",\"level\":\"info\",\"message\":\"Reconciliación al arrancar el Service Worker\",\"method\":\"\",\"origin\":\"extension\",\"ts\":1789179653332},{\"category\":\"system\",\"data\":{\"autoLoaded\":{\"accountCount\":5,\"chainId\":\"0x7a69\",\"currentAccount\":\"idx:0\",\"hasMnemonic\":true,\"importedCount\":0,\"labelCount\":0,\"networkCount\":1,\"sessionCount\":0,\"visibleImportedCount\":0},\"bootMs\":251,\"bytesInUse\":1972,\"integrity\":{\"ok\":true,\"status\":\"ok\"},\"migrations\":{\"from\":\"1.2\",\"migrated\":true,\"ok\":true,\"to\":\"1.4\"},\"pendingProcessed\":0,\"schemaVersion\":\"1.4\"},\"event\":\"sw_started\",\"id\":\"7c592f7f-2fed-4b3f-b621-57945de8b700\",\"level\":\"info\",\"message\":\"Service Worker arrancado\",\"method\":\"\",\"origin\":\"extension\",\"ts\":1789179653375},{\"category\":\"system\",\"data\":{\"autoLoaded\":{\"accountCount\":5,\"chainId\":\"0x7a69\",\"currentAccount\":\"idx:0\",\"hasMnemonic\":true,\"importedCount\":0,\"labelCount\":0,\"networkCount\":1,\"sessionCount\":0,\"visibleImportedCount\":0},\"bootMs\":257,\"bytesInUse\":1972,\"integrity\":{\"ok\":true,\"status\":\"ok\"},\"migrations\":{\"from\":\"1.2\",\"migrated\":true,\"ok\":true,\"to\":\"1.4\"},\"pendingProcessed\":0,\"schemaVersion\":\"1.4\"},\"event\":\"sw_started\",\"id\":\"8cbb7007-5f53-4435-9d0b-f322d03ae02d\",\"level\":\"info\",\"message\":\"Service Worker arrancado\",\"method\":\"\",\"origin\":\"extension\",\"ts\":1789179653377}]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T02:20:52.256Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "78b91ab4ee0bc04228d7-964a366ac194234045d6",
+          "file": "90-sonda.spec.ts",
+          "line": 22,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T02:20:35.864Z",
+    "duration": 22816.060999999998,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

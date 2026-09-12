@@ -15,7 +15,9 @@
  * (`sha256:`), que no permite reconstruir la frase.
  */
 
-import { LangEn, Mnemonic, randomBytes, sha256, wordlists } from 'ethers';
+import { LangEn, Mnemonic, randomBytes, sha256, toUtf8Bytes, wordlists } from 'ethers';
+// Normaliza la implementación de sha256 de ethers (ver security/hash.ts).
+import '../security/hash';
 import type { Eip1193Error } from '../../shared/types';
 import { invalidMnemonicError } from '../rpc/errors';
 import {
@@ -132,7 +134,7 @@ export const generateMnemonic = (): string => {
  * §3.10). NUNCA se persiste la frase junto a su huella en la misma entrada de log.
  */
 export const mnemonicFingerprint = (input: unknown): string =>
-  `sha256:${sha256(new TextEncoder().encode(normalizeMnemonic(input))).slice(2)}`;
+  `sha256:${sha256(toUtf8Bytes(normalizeMnemonic(input))).slice(2)}`;
 
 /** Identificador estable de la frase para el log de arranque: `sha256:<8 hex>`. */
 export const mnemonicShortFingerprint = (input: unknown): string =>

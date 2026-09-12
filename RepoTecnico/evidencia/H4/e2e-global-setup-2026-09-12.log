@@ -1,0 +1,38 @@
+# Evidencia de globalSetup — fase H4 — 2026-09-12
+Repositorio: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet
+dist/: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\dist
+
+## Plazos de producción declarados en src/shared/constants.ts
+OK: 120000 / 60000 / 30000 siguen siendo los valores por defecto; la inyección (3000 / 2000) es SOLO del arnés.
+
+## Build de dist/ con plazos inyectados
+$ npm run build
+[exit code: 0]
+
+> truekeate-wallet@1.0.0 build
+> tsc -b && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 249 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/src/notification.html                   0.79 kB │ gzip:   0.46 kB
+dist/src/index.html                          0.83 kB │ gzip:   0.46 kB
+dist/src/connect.html                        0.85 kB │ gzip:   0.47 kB
+dist/assets/base-VM7F3JDm.css               20.84 kB │ gzip:   4.21 kB
+dist/chunks/format-G8d-5VCa.js               1.88 kB │ gzip:   1.10 kB │ map:    22.84 kB
+dist/chunks/useBalancePolling-CTGx5R1F.js    1.98 kB │ gzip:   1.13 kB │ map:    14.80 kB
+dist/connect.js                              7.78 kB │ gzip:   3.07 kB │ map:    34.52 kB
+dist/notification.js                        27.62 kB │ gzip:   7.95 kB │ map:   100.49 kB
+dist/index.js                               42.64 kB │ gzip:  13.44 kB │ map:   187.80 kB
+dist/chunks/base-B0OlKNiW.js               230.67 kB │ gzip:  72.40 kB │ map: 1,093.17 kB
+dist/background.js                         446.30 kB │ gzip: 161.39 kB │ map: 2,203.84 kB
+✓ built in 3.10s
+[manifest] dist/manifest.json generado (version 1.0.0).
+
+## Artefacto
+OK: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\dist\manifest.json presente.
+
+## Anvil
+OK: cast chain-id --rpc-url http://127.0.0.1:8545 = 31337

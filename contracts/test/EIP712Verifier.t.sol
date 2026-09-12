@@ -223,6 +223,185 @@ contract EIP712VerifierTest is Test {
     }
 
     // ---------------------------------------------------------------------
+    // H4 / tarea 4.16 — correspondencia WALLET ↔ CONTRATO
+    //
+    // El fixture `test/fixtures/eip712-wallet-signature.json` NO se generó con `cast`: lo produjo
+    // la propia wallet (M11 `src/background/crypto/sign.ts`, la misma vía que usa
+    // `eth_signTypedData_v4`) sobre el dominio `TrueKeate Test App` con `chainId 31337`. Estos
+    // casos demuestran que la firma de la wallet verifica **on-chain** (`true`) y que un solo byte
+    // alterado del mensaje devuelve `false` (`CA-RT-11`).
+    // ---------------------------------------------------------------------
+
+    /// @dev Campos del fixture firmado por la wallet.
+    struct WalletFixture {
+        string name;
+        string version;
+        uint256 chainId;
+        address verifyingContract;
+        string content;
+        uint256 nonce;
+        uint256 deadline;
+        bytes32 digest;
+        bytes32 expectedDigest;
+        address signer;
+        bytes signature;
+    }
+
+    string private constant WALLET_FIXTURE_PATH = "test/fixtures/eip712-wallet-signature.json";
+
+    /// @dev Carga el fixture firmado por la wallet y comprueba que es coherente consigo mismo.
+    function _loadWalletFixture() private view returns (WalletFixture memory f) {
+        string memory json = vm.readFile(WALLET_FIXTURE_PATH);
+        f.name = json.readString(".domain.name");
+        f.version = json.readString(".domain.version");
+        f.chainId = json.readUint(".domain.chainId");
+        f.verifyingContract = json.readAddress(".domain.verifyingContract");
+        f.content = json.readString(".message.content");
+        f.nonce = json.readUint(".message.nonce");
+        f.deadline = json.readUint(".message.deadline");
+        f.digest = json.readBytes32(".digest");
+        f.expectedDigest = json.readBytes32(".expectedDigest");
+        f.signer = json.readAddress(".signer");
+        f.signature = json.readBytes(".signature");
+
+        assertEq(f.expectedDigest, f.digest, "wallet: digest != expectedDigest");
+        assertEq(f.signature.length, 65, "wallet: la firma debe tener 65 bytes");
+    }
+
+    /// @notice La firma EIP-712 de la WALLET verifica on-chain (`true`).
+    /// @dev Además de `verify(signer, digest, signature)`, se recompone el `digest` **on-chain**
+    ///      desde el dominio y el struct del fixture y se exige que coincida con el `digest` que
+    ///      produjo la wallet: es la correspondencia exacta wallet ↔ contrato.
+    function test_WalletSignatureVerifiesOnChain() public view {
+        WalletFixture memory f = _loadWalletFixture();
+
+        bytes32 contentHash = keccak256(bytes(f.content));
+        bytes32 structHashWallet = keccak256(
+            abi.encode(SIGN_MESSAGE_TYPEHASH, contentHash, f.nonce, f.deadline)
+        );
+        bytes32 separator =
+            verifier.domainSeparator(f.name, f.version, f.chainId, f.verifyingContract);
+        bytes32 digestOnChain = verifier.hashTypedData(separator, structHashWallet);
+
+        assertEq(
+            digestOnChain,
+            f.digest,
+            "wallet: el digest de M11 debe ser el que recompone el contrato"
+        );
+        assertTrue(
+            verifier.verify(f.signer, f.digest, f.signature),
+            "la firma de la wallet debe verificar on-chain"
+        );
+        assertTrue(
+            verifier.verify(f.signer, digestOnChain, f.signature),
+            "la firma de la wallet debe verificar con el digest recompuesto on-chain"
+        );
+        assertTrue(
+            verifier.verifyTypedData(f.signer, separator, structHashWallet, f.signature),
+            "verifyTypedData debe aceptar la firma de la wallet"
+        );
+
+        // Dominio y firmante exigidos por la tarea 4.16.
+        assertEq(keccak256(bytes(f.name)), keccak256(bytes("TrueKeate Test App")), "nombre del dominio");
+        assertEq(f.chainId, 31337, "chainId del dominio");
+        assertEq(f.signer, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8, "firmante = cuenta #1 de Anvil");
+
+        // Los dos fixtures comparten dominio: el `domainSeparator` es el MISMO on-chain.
+        assertEq(
+            separator,
+            verifier.domainSeparator(name, version, chainId, verifyingContract),
+            "los dos fixtures deben compartir el domain separator"
+        );
+        assertTrue(f.digest != digest, "cada mensaje tiene su propio digest");
+    }
+
+    /// @notice Un BYTE alterado del mensaje de la wallet devuelve `false`.
+    /// @dev Se altera el primer byte de `content` (y, por separado, `nonce` y `deadline`) y se
+    ///      recomputa el `digest` on-chain: la firma de la wallet deja de verificar.
+    function test_WalletSignatureWithOneAlteredMessageByteReturnsFalse() public view {
+        WalletFixture memory f = _loadWalletFixture();
+        bytes32 separator =
+            verifier.domainSeparator(f.name, f.version, f.chainId, f.verifyingContract);
+
+        // 1) Un byte alterado del CONTENIDO (mismo número de bytes: solo cambia un bit).
+        //    Se COPIA el contenido: `bytes(memoryString)` comparte la memoria del string y
+        //    alterarlo in situ cambiaría también el mensaje original.
+        bytes memory original = bytes(f.content);
+        bytes memory alterado = new bytes(original.length);
+        for (uint256 i = 0; i < original.length; i++) {
+            alterado[i] = original[i];
+        }
+        assertTrue(alterado.length > 0, "el contenido del fixture no puede quedar vacio");
+        alterado[0] = alterado[0] ^ bytes1(0x01);
+        assertTrue(
+            keccak256(alterado) != keccak256(original),
+            "alterar un byte debe cambiar el contentHash"
+        );
+        bytes32 structAlterado =
+            keccak256(abi.encode(SIGN_MESSAGE_TYPEHASH, keccak256(alterado), f.nonce, f.deadline));
+        assertFalse(
+            verifier.verify(
+                f.signer,
+                verifier.hashTypedData(separator, structAlterado),
+                f.signature
+            ),
+            "un byte alterado del mensaje debe devolver false"
+        );
+        assertFalse(
+            verifier.verifyTypedData(f.signer, separator, structAlterado, f.signature),
+            "verifyTypedData debe devolver false con el mensaje alterado"
+        );
+
+        // 2) `nonce` y `deadline` alterados en una unidad: el struct hash cambia y la firma no vale.
+        bytes32 structNonce = keccak256(
+            abi.encode(SIGN_MESSAGE_TYPEHASH, keccak256(bytes(f.content)), f.nonce + 1, f.deadline)
+        );
+        bytes32 structDeadline = keccak256(
+            abi.encode(SIGN_MESSAGE_TYPEHASH, keccak256(bytes(f.content)), f.nonce, f.deadline + 1)
+        );
+        assertFalse(
+            verifier.verify(f.signer, verifier.hashTypedData(separator, structNonce), f.signature),
+            "otro nonce debe devolver false"
+        );
+        assertFalse(
+            verifier.verify(f.signer, verifier.hashTypedData(separator, structDeadline), f.signature),
+            "otro deadline debe devolver false"
+        );
+
+        // 3) El `digest` original con un bit cambiado: la firma tampoco verifica.
+        assertFalse(
+            verifier.verify(f.signer, f.digest ^ bytes32(uint256(1)), f.signature),
+            "un bit alterado del digest debe devolver false"
+        );
+    }
+
+    /// @notice La firma de la wallet NO verifica para otro firmante ni con otro dominio.
+    function test_WalletSignatureRejectsForeignSignerAndDomain() public view {
+        WalletFixture memory f = _loadWalletFixture();
+        bytes32 structHashWallet = keccak256(
+            abi.encode(SIGN_MESSAGE_TYPEHASH, keccak256(bytes(f.content)), f.nonce, f.deadline)
+        );
+
+        assertFalse(
+            verifier.verify(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC, f.digest, f.signature),
+            "otra cuenta de Anvil debe devolver false"
+        );
+
+        bytes32 otroChainId =
+            verifier.domainSeparator(f.name, f.version, f.chainId + 1, f.verifyingContract);
+        bytes32 otroContrato =
+            verifier.domainSeparator(f.name, f.version, f.chainId, address(0xBEEF));
+        assertFalse(
+            verifier.verify(f.signer, verifier.hashTypedData(otroChainId, structHashWallet), f.signature),
+            "otro chainId debe devolver false"
+        );
+        assertFalse(
+            verifier.verify(f.signer, verifier.hashTypedData(otroContrato, structHash), f.signature),
+            "otro verifyingContract debe devolver false"
+        );
+    }
+
+    // ---------------------------------------------------------------------
     // Utilidades internas del test
     // ---------------------------------------------------------------------
 

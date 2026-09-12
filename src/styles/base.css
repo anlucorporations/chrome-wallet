@@ -1121,3 +1121,271 @@ textarea.tk-input {
     color: var(--tk-text-primary);
   }
 }
+
+/* --------------------------------------------------------------------------
+   H4 — Ventana única de decisión (M50–M54) y formulario de envío (M42)
+
+   Solo tokens de `tokens.css` (RNF-18): el tramo oscuro de los avisos usa `--tk-night-900` y el
+   acento de peligro/aviso sus tokens semánticos. Las áreas táctiles de 44 px y el foco visible de
+   2 px los garantizan las reglas globales de la hoja.
+   -------------------------------------------------------------------------- */
+
+/* Cinco pestañas en el popup de 380 px: el texto se compacta sin bajar de 12 px. */
+.tk-tabs__list--five .tk-tab {
+  padding: 8px 2px;
+  font-size: 12px;
+}
+
+/* --- Origen de la dApp y su favicon: SIEMPRE visibles (se pegan al borde al desplazar) --- */
+.tk-origin {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--tk-surface-raised);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+  box-shadow: var(--tk-shadow-card);
+}
+
+.tk-origin__favicon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-surface-card);
+}
+
+.tk-origin__favicon--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--tk-border);
+  color: var(--tk-text-primary);
+  font-family: var(--tk-font-display);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tk-origin__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tk-origin__url {
+  overflow: hidden;
+  color: var(--tk-text-primary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Insignia de riesgo --- */
+.tk-risk-badge {
+  flex: 0 0 auto;
+  padding: 2px 10px;
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-pill);
+  background: var(--tk-surface-card);
+  color: var(--tk-text-secondary);
+  font-family: var(--tk-font-display);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tk-risk-badge--high {
+  background: var(--tk-grad-gold);
+  border-color: var(--tk-warning);
+  color: var(--tk-navy-800);
+}
+
+/* --- Avisos de riesgo: destacados sobre el tramo oscuro, con `role="alert"` en el marcado --- */
+.tk-risk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-risk__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-night-900);
+  color: var(--tk-gray-100);
+}
+
+.tk-risk__item--highlight {
+  border-left: 4px solid var(--tk-gold-500);
+}
+
+.tk-risk__item--blocking {
+  border-left: 4px solid var(--tk-danger);
+}
+
+.tk-risk__title {
+  color: var(--tk-gray-100);
+  font-family: var(--tk-font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tk-risk__item--blocking .tk-risk__title {
+  color: var(--tk-gold-400);
+}
+
+.tk-risk__detail {
+  color: var(--tk-cyan-200);
+  font-size: 12px;
+}
+
+.tk-risk__ack {
+  align-items: flex-start;
+  color: var(--tk-text-primary);
+}
+
+/* --- Resumen en pares etiqueta/valor (cuenta, destino, valor, red, comisión) --- */
+.tk-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--tk-surface-card);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius);
+}
+
+.tk-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tk-summary__label {
+  flex: 0 0 auto;
+  color: var(--tk-text-secondary);
+  font-size: 12px;
+}
+
+.tk-summary__value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  color: var(--tk-text-primary);
+  font-size: 13px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.tk-summary__strong {
+  font-family: var(--tk-font-display);
+  font-weight: 600;
+}
+
+.tk-summary__mono {
+  color: var(--tk-text-secondary);
+  font-size: 12px;
+}
+
+/* Texto íntegro que se va a firmar (personal_sign) o mensaje EIP-712. */
+.tk-message {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--tk-surface-raised);
+  border: 1px dashed var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-text-primary);
+  font-family: var(--tk-font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Aviso destacado de una condición puntual (dominio, contrato verificador, estimación). */
+.tk-warning-band {
+  padding: 10px 12px;
+  border-left: 4px solid var(--tk-warning);
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-surface-card);
+  color: var(--tk-text-primary);
+  font-size: 13px;
+}
+
+.tk-warning-band--danger {
+  border-left-color: var(--tk-danger-dark);
+}
+
+/* Solo «Aprobar» y «Rechazar», con separación ≥ 8 px y área táctil ≥ 44 px. */
+.tk-approval__actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.tk-approval__actions > button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* --- Formulario de envío (M42) --- */
+.tk-select {
+  width: 100%;
+  min-height: var(--tk-touch-target);
+  padding: 10px 12px;
+  background: var(--tk-surface-raised);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-text-primary);
+  font-size: 13px;
+}
+
+.tk-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tk-choice__option {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tk-touch-target);
+  padding: 8px 10px;
+  background: var(--tk-surface-raised);
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-sm);
+  color: var(--tk-text-primary);
+  font-size: 12px;
+}
+
+.tk-choice__option input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+}
+
+.tk-send__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tk-send__actions > button {
+  flex: 1 1 0;
+  min-width: 0;
+}

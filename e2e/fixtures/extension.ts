@@ -25,7 +25,7 @@
 import { chromium, expect, test as base, type BrowserContext, type Page, type Worker } from '@playwright/test';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -569,11 +569,21 @@ export function anvilBinario(): string {
   return primera ?? 'anvil.exe';
 }
 
-/** Arranca Anvil desacoplado del proceso de pruebas, con los mismos argumentos del proyecto. */
+/**
+ * Arranca Anvil desacoplado del proceso de pruebas, con los MISMOS argumentos del proyecto.
+ *
+ * MEDICIÓN DE H4 (defecto del arnés detectado y corregido aquí): el comando documentado con
+ * `--http.corsdomain "*"` **no existe** en el Anvil instalado (`anvil 1.7.2-dev`): el proceso muere
+ * con `error: unexpected argument '--http.corsdomain' found` y la restauración de
+ * `27-rpc-caido.spec.ts` falla, dejando el nodo caído para el resto de la suite. La bandera
+ * equivalente en esta versión es **`--allow-origin`** (verificado: `anvil … --allow-origin '*'`
+ * responde). `--silent` sí funciona lanzado con `spawn` + `stdio: 'ignore'`, que es lo que usa este
+ * arnés (los 37 E2E de H3 están verdes con él).
+ */
 export function arrancarAnvil(): void {
   const hijo = spawn(
     anvilBinario(),
-    ['--host', '127.0.0.1', '--port', '8545', '--chain-id', '31337', '--silent'],
+    ['--host', '127.0.0.1', '--port', '8545', '--chain-id', '31337', '--silent', '--allow-origin', '*'],
     { detached: true, stdio: 'ignore' },
   );
   hijo.unref();
@@ -755,4 +765,179 @@ export async function cuentasDeLaDapp(page: Page): Promise<string[]> {
     );
   }
   return Array.isArray(resultado.valor) ? (resultado.valor as string[]) : [];
+}
+
+// ---------------------------------------------------------------------------
+// H4 · firma, aprobación y transacciones (tareas 4.16 y 4.18)
+// ---------------------------------------------------------------------------
+
+/** Ruta de la ventana única de decisión, leída del arranque de la propia URL. */
+export const RUTA_NOTIFICACION = 'notification.html';
+
+/** Ruta del popup de la extensión. */
+export const RUTA_POPUP = 'index.html';
+
+/**
+ * Plazo máximo que una prueba espera el desenlace de una firma en la dApp. Es una COTA DE LA
+ * PRUEBA (para no colgarse si el flujo no responde), no el plazo del producto: el vencimiento
+ * real de la solicitud lo posee el Service Worker con `chrome.alarms` (120 s de producción,
+ * 3 s inyectados en el arnés).
+ */
+export const ESPERA_FIRMA_MS = 45_000;
+
+/** Desenlace de una petición de firma lanzada desde la dApp. */
+export type ResultadoDeFirma =
+  | { estado: 'pendiente' }
+  | { estado: 'ok'; valor: unknown }
+  | { estado: 'error'; code: unknown; message: string };
+
+/**
+ * Lanza una petición de firma desde la dApp **sin esperarla** y guarda su desenlace en
+ * `window.__tkFirma`.
+ *
+ * Es imprescindible para H4: `eth_sendTransaction`, `personal_sign` y `eth_signTypedData_v4`
+ * **no resuelven** hasta que el usuario decide en `notification.html`, así que la prueba necesita
+ * seguir ejecutando mientras la ventana única está abierta y leer el desenlace después.
+ */
+export async function iniciarPeticionDeFirma(
+  page: Page,
+  method: string,
+  params: readonly unknown[] = [],
+): Promise<void> {
+  await page.evaluate(
+    ({ metodo, parametros }) => {
+      const global = window as unknown as {
+        __tkFirma?: ResultadoDeFirma;
+        truekeate?: { request(args: unknown): Promise<unknown> };
+      };
+      global.__tkFirma = { estado: 'pendiente' };
+      const provider = global.truekeate;
+      if (provider === undefined || typeof provider.request !== 'function') {
+        global.__tkFirma = { estado: 'error', code: null, message: 'sin provider inyectado' };
+        return;
+      }
+      void provider.request({ method: metodo, params: parametros }).then(
+        (valor) => {
+          global.__tkFirma = { estado: 'ok', valor };
+        },
+        (error: unknown) => {
+          const fallo = error as { code?: unknown; message?: unknown };
+          global.__tkFirma = {
+            estado: 'error',
+            code: fallo?.code ?? null,
+            message: typeof fallo?.message === 'string' ? fallo.message : String(error),
+          };
+        },
+      );
+    },
+    { metodo: method, parametros: [...params] },
+  );
+}
+
+/** Desenlace actual de la petición lanzada con {@link iniciarPeticionDeFirma}. */
+export async function leerResultadoDeFirma(page: Page): Promise<ResultadoDeFirma | null> {
+  return page.evaluate(() => {
+    const global = window as unknown as { __tkFirma?: ResultadoDeFirma };
+    return global.__tkFirma ?? null;
+  });
+}
+
+/**
+ * Espera a que la petición de firma termine. Es una condición OBSERVABLE (el desenlace deja de ser
+ * `pendiente`), nunca una espera fija.
+ */
+export async function esperarResultadoDeFirma(
+  page: Page,
+  timeoutMs = 45_000,
+): Promise<ResultadoDeFirma> {
+  await expect
+    .poll(async () => (await leerResultadoDeFirma(page))?.estado, {
+      message: 'la petición de firma de la dApp nunca se resolvió (¿se aprobó en la ventana única?)',
+      timeout: timeoutMs,
+    })
+    .not.toBe('pendiente');
+  const resultado = await leerResultadoDeFirma(page);
+  if (resultado === null) {
+    throw new Error('[e2e] no se lanzó ninguna petición de firma desde la dApp');
+  }
+  return resultado;
+}
+
+/** Ventanas de decisión (`notification.html`) abiertas ahora mismo. Nunca se escribe el ID a mano. */
+export function ventanasDeDecision(context: BrowserContext): Page[] {
+  return context.pages().filter((page) => page.url().includes(RUTA_NOTIFICACION));
+}
+
+/**
+ * Espera la ventana de decisión que abre el Service Worker (`chrome.windows.create`).
+ * No usa esperas fijas: reutiliza la que ya esté abierta o espera el evento `page` filtrando por
+ * la URL `notification.html`.
+ */
+export async function esperarVentanaDeDecision(
+  context: BrowserContext,
+  timeoutMs = 20_000,
+): Promise<Page> {
+  const existente = ventanasDeDecision(context)[0];
+  if (existente !== undefined) {
+    await existente.waitForLoadState('domcontentloaded');
+    return existente;
+  }
+  const ventana = await context.waitForEvent('page', {
+    predicate: (page) => page.url().includes(RUTA_NOTIFICACION),
+    timeout: timeoutMs,
+  });
+  await ventana.waitForLoadState('domcontentloaded');
+  return ventana;
+}
+
+/** Texto del contador visible de la ventana única («N solicitudes en espera»). */
+export async function leerContadorDeLaVentana(ventana: Page): Promise<string> {
+  return (await ventana.locator('.tk-header__badge').textContent())?.trim() ?? '';
+}
+
+/** Marca los avisos de riesgo bloqueantes si la ventana los exige (RNF-05 / CA-RF-19). */
+async function reconocerAvisos(ventana: Page): Promise<void> {
+  const casilla = ventana.locator('#tk-risk-ack');
+  if ((await casilla.count()) > 0 && !(await casilla.isChecked())) {
+    await casilla.check();
+  }
+}
+
+/** Aprueba la solicitud mostrada en la ventana única (marcando antes los avisos bloqueantes). */
+export async function aprobarEnLaVentana(ventana: Page): Promise<void> {
+  await reconocerAvisos(ventana);
+  const aprobar = ventana.getByRole('button', { name: 'Aprobar' });
+  await expect(aprobar).toBeEnabled();
+  await aprobar.click();
+}
+
+/** Rechaza la solicitud mostrada en la ventana única. */
+export async function rechazarEnLaVentana(ventana: Page): Promise<void> {
+  const rechazar = ventana.getByRole('button', { name: 'Rechazar' });
+  await expect(rechazar).toBeEnabled();
+  await rechazar.click();
+}
+
+/** Estado observable de la cola persistida leído DESDE el Service Worker. */
+export async function leerColaPersistida(worker: Worker): Promise<Record<string, unknown>> {
+  const almacen = await readChromeStorage(worker, ['truekeate_pending_requests']);
+  const cola = almacen.truekeate_pending_requests;
+  return typeof cola === 'object' && cola !== null ? (cola as Record<string, unknown>) : {};
+}
+
+/** Cuenta las entradas `pending` de la cola persistida. */
+export async function contarPendientes(worker: Worker): Promise<number> {
+  const cola = await leerColaPersistida(worker);
+  return Object.values(cola).filter(
+    (entrada) =>
+      typeof entrada === 'object' && entrada !== null && (entrada as { status?: unknown }).status === 'pending',
+  ).length;
+}
+
+/** Escribe la evidencia de un flujo de H4 en `RepoTecnico/evidencia/<fase>/`. */
+export function archivarEvidencia(nombre: string, contenido: unknown): string {
+  mkdirSync(EVIDENCE_DIR, { recursive: true });
+  const destino = join(EVIDENCE_DIR, `${nombre}-${RUN_DATE}.json`);
+  writeFileSync(destino, `${JSON.stringify(contenido, null, 2)}\n`, 'utf8');
+  return destino;
 }

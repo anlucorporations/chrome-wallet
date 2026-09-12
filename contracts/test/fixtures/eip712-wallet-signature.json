@@ -1,0 +1,42 @@
+{
+  "# Esquema": "Fixture EIP-712 FIRMADO POR LA WALLET (H4, tarea 4.16). Lo produce M11 (src/background/crypto/sign.ts, eth_signTypedData_v4) y lo verifica contracts/test/EIP712Verifier.t.sol.",
+  "# Clave de prueba": "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 (cuenta #1 de Anvil). SOLO PRUEBAS.",
+  "generatedWith": "M11 signTypedData() de la wallet TrueKeate (ethers v6 TypedDataEncoder)",
+  "domain": {
+    "name": "TrueKeate Test App",
+    "version": "1",
+    "chainId": 31337,
+    "verifyingContract": "0x8464135c8F25Da09e49BC8782676a84730C318bC"
+  },
+  "types": {
+    "SignMessage": [
+      {
+        "name": "content",
+        "type": "string"
+      },
+      {
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ]
+  },
+  "primaryType": "SignMessage",
+  "message": {
+    "content": "TrueKeate H4: firma EIP-712 generada por el Service Worker (M11) y verificada on-chain.",
+    "nonce": "1",
+    "deadline": "1700000000"
+  },
+  "typesFromContract": {
+    "EIP712Domain": "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)",
+    "SignMessage": "SignMessage(string content,uint256 nonce,uint256 deadline)"
+  },
+  "digest": "0x617f47605752a33464938912ead84ac2283bca6d2e20eae51a5ca22b2348f52f",
+  "expectedDigest": "0x617f47605752a33464938912ead84ac2283bca6d2e20eae51a5ca22b2348f52f",
+  "signer": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "signature": "0x8dab23606ca625dab10714f0edb471d995f4afce818cb7866a79815b42ed712460d28da649ccca67db96e552653a253457614489dd77794560d793f869cd36ee1b",
+  "signatureFormat": "r || s || v (65 bytes, v = 27/28)"
+}

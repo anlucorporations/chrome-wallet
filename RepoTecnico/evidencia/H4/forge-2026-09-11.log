@@ -1,0 +1,20 @@
+﻿
+> truekeate-wallet@1.0.0 forge:test
+> forge test --root contracts --match-contract EIP712VerifierTest
+
+No files changed, compilation skipped
+
+Ran 10 tests for test/EIP712Verifier.t.sol:EIP712VerifierTest
+[PASS] test_AlteredDomainReturnsFalse() (gas: 58621)
+[PASS] test_FixtureDomainAndDigestMatchContract() (gas: 31929)
+[PASS] test_MalformedSignatureReturnsFalseWithoutRevert() (gas: 184935)
+[PASS] test_OneAlteredByteReturnsFalse() (gas: 41181)
+[PASS] test_ValidSignatureReturnsTrue() (gas: 33286)
+[PASS] test_ValidSignatureViaTypedDataReturnsTrue() (gas: 45849)
+[PASS] test_WalletSignatureRejectsForeignSignerAndDomain() (gas: 115028)
+[PASS] test_WalletSignatureVerifiesOnChain() (gas: 122773)
+[PASS] test_WalletSignatureWithOneAlteredMessageByteReturnsFalse() (gas: 143211)
+[PASS] test_WrongSignerReturnsFalse() (gas: 28968)
+Suite result: ok. 10 passed; 0 failed; 0 skipped; finished in 11.70ms (27.75ms CPU time)
+
+Ran 1 test suite in 20.73ms (11.70ms CPU time): 10 tests passed, 0 failed, 0 skipped (10 total tests)

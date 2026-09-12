@@ -14,8 +14,7 @@
  *      internos deja fuera a todo emisor que no sea una página de la extensión.
  *   3. **Unión CERRADA** (M56) + **catálogo** (M4): un `method` que no pertenezca a
  *      `PageMethod | ApprovalMethod | InternalMethod`, o que no esté implementado, responde
- *      `4200 Unsupported method`. Así `eth_sign` responde `4200` sin existir en el catálogo y los
- *      6 aprobables responden `4200` **sin lanzar de forma síncrona** mientras la cola no existe.
+ *      `4200 Unsupported method`. Así `eth_sign` responde `4200` sin existir en el catálogo.
  *   4. **Allowlist de contextos** por metadato del catálogo: los `wallet_*` internos solo se
  *      aceptan desde el popup (contexto `extension`); desde una página se responde `4200`
  *      con la causa `methodNotAllowedInContext`. La revocación del popup
@@ -24,15 +23,21 @@
  *      **TODO** el catálogo —también las lecturas— y está **persistida** en
  *      `truekeate_rate_windows`, de modo que sobrevive a la suspensión del SW. Al exceder se
  *      responde `4001` **sin abrir ventana** y sin llamar al nodo.
- *   6. **Despacho**: los **internos** (M4 → M8/M9/M10/M12/M13/M28/M29/M33) y las **10 lecturas de
+ *   6. **Despacho de los 6 APROBABLES** (H4, M19.b → `approvals/dispatch.ts`): `eth_sendTransaction`,
+ *      `personal_sign`, `eth_signTypedData_v4`, `wallet_switchEthereumChain`,
+ *      `wallet_addEthereumChain` y `wallet_revokePermissions` desde una página recorren la ruta
+ *      completa —preview (M19) → cola (M14) → plazo (M15) → ventana única (M18) → decisión → firma
+ *      (M11) y difusión (M7)—. El `wallet_revokePermissions` del POPUP conserva su manejador
+ *      interno (tarea 3.11), porque un contexto de la extensión no abre ventana de aprobación.
+ *   7. **Despacho**: los **internos** (M4 → M8/M9/M10/M12/M13/M28/M29/M33) y las **10 lecturas de
  *      página** de H3 (M4 → `rpc/pageMethods.ts` → M5/M26/M27). CUALQUIER excepción se convierte
  *      en un objeto EIP-1193 del catálogo de M6 (nunca un error sin `code`).
  *
- * Fuera de H3: la cola de aprobaciones (H4) y las firmas, redes y logs (H4/H5). El router ya NO
- * tiene ningún método público sin implementar salvo los 6 aprobables, que responden `4200`.
+ * El router ya NO tiene ningún método del catálogo sin implementar: `eth_sign` sigue sin existir
+ * (DEC-22 / H-11a) y responde `4200` por la unión cerrada.
  */
 
-import type { Eip1193Error, InternalMethod, WalletMethod } from '../../shared/types';
+import type { ApprovalMethod, Eip1193Error, InternalMethod, WalletMethod } from '../../shared/types';
 import { isTruekeateMessageType } from '../../shared/protocol';
 import {
   guardSender,
@@ -72,6 +77,7 @@ import { getBalanceWei, rpcSend } from './client';
 import { emitProviderEvent, defaultEventsDeps } from '../events';
 import { readSessions, revokeSession, touchSession, currentSessionFor } from '../sessions';
 import { openConnectWindow } from '../connections';
+import { dispatchApproval, type ApprovalDispatchOutcome } from '../approvals/dispatch';
 
 // Reexportación de la comprobación de nomenclatura canónica: el rechazo de una clave que no
 // empieza por `truekeate_` se responde como error interno `-32603` (M33/M34, ACU-25).
@@ -141,6 +147,17 @@ export type PageInvoker = (
   deps: PageHandlerDeps,
 ) => Promise<unknown>;
 
+/**
+ * Invocador de los 6 métodos APROBABLES de página (M19.b, cierre de `D-H4-E1`): construye la vista
+ * previa (M19), encola la solicitud (M14), arma el plazo (M15), abre la ventana única (M18), espera
+ * la decisión (M14.b) y aplica el efecto del método (M11/M7/M26).
+ */
+export type ApprovalInvoker = (options: {
+  method: ApprovalMethod;
+  params: unknown[];
+  context: TrustedSenderContext;
+  now: number;
+}) => Promise<ApprovalDispatchOutcome>;
 /** Decisor del *token bucket* por origen (H3, tarea 3.13). */
 export type RateLimitDecider = (input: {
   origin: string;
@@ -153,6 +170,8 @@ export interface RouterDeps {
   readonly redactParams: RedactParams;
   readonly invokeInternal: InternalInvoker;
   readonly invokePage: PageInvoker;
+  /** Invocador de los 6 aprobables (M19.b). */
+  readonly approve: ApprovalInvoker;
   readonly decideRateLimit: RateLimitDecider;
   readonly page: PageHandlerDeps;
   /** Reloj inyectable (las pruebas fijan `now` sin depender del reloj real). */
@@ -199,6 +218,7 @@ export const defaultRouterDeps: RouterDeps = {
   redactParams,
   invokeInternal: invokeInternalMethod,
   invokePage: invokePageMethod,
+  approve: (options) => dispatchApproval(options),
   decideRateLimit: async (input) =>
     decideRateLimit({ origin: input.origin, now: input.now }),
   page: {
@@ -306,7 +326,22 @@ export const handleRPCRequest = async (
       return { ok: false, error: methodNotAllowedInContextError(), context, target, redactedParams };
     }
 
-    // 6. Despacho: lecturas de página (M4.b) o internos (M4).
+    // 6. Despacho de los 6 APROBABLES de página (M19.b, cierre de D-H4-E1): vista previa → cola →
+    //    ventana única → decisión → efecto. El `wallet_revokePermissions` del POPUP no llega aquí
+    //    (su contexto de extensión lo despacha el manejador interno de la tarea 3.11, más abajo).
+    if (entry.requiresApproval && !context.isExtensionContext) {
+      const outcome = await deps.approve({
+        method: method as ApprovalMethod,
+        params,
+        context,
+        now: deps.now(),
+      });
+      return outcome.ok
+        ? { ok: true, result: outcome.result, context, target, redactedParams }
+        : { ok: false, error: outcome.error, context, target, redactedParams };
+    }
+
+    // 7. Despacho: lecturas de página (M4.b) o internos (M4).
     if (entry.resolve) {
       const call: PageCallContext = {
         context,

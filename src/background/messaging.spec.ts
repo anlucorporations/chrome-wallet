@@ -62,6 +62,7 @@ const buildDeps = (): {
   invokePage: ReturnType<typeof vi.fn>;
   redactParams: ReturnType<typeof vi.fn>;
   decideRateLimit: ReturnType<typeof vi.fn>;
+  approve: ReturnType<typeof vi.fn>;
 } => {
   const invokeInternal = vi.fn(
     async (_method: string, _params: unknown[], _context: TrustedSenderContext) => 'interno',
@@ -80,7 +81,16 @@ const buildDeps = (): {
     window: freshRateWindow(1_700_000_000_000),
     changed: false,
   }));
-  const page: PageHandlerDeps = {
+  // Los 6 aprobables de página van al despacho de M19.b: el espía registra la invocación sin tocar
+  // cola, red ni ventanas (la ruta real se prueba en `dispatch.spec.ts`).
+  const approve = vi.fn(
+    async (_options: {
+      method: string;
+      params: unknown[];
+      context: TrustedSenderContext;
+      now: number;
+    }) => ({ ok: true as const, result: 'aprobado' }),
+  );  const page: PageHandlerDeps = {
     rpc: { send: async () => '0x0', getBalance: async () => 0n },
     sessions: {
       touchSession: async () => ({ session: null, persisted: false }),
@@ -97,6 +107,7 @@ const buildDeps = (): {
       invokeInternal,
       invokePage,
       decideRateLimit,
+      approve,
       page,
       now: () => 1_700_000_000_000,
     },
@@ -104,6 +115,7 @@ const buildDeps = (): {
     invokePage,
     redactParams,
     decideRateLimit,
+    approve,
   };
 };
 

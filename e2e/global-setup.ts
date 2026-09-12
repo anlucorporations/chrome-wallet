@@ -9,13 +9,15 @@
  *      (`npx vite build`) y el fallo queda registrado en la evidencia (nunca se oculta).
  *   3. Verificar que los valores de PRODUCCIÓN siguen siendo 120 000 / 60 000 / 30 000 ms: los
  *      plazos inyectados son SOLO para pruebas (§7.4.1.d).
- *   4. Verificar que Anvil responde (`cast chain-id` = 31337) y AVISAR si no está; la suite
- *      `01-onboarding` no depende de Anvil (§7.4), de modo que su ausencia no bloquea H1.
+ *   4. Verificar que Anvil responde (`cast chain-id` = 31337) y **ABORTAR** si no está (H4): la
+ *      suite de H3..H6 depende del nodo local y un Anvil ausente hacía fallar los E2E con red más
+ *      tarde y de forma confusa (`ERR_CONNECTION_REFUSED`). El mensaje de aborto lleva el comando
+ *      exacto que arranca el nodo.
  *
  * Regla de honestidad: este fichero NUNCA lanza por un defecto de un archivo ajeno; registra el
  * comando exacto, su salida y su código de salida, y deja que cada prueba decida si se salta con
- * el motivo escrito. Sí lanza si se incumple la aserción de plazos de producción, porque es una
- * invariante del propio arnés.
+ * el motivo escrito. Sí lanza si se incumple la aserción de plazos de producción o si Anvil no
+ * responde, porque ambas son invariantes del propio arnés.
  *
  * Variables: `TK_E2E_SKIP_BUILD=1` omite la reconstrucción (iteración local);
  * `TK_EVIDENCE_PHASE` cambia de hito.
@@ -193,19 +195,36 @@ export default async function globalSetup(): Promise<void> {
     advertencias.push(`no existe ${manifestPath}: la extensión no se puede cargar desde dist/`);
   }
 
-  // --- 4. Anvil (aviso, no bloqueo) ---------------------------------------------------------
+  // --- 4. Anvil (BLOQUEANTE) ----------------------------------------------------------------
+  // La suite de H3..H6 depende del nodo local (RF-18/RF-27/RNF-07): si Anvil no responde, los
+  // E2E con red fallan más tarde de forma confusa (`ERR_CONNECTION_REFUSED`, `4900` espurios…).
+  // Por eso, desde H4, el `globalSetup` ABORTA con el comando exacto que hay que arrancar.
+  // Aviso operativo vinculante (`entornos_globales.md` §2.1): `anvil --silent` NO arranca cuando
+  // se lanza con redirección de salida; el comando que sí funciona es el de ABAJO, sin `--silent`.
   const anvil = ejecutar('cast', ['chain-id', '--rpc-url', ANVIL_RPC_URL], process.env, 30_000);
   const chainId = anvil.salida.trim();
   const anvilOk = anvil.ok && chainId === ANVIL_CHAIN_ID;
+  const comandoAnvil = `anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --http.corsdomain "*"`;
+  const abortoAnvil = anvilOk
+    ? null
+    : [
+        `[e2e/global-setup] Anvil NO responde en ${ANVIL_RPC_URL}: la suite E2E se ABORTA (no se ejecuta ninguna prueba).`,
+        `  Comando comprobado: cast chain-id --rpc-url ${ANVIL_RPC_URL}`,
+        `  Resultado: exit ${anvil.exitCode ?? 'null'} · salida «${chainId.slice(0, 200)}» (se esperaba ${ANVIL_CHAIN_ID})`,
+        `  Arranca el nodo con:  ${comandoAnvil}`,
+        `  Aviso: NO añadas --silent (con él Anvil no arranca en el arnés); ver entornos_globales.md §2.1.`,
+      ].join('\n');
   log.push(
     '## Anvil',
     anvilOk
       ? `OK: cast chain-id --rpc-url ${ANVIL_RPC_URL} = ${chainId}`
-      : `AVISO: Anvil no responde en ${ANVIL_RPC_URL} (exit ${anvil.exitCode ?? 'null'}, salida «${chainId.slice(0, 200)}»). Arranca «anvil» antes de las pruebas que usan la red (RF-18/RF-27); 01-onboarding no la necesita.`,
+      : abortoAnvil ?? '',
     '',
   );
-  if (!anvilOk) {
-    advertencias.push(`Anvil no disponible en ${ANVIL_RPC_URL}: los flujos con red se saltarán o fallarán en hitos posteriores`);
+  if (abortoAnvil !== null) {
+    advertencias.push(
+      `Anvil no disponible en ${ANVIL_RPC_URL}: el globalSetup aborta la suite (comando: ${comandoAnvil})`,
+    );
   }
 
   // --- 5. Evidencia ------------------------------------------------------------------------
@@ -238,7 +257,13 @@ export default async function globalSetup(): Promise<void> {
   );
   console.log(`[e2e/global-setup] dist/ ${manifestDisponible ? 'presente' : 'AUSENTE'}`);
   console.log(
-    `[e2e/global-setup] Anvil ${ANVIL_RPC_URL}: ${anvilOk ? `OK (chainId ${chainId})` : 'no disponible (aviso)'}`,
+    `[e2e/global-setup] Anvil ${ANVIL_RPC_URL}: ${anvilOk ? `OK (chainId ${chainId})` : 'NO DISPONIBLE → la suite se aborta'}`,
   );
   for (const advertencia of advertencias) console.warn(`[e2e/global-setup] AVISO: ${advertencia}`);
+
+  // --- 7. Aborto por Anvil ausente (siempre DESPUÉS de archivar la evidencia) ----------------
+  // El mensaje lleva el comando EXACTO que arranca el nodo: el fallo deja de ser confuso.
+  if (abortoAnvil !== null) {
+    throw new Error(abortoAnvil);
+  }
 }

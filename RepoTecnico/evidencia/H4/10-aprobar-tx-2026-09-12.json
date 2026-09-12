@@ -1,0 +1,9 @@
+﻿{
+    "spec":  "e2e/10-aprobar-tx.spec.ts",
+    "flujo":  "aprobación con foco/origen/ventana única y contador, con vista previa decodificada (CA-RF-19/CA-RF-35)",
+    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
+    "resultado":  "FALLIDO · 1 test, 1 failed",
+    "causaRaiz":  "TimeoutError: browserContext.waitForEvent: Timeout 20000ms exceeded while waiting for event \"page\": la extensión nunca abrió notification.html porque ninguna ruta de producción encola la solicitud aprobable.",
+    "defecto":  "src/background/rpc/router.ts · src/background/rpc/catalog.ts:378-401 · src/background/approvals/queue.ts:409",
+    "artefacto":  "RepoTecnico/evidencia/H4/10-aprobar-tx-2026-09-12.png; test-results/10-aprobar-tx-*/trace.zip"
+}

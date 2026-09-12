@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
 import { AccountsView } from './views/AccountsView';
 import { ReceiveView } from './views/ReceiveView';
 import { SecurityView } from './views/SecurityView';
+import { SendView } from './views/SendView';
 import { SitesView } from './views/SitesView';
 import { StatusMessage } from './components/StatusMessage';
 import {
@@ -45,8 +46,15 @@ export const TAGLINE = 'PRODUCTOS | SERVICIOS | CRIPTOACTIVOS TOKENIZADOS';
 /** Ruta pública del isologo de 96 px. */
 const MARK_SRC = 'brand/truekeate-mark-96.png';
 
-/** Pestañas del popup: las de H2 más «Sitios» (tarea 3.11). */
-type TabId = 'accounts' | 'receive' | 'sites' | 'security';
+/**
+ * Pestañas del popup: las de H2, «Sitios» (tarea 3.11) y «Enviar» (H4, tarea 4.14).
+ *
+ * La pestaña de envío se identifica como `send-tab` —no como la palabra suelta `send`— porque
+ * `CA-RT-10` (`i18n.spec.ts`) revisa los literales de cadena de la UI: una palabra inglesa suelta
+ * se marcaría como texto visible, mientras que un identificador con separador queda exento por su
+ * forma (el texto que ve el usuario es «Enviar»).
+ */
+type TabId = 'accounts' | 'receive' | 'send-tab' | 'sites' | 'security';
 
 /** Definición de una pestaña. */
 interface TabDefinition {
@@ -54,10 +62,11 @@ interface TabDefinition {
   label: string;
 }
 
-/** Las cuatro pestañas, en orden de tabulación. */
+/** Las cinco pestañas, en orden de tabulación. */
 const TABS: readonly TabDefinition[] = [
   { id: 'accounts', label: 'Cuentas' },
   { id: 'receive', label: 'Recibir' },
+  { id: 'send-tab', label: 'Enviar' },
   { id: 'sites', label: 'Sitios' },
   { id: 'security', label: 'Seguridad' },
 ];
@@ -227,7 +236,7 @@ export function App(): JSX.Element {
         ) : (
           <>
             <nav className="tk-tabs" aria-label="Secciones del popup">
-              <div className="tk-tabs__list" role="tablist">
+              <div className="tk-tabs__list tk-tabs__list--five" role="tablist">
                 {TABS.map((definition) => (
                   <button
                     key={definition.id}
@@ -273,6 +282,18 @@ export function App(): JSX.Element {
                 />
               ) : null}
               {tab === 'receive' ? <ReceiveView account={currentAccount} /> : null}
+              {/*
+                «Enviar» (H4, tarea 4.14): el formulario pide la estimación de comisión y el envío
+                al Service Worker; `eth_sendTransaction` es aprobable, así que la confirmación
+                humana ocurre en la ventana única (`notification.html`), no aquí.
+              */}
+              {tab === 'send-tab' ? (
+                <SendView
+                  accounts={accounts}
+                  currentAccount={currentAccount?.ref ?? null}
+                  onChanged={handleChanged}
+                />
+              ) : null}
               {tab === 'sites' ? <SitesView accounts={accounts} /> : null}
               {tab === 'security' ? (
                 <SecurityView

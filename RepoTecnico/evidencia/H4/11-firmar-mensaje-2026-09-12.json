@@ -1,0 +1,9 @@
+﻿{
+    "spec":  "e2e/11-firmar-mensaje.spec.ts",
+    "flujo":  "personal_sign con texto UTF-8 legible (CA-RF-21)",
+    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
+    "resultado":  "FALLIDO · 1 test, 1 failed",
+    "causaRaiz":  "TimeoutError: browserContext.waitForEvent \"page\" (20 s): la extensión no abrió la ventana de confirmación porque no hay ruta de producción que encole personal_sign.",
+    "defecto":  "src/background/rpc/router.ts · src/background/rpc/catalog.ts:378-401 · src/background/approvals/queue.ts:409",
+    "artefacto":  "RepoTecnico/evidencia/H4/diagnostico-11-2026-09-12.png"
+}

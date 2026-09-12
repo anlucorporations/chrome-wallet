@@ -1,0 +1,248 @@
+﻿
+> truekeate-wallet@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.7 C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet
+
+ ✓ src/background/crypto/mnemonic.spec.ts (15 tests) 256ms
+ ✓ src/background/crypto/importPrivateKey.spec.ts (13 tests) 572ms
+   ✓ M61 · forma y rango de secp256k1 > normaliza a minúsculas y recorta los espacios de la entrada  351ms
+ ✓ src/background/crypto/integrity.spec.ts (18 tests) 706ms
+   ✓ M13 · direcciones persistidas corruptas (RNF-22) > una importada cuya clave privada no corresponde a su dirección se detecta  333ms
+ ✓ src/background/crypto/secretsExport.spec.ts (20 tests) 1114ms
+   ✓ M12 · exportación de una clave privada (CA-RF-50) > exporta la clave real de una cuenta derivada  571ms
+ ✓ src/popup/i18n.spec.ts (6 tests) 2081ms
+   ✓ CA-RT-10 · la UI real no tiene texto visible en inglés > src/popup, src/connect y src/notification: 0 coincidencias en texto visible  1865ms
+ ✓ src/background/crypto/derivation.spec.ts (17 tests) 2682ms
+   ✓ M9 · ruta de derivación `m/44'/60'/0'/0/i` > compone la ruta por índice y usa el prefijo vinculante  530ms
+   ✓ M9 · ruta de derivación `m/44'/60'/0'/0/i` > deriva las direcciones reales de la frase de Anvil  489ms
+   ✓ M9 · las 5 cuentas iniciales y la 6.ª (CA-RF-04) > deriva exactamente 5 cuentas con los índices 0..4 y sus rutas  312ms
+   ✓ M9 · las 5 cuentas iniciales y la 6.ª (CA-RF-04) > «Añadir cuenta» deriva la 6.ª con índice 5 sin tocar las anteriores  364ms
+ ✓ src/background/rpc/setCurrentAccount.spec.ts (4 tests) 153ms
+ ✓ src/background/crypto/revealHygiene.spec.ts (14 tests) 234ms
+ ✓ src/background/crypto/revealClipboard.spec.ts (14 tests) 37ms
+ ✓ src/background/security/importOrder.spec.ts (3 tests) 52ms
+ ✓ src/background/accounts.spec.ts (35 tests) 9091ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > crea la cartera con exactamente 5 cuentas, índices 0..4 y la 0 como activa  850ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > la frase generada es BIP-39 de 12 palabras y queda persistida normalizada  512ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > deja `encryptionEnabled` y `requirePasswordOnOpen` en `false` (P-03 / RE-02)  332ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > `importWalletFromMnemonic` normaliza espacios y mayúsculas y da la MISMA cuenta 0 (CA-RF-02)  336ms
+   ✓ M28 · «Añadir cuenta» deriva la 6.ª (CA-RF-04) > deriva el índice 5, lo persiste y amplía `derivedAccountCount`  474ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > guarda la etiqueta indicada (recortada y con espacios colapsados)  320ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > una clave repetida responde `-32602 duplicateAccount` sin escribir  346ms
+   ✓ M28 · etiquetas de las derivadas (DEC-35) > la etiqueta de una derivada persiste y se vuelve a leer con `listAccounts`  335ms
+   ✓ M28 · etiquetas de las derivadas (DEC-35) > una etiqueta vacía o demasiado larga no se acepta y no escribe  350ms
+ ✓ src/shared/qr.spec.ts (14 tests) 772ms
+ ✓ src/shared/naming.spec.ts (13 tests) 339ms
+ ✓ src/background/crypto/eip155.spec.ts (7 tests) 860ms
+   ✓ M11 · la transacción legada firmada lleva el chainId dentro (CA-RF-43) > se firma sin envoltorio 0x02, con v = chainId*2+35/36 y el hash correcto  503ms
+ ✓ src/background/crypto/typedData.spec.ts (11 tests) 1004ms
+   ✓ M11 · EIP-712: tipos, primaryType y digest (CA-RF-20) > el digest coincide con TypedDataEncoder.hash sobre los tipos SIN EIP712Domain  404ms
+ ✓ src/background/crypto/sign.spec.ts (19 tests) 1286ms
+   ✓ M11 · firma de transacciones EIP-1559 (CA-RF-42) > firma tipo 2 y el envoltorio serializado empieza por 0x02  540ms
+ ✓ src/background/rateLimit.spec.ts (10 tests) 399ms
+ ✓ src/background/crypto/personalSign.spec.ts (9 tests) 440ms
+ ✓ src/background/polling.spec.ts (6 tests) 360ms
+ ✓ src/background/crypto/eip1559.spec.ts (9 tests) 448ms
+node.exe : stderr | src/background/rpc/txContract.spec.ts > M7 · seguimiento del recibo: pending → confirmed / 
+reverted / failed > un consumidor de transiciones que falla no rompe el seguimiento
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/ba... el seguimiento:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[truekeate] el consumidor de transiciones de transacción falló Error: consumidor roto
+    at Object.onTransition 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:366:15)
+    at emit (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:535:15)
+    at followTransaction (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:544:3)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:362:29
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+
+stderr | src/background/rpc/txContract.spec.ts > M7 · seguimiento del recibo: pending → confirmed / reverted / failed 
+> un consumidor de transiciones que falla no rompe el seguimiento
+[truekeate] el consumidor de transiciones de transacción falló Error: consumidor roto
+    at Object.onTransition 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:366:15)
+    at emit (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:535:15)
+    at followTransaction (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:558:5)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:362:23
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/rpc/txContract.spec.ts (28 tests) 149ms
+stderr | src/background/approvals/windowQueue.spec.ts > M18 · una sola ventana y el contador de pendientes (CA-RF-35) 
+> la siguiente solicitud se RE-RENDERIZA en la MISMA ventana: nunca se abre una segunda
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:524:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/windowQueue.spec.ts > M18 · cerrar con la X equivale a rechazo 4001 (CA-RF-41) > 
+rechaza la solicitud mostrada, la purga de la cola y muestra la siguiente
+[truekeate] no se pudo entregar la respuesta a la pestaña 4 Error: Could not establish connection. Receiving end does 
+not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at deliverApprovalResolution 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:421:18)
+    at runWindowRemoved (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:677:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/windowQueue.spec.ts > M18 · cerrar con la X equivale a rechazo 4001 (CA-RF-41) > si 
+el plazo ya venció al cerrar, prevalece `expired` con el 4001 de vencimiento
+[truekeate] no se pudo entregar la respuesta a la pestaña 4 Error: Could not establish connection. Receiving end does 
+not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at deliverApprovalResolution 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:421:18)
+    at runWindowRemoved (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:677:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:363:26)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:27
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+
+ ✓ src/background/approvals/windowQueue.spec.ts (15 tests) 183ms
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at readRateWindows (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\rateLimit.ts:89:37)
+    at reconcileRateWindows 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\rateLimit.ts:229:25)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:427:29)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at appendLogEntries (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\queue.ts:929:26)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:478:27)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/approvals/approvalReconcile.spec.ts (14 tests) 221ms
+ ✓ src/inject/windowContract.spec.ts (10 tests) 269ms
+ ✓ src/background/messaging.spec.ts (29 tests) 184ms
+ ✓ src/background/approvals/queue.spec.ts (22 tests) 157ms
+ ✓ src/inject/inject.spec.ts (14 tests) 78ms
+stderr | src/background/state/state.spec.ts > M33 · persistencia y restauración (CA-RF-09 / CA-RF-10) > con el almacén 
+rechazando SIEMPRE la escritura, informa `false` tras exactamente 2 intentos
+[truekeate] no se pudo escribir en chrome.storage.local Error: QUOTA_BYTES quota exceeded
+    at Object.set (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\state.spec.ts:169:15)
+    at writeStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:224:21)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\state.spec.ts:173:12
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/state/state.spec.ts (27 tests) 132ms
+stderr | src/background/approvals/approvalTimeout.spec.ts > M15 · efecto del vencimiento: 4001, purga y traza 
+redactada > un fallo al refrescar la ventana NO impide el 4001 ni la purga
+[truekeate] no se pudo refrescar la ventana única tras el vencimiento Error: ventana rota
+    at refreshWindow 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalTimeout.spec.ts:336:15)
+    at expireApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\timeout.ts:421:27)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalTimeout.spec.ts:332:23
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/approvals/approvalTimeout.spec.ts (17 tests) 159ms
+stderr | src/background/approvals/windowRediscovery.spec.ts > M18 · re-descubrimiento por URL > la pasada REPARA el 
+`windowId` persistido y enfoca la ventana re-descubierta
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:543:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/windowRediscovery.spec.ts > M18 · re-descubrimiento por URL > una 
+`notification.html` abierta con `?query` NO provoca una SEGUNDA ventana
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:543:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ src/background/approvals/windowRediscovery.spec.ts (14 tests) 125ms
+stderr | src/background/state/reset.spec.ts > CA-RF-11 · instantánea inyectada y fallo de escritura > un fallo de la 
+limpieza de plataforma NO impide borrar el material sensible
+[truekeate] limpieza de plataforma incompleta en el reset Error: alarma rota
+    at cancelExpiryAlarms 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\reset.spec.ts:330:15)
+    at resetWallet (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:501:50)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\reset.spec.ts:325:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/state/reset.spec.ts (20 tests) 135ms
+ ✓ src/background/rpc/errors.spec.ts (16 tests) 84ms
+ ✓ src/shared/validation/validation.spec.ts (24 tests) 100ms
+ ✓ src/background/originFrame.spec.ts (11 tests) 96ms
+ ✓ src/background/sessions.spec.ts (13 tests) 85ms
+ ✓ src/background/approvals/payloadLimit.spec.ts (6 tests) 51ms
+ ✓ src/background/security/senderGuard.spec.ts (6 tests) 40ms
+ ✓ src/background/rpc/eip1193.spec.ts (13 tests) 70ms
+ ✓ src/background/rpc/rpcRetry.spec.ts (8 tests) 56ms
+ ✓ src/manifest/manifest.spec.ts (10 tests) 76ms
+
+ Test Files  40 passed (40)
+      Tests  574 passed (574)
+   Start at  21:27:22
+   Duration  37.24s (transform 13.44s, setup 7.24s, collect 60.47s, tests 25.34s, environment 85.73s, prepare 24.24s)
+

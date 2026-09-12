@@ -1,0 +1,9 @@
+﻿{
+    "spec":  "e2e/18-concurrencia.spec.ts",
+    "flujo":  "2 solicitudes simultáneas → EXACTAMENTE una ventana con contador 2 (CA-RF-35/CA-RF-37)",
+    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
+    "resultado":  "FALLIDO · 1 test, 1 failed",
+    "causaRaiz":  "\"la conexión A falló: Error 4001: Operación cancelada por el usuario.\" en el paso previo (conexión de la dApp en http://localhost:5174). No se llegaron a lanzar las 2 solicitudes.",
+    "defecto":  "Flujo de conexión de la dApp (mismo síntoma que e2e/09-conectar.spec.ts) · la ventana única y el contador SÍ están cubiertos en Vitest (windowQueue.spec.ts, 15 tests)",
+    "artefacto":  "RepoTecnico/evidencia/H4/diagnostico-18-2026-09-12.png"
+}

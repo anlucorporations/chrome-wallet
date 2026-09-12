@@ -1,0 +1,365 @@
+﻿
+> truekeate-wallet@1.0.0 coverage
+> vitest run --coverage
+
+
+ RUN  v3.2.7 C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet
+      Coverage enabled with v8
+
+ ✓ src/background/crypto/mnemonic.spec.ts (15 tests) 401ms
+ ✓ src/background/crypto/importPrivateKey.spec.ts (13 tests) 1003ms
+   ✓ M61 · forma y rango de secp256k1 > normaliza a minúsculas y recorta los espacios de la entrada  665ms
+ ✓ src/background/crypto/integrity.spec.ts (18 tests) 830ms
+   ✓ M13 · direcciones persistidas corruptas (RNF-22) > una importada cuya clave privada no corresponde a su dirección se detecta  383ms
+ ✓ src/background/crypto/secretsExport.spec.ts (20 tests) 1221ms
+   ✓ M12 · exportación de una clave privada (CA-RF-50) > exporta la clave real de una cuenta derivada  789ms
+ ✓ src/background/crypto/derivation.spec.ts (17 tests) 3637ms
+   ✓ M9 · ruta de derivación `m/44'/60'/0'/0/i` > compone la ruta por índice y usa el prefijo vinculante  717ms
+   ✓ M9 · ruta de derivación `m/44'/60'/0'/0/i` > deriva las direcciones reales de la frase de Anvil  644ms
+   ✓ M9 · ruta de derivación `m/44'/60'/0'/0/i` > deriva las direcciones reales del vector 1 de BIP-39  390ms
+   ✓ M9 · las 5 cuentas iniciales y la 6.ª (CA-RF-04) > «Añadir cuenta» deriva la 6.ª con índice 5 sin tocar las anteriores  413ms
+   ✓ M9 · contraste de integridad (M13) > reconoce la dirección derivada correcta y rechaza otra  408ms
+ ✓ src/popup/i18n.spec.ts (6 tests) 4569ms
+   ✓ CA-RT-10 · la regla detecta de verdad (control positivo) > un texto JSX en inglés se marca con su palabra, línea y columna  380ms
+   ✓ CA-RT-10 · la UI real no tiene texto visible en inglés > src/popup, src/connect y src/notification: 0 coincidencias en texto visible  4090ms
+ ✓ src/background/crypto/revealHygiene.spec.ts (14 tests) 221ms
+ ✓ src/background/rpc/setCurrentAccount.spec.ts (4 tests) 225ms
+ ✓ src/background/security/importOrder.spec.ts (3 tests) 87ms
+ ✓ src/background/crypto/revealClipboard.spec.ts (14 tests) 75ms
+ ✓ src/background/accounts.spec.ts (35 tests) 11438ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > crea la cartera con exactamente 5 cuentas, índices 0..4 y la 0 como activa  1312ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > la frase generada es BIP-39 de 12 palabras y queda persistida normalizada  316ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > deja `encryptionEnabled` y `requirePasswordOnOpen` en `false` (P-03 / RE-02)  435ms
+   ✓ M28 · crear cartera: 5 cuentas y sin contraseña (CA-RF-01 / CA-RF-03 / CA-RF-04) > `importWalletFromMnemonic` normaliza espacios y mayúsculas y da la MISMA cuenta 0 (CA-RF-02)  386ms
+   ✓ M28 · «Añadir cuenta» deriva la 6.ª (CA-RF-04) > deriva el índice 5, lo persiste y amplía `derivedAccountCount`  330ms
+   ✓ M28 · «Añadir cuenta» deriva la 6.ª (CA-RF-04) > las cinco primeras no cambian al añadir la sexta  656ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > añade la cuenta marcada como importada con etiqueta por defecto `Importada 1`  619ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > guarda la etiqueta indicada (recortada y con espacios colapsados)  309ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > una clave repetida responde `-32602 duplicateAccount` sin escribir  316ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > importar la clave de una cuenta YA DERIVADA también responde `-32602`  446ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > una clave fuera del rango de secp256k1 responde `-32602 invalidPrivateKey`  411ms
+   ✓ M28 · importar por clave privada (CA-RF-05) > la etiqueta de una importada persiste en `truekeate_imported_accounts` (CA-RF-05)  567ms
+   ✓ M28 · etiquetas de las derivadas (DEC-35) > la etiqueta de una derivada persiste y se vuelve a leer con `listAccounts`  443ms
+   ✓ M28 · visibilidad: se oculta, no se elimina (RF-06 / DEC-35) > ocultar una importada marca su campo `visible` sin borrarla  376ms
+   ✓ M28 · eliminar una importada con la guarda `-32000` (R-09a / DEC-45) > tras revocar la sesión, la baja elimina la entrada y su clave privada  310ms
+   ✓ M28 · eliminar una importada con la guarda `-32000` (R-09a / DEC-45) > al eliminar la cuenta activa, la activa pasa a `idx:0`  316ms
+   ✓ M28 · cuenta activa y referencias > `setCurrentAccount` acepta `idx`, `imp` y la forma heredada `"3"`  367ms
+   ✓ M28 · cuenta activa y referencias > `getCurrentAccountRef` cae a la primera cuenta si la guardada no existe  368ms
+   ✓ M28 · instantánea del popup > resume cuentas, activa, recuento y ajustes en una sola lectura  311ms
+   ✓ M28 · instantánea del popup > `addressForRef` resuelve derivadas e importadas y devuelve `null` si no existen  335ms
+ ✓ src/shared/qr.spec.ts (14 tests) 1015ms
+ ✓ src/background/crypto/eip155.spec.ts (7 tests) 753ms
+   ✓ M11 · la transacción legada firmada lleva el chainId dentro (CA-RF-43) > se firma sin envoltorio 0x02, con v = chainId*2+35/36 y el hash correcto  391ms
+ ✓ src/background/crypto/sign.spec.ts (19 tests) 1162ms
+   ✓ M11 · firma de transacciones EIP-1559 (CA-RF-42) > firma tipo 2 y el envoltorio serializado empieza por 0x02  613ms
+ ✓ src/background/crypto/eip1559.spec.ts (9 tests) 732ms
+   ✓ M11 · la transacción firmada SIEMPRE lleva comisiones > 0 (CA-RF-42) > con el nodo devolviendo 0 en ambas comisiones, la transacción firmada las deriva > 0  506ms
+ ✓ src/background/crypto/personalSign.spec.ts (9 tests) 791ms
+   ✓ M11 · prefijo EIP-191 de `personal_sign` (CA-RF-21) > un mensaje hexadecimal se interpreta como BYTES: «0x686f6c61» y «hola» dan la MISMA firma  498ms
+ ✓ src/background/crypto/typedData.spec.ts (11 tests) 1308ms
+   ✓ M11 · EIP-712: tipos, primaryType y digest (CA-RF-20) > el digest coincide con TypedDataEncoder.hash sobre los tipos SIN EIP712Domain  562ms
+ ✓ src/shared/naming.spec.ts (13 tests) 178ms
+ ✓ src/background/polling.spec.ts (6 tests) 362ms
+ ✓ src/inject/windowContract.spec.ts (10 tests) 259ms
+ ✓ src/background/rateLimit.spec.ts (10 tests) 722ms
+   ✓ M3/M4 · el bucket cubre TODO el catálogo desde el router (DEC-44 / ADT-24) > 100 `eth_getBalance` de una página: 6 responden y 94 reciben 4001 SIN tocar el nodo  337ms
+node.exe : stderr | src/background/approvals/windowQueue.spec.ts > M18 · una sola ventana y el contador de pendientes 
+(CA-RF-35) > la siguiente solicitud se RE-RENDERIZA en la MISMA ventana: nunca se abre una segunda
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/ba...bre una segunda:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:524:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:363:26)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:27
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at readRateWindows (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\rateLimit.ts:89:37)
+    at reconcileRateWindows 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\rateLimit.ts:229:25)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:427:29)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+stderr | src/background/approvals/windowQueue.spec.ts > M18 · cerrar con la X equivale a rechazo 4001 (CA-RF-41) > 
+rechaza la solicitud mostrada, la purga de la cola y muestra la siguiente
+[truekeate] no se pudo entregar la respuesta a la pestaña 4 Error: Could not establish connection. Receiving end does 
+not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at deliverApprovalResolution 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:421:18)
+    at runWindowRemoved (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:677:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/approvalReconcile.spec.ts > M16 · reconstrucción de la ventana única y de la tasa al 
+arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)
+[truekeate] no se pudo leer chrome.storage.local Error: almacén roto
+    at Object.get 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:482:33)
+    at readStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:203:27)
+    at appendLogEntries (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\queue.ts:929:26)
+    at reconcileApprovals 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\reconcile.ts:478:27)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalReconcile.spec.ts:487:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+stderr | src/background/approvals/windowQueue.spec.ts > M18 · cerrar con la X equivale a rechazo 4001 (CA-RF-41) > si 
+el plazo ya venció al cerrar, prevalece `expired` con el 4001 de vencimiento
+[truekeate] no se pudo entregar la respuesta a la pestaña 4 Error: Could not establish connection. Receiving end does 
+not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at deliverApprovalResolution 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:421:18)
+    at runWindowRemoved (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:677:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ src/background/approvals/windowQueue.spec.ts (15 tests) 755ms
+ ✓ src/background/approvals/approvalReconcile.spec.ts (14 tests) 712ms
+   ✓ M16 · reconstrucción de la ventana única y de la tasa al arrancar > un almacén que rechaza la LECTURA no aborta la reconciliación (se lee como vacío)  365ms
+ ✓ src/background/messaging.spec.ts (29 tests) 801ms
+stderr | src/background/state/reset.spec.ts > CA-RF-11 · instantánea inyectada y fallo de escritura > un fallo de la 
+limpieza de plataforma NO impide borrar el material sensible
+[truekeate] limpieza de plataforma incompleta en el reset Error: alarma rota
+    at cancelExpiryAlarms 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\reset.spec.ts:330:15)
+    at resetWallet (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:501:50)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\reset.spec.ts:325:21
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/state/reset.spec.ts (20 tests) 151ms
+ ✓ src/background/approvals/queue.spec.ts (22 tests) 176ms
+stderr | src/background/approvals/approvalTimeout.spec.ts > M15 · efecto del vencimiento: 4001, purga y traza 
+redactada > un fallo al refrescar la ventana NO impide el 4001 ni la purga
+[truekeate] no se pudo refrescar la ventana única tras el vencimiento Error: ventana rota
+    at refreshWindow 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalTimeout.spec.ts:336:15)
+    at expireApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\timeout.ts:421:27)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\approvalTimeout.spec.ts:332:23
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+stderr | src/background/rpc/txContract.spec.ts > M7 · seguimiento del recibo: pending → confirmed / reverted / failed 
+> un consumidor de transiciones que falla no rompe el seguimiento
+[truekeate] el consumidor de transiciones de transacción falló Error: consumidor roto
+    at Object.onTransition 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:366:15)
+    at emit (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:535:15)
+    at followTransaction (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:544:3)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:362:29
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest 
+(file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+
+stderr | src/background/rpc/txContract.spec.ts > M7 · seguimiento del recibo: pending → confirmed / reverted / failed 
+> un consumidor de transiciones que falla no rompe el seguimiento
+[truekeate] el consumidor de transiciones de transacción falló Error: consumidor roto
+    at Object.onTransition 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:366:15)
+    at emit (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:535:15)
+    at followTransaction (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.ts:558:5)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\rpc\txContract.spec.ts:362:23
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/rpc/txContract.spec.ts (28 tests) 280ms
+ ✓ src/background/approvals/approvalTimeout.spec.ts (17 tests) 298ms
+stderr | src/background/state/state.spec.ts > M33 · persistencia y restauración (CA-RF-09 / CA-RF-10) > con el almacén 
+rechazando SIEMPRE la escritura, informa `false` tras exactamente 2 intentos
+[truekeate] no se pudo escribir en chrome.storage.local Error: QUOTA_BYTES quota exceeded
+    at Object.set (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\state.spec.ts:169:15)
+    at writeStorage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\schema.ts:224:21)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\state\state.spec.ts:173:12
+    at 
+file:///C:/Users/lucci/MasterCodeCripto/GitLab/chrome-wallet/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ src/background/state/state.spec.ts (27 tests) 209ms
+ ✓ src/shared/validation/validation.spec.ts (24 tests) 106ms
+stderr | src/background/approvals/windowRediscovery.spec.ts > M18 · re-descubrimiento por URL > la pasada REPARA el 
+`windowId` persistido y enfoca la ventana re-descubierta
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:543:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/background/approvals/windowRediscovery.spec.ts > M18 · re-descubrimiento por URL > una 
+`notification.html` abierta con `?query` NO provoca una SEGUNDA ventana
+[truekeate] no se pudo empujar la solicitud a la ventana de decisión Error: Could not establish connection. Receiving 
+end does not exist.
+    at Object.sendMessage (C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\test\setup\chrome-stub.ts:782:31)
+    at pushApprovalRequest 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\ports.ts:314:16)
+    at runShowOldestPending 
+(C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\src\background\approvals\focus.ts:543:11)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ src/background/approvals/windowRediscovery.spec.ts (14 tests) 489ms
+ ✓ src/background/sessions.spec.ts (13 tests) 206ms
+ ✓ src/background/rpc/errors.spec.ts (16 tests) 209ms
+ ✓ src/manifest/manifest.spec.ts (10 tests) 79ms
+ ✓ src/inject/inject.spec.ts (14 tests) 126ms
+ ✓ src/background/rpc/eip1193.spec.ts (13 tests) 87ms
+ ✓ src/background/originFrame.spec.ts (11 tests) 171ms
+ ✓ src/background/rpc/rpcRetry.spec.ts (8 tests) 86ms
+ ✓ src/background/security/senderGuard.spec.ts (6 tests) 34ms
+ ✓ src/background/approvals/payloadLimit.spec.ts (6 tests) 44ms
+
+ Test Files  40 passed (40)
+      Tests  574 passed (574)
+   Start at  21:28:58
+   Duration  51.81s (transform 18.26s, setup 5.90s, collect 82.51s, tests 36.01s, environment 103.02s, prepare 25.00s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   50.47 |    80.86 |   73.26 |   50.47 |                   
+ src               |       0 |      100 |     100 |       0 |                   
+  background.ts    |       0 |      100 |     100 |       0 | 29-698            
+  ...ent-script.ts |       0 |      100 |     100 |       0 | 40-412            
+ src/background    |   62.21 |    82.75 |      62 |   62.21 |                   
+  accounts.ts      |   83.74 |    81.28 |   84.37 |   83.74 | ...54-864,877-886 
+  connections.ts   |    7.92 |      100 |       0 |    7.92 | ...48-553,575-599 
+  events.ts        |   79.51 |    67.85 |   66.66 |   79.51 | ...60,164-166,173 
+  sessions.ts      |   84.48 |    80.43 |   85.71 |   84.48 | ...23-324,342-343 
+  settings.ts      |   72.72 |    95.71 |   65.38 |   72.72 | ...91-399,403-412 
+ ...ound/approvals |   62.62 |     72.5 |   75.63 |   62.62 |                   
+  calldata.ts      |   36.52 |      100 |       0 |   36.52 | ...70-478,482-484 
+  focus.ts         |   84.88 |    78.41 |   95.65 |   84.88 | ...96-598,729-740 
+  ports.ts         |   46.25 |    27.58 |   41.17 |   46.25 | ...46-455,465-503 
+  preview.ts       |       0 |      100 |     100 |       0 | 31-696            
+  queue.ts         |   84.03 |    70.74 |   91.66 |   84.03 | ...13-914,937-939 
+  reconcile.ts     |   89.79 |    77.35 |     100 |   89.79 | ...40-441,488-491 
+  timeout.ts       |    91.6 |    77.52 |   95.83 |    91.6 | ...95-496,498,507 
+ ...kground/crypto |   93.38 |    85.93 |   96.72 |   93.38 |                   
+  hd.ts            |     100 |    96.42 |     100 |     100 | 72                
+  importAccount.ts |   85.71 |    84.61 |     100 |   85.71 | 46-47,62-63       
+  integrity.ts     |   93.86 |    92.72 |     100 |   93.86 | 81-82,132,170-176 
+  mnemonic.ts      |   96.61 |    86.66 |     100 |   96.61 | 62-63             
+  secrets.ts       |   95.67 |    80.76 |     100 |   95.67 | ...71,377-378,397 
+  sign.ts          |   90.83 |    83.96 |      92 |   90.83 | ...18,508,568-572 
+ ...round/networks |   24.76 |      100 |       0 |   24.76 |                   
+  catalog.ts       |   24.76 |      100 |       0 |   24.76 | ...55-178,182-184 
+ ...background/rpc |   78.83 |    84.14 |   61.04 |   78.83 |                   
+  catalog.ts       |   59.42 |    74.07 |   25.58 |   59.42 | ...1245,1271-1276 
+  client.ts        |   73.28 |    80.55 |   53.33 |   73.28 | ...57-259,263-268 
+  errors.ts        |   95.27 |    94.82 |    92.5 |   95.27 | ...39,578,586,590 
+  ...nalMethods.ts |     100 |      100 |     100 |     100 |                   
+  pageMethods.ts   |   56.03 |    38.46 |   18.75 |   56.03 | ...98-299,301-302 
+  rateLimit.ts     |   98.63 |    87.09 |     100 |   98.63 | 53-54             
+  router.ts        |   85.05 |    84.48 |   58.82 |   85.05 | ...07,346,434-445 
+  txContract.ts    |   91.56 |     85.4 |   82.14 |   91.56 | ...83-584,595,599 
+ ...round/security |   50.94 |    77.77 |   61.53 |   50.94 |                   
+  accessLevel.ts   |       0 |      100 |     100 |       0 | 15-78             
+  redaction.ts     |   36.61 |     37.5 |   38.46 |   36.61 | ...30,232-240,244 
+  senderGuard.ts   |   76.72 |    90.54 |   83.33 |   76.72 | ...85-311,323-324 
+ ...ckground/state |   91.68 |    78.01 |     100 |   91.68 |                   
+  migrations.ts    |   95.14 |    80.35 |     100 |   95.14 | ...23-224,321-322 
+  schema.ts        |   88.51 |    76.47 |     100 |   88.51 | ...48-449,453-454 
+ src/connect       |       0 |      100 |     100 |       0 |                   
+  App.tsx          |       0 |      100 |     100 |       0 | 34-490            
+  ConnectRow.tsx   |       0 |      100 |     100 |       0 | 20-81             
+  main.tsx         |       0 |      100 |     100 |       0 | 11-31             
+ src/inject        |    70.6 |    73.41 |   70.96 |    70.6 |                   
+  eip6963.ts       |   80.35 |       50 |      60 |   80.35 | ...5,59,85,99-105 
+  icon-data.ts     |     100 |      100 |     100 |     100 |                   
+  index.ts         |    47.2 |    54.54 |   44.44 |    47.2 | ...75,187-208,231 
+  provider.ts      |   84.66 |       80 |   88.23 |   84.66 | ...06,314,329-330 
+ src/notification  |       0 |      100 |     100 |       0 |                   
+  App.tsx          |       0 |      100 |     100 |       0 | 39-1219           
+  Notification.tsx |       0 |      100 |     100 |       0 | 9-47              
+  ...SignPanel.tsx |       0 |      100 |     100 |       0 | 19-87             
+  RiskWarnings.tsx |       0 |      100 |     100 |       0 | 49-116            
+  ...viewPanel.tsx |       0 |      100 |     100 |       0 | 23-187            
+  ...DataPanel.tsx |       0 |      100 |     100 |       0 | 21-212            
+  main.tsx         |       0 |      100 |     100 |       0 | 9-29              
+ src/popup         |   30.53 |    68.57 |    61.9 |   30.53 |                   
+  App.tsx          |       0 |      100 |     100 |       0 | 26-353            
+  main.tsx         |       0 |      100 |     100 |       0 | 6-26              
+  popupErrors.ts   |   87.07 |       75 |   42.85 |   87.07 | ...81-195,242,246 
+  ...imeChannel.ts |      60 |       40 |      50 |      60 | 34-35,38-39,42-43 
+  validation.ts    |       0 |      100 |     100 |       0 | 15-105            
+  walletRpc.ts     |   80.59 |    64.28 |    62.5 |   80.59 | ...37,145-147,151 
+  walletState.ts   |       0 |      100 |     100 |       0 | 24-330            
+ ...pup/components |       0 |      100 |     100 |       0 |                   
+  AccountCard.tsx  |       0 |      100 |     100 |       0 | 17-88             
+  ...untPicker.tsx |       0 |      100 |     100 |       0 | 16-103            
+  ...oDecision.tsx |       0 |      100 |     100 |       0 | 15-86             
+  Field.tsx        |       0 |      100 |     100 |       0 | 39-108            
+  QrCode.tsx       |       0 |      100 |     100 |       0 | 17-61             
+  ...usMessage.tsx |       0 |      100 |     100 |       0 | 23-41             
+ src/popup/hooks   |    85.9 |    78.37 |     100 |    85.9 |                   
+  ...ncePolling.ts |    85.9 |    78.37 |     100 |    85.9 | ...28,240-241,275 
+ src/popup/views   |       0 |      100 |     100 |       0 |                   
+  AccountsView.tsx |       0 |      100 |     100 |       0 | 21-408            
+  ReceiveView.tsx  |       0 |      100 |     100 |       0 | 13-89             
+  SecurityView.tsx |       0 |      100 |     100 |       0 | 33-576            
+  SendView.tsx     |       0 |      100 |     100 |       0 | 26-516            
+  SitesView.tsx    |       0 |      100 |     100 |       0 | 24-312            
+ src/shared        |   95.31 |    85.23 |   88.46 |   95.31 |                   
+  constants.ts     |   98.78 |       20 |     100 |   98.78 | 58                
+  format.ts        |   55.55 |       50 |      40 |   55.55 | 67-76,89-101,108  
+  protocol.ts      |     100 |      100 |     100 |     100 |                   
+  qr.ts            |   99.13 |    88.14 |     100 |   99.13 | 206-207,447-448   
+  types.ts         |       0 |        0 |       0 |       0 |                   
+ ...red/validation |   97.27 |    91.08 |     100 |   97.27 |                   
+  address.ts       |   95.12 |    89.47 |     100 |   95.12 | 59-60             
+  amount.ts        |   97.59 |    87.17 |     100 |   97.59 | 58-59             
+  mnemonic.ts      |     100 |    95.45 |     100 |     100 | 70                
+  privateKey.ts    |   95.55 |    95.23 |     100 |   95.55 | 60-61             
+-------------------|---------|----------|---------|---------|-------------------

@@ -259,3 +259,41 @@ export const SHORT_ELLIPSIS = '…' as const;
  */
 export const SECP256K1_N_HEX =
   '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141' as const;
+
+// ---------------------------------------------------------------------------
+// Ampliación de H4 (M7/M11/M19/M66): firma de transacciones y seguimiento del recibo
+// ---------------------------------------------------------------------------
+
+/**
+ * Tipo de transacción que produce SIEMPRE `eth_sendTransaction`: **EIP-1559 (tipo 2)**
+ * (`documento_tecnico.md` §3.4 regla 1, `CA-RF-42`). M11 (`crypto/sign.ts`) es el único que firma.
+ */
+export const TX_TYPE_EIP1559 = 2 as const;
+
+/**
+ * Tipo de transacción **legada** con protección de replay EIP-155 (`v = chainId*2+35/36`),
+ * que M11 también sabe firmar (tarea 4.9 / `eip155.spec.ts`).
+ */
+export const TX_TYPE_LEGACY = 0 as const;
+
+/**
+ * Mínimo de `maxPriorityFeePerGas` (1 gwei) con el que M11 sustituye un valor nulo o 0 del nodo:
+ * una transacción con prioridad 0 no es aceptada por la red y la deja inválida.
+ */
+export const MIN_MAX_PRIORITY_FEE_PER_GAS = 1_000_000_000n;
+
+/** Mínimo de `maxFeePerGas` (1 gwei) cuando el nodo no informa de `gasPrice` ni de comisión. */
+export const MIN_MAX_FEE_PER_GAS = 1_000_000_000n;
+
+/**
+ * Cadencia de consulta de `eth_getTransactionReceipt` del contrato observable de la transacción
+ * (M7, §3.6). No es un plazo de aprobación: el vencimiento de la ventana es de M15 con
+ * `chrome.alarms`; este es el sondeo del recibo tras difundir.
+ */
+export const TX_RECEIPT_POLL_MS = 1_000 as const;
+
+/** Plazo máximo de seguimiento del recibo antes de cerrar el ciclo como no confirmado (M7). */
+export const TX_RECEIPT_TIMEOUT_MS = 120_000 as const;
+
+/** Número máximo de sondeos del recibo (tope duro además del plazo, para no sondear sin fin). */
+export const TX_RECEIPT_MAX_POLLS = 120 as const;

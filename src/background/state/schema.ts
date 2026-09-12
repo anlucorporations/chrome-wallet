@@ -18,6 +18,7 @@
  */
 
 import type { Eip1193Error, LogEventName } from '../../shared/types';
+import { EXPIRE_ALARM_PREFIX } from '../../shared/constants';
 import { internalError, resetBlockedError } from '../rpc/errors';
 
 /**
@@ -307,9 +308,28 @@ export interface ResetGuardCheck {
 }
 
 /**
+ * Orden ESTRICTO de comprobación del reset (R-09b / DEC-46, §3.9 y §3.11): primero la cola, después
+ * la marca de transacción en vuelo, después la confirmación destructiva y, por último, la limpieza.
+ * Se expone como dato para que la UI (M46) y las pruebas no dependan de la prosa del corpus.
+ */
+export const RESET_GUARD_ORDER = [
+  'cola-vacia',
+  'sin-transaccion-en-vuelo',
+  'confirmacion-destructiva',
+  'limpieza',
+] as const;
+
+/** Paso del orden estricto del reset. */
+export type ResetGuardStep = (typeof RESET_GUARD_ORDER)[number];
+
+/**
  * Guardas de estado del reset, en el ORDEN estricto de §3.9: primero la cola y después la
  * marca de transacción en vuelo. El contador `<n>` del literal es el número de solicitudes
  * `pending` (el que la UI pinta).
+ *
+ * El error `-32000` lleva además `data: { pendingCount, inflightCount, step }` para que la UI
+ * muestre el número EXACTO de solicitudes que quedan sin tener que interpretar el texto, y para
+ * saber cuál de las dos guardas fue la que bloqueó.
  */
 export const checkResetGuards = (
   snapshot: StorageSnapshot,
@@ -318,7 +338,18 @@ export const checkResetGuards = (
   const pendingCount = countPendingRequests(snapshot[STORAGE_KEYS.pendingRequests]);
   const inflightCount = countActiveInflightTx(snapshot[STORAGE_KEYS.inflightTx], now);
   if (pendingCount > 0 || inflightCount > 0) {
-    return { canProceed: false, pendingCount, inflightCount, error: resetBlockedError(pendingCount) };
+    const blocked = resetBlockedError(pendingCount);
+    const step: ResetGuardStep =
+      pendingCount > 0 ? 'cola-vacia' : 'sin-transaccion-en-vuelo';
+    return {
+      canProceed: false,
+      pendingCount,
+      inflightCount,
+      error: {
+        ...blocked,
+        data: { pendingCount, inflightCount, step, reason: 'reset-guard' },
+      },
+    };
   }
   return { canProceed: true, pendingCount: 0, inflightCount: 0, error: null };
 };
@@ -366,6 +397,65 @@ export interface ResetWalletOptions extends ResetPlatformCleanup {
 }
 
 /**
+ * Limpieza de plataforma por defecto del paso 4 de §3.9: **cancelar las alarmas de vencimiento**
+ * (`truekeate_expire:*`, cuyo nombre fija M15 a partir de `EXPIRE_ALARM_PREFIX`) y **purgar el
+ * badge** derivado. Se implementa aquí, sin importar M15 ni M14, para no crear el ciclo
+ * `schema → approvals → schema`; la única fuente del prefijo sigue siendo `shared/constants.ts`.
+ *
+ * Nunca lanza: un fallo de plataforma no puede impedir borrar el material de la cartera.
+ */
+export const defaultResetCleanup = (): Required<ResetPlatformCleanup> => ({
+  cancelExpiryAlarms: async (): Promise<void> => {
+    const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
+    const alarms: unknown =
+      typeof chromeNs === 'object' && chromeNs !== null
+        ? (chromeNs as { alarms?: unknown }).alarms
+        : undefined;
+    const getAll: unknown =
+      typeof alarms === 'object' && alarms !== null
+        ? (alarms as { getAll?: unknown }).getAll
+        : undefined;
+    const clear: unknown =
+      typeof alarms === 'object' && alarms !== null
+        ? (alarms as { clear?: unknown }).clear
+        : undefined;
+    if (typeof getAll !== 'function' || typeof clear !== 'function') {
+      return;
+    }
+    try {
+      const all =
+        (await (getAll as () => Promise<readonly { name?: unknown }[]>).call(alarms)) ?? [];
+      for (const alarm of all) {
+        if (typeof alarm?.name === 'string' && alarm.name.startsWith(EXPIRE_ALARM_PREFIX)) {
+          await (clear as (name: string) => unknown).call(alarms, alarm.name);
+        }
+      }
+    } catch (error) {
+      console.warn('[truekeate] no se pudieron cancelar las alarmas de vencimiento', error);
+    }
+  },
+  clearBadge: async (): Promise<void> => {
+    const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
+    const action: unknown =
+      typeof chromeNs === 'object' && chromeNs !== null
+        ? (chromeNs as { action?: unknown }).action
+        : undefined;
+    const setBadgeText: unknown =
+      typeof action === 'object' && action !== null
+        ? (action as { setBadgeText?: unknown }).setBadgeText
+        : undefined;
+    if (typeof setBadgeText !== 'function') {
+      return;
+    }
+    try {
+      await (setBadgeText as (details: { text: string }) => unknown).call(action, { text: '' });
+    } catch (error) {
+      console.warn('[truekeate] no se pudo purgar el badge en el reset', error);
+    }
+  },
+});
+
+/**
  * Ejecuta el reset con el orden de comprobación **estricto** de §3.9:
  *
  * 1. cola `truekeate_pending_requests` sin entradas `pending` → si no, bloqueo `-32000`;
@@ -404,10 +494,12 @@ export const resetWallet = async (options: ResetWalletOptions): Promise<ResetWal
     return { ...base, status: 'cancelled', error: null };
   }
 
-  // 4. Limpieza: plataforma primero, almacén después.
+  // 4. Limpieza: plataforma primero (alarmas de vencimiento y badge), almacén después. El llamador
+  //    puede inyectar su propia limpieza; si no, se usa la de por defecto de §3.9 paso 4.
   try {
-    await options.cancelExpiryAlarms?.();
-    await options.clearBadge?.();
+    const cleanup = defaultResetCleanup();
+    await (options.cancelExpiryAlarms ?? cleanup.cancelExpiryAlarms)();
+    await (options.clearBadge ?? cleanup.clearBadge)();
   } catch (error) {
     // Un fallo de plataforma no impide borrar el material sensible.
     console.warn('[truekeate] limpieza de plataforma incompleta en el reset', error);

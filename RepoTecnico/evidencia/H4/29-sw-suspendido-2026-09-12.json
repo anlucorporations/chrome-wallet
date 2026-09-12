@@ -1,0 +1,9 @@
+﻿{
+    "spec":  "e2e/29-sw-suspendido.spec.ts",
+    "flujo":  "suspensión del SW por CDP a mitad de una aprobación → reconstrucción \u003c 1 s y 0 doble difusión (RNF-08)",
+    "comando":  "npm run test:e2e (TK_EVIDENCE_PHASE=H4)",
+    "resultado":  "FALLIDO · 1 test, 1 failed",
+    "causaRaiz":  "\"la conexión de la dApp falló: Error sin código: Sin respuesta en 5000 ms\" en el paso previo; no se llegó a suspender el SW. En la primera ejecución completa el fallo fue ECONNREFUSED 127.0.0.1:8545 porque 27-rpc-caido no pudo restaurar Anvil (defecto del arnés ya corregido en e2e/fixtures/extension.ts:arrancarAnvil).",
+    "defecto":  "Flujo de conexión de la dApp (fuera de mi alcance) · parte del oráculo (rearme de alarmas y cota \u003c 1 s) SÍ está cubierta en Vitest: approvalTimeout.spec.ts y approvalReconcile.spec.ts",
+    "artefacto":  "RepoTecnico/evidencia/H4/diagnostico-29-2026-09-12.png"
+}

@@ -6,13 +6,16 @@
  * «Código | Causa | Mensaje | Acción sugerida»). Este módulo NO inventa ningún
  * mensaje: transcribe esa tabla y la expone como 8 códigos con una función por causa.
  *
- * §4.3 tiene, desde la v1.9, **dos bloques** dentro de la misma sección:
+ * §4.3 tiene, desde la v1.10, **tres bloques** dentro de la misma sección:
  * - la tabla cerrada del núcleo (**25 filas**), que se transcribe fila a fila en
  *   {@link ERROR_CATALOG} —es la que verifica `errors.spec.ts`—;
  * - el bloque «Causas añadidas en la v1.9 (H2)» (**7 filas**), que se transcribe en
- *   {@link EXTENDED_ERROR_CATALOG}. Estas causas reutilizan códigos ya existentes (§4.3: «un
- *   mismo `code` admite varios mensajes, uno por causa»), así que el catálogo sigue teniendo
- *   **8 códigos**.
+ *   {@link EXTENDED_ERROR_CATALOG};
+ * - el bloque «Causas añadidas en la v1.10 (H4)» (**2 filas**: `inflightTxInProgress` y
+ *   `broadcastRejected`), que se transcribe en {@link H4_ERROR_CATALOG}.
+ *
+ * Todas las causas añadidas reutilizan códigos ya existentes (§4.3: «un mismo `code` admite
+ * varios mensajes, uno por causa»), así que el catálogo sigue teniendo **8 códigos**.
  *
  * Regla dura (ACU-05 / D-E, RNF-06): todo error que ve el usuario lleva `code` numérico.
  * Queda prohibido `new Error('Request timeout')` y cualquier error sin `code`.
@@ -259,13 +262,44 @@ export const EXTENDED_ERROR_CATALOG = [
 ] as const satisfies readonly ErrorDefinition[];
 
 /**
- * TODAS las causas registradas: primero el núcleo (que conserva el orden de la tabla de §4.3)
- * y después las añadidas en la v1.9. Las resoluciones por `cause` y por `code` usan esta lista,
- * de modo que el primer registro de cada código sigue siendo el del núcleo.
+ * Causas AÑADIDAS en la v1.10 de `diccionario_datos.md` §4.3 (bloque «Causas añadidas en la
+ * v1.10 (H4)»), en el MISMO orden que ese bloque. Las reportaron los equipos de H4 como huecos
+ * del catálogo: hasta ahora «difusión rechazada por el nodo» vivía en una constante local de
+ * `rpc/txContract.ts` y «transacción en vuelo» se clasificaba como `tooManyPendingRequests`
+ * (exceso de cardinalidad), que NO es su causa.
+ *
+ * Reutilizan códigos ya registrados, así que **no** añaden ningún código nuevo:
+ * - `-32000` (conflicto de estado): `inflightTxInProgress` (2.ª aprobación de la misma cuenta con
+ *   una marca `phase: 'signing'` vigente en `truekeate_inflight_tx`) y `broadcastRejected` (el
+ *   nodo rechaza una transacción ya firmada: `already known`, `replacement transaction
+ *   underpriced`, `intrinsic gas too low`, …).
+ */
+export const H4_ERROR_CATALOG = [
+  {
+    code: -32000,
+    cause: 'inflightTxInProgress',
+    message:
+      'Ya hay una transacción de esta cuenta en vuelo; espera a que se difunda antes de firmar otra.',
+    action: 'Esperar a que la transacción en vuelo se difunda y reintentar',
+  },
+  {
+    code: -32000,
+    cause: 'broadcastRejected',
+    message: 'La red rechazó la transacción: <motivo>.',
+    action: 'Revisar el motivo indicado y volver a intentarlo',
+  },
+] as const satisfies readonly ErrorDefinition[];
+
+/**
+ * TODAS las causas registradas: primero el núcleo (que conserva el orden de la tabla de §4.3),
+ * después las añadidas en la v1.9 (H2) y por último las de la v1.10 (H4). Las resoluciones por
+ * `cause` y por `code` usan esta lista, de modo que el primer registro de cada código sigue
+ * siendo el del núcleo.
  */
 export const ALL_ERROR_DEFINITIONS: readonly ErrorDefinition[] = [
   ...ERROR_CATALOG,
   ...EXTENDED_ERROR_CATALOG,
+  ...H4_ERROR_CATALOG,
 ];
 
 /** Códigos EIP-1193 del catálogo, sin repetición: son los 8 que usa la cartera. */
@@ -279,6 +313,26 @@ export type ErrorDefinitionFor<C extends Eip1193ErrorCause> = Extract<
   (typeof ALL_ERROR_DEFINITIONS)[number],
   { cause: C }
 >;
+
+/**
+ * Devuelve la fila del catálogo de una causa (fuente única de `code`, `message` y `action`).
+ *
+ * Es el punto de entrada para los módulos que necesitan el LITERAL sin construir el objeto de
+ * error (H4/M7 lo usa para `broadcastRejected` en `rpc/txContract.ts`, en vez de mantener una
+ * constante local que pudiera divergir de §4.3).
+ */
+export const errorDefinitionFor = <C extends Eip1193ErrorCause>(cause: C): ErrorDefinitionFor<C> => {
+  const row = ALL_ERROR_DEFINITIONS.find((definition) => definition.cause === (cause as string));
+  if (row === undefined) {
+    // No puede ocurrir por tipos; el respaldo es el error interno del núcleo.
+    const fallback = ERROR_CATALOG.find((definition) => definition.cause === 'internalError');
+    if (fallback === undefined) {
+      throw new Error('[truekeate] el catálogo de errores no tiene la fila `internalError`');
+    }
+    return fallback as ErrorDefinitionFor<C>;
+  }
+  return row as ErrorDefinitionFor<C>;
+};
 
 /** Códigos únicos, en orden de aparición. */
 export const ERROR_CODES: readonly number[] = [...new Set(ERROR_CATALOG.map((row) => row.code))];
@@ -444,8 +498,15 @@ export const methodNotAllowedInContextError = (): Eip1193Error =>
 export const rpcUnavailableError = (data?: unknown): Eip1193Error =>
   createEip1193Error('rpcUnavailable', {}, data);
 
-/** `4901` — `chainId` no dado de alta. */
-export const chainNotRegisteredError = (): Eip1193Error => createEip1193Error('chainNotRegistered');
+/**
+ * `4901` — `chainId` no dado de alta **o distinto del activo**.
+ *
+ * `data` es solo diagnóstico (H4/M11: `{ reason: 'chain-id-mismatch', requested, active }`): el
+ * mensaje y la acción siguen siendo los ÚNICOS de §4.3, porque un `chainId` que no es el activo es
+ * exactamente «una red que no está dada de alta» para esta cartera.
+ */
+export const chainNotRegisteredError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('chainNotRegistered', {}, data);
 
 /** `-32602` — mnemonic inválido (número de palabras o checksum BIP-39). */
 export const invalidMnemonicError = (): Eip1193Error => createEip1193Error('invalidMnemonic');
@@ -527,3 +588,28 @@ export const clipboardFailureError = (data?: unknown): Eip1193Error =>
 /** `-32603` — la migración de esquema no se pudo escribir (M34 / §4.3). */
 export const migrationWriteFailedError = (data?: unknown): Eip1193Error =>
   createEip1193Error('migrationWriteFailed', {}, data);
+
+// ---------------------------------------------------------------------------
+// Helpers de las causas añadidas en la v1.10 de §4.3 (bloque «Causas añadidas en H4»)
+// ---------------------------------------------------------------------------
+
+/**
+ * `-32000` — la cuenta ya tiene una transacción EN VUELO y en fase `signing` (§2.12 regla 5).
+ *
+ * Sustituye a la clasificación anterior (`tooManyPendingRequests`, `4001`), que describía un
+ * exceso de cardinalidad y no el conflicto real: la 2.ª aprobación de la misma cuenta no puede
+ * firmar hasta que se libere la marca de `truekeate_inflight_tx`. `data` es solo diagnóstico
+ * (`{ reason: 'inflight-signing', account, approvalId }`).
+ */
+export const inflightTxInProgressError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('inflightTxInProgress', {}, data);
+
+/**
+ * `-32000` — el nodo RECHAZÓ una transacción ya firmada (`eth_sendRawTransaction`), con un motivo
+ * accionable distinto del nonce inválido y de la difusión interrumpida. El `data` conserva la
+ * causa y el motivo, como hacía la constante local de M7 que esta función reemplaza.
+ */
+export const broadcastRejectedError = (
+  motivo: string,
+  data: unknown = { cause: 'broadcastRejected', motivo },
+): Eip1193Error => createEip1193Error('broadcastRejected', { motivo }, data);
