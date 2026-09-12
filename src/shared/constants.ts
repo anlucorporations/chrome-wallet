@@ -37,6 +37,24 @@ export const DEFAULT_CHAIN_DECIMALS = 18 as const;
 export const DEFAULT_CHAIN_IS_TESTNET = true as const;
 
 /**
+ * Advertencia exigida por **RNF-23** para una red que NO es de pruebas (tarea 5.3 de
+ * `plan_desarrollo.md` §3.5.5). El Service Worker publica el dato en `NetworkPreview.warning` para
+ * que la ventana de confirmación (M50) y la vista de redes (M43) la muestren; el texto vive aquí
+ * porque el hecho que la dispara (`isTestnet`) lo resuelve M23.
+ */
+export const NON_TESTNET_WARNING: string =
+  'Atención: no es una red de pruebas. Las operaciones se firman contra una red real y pueden ' +
+  'comprometer fondos reales.';
+
+/**
+ * Aviso explícito de que un alta **no** activa la red (`ADT-25`/`P-22`), que la ventana de
+ * confirmación del alta muestra junto a los datos de la red (§2.6/§3.5).
+ */
+export const ADD_CHAIN_ACTIVATION_NOTE: string =
+  'La red se añadirá a la lista, pero seguirás en la red actual: para usarla tendrás que ' +
+  'cambiarla con una solicitud aparte.';
+
+/**
  * Frase BIP-39 de Anvil. Es SOLO una pista de desarrollo (RF-12): nunca se persiste
  * como cartera del usuario ni se escribe en `truekeate_logs`.
  */

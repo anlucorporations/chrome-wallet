@@ -1,28 +1,28 @@
-/**
- * M14 — `src/background/approvals/queue.ts`
- * Cola persistida de solicitudes de aprobación: `truekeate_pending_requests` como
- * **`Record<approvalId, PendingRequest>`** (H4, tareas 4.1, 4.6 y 4.8 de `plan_desarrollo.md` §3.4.5).
+﻿/**
+ * M14 â€” `src/background/approvals/queue.ts`
+ * Cola persistida de solicitudes de aprobaciÃ³n: `truekeate_pending_requests` como
+ * **`Record<approvalId, PendingRequest>`** (H4, tareas 4.1, 4.6 y 4.8 de `plan_desarrollo.md` Â§3.4.5).
  *
  * FUENTE NORMATIVA
- * - `diccionario_datos.md` §2.8 (forma de la cola, reglas de escritura H-08, cardinalidad H-18 y
- *   ventana única P-21), §2.12 (`truekeate_inflight_tx`) y §2.13 (`truekeate_rate_windows`).
- * - `documento_tecnico.md` §2.3 (invariantes MV3: correlación persistida, escritura serializada,
- *   dueño único del plazo, cardinalidad y tasa) y §3.1 (flujo de aprobación).
- * - `documento_tecnico.md` §3.9 y `diccionario_datos.md` §3.9 (cota de 64 KiB, ADT-21 / D-L).
+ * - `diccionario_datos.md` Â§2.8 (forma de la cola, reglas de escritura H-08, cardinalidad H-18 y
+ *   ventana Ãºnica P-21), Â§2.12 (`truekeate_inflight_tx`) y Â§2.13 (`truekeate_rate_windows`).
+ * - `documento_tecnico.md` Â§2.3 (invariantes MV3: correlaciÃ³n persistida, escritura serializada,
+ *   dueÃ±o Ãºnico del plazo, cardinalidad y tasa) y Â§3.1 (flujo de aprobaciÃ³n).
+ * - `documento_tecnico.md` Â§3.9 y `diccionario_datos.md` Â§3.9 (cota de 64 KiB, ADT-21 / D-L).
  *
- * REGLAS QUE ESTE MÓDULO HACE CUMPLIR
- * 1. **RMW serializado (`rmwLock`)**: toda mutación pasa por {@link withRmwLock}, una promesa
- *    encadenada; dos solicitudes simultáneas **coexisten** sin sobrescribirse (`CA-RF-37`). Nunca
- *    se escriben subclaves: se escribe la clave COMPLETA (`get` → mutar copia → `set`).
- * 2. **Único escritor**: solo el Service Worker escribe la cola; los demás contextos leen por
+ * REGLAS QUE ESTE MÃ“DULO HACE CUMPLIR
+ * 1. **RMW serializado (`rmwLock`)**: toda mutaciÃ³n pasa por {@link withRmwLock}, una promesa
+ *    encadenada; dos solicitudes simultÃ¡neas **coexisten** sin sobrescribirse (`CA-RF-37`). Nunca
+ *    se escriben subclaves: se escribe la clave COMPLETA (`get` â†’ mutar copia â†’ `set`).
+ * 2. **Ãšnico escritor**: solo el Service Worker escribe la cola; los demÃ¡s contextos leen por
  *    mensaje o por el puerto (M17).
  * 3. **Cardinalidad** (`truekeate_settings`: 8 globales / 1 por origen / 6 por minuto). Al exceder
  *    se responde `4001` **inmediato, sin persistir, sin abrir ventana y sin contar para el badge**.
- * 4. **Cota de payload**: `params` > `MAX_PAYLOAD_BYTES` (64 KiB) → `-32602` **sin persistir**.
- * 5. **Serialización por cuenta**: la marca persistida `truekeate_inflight_tx` garantiza «máximo 1
- *    transacción en vuelo por `from`»: `phase: 'signing'` bloquea la cuenta y `'broadcast'` la
- *    libera (`diccionario_datos.md` §2.12).
- * 6. **Cero temporizadores**: el plazo lo posee M15 (`chrome.alarms`); aquí no hay `setTimeout` ni
+ * 4. **Cota de payload**: `params` > `MAX_PAYLOAD_BYTES` (64 KiB) â†’ `-32602` **sin persistir**.
+ * 5. **SerializaciÃ³n por cuenta**: la marca persistida `truekeate_inflight_tx` garantiza Â«mÃ¡ximo 1
+ *    transacciÃ³n en vuelo por `from`Â»: `phase: 'signing'` bloquea la cuenta y `'broadcast'` la
+ *    libera (`diccionario_datos.md` Â§2.12).
+ * 6. **Cero temporizadores**: el plazo lo posee M15 (`chrome.alarms`); aquÃ­ no hay `setTimeout` ni
  *    `setInterval` (prohibidos en un Service Worker MV3).
  */
 
@@ -34,10 +34,6 @@ import type {
   Eip1193Error,
   InflightTx,
   InflightTxByAccount,
-  LogCategory,
-  LogEntry,
-  LogEventName,
-  LogLevel,
   PendingRequest,
   PendingRequestsMap,
   PersonalSignPreview,
@@ -52,7 +48,6 @@ import {
   INFLIGHT_TTL_MS,
   MAX_PAYLOAD_BYTES,
   SIGN_TIMEOUT_MS,
-  logLimit,
   pendingRequestsMax,
   pendingRequestsMaxPerOrigin,
   pendingRequestsPerMinute,
@@ -68,8 +63,8 @@ import {
 import { normalizeRateWindow, readRateWindowsFromSnapshot } from '../rpc/rateLimit';
 import { measurePayloadBytes } from '../security/redaction';
 import { normalizeOrigin } from '../security/senderGuard';
-// `decisions.ts` solo CONSUME el tipo `ResolvedRequest` de este módulo (`import type`), de modo que
-// la dirección real de la dependencia es cola → decisions y no hay ciclo en tiempo de ejecución.
+// `decisions.ts` solo CONSUME el tipo `ResolvedRequest` de este mÃ³dulo (`import type`), de modo que
+// la direcciÃ³n real de la dependencia es cola â†’ decisions y no hay ciclo en tiempo de ejecuciÃ³n.
 import { settleApprovalDecision } from './decisions';
 import {
   STORAGE_KEYS,
@@ -83,14 +78,14 @@ import {
 // Cerrojo de escritura serializada (rmwLock, H-08)
 // ---------------------------------------------------------------------------
 
-/** Cerrojo FIFO: encadena las tareas de lectura-modificación-escritura. */
+/** Cerrojo FIFO: encadena las tareas de lectura-modificaciÃ³n-escritura. */
 export interface SerialLock {
   /**
    * Ejecuta `task` cuando todas las tareas anteriores hayan terminado. La promesa devuelta
    * resuelve o rechaza con el resultado de `task`; un fallo NO rompe la cadena.
    */
   run<T>(task: () => Promise<T>): Promise<T>;
-  /** Tareas encadenadas pendientes de terminar (diagnóstico y pruebas). */
+  /** Tareas encadenadas pendientes de terminar (diagnÃ³stico y pruebas). */
   depth(): number;
 }
 
@@ -117,23 +112,23 @@ export const createSerialLock = (): SerialLock => {
 };
 
 /**
- * `rmwLock` (estado VOLÁTIL admisible, reconstruible): es el cerrojo que serializa TODA mutación
- * de `truekeate_pending_requests` y de sus claves hermanas (§2.13). No es fuente de verdad.
+ * `rmwLock` (estado VOLÃTIL admisible, reconstruible): es el cerrojo que serializa TODA mutaciÃ³n
+ * de `truekeate_pending_requests` y de sus claves hermanas (Â§2.13). No es fuente de verdad.
  */
 export const rmwLock: SerialLock = createSerialLock();
 
-/** Ejecuta `task` bajo el `rmwLock`. Todo RMW de la cola pasa por aquí. */
+/** Ejecuta `task` bajo el `rmwLock`. Todo RMW de la cola pasa por aquÃ­. */
 export const withRmwLock = <T>(task: () => Promise<T>): Promise<T> => rmwLock.run(task);
 
 // ---------------------------------------------------------------------------
 // Identificadores y utilidades
 // ---------------------------------------------------------------------------
 
-/** ¿Es un objeto plano utilizable como mapa persistido? */
+/** Â¿Es un objeto plano utilizable como mapa persistido? */
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** Genera un `approvalId` (uuid v4) único en el espacio global de identificadores. */
+/** Genera un `approvalId` (uuid v4) Ãºnico en el espacio global de identificadores. */
 export const newApprovalId = (): Uuid => {
   const cryptoApi: unknown = (globalThis as { crypto?: unknown }).crypto;
   if (typeof cryptoApi === 'object' && cryptoApi !== null) {
@@ -145,11 +140,11 @@ export const newApprovalId = (): Uuid => {
   return `approval-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
-/** Plazo aplicable a un método aprobable de la cola: firma/aprobación = 120 s (RF-40, H-07). */
+/** Plazo aplicable a un mÃ©todo aprobable de la cola: firma/aprobaciÃ³n = 120 s (RF-40, H-07). */
 export const timeoutMsForMethod = (_method: ApprovalMethod): number => SIGN_TIMEOUT_MS;
 
 // ---------------------------------------------------------------------------
-// Proyección de `truekeate_pending_requests`
+// ProyecciÃ³n de `truekeate_pending_requests`
 // ---------------------------------------------------------------------------
 
 /** Proyecta una entrada persistida; `null` si no es utilizable (no se inventan campos). */
@@ -168,7 +163,7 @@ export const asPendingRequest = (approvalId: string, value: unknown): PendingReq
     account: (typeof value.account === 'string' ? value.account : '0x') as Address,
     chainId: (typeof value.chainId === 'string' ? value.chainId : '0x0') as ChainIdHex,
     createdAt: typeof value.createdAt === 'number' ? value.createdAt : 0,
-    // `expiresAt` se conserva TAL CUAL si no es numérico: una entrada sin plazo utilizable no se
+    // `expiresAt` se conserva TAL CUAL si no es numÃ©rico: una entrada sin plazo utilizable no se
     // declara vencida (nunca se pierde una solicitud por un campo ausente).
     expiresAt: typeof value.expiresAt === 'number' ? value.expiresAt : Number.NaN,
     status:
@@ -189,14 +184,14 @@ export const asPendingRequest = (approvalId: string, value: unknown): PendingReq
   if (typeof value.errorCode === 'number') {
     request.errorCode = value.errorCode;
   }
-  // Correlación del salto 1 (D-H4-E10): se conserva tal cual llegó, sin inventarla.
+  // CorrelaciÃ³n del salto 1 (D-H4-E10): se conserva tal cual llegÃ³, sin inventarla.
   if (typeof value.requestId === 'string' && value.requestId.length > 0) {
     request.requestId = value.requestId;
   }
   return request;
 };
 
-/** Proyecta el mapa COMPLETO desde una instantánea del almacén (función pura). */
+/** Proyecta el mapa COMPLETO desde una instantÃ¡nea del almacÃ©n (funciÃ³n pura). */
 export const readPendingRequestsFromSnapshot = (snapshot: StorageSnapshot): PendingRequestsMap => {
   const raw: unknown = snapshot[STORAGE_KEYS.pendingRequests];
   if (!isRecord(raw)) {
@@ -212,31 +207,31 @@ export const readPendingRequestsFromSnapshot = (snapshot: StorageSnapshot): Pend
   return map;
 };
 
-/** Lee `truekeate_pending_requests` del almacén. */
+/** Lee `truekeate_pending_requests` del almacÃ©n. */
 export const readPendingRequests = async (
   storage: StorageLocalLike | null | undefined = undefined,
 ): Promise<PendingRequestsMap> =>
   readPendingRequestsFromSnapshot(await readStorage([STORAGE_KEYS.pendingRequests], storage));
 
-/** ¿La entrada está `pending`? Es el ÚNICO estado que ocupa la cola (§2.8). */
+/** Â¿La entrada estÃ¡ `pending`? Es el ÃšNICO estado que ocupa la cola (Â§2.8). */
 export const isPending = (request: PendingRequest | null | undefined): boolean =>
   request !== null && request !== undefined && request.status === 'pending';
 
 /**
- * ¿Venció la entrada? Solo un `expiresAt` NUMÉRICO en el pasado la declara vencida: una entrada
- * sin plazo utilizable nunca se considera vencida por esta vía.
+ * Â¿VenciÃ³ la entrada? Solo un `expiresAt` NUMÃ‰RICO en el pasado la declara vencida: una entrada
+ * sin plazo utilizable nunca se considera vencida por esta vÃ­a.
  */
 export const isExpired = (request: PendingRequest, now: number = Date.now()): boolean =>
   Number.isFinite(request.expiresAt) && request.expiresAt <= now;
 
 /**
- * Índice DERIVADO de la cola: número de entradas `pending` (mismo valor que alimenta el badge y
- * el contador «N en espera» de la ventana única, §2.8). No es un campo persistido.
+ * Ãndice DERIVADO de la cola: nÃºmero de entradas `pending` (mismo valor que alimenta el badge y
+ * el contador Â«N en esperaÂ» de la ventana Ãºnica, Â§2.8). No es un campo persistido.
  */
 export const pendingCount = (map: PendingRequestsMap): number =>
   Object.values(map).filter((request) => request.status === 'pending').length;
 
-/** Entradas `pending` de un origen (clave canónica normalizada). */
+/** Entradas `pending` de un origen (clave canÃ³nica normalizada). */
 export const pendingForOrigin = (map: PendingRequestsMap, origin: string): PendingRequest[] => {
   const key = normalizeOrigin(origin) ?? origin;
   return Object.values(map).filter(
@@ -245,7 +240,7 @@ export const pendingForOrigin = (map: PendingRequestsMap, origin: string): Pendi
 };
 
 /**
- * Selección FIFO de la ventana única: la `pending` con `createdAt` más antiguo (empate por
+ * SelecciÃ³n FIFO de la ventana Ãºnica: la `pending` con `createdAt` mÃ¡s antiguo (empate por
  * `approvalId` ascendente, para que el orden sea determinista). `null` si no queda ninguna.
  */
 export const oldestPending = (map: PendingRequestsMap): PendingRequest | null => {
@@ -259,7 +254,7 @@ export const oldestPending = (map: PendingRequestsMap): PendingRequest | null =>
   )[0] ?? null;
 };
 
-/** Lee una entrada concreta; `null` si no existe o si ya no está `pending`. */
+/** Lee una entrada concreta; `null` si no existe o si ya no estÃ¡ `pending`. */
 export const readPendingRequest = async (
   approvalId: Uuid,
   options: { storage?: StorageLocalLike | null; now?: number } = {},
@@ -283,18 +278,18 @@ export const readPendingRequest = async (
 export interface QueuePurgePlan {
   /** Mapa resultante (solo entradas `pending`). */
   map: PendingRequestsMap;
-  /** Entradas `pending` con el plazo vencido: son las HUÉRFANAS que reciben `4001`. */
+  /** Entradas `pending` con el plazo vencido: son las HUÃ‰RFANAS que reciben `4001`. */
   expired: PendingRequest[];
-  /** Entradas ya resueltas (`status !== 'pending'`): se retiran sin más trámite. */
+  /** Entradas ya resueltas (`status !== 'pending'`): se retiran sin mÃ¡s trÃ¡mite. */
   resolved: PendingRequest[];
-  /** `true` cuando el mapa difiere del leído (hay que reescribirlo). */
+  /** `true` cuando el mapa difiere del leÃ­do (hay que reescribirlo). */
   changed: boolean;
 }
 
 /**
- * Plan de purga de `diccionario_datos.md` §2.8 regla 3: se eliminan las entradas con
- * `status !== 'pending'` y las `pending` con `expiresAt <= now` (estas últimas se devuelven en
- * `expired` para entregarles `4001`). Es una función PURA: no toca el almacén.
+ * Plan de purga de `diccionario_datos.md` Â§2.8 regla 3: se eliminan las entradas con
+ * `status !== 'pending'` y las `pending` con `expiresAt <= now` (estas Ãºltimas se devuelven en
+ * `expired` para entregarles `4001`). Es una funciÃ³n PURA: no toca el almacÃ©n.
  */
 export const planQueuePurge = (map: PendingRequestsMap, now: number): QueuePurgePlan => {
   const next: PendingRequestsMap = {};
@@ -317,8 +312,8 @@ export const planQueuePurge = (map: PendingRequestsMap, now: number): QueuePurge
 };
 
 /**
- * Aplica el plan de purga al almacén bajo el `rmwLock`. Devuelve el mapa resultante y las
- * huérfanas detectadas (el llamador —M16 o M15— es quien entrega su `4001`).
+ * Aplica el plan de purga al almacÃ©n bajo el `rmwLock`. Devuelve el mapa resultante y las
+ * huÃ©rfanas detectadas (el llamador â€”M16 o M15â€” es quien entrega su `4001`).
  */
 export const purgePendingRequests = async (
   options: { now?: number; storage?: StorageLocalLike | null } = {},
@@ -348,19 +343,19 @@ export const purgePendingRequests = async (
 /** Solicitud tal y como la propone el llamador (M19/M3): sin estado ni marcas de tiempo. */
 export interface PendingRequestDraft {
   method: ApprovalMethod;
-  /** Parámetros ORIGINALES de la llamada: es el payload de firma (§2.8). */
+  /** ParÃ¡metros ORIGINALES de la llamada: es el payload de firma (Â§2.8). */
   params: unknown[];
   /** Origen normalizado de la dApp, o `extension` si nace en el popup. */
   origin: string;
-  /** `null` si la solicitud nace en un contexto de la extensión. */
+  /** `null` si la solicitud nace en un contexto de la extensiÃ³n. */
   tabId?: number | null;
   frameId?: number | null;
   account: Address;
   chainId: ChainIdHex;
   /**
-   * `id` de correlación del salto 1 (`TRUEKEATE_REQUEST.id` de la página), cuando la solicitud
-   * llegó por el relay. Se persiste con la entrada para que la resolución empujada (H-07,
-   * D-H4-E10) llegue a la promesa correcta de la dApp incluso después de una suspensión del SW.
+   * `id` de correlaciÃ³n del salto 1 (`TRUEKEATE_REQUEST.id` de la pÃ¡gina), cuando la solicitud
+   * llegÃ³ por el relay. Se persiste con la entrada para que la resoluciÃ³n empujada (H-07,
+   * D-H4-E10) llegue a la promesa correcta de la dApp incluso despuÃ©s de una suspensiÃ³n del SW.
    */
   requestId?: string;
   txPreview?: TxPreview;
@@ -375,7 +370,7 @@ export interface EnqueueOptions {
   /** Reloj inyectable: `createdAt` y `expiresAt` se anclan a este instante. */
   now?: number;
   storage?: StorageLocalLike | null;
-  /** Identificador explícito (pruebas); por defecto, uuid v4 nuevo. */
+  /** Identificador explÃ­cito (pruebas); por defecto, uuid v4 nuevo. */
   approvalId?: Uuid;
   /** Cotas: por defecto las de `truekeate_settings` (8 / 1 / 6). */
   maxPending?: number;
@@ -389,15 +384,15 @@ export interface EnqueueOptions {
 export interface EnqueueAccepted {
   ok: true;
   request: PendingRequest;
-  /** Índice derivado tras el alta (badge y contador «N en espera»). */
+  /** Ãndice derivado tras el alta (badge y contador Â«N en esperaÂ»). */
   pendingCount: number;
-  /** Huérfanas retiradas en la misma pasada (el llamador les entrega `4001`). */
+  /** HuÃ©rfanas retiradas en la misma pasada (el llamador les entrega `4001`). */
   purgedExpired: PendingRequest[];
-  /** `true` cuando esta entrada es la que debe mostrar la ventana única (FIFO). */
+  /** `true` cuando esta entrada es la que debe mostrar la ventana Ãºnica (FIFO). */
   shouldShow: boolean;
 }
 
-/** Alta rechazada: SIEMPRE con `code` numérico y SIN haber persistido nada. */
+/** Alta rechazada: SIEMPRE con `code` numÃ©rico y SIN haber persistido nada. */
 export interface EnqueueRejected {
   ok: false;
   error: Eip1193Error;
@@ -407,13 +402,13 @@ export interface EnqueueRejected {
 export type EnqueueResult = EnqueueAccepted | EnqueueRejected;
 
 /**
- * Da de alta una solicitud en `truekeate_pending_requests` con el orden EXACTO de §2.8:
+ * Da de alta una solicitud en `truekeate_pending_requests` con el orden EXACTO de Â§2.8:
  *
- *   0. cota de payload (`params` > `MAX_PAYLOAD_BYTES` → `-32602`, sin persistir y sin ventana);
- *   1. duplicado de identificador → `-32603`;
- *   2. cardinalidad global (8) → `4001`;
- *   3. cardinalidad por origen (1) → `4001`;
- *   4. ventana de 6 solicitudes / 60 s por origen → `4001`;
+ *   0. cota de payload (`params` > `MAX_PAYLOAD_BYTES` â†’ `-32602`, sin persistir y sin ventana);
+ *   1. duplicado de identificador â†’ `-32603`;
+ *   2. cardinalidad global (8) â†’ `4001`;
+ *   3. cardinalidad por origen (1) â†’ `4001`;
+ *   4. ventana de 6 solicitudes / 60 s por origen â†’ `4001`;
  *   5. escritura de la cola y de la ventana de tasa en el MISMO `set` (RMW serializado).
  *
  * `expiresAt = createdAt + SIGN_TIMEOUT_MS`, **anclado a `createdAt`** (H-07): el plazo NO se
@@ -435,7 +430,7 @@ export const enqueueApprovalRequest = async (
     };
   }
 
-  // Origen canónico: los contextos de la extensión (popup) usan la clave `extension`.
+  // Origen canÃ³nico: los contextos de la extensiÃ³n (popup) usan la clave `extension`.
   const resolvedOrigin =
     normalizeOrigin(draft.origin) ??
     (draft.tabId === null || draft.tabId === undefined ? EXTENSION_ORIGIN : null);
@@ -450,19 +445,19 @@ export const enqueueApprovalRequest = async (
   const perMinute = options.perMinute ?? pendingRequestsPerMinute;
 
   return withRmwLock(async () => {
-    // Lectura ÚNICA de las dos claves que se van a escribir (cola y ventana de tasa).
+    // Lectura ÃšNICA de las dos claves que se van a escribir (cola y ventana de tasa).
     const snapshot = await readStorage(
       [STORAGE_KEYS.pendingRequests, STORAGE_KEYS.rateWindows],
       options.storage,
     );
     const stored = readPendingRequestsFromSnapshot(snapshot);
 
-    // 1. Identificador duplicado (§2.8): `-32603`, sin tocar el almacén.
+    // 1. Identificador duplicado (Â§2.8): `-32603`, sin tocar el almacÃ©n.
     if (stored[approvalId] !== undefined) {
       return { ok: false, error: duplicateApprovalIdError() };
     }
 
-    // Purga perezosa de lo ya resuelto y de lo vencido (esto último es huérfano → `4001`).
+    // Purga perezosa de lo ya resuelto y de lo vencido (esto Ãºltimo es huÃ©rfano â†’ `4001`).
     const plan = planQueuePurge(stored, now);
     const map = plan.map;
 
@@ -521,7 +516,7 @@ export const enqueueApprovalRequest = async (
       expiresAt: now + timeoutMs,
       status: 'pending',
     };
-    // Correlación del salto 1 (D-H4-E10): solo se persiste si el emisor la declaró no vacía.
+    // CorrelaciÃ³n del salto 1 (D-H4-E10): solo se persiste si el emisor la declarÃ³ no vacÃ­a.
     if (typeof draft.requestId === 'string' && draft.requestId.length > 0) {
       request.requestId = draft.requestId;
     }
@@ -539,18 +534,18 @@ export const enqueueApprovalRequest = async (
     const written = await writeStorage(
       {
         [STORAGE_KEYS.pendingRequests]: nextMap,
-        // §2.13: las solicitudes aprobables persisten su ventana de tasa en el MISMO `set`.
+        // Â§2.13: las solicitudes aprobables persisten su ventana de tasa en el MISMO `set`.
         [STORAGE_KEYS.rateWindows]: { ...rateWindows, [resolvedOrigin]: nextWindow },
       },
       options.storage,
     );
     if (!written) {
-      // Clave crítica: la operación se ABORTA y el estado no queda a medias (§2.15).
+      // Clave crÃ­tica: la operaciÃ³n se ABORTA y el estado no queda a medias (Â§2.15).
       return { ok: false, error: storageQuotaExceededError() };
     }
 
     const oldest = oldestPending(nextMap);
-    // Badge derivado: se recalcula tras CADA escritura de la cola (§2.8, RF-38).
+    // Badge derivado: se recalcula tras CADA escritura de la cola (Â§2.8, RF-38).
     await purgeBadge(pendingCount(nextMap));
     return {
       ok: true,
@@ -563,7 +558,7 @@ export const enqueueApprovalRequest = async (
 };
 
 // ---------------------------------------------------------------------------
-// Resolución de una entrada (aprobar / rechazar / vencer)
+// ResoluciÃ³n de una entrada (aprobar / rechazar / vencer)
 // ---------------------------------------------------------------------------
 
 /** Estado final de una entrada de la cola. */
@@ -572,28 +567,28 @@ export type ResolvedStatus = Exclude<ApprovalStatus, 'pending'>;
 /** Entrada resuelta y PURGADA de la cola persistida (`CA-RF-41`). */
 export interface ResolvedRequest {
   request: PendingRequest;
-  /** Estado efectivo aplicado (puede diferir del pedido si el plazo ya venció). */
+  /** Estado efectivo aplicado (puede diferir del pedido si el plazo ya venciÃ³). */
   status: ResolvedStatus;
   resolvedAt: number;
-  /** `4001` en rechazo y vencimiento; ausente en la aprobación. */
+  /** `4001` en rechazo y vencimiento; ausente en la aprobaciÃ³n. */
   errorCode?: number;
 }
 
-/** Opciones de la resolución. */
+/** Opciones de la resoluciÃ³n. */
 export interface ResolveOptions {
   now?: number;
   storage?: StorageLocalLike | null;
 }
 
 /**
- * Marca la entrada con su `resolvedAt`/`errorCode` y la PURGA de la cola en la misma operación
- * (`CA-RF-41`: «la entrada desaparece de la cola persistida»).
+ * Marca la entrada con su `resolvedAt`/`errorCode` y la PURGA de la cola en la misma operaciÃ³n
+ * (`CA-RF-41`: Â«la entrada desaparece de la cola persistidaÂ»).
  *
  * Reglas duras:
- * - Una entrada que ya no está `pending` devuelve `null`: **respuesta duplicada ignorada** (X-06),
+ * - Una entrada que ya no estÃ¡ `pending` devuelve `null`: **respuesta duplicada ignorada** (X-06),
  *   el SW nunca firma ni difunde dos veces.
- * - Si el plazo ya venció, **prevalece `expired`** aunque la decisión fuera aprobar o rechazar
- *   (`documento_tecnico.md` §2.3, «Cierre por ventana o pestaña»).
+ * - Si el plazo ya venciÃ³, **prevalece `expired`** aunque la decisiÃ³n fuera aprobar o rechazar
+ *   (`documento_tecnico.md` Â§2.3, Â«Cierre por ventana o pestaÃ±aÂ»).
  */
 export const resolveApprovalRequest = async (
   approvalId: Uuid,
@@ -619,18 +614,18 @@ export const resolveApprovalRequest = async (
     delete next[approvalId];
     const written = await writeStorage({ [STORAGE_KEYS.pendingRequests]: next }, options.storage);
     if (!written) {
-      console.warn('[truekeate] no se pudo persistir la resolución de la solicitud', approvalId);
+      console.warn('[truekeate] no se pudo persistir la resoluciÃ³n de la solicitud', approvalId);
     }
-    // Badge derivado: al resolver, el contador baja (§2.8).
+    // Badge derivado: al resolver, el contador baja (Â§2.8).
     await purgeBadge(pendingCount(next));
-    // Desenlace a quien esperaba la decisión (la petición en vuelo del router): es el ÚNICO punto
-    // de notificación, así que las tres vías de cierre (SIGN_RESPONSE, X de la ventana y
-    // `chrome.alarms`) despiertan a la misma promesa sin lógica duplicada (M14.b).
+    // Desenlace a quien esperaba la decisiÃ³n (la peticiÃ³n en vuelo del router): es el ÃšNICO punto
+    // de notificaciÃ³n, asÃ­ que las tres vÃ­as de cierre (SIGN_RESPONSE, X de la ventana y
+    // `chrome.alarms`) despiertan a la misma promesa sin lÃ³gica duplicada (M14.b).
     settleApprovalDecision(resolved);
     return resolved;
   });
 
-/** Retira una entrada sin resolverla (purga de la reconciliación). Devuelve la entrada retirada. */
+/** Retira una entrada sin resolverla (purga de la reconciliaciÃ³n). Devuelve la entrada retirada. */
 export const dropPendingRequest = async (
   approvalId: Uuid,
   options: ResolveOptions = {},
@@ -648,7 +643,7 @@ export const dropPendingRequest = async (
   });
 
 // ---------------------------------------------------------------------------
-// Marca persistida de «transacción en vuelo» por cuenta (§2.12 / tarea 4.6)
+// Marca persistida de Â«transacciÃ³n en vueloÂ» por cuenta (Â§2.12 / tarea 4.6)
 // ---------------------------------------------------------------------------
 
 /** Proyecta una entrada de `truekeate_inflight_tx`; `null` si no es utilizable. */
@@ -668,7 +663,7 @@ export const asInflightTx = (account: string, value: unknown): InflightTx | null
   };
 };
 
-/** Proyecta el mapa completo `truekeate_inflight_tx` (función pura). */
+/** Proyecta el mapa completo `truekeate_inflight_tx` (funciÃ³n pura). */
 export const readInflightTxFromSnapshot = (snapshot: StorageSnapshot): InflightTxByAccount => {
   const raw: unknown = snapshot[STORAGE_KEYS.inflightTx];
   if (!isRecord(raw)) {
@@ -685,7 +680,7 @@ export const readInflightTxFromSnapshot = (snapshot: StorageSnapshot): InflightT
 };
 
 /**
- * Lectura/escritura de una marca por cuenta sin `any`: el índice del mapa es un `Address`, pero las
+ * Lectura/escritura de una marca por cuenta sin `any`: el Ã­ndice del mapa es un `Address`, pero las
  * claves que se manejan en el arranque (alarmas, `Object.entries`) son `string`.
  */
 export const inflightFor = (
@@ -707,20 +702,20 @@ export const deleteInflight = (map: InflightTxByAccount, account: string): void 
   delete (map as Record<string, InflightTx | undefined>)[account];
 };
 
-/** Lee `truekeate_inflight_tx` del almacén. */
+/** Lee `truekeate_inflight_tx` del almacÃ©n. */
 export const readInflightTx = async (
   storage: StorageLocalLike | null | undefined = undefined,
 ): Promise<InflightTxByAccount> =>
   readInflightTxFromSnapshot(await readStorage([STORAGE_KEYS.inflightTx], storage));
 
-/** ¿Sigue vigente la marca? (`expiresAt > now`; sin `expiresAt` numérico, NO es vigente). */
+/** Â¿Sigue vigente la marca? (`expiresAt > now`; sin `expiresAt` numÃ©rico, NO es vigente). */
 export const isInflightVigente = (entry: InflightTx | null | undefined, now: number): boolean =>
   entry !== null && entry !== undefined && Number.isFinite(entry.expiresAt) && entry.expiresAt > now;
 
-/** Estado de exclusión mutua de una cuenta: `free`, bloqueada por `signing` o en `broadcast`. */
+/** Estado de exclusiÃ³n mutua de una cuenta: `free`, bloqueada por `signing` o en `broadcast`. */
 export type AccountLockState = 'free' | 'signing' | 'broadcast';
 
-/** Estado de la cuenta según la marca persistida (`diccionario_datos.md` §2.12 regla 2). */
+/** Estado de la cuenta segÃºn la marca persistida (`diccionario_datos.md` Â§2.12 regla 2). */
 export const accountLockState = (
   map: InflightTxByAccount,
   account: Address,
@@ -743,17 +738,17 @@ export interface BeginInflightOptions {
   ttlMs?: number;
 }
 
-/** Resultado de intentar tomar la exclusión mutua de una cuenta. */
+/** Resultado de intentar tomar la exclusiÃ³n mutua de una cuenta. */
 export type BeginInflightResult =
   | { ok: true; entry: InflightTx }
   | { ok: false; error: Eip1193Error; holder: InflightTx | null };
 
 /**
- * Escribe `phase: 'signing'` **antes** de firmar (§2.12 regla 1: nunca después de difundir).
+ * Escribe `phase: 'signing'` **antes** de firmar (Â§2.12 regla 1: nunca despuÃ©s de difundir).
  *
  * Si la cuenta ya tiene una marca `signing` VIGENTE, NO se firma ni se difunde: se devuelve el
- * conflicto con el literal de `inflightTxInProgress` de §4.3 (v1.10) y el detalle en `data`, y la
- * solicitud permanece `pending` (§2.12 regla 5). NO es un exceso de cardinalidad: por eso ya no se
+ * conflicto con el literal de `inflightTxInProgress` de Â§4.3 (v1.10) y el detalle en `data`, y la
+ * solicitud permanece `pending` (Â§2.12 regla 5). NO es un exceso de cardinalidad: por eso ya no se
  * responde `tooManyPendingRequests`.
  */
 export const beginInflightTx = async (
@@ -806,7 +801,7 @@ export interface BroadcastInflightOptions {
 
 /**
  * Reescribe la MISMA entrada con `phase: 'broadcast'` y el hash devuelto por el nodo: la marca
- * deja de bloquear la cuenta porque el nonce ya está consumido (§2.12 regla 2).
+ * deja de bloquear la cuenta porque el nonce ya estÃ¡ consumido (Â§2.12 regla 2).
  */
 export const markInflightBroadcast = async (
   options: BroadcastInflightOptions,
@@ -832,7 +827,7 @@ export const markInflightBroadcast = async (
     return entry;
   });
 
-/** Libera la marca de una cuenta (al confirmar, fallar o vencer). Devuelve si existía. */
+/** Libera la marca de una cuenta (al confirmar, fallar o vencer). Devuelve si existÃ­a. */
 export const releaseInflightTx = async (
   account: Address,
   options: { now?: number; storage?: StorageLocalLike | null } = {},
@@ -849,13 +844,13 @@ export const releaseInflightTx = async (
   });
 
 // ---------------------------------------------------------------------------
-// Badge derivado (índice de la cola, §2.8)
+// Badge derivado (Ã­ndice de la cola, Â§2.8)
 // ---------------------------------------------------------------------------
 
 /**
- * Purga/actualiza el badge del icono con el índice DERIVADO de la cola (`pending` total). El badge
+ * Purga/actualiza el badge del icono con el Ã­ndice DERIVADO de la cola (`pending` total). El badge
  * no se persiste: se recalcula tras cada escritura o purga y, si el total es 0, se limpia con
- * `setBadgeText({ text: '' })` (§2.8, H-07/H-18). Nunca rompe el flujo si la API no está.
+ * `setBadgeText({ text: '' })` (Â§2.8, H-07/H-18). Nunca rompe el flujo si la API no estÃ¡.
  */
 export const purgeBadge = async (pending: number): Promise<void> => {
   const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
@@ -880,112 +875,19 @@ export const purgeBadge = async (pending: number): Promise<void> => {
 };
 
 // ---------------------------------------------------------------------------
-// Log mínimo del Service Worker (M30 llega en H5)
+// Log del Service Worker: implementación ÚNICA en M30 (`logging/logger.ts`)
 // ---------------------------------------------------------------------------
 
-/** Genera un identificador de entrada de log. */
-const newLogId = (): string => {
-  const cryptoApi: unknown = (globalThis as { crypto?: unknown }).crypto;
-  if (typeof cryptoApi === 'object' && cryptoApi !== null) {
-    const randomUUID = (cryptoApi as { randomUUID?: unknown }).randomUUID;
-    if (typeof randomUUID === 'function') {
-      return (randomUUID as () => string).call(cryptoApi);
-    }
-  }
-  return `log-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-};
-
-/** Opciones de {@link appendLogEntry}. */
-export interface AppendLogOptions {
-  now?: number;
-  storage?: StorageLocalLike | null;
-  origin?: string;
-  method?: string;
-  txHash?: string;
-}
-
-/** Entrada de log SIN `id` ni `ts`: lo que aporta el llamador para cada evento. */
-export interface LogEntryInput {
-  event: LogEventName;
-  category: LogCategory;
-  level: LogLevel;
-  message: string;
-  data: unknown;
-  origin?: string;
-  method?: string;
-  txHash?: string;
-}
-
 /**
- * Escribe VARIAS entradas en `truekeate_logs` con **una sola** lectura y **una sola** escritura
- * (retención FIFO por `ts`). Es lo que permite que la reconciliación deje su traza y las de las
- * huérfanas sin pagar N ciclos de almacén: la cota de < 1 s de RNF-08 lo exige.
- *
- * En H4 solo se instrumentan los eventos imprescindibles (`sw_reconcile`, `approval_expired`,
- * `approval_resolved`, `rpc_error` de trazas): el catálogo completo de 24 eventos y su redacción
- * son de M30/M31 en H5. La entrada la escribe SIEMPRE el Service Worker y con `data` ya redactado
- * por el llamador (nunca payloads íntegros: RNF-09).
+ * La escritura de `truekeate_logs` vive en **M30** (`src/background/logging/logger.ts`): la
+ * retención FIFO por `ts` (M32), la política de reintento por cuota (§2.15) y el contador de
+ * descartes tienen UNA sola implementación. Desde H5 este módulo solo la REEXPORTA, para que
+ * M14/M15/M16/M18/M19.b sigan importando `appendLogEntry`/`appendLogEntries` como hasta ahora
+ * sin que exista un segundo camino de escritura (tarea 5.6: exactamente 1 entrada por evento).
  */
-export const appendLogEntries = async (
-  items: readonly LogEntryInput[],
-  options: { now?: number; storage?: StorageLocalLike | null } = {},
-): Promise<LogEntry[]> => {
-  if (items.length === 0) {
-    return [];
-  }
-  const ts = options.now ?? Date.now();
-  const created: LogEntry[] = items.map((item) => ({
-    id: newLogId(),
-    ts,
-    level: item.level,
-    category: item.category,
-    event: item.event,
-    message: item.message,
-    origin: item.origin ?? EXTENSION_ORIGIN,
-    method: item.method ?? '',
-    data: item.data,
-    ...(item.txHash === undefined ? {} : { txHash: item.txHash as LogEntry['txHash'] }),
-  }));
-  try {
-    const stored = await readStorage([STORAGE_KEYS.logs], options.storage);
-    const current = stored[STORAGE_KEYS.logs];
-    const entries: LogEntry[] = Array.isArray(current) ? (current as LogEntry[]) : [];
-    entries.push(...created);
-    const retained = entries.length > logLimit ? entries.slice(entries.length - logLimit) : entries;
-    const written = await writeStorage({ [STORAGE_KEYS.logs]: retained }, options.storage);
-    return written ? created : [];
-  } catch (error) {
-    console.warn('[truekeate] no se pudieron escribir las entradas de log', error);
-    return [];
-  }
-};
-
-/**
- * Escribe **1** entrada en `truekeate_logs`. Delega en {@link appendLogEntries} para que la
- * retención FIFO y la política de escritura tengan UNA sola implementación.
- */
-export const appendLogEntry = async (
-  event: LogEventName,
-  category: LogCategory,
-  level: LogLevel,
-  message: string,
-  data: unknown,
-  options: AppendLogOptions = {},
-): Promise<LogEntry | null> => {
-  const created = await appendLogEntries(
-    [
-      {
-        event,
-        category,
-        level,
-        message,
-        data,
-        ...(options.origin === undefined ? {} : { origin: options.origin }),
-        ...(options.method === undefined ? {} : { method: options.method }),
-        ...(options.txHash === undefined ? {} : { txHash: options.txHash }),
-      },
-    ],
-    options,
-  );
-  return created[0] ?? null;
-};
+export {
+  appendLogEntries,
+  appendLogEntry,
+  type AppendLogOptions,
+  type LogEntryInput,
+} from '../logging/logger';

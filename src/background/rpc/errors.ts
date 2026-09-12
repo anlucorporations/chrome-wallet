@@ -6,13 +6,15 @@
  * «Código | Causa | Mensaje | Acción sugerida»). Este módulo NO inventa ningún
  * mensaje: transcribe esa tabla y la expone como 8 códigos con una función por causa.
  *
- * §4.3 tiene, desde la v1.10, **tres bloques** dentro de la misma sección:
+ * §4.3 tiene, desde la v1.11, **cuatro bloques** dentro de la misma sección:
  * - la tabla cerrada del núcleo (**25 filas**), que se transcribe fila a fila en
  *   {@link ERROR_CATALOG} —es la que verifica `errors.spec.ts`—;
  * - el bloque «Causas añadidas en la v1.9 (H2)» (**7 filas**), que se transcribe en
  *   {@link EXTENDED_ERROR_CATALOG};
  * - el bloque «Causas añadidas en la v1.10 (H4)» (**2 filas**: `inflightTxInProgress` y
- *   `broadcastRejected`), que se transcribe en {@link H4_ERROR_CATALOG}.
+ *   `broadcastRejected`), que se transcribe en {@link H4_ERROR_CATALOG};
+ * - el bloque «Causas añadidas en la v1.11 (H5)» (**3 filas**: `invalidRpcUrl`,
+ *   `invalidNetworkDefinition` y `chainIdMismatch`), que se transcribe en {@link H5_ERROR_CATALOG}.
  *
  * Todas las causas añadidas reutilizan códigos ya existentes (§4.3: «un mismo `code` admite
  * varios mensajes, uno por causa»), así que el catálogo sigue teniendo **8 códigos**.
@@ -291,15 +293,53 @@ export const H4_ERROR_CATALOG = [
 ] as const satisfies readonly ErrorDefinition[];
 
 /**
+ * Causas AÑADIDAS en la v1.11 de `diccionario_datos.md` §4.3 (bloque «Causas añadidas en la v1.11
+ * (H5)»), con el MISMO formato que las tres tablas anteriores. Las reportó la implementación de
+ * H5 (tareas 5.1 a 5.4 de `plan_desarrollo.md` §3.5.5): hasta ahora, un `rpcUrl` rechazado por la
+ * validación previa de §3.5 (`http` en claro fuera del RPC local, host privado, esquema que no es
+ * `http`/`https`) o un `params[0]` malformado **no tenían fila**, de modo que el fallo se degradaba
+ * a `-32603 internalError` («Error interno de la cartera») y la UI no podía explicar la causa.
+ *
+ * Reutilizan códigos ya registrados, así que el catálogo del núcleo sigue teniendo **8 códigos**,
+ * **25 filas** y las **7 + 2** causas de las v1.9/v1.10 intactas:
+ * - `-32602` (material de entrada inválido): `invalidRpcUrl`, `invalidNetworkDefinition`;
+ * - `4901` (red no utilizable): `chainIdMismatch` —el nodo declara un `chainId` distinto del
+ *   declarado, así que la red solicitada NO queda utilizable—.
+ */
+export const H5_ERROR_CATALOG = [
+  {
+    code: -32602,
+    cause: 'invalidRpcUrl',
+    message:
+      'La dirección del nodo no es válida: usa `https` o, solo para el RPC local, `http` en `127.0.0.1`/`localhost`.',
+    action: 'Revisar el `rpcUrl` de la red y volver a darla de alta',
+  },
+  {
+    code: -32602,
+    cause: 'invalidNetworkDefinition',
+    message:
+      'Los datos de la red no son válidos: revisa el `chainId`, el nombre y el símbolo de la moneda nativa.',
+    action: 'Revisar los datos declarados por la dApp',
+  },
+  {
+    code: 4901,
+    cause: 'chainIdMismatch',
+    message: 'La red solicitada no está dada de alta.',
+    action: 'Darla de alta con wallet_addEthereumChain',
+  },
+] as const satisfies readonly ErrorDefinition[];
+
+/**
  * TODAS las causas registradas: primero el núcleo (que conserva el orden de la tabla de §4.3),
- * después las añadidas en la v1.9 (H2) y por último las de la v1.10 (H4). Las resoluciones por
- * `cause` y por `code` usan esta lista, de modo que el primer registro de cada código sigue
- * siendo el del núcleo.
+ * después las añadidas en la v1.9 (H2), las de la v1.10 (H4) y por último las de la v1.11 (H5).
+ * Las resoluciones por `cause` y por `code` usan esta lista, de modo que el primer registro de cada
+ * código sigue siendo el del núcleo.
  */
 export const ALL_ERROR_DEFINITIONS: readonly ErrorDefinition[] = [
   ...ERROR_CATALOG,
   ...EXTENDED_ERROR_CATALOG,
   ...H4_ERROR_CATALOG,
+  ...H5_ERROR_CATALOG,
 ];
 
 /** Códigos EIP-1193 del catálogo, sin repetición: son los 8 que usa la cartera. */
@@ -613,3 +653,36 @@ export const broadcastRejectedError = (
   motivo: string,
   data: unknown = { cause: 'broadcastRejected', motivo },
 ): Eip1193Error => createEip1193Error('broadcastRejected', { motivo }, data);
+
+// ---------------------------------------------------------------------------
+// Helpers de las causas añadidas en la v1.11 de §4.3 (bloque «Causas añadidas en H5»)
+// ---------------------------------------------------------------------------
+
+/**
+ * `-32602` — el `rpcUrl` declarado no supera la validación previa de §3.5: esquema que no es
+ * `http`/`https`, `http` en claro fuera de `127.0.0.1`/`localhost`, host privado (RFC 1918) o de
+ * enlace local (RFC 3927), o URL malformada. Se rechaza SIN abrir ventana y sin pedir permiso.
+ */
+export const invalidRpcUrlError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('invalidRpcUrl', {}, data);
+
+/**
+ * `-32602` — los datos de la red declarados por la dApp no son utilizables: `chainId` ausente,
+ * malformado o incoherente entre su forma hexadecimal y su decimal, o símbolo no imprimible.
+ * También cubre un `params[0]` que no es un objeto con nombre (EIP-3085).
+ */
+export const invalidNetworkDefinitionError = (data?: unknown): Eip1193Error =>
+  createEip1193Error('invalidNetworkDefinition', {}, data);
+
+/**
+ * `4901` — coherencia de red (§3.5): el nodo del `rpcUrl` declara un `chainId` distinto del que
+ * declara la red, así que esta **no queda utilizable** y NO se persiste. El `message` y la acción
+ * son los de `chainNotRegistered` (la red solicitada no está dada de alta); el `data` conserva el
+ * `chainId` declarado y el observado en el nodo.
+ */
+export const chainIdMismatchError = (declared: string, observed: string): Eip1193Error =>
+  createEip1193Error(
+    'chainIdMismatch',
+    {},
+    { reason: 'chain-id-coherence', declared, observed },
+  );

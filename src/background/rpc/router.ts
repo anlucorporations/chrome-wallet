@@ -31,14 +31,26 @@
  *      (M11) y difusión (M7)—. El `wallet_revokePermissions` del POPUP conserva su manejador
  *      interno (tarea 3.11), porque un contexto de la extensión no abre ventana de aprobación.
  *   7. **Despacho**: los **internos** (M4 → M8/M9/M10/M12/M13/M28/M29/M33) y las **10 lecturas de
- *      página** de H3 (M4 → `rpc/pageMethods.ts` → M5/M26/M27). CUALQUIER excepción se convierte
- *      en un objeto EIP-1193 del catálogo de M6 (nunca un error sin `code`).
+ *      página** de H3 (M4 → `rpc/pageMethods.ts` → M5/M26/M27).
+ *   7.b **Métodos de RED de H5 (tareas 5.1 y 5.2) en AMBOS contextos**: `wallet_switchEthereumChain`
+ *      (M24) y `wallet_addEthereumChain` (M25) se despachan aquí —no por el paso 6— para cubrir
+ *      también la invocación desde el POPUP. Es el contrato del hito: el cambio exige aprobación
+ *      **siempre que la red destino no sea la activa** (P-19/DEC-29) y el alta pide el permiso de
+ *      host en runtime **SIEMPRE**, sin excepción por contexto (DEC-36/DEC-41/ADT-25). El atajo de
+ *      «ya es la red activa» (`null` sin ventana y sin entrada en la cola, `CA-RF-22`) lo resuelve
+ *      M24 ANTES de encolar nada.
  *
- * El router ya NO tiene ningún método del catálogo sin implementar: `eth_sign` sigue sin existir
- * (DEC-22 / H-11a) y responde `4200` por la unión cerrada.
+ * CUALQUIER excepción se convierte en un objeto EIP-1193 del catálogo de M6 (nunca un error sin
+ * `code`). El router ya NO tiene ningún método del catálogo sin implementar: `eth_sign` sigue sin
+ * existir (DEC-22 / H-11a) y responde `4200` por la unión cerrada.
  */
 
-import type { ApprovalMethod, Eip1193Error, InternalMethod, WalletMethod } from '../../shared/types';
+import type {
+  ApprovalMethod,
+  Eip1193Error,
+  InternalMethod,
+  WalletMethod,
+} from '../../shared/types';
 import { isTruekeateMessageType } from '../../shared/protocol';
 import {
   guardSender,
@@ -53,6 +65,7 @@ import {
   getCatalogEntry,
   invokeInternalMethod,
   isCatalogMethod,
+  isExtensionInvokable,
   isInternalMethod,
   type InternalHandlerDeps,
 } from './catalog';
@@ -79,6 +92,16 @@ import { emitProviderEvent, defaultEventsDeps } from '../events';
 import { readSessions, revokeSession, touchSession, currentSessionFor } from '../sessions';
 import { openConnectWindow } from '../connections';
 import { dispatchApproval, type ApprovalDispatchOutcome } from '../approvals/dispatch';
+import {
+  dispatchAddEthereumChain,
+  type AddChainResult,
+  type NetworkApprovalOutcome,
+  type NetworkApprovalRunner,
+} from '../networks/addChain';
+import {
+  dispatchSwitchEthereumChain,
+  type SwitchChainResult,
+} from '../networks/switch';
 
 // Reexportación de la comprobación de nomenclatura canónica: el rechazo de una clave que no
 // empieza por `truekeate_` se responde como error interno `-32603` (M33/M34, ACU-25).
@@ -172,6 +195,31 @@ export type RateLimitDecider = (input: {
   storage?: unknown;
 }) => Promise<RateLimitDecision>;
 
+/**
+ * Invocador de los DOS métodos de RED de H5 (tareas 5.1 y 5.2). Se declara como una costura propia
+ * —y no como parte de los internos— porque su contexto es doble (`page`/`any` según §4.3) y su
+ * despacho es SIEMPRE el aprobable, también desde el popup.
+ */
+export interface NetworkDispatchDeps {
+  readonly switchChain: (options: {
+    params: readonly unknown[];
+    context: TrustedSenderContext;
+    runner: NetworkApprovalRunner;
+    now?: number;
+  }) => Promise<NetworkDispatchOutcome>;
+  readonly addChain: (options: {
+    params: readonly unknown[];
+    context: TrustedSenderContext;
+    runner: NetworkApprovalRunner;
+    now?: number;
+  }) => Promise<NetworkDispatchOutcome>;
+}
+
+/** Desenlace de un método de red: `null` de EIP-1193 o el error con `code` (M6). */
+export type NetworkDispatchOutcome =
+  | { ok: true; result: unknown }
+  | { ok: false; error: Eip1193Error };
+
 /** Dependencias del router: puntos de extensión, todos con su valor real por defecto. */
 export interface RouterDeps {
   readonly redactParams: RedactParams;
@@ -179,6 +227,8 @@ export interface RouterDeps {
   readonly invokePage: PageInvoker;
   /** Invocador de los 6 aprobables (M19.b). */
   readonly approve: ApprovalInvoker;
+  /** Invocador de los 2 métodos de RED (M24/M25), en ambos contextos. */
+  readonly network: NetworkDispatchDeps;
   readonly decideRateLimit: RateLimitDecider;
   readonly page: PageHandlerDeps;
   /** Reloj inyectable (las pruebas fijan `now` sin depender del reloj real). */
@@ -220,12 +270,52 @@ const openConnect = async (input: OpenConnectInput): Promise<ConnectOutcome> =>
     storage: input.storage,
   });
 
-/** Dependencias reales: M22 (redacción), M4/M4.b (catálogos), M3.b (tasa) y M5/M26/M27. */
+/**
+ * Construye el **runner** que los métodos de red (M24/M25) necesitan para recorrer la cola de
+ * aprobaciones: es el `dispatchApproval` de H4 (M19.b) invocado con el método de red, **el contexto
+ * confiable REAL** del emisor y los datos del borrador. Se conserva `requestId` (correlación del
+ * salto 1, D-H4-E10) porque la resolución empujada debe llegar a la promesa correcta de la dApp.
+ *
+ * El desenlace del ciclo se traduce a la forma que consume M24/M25: `{ ok, approved, status }`,
+ * donde `status: 'approved'` es lo único que autoriza el efecto (activar la red o persistir el
+ * alta).
+ */
+const networkRunner =
+  (
+    method: ApprovalMethod,
+    context: TrustedSenderContext,
+    requestId: string | undefined,
+  ): NetworkApprovalRunner =>
+  async (draft, now): Promise<NetworkApprovalOutcome> => {
+    const outcome = await dispatchApproval({
+      method,
+      params: draft.params,
+      context,
+      now,
+      ...(requestId === undefined ? {} : { requestId }),
+    });
+    return outcome.ok
+      ? { ok: true, approved: true, status: 'approved', error: null }
+      : { ok: true, approved: false, status: 'rejected', error: outcome.error };
+  };
+
+/** Dependencias reales: M22 (redacción), M4/M4.b (catálogos), M3.b (tasa), M5/M26/M27 y M24/M25. */
 export const defaultRouterDeps: RouterDeps = {
   redactParams,
   invokeInternal: invokeInternalMethod,
   invokePage: invokePageMethod,
   approve: (options) => dispatchApproval(options),
+  network: {
+    switchChain: async (options) => {
+      const outcome = await dispatchSwitchEthereumChain(options);
+      return outcome.ok ? { ok: true, result: outcome.result } : { ok: false, error: outcome.error };
+    },
+    addChain: async (options) => {
+      const outcome = await dispatchAddEthereumChain(options);
+      // El alta responde `null` (contrato EIP-3085): la red persistida NO viaja a la dApp.
+      return outcome.ok ? { ok: true, result: null } : { ok: false, error: outcome.error };
+    },
+  },
   decideRateLimit: async (input) =>
     decideRateLimit({ origin: input.origin, now: input.now }),
   page: {
@@ -311,11 +401,13 @@ export const handleRPCRequest = async (
     }
 
     // 4. Allowlist de contextos: los `wallet_*` internos SOLO desde páginas de la extensión. La
-    //    revocación (`wallet_revokePermissions`, tarea 3.11) es la única excepción declarada: desde
-    //    el POPUP la atiende su manejador interno y desde una PÁGINA es un aprobable de H4, así que
-    //    NO se cortocircuita aquí: sigue al despacho de aprobaciones del paso 6 (M19.b).
-    const extensionOnly = isInternalMethod(method) || method === 'wallet_revokePermissions';
-    if (extensionOnly && !context.isExtensionContext && method !== 'wallet_revokePermissions') {
+    //    revocación (`wallet_revokePermissions`, tarea 3.11) y los DOS métodos de red de H5
+    //    (`wallet_switchEthereumChain`/`wallet_addEthereumChain`, tareas 5.1/5.2) son las
+    //    excepciones declaradas: desde una PÁGINA siguen al despacho aprobable del paso 6 y desde el
+    //    POPUP tienen su propio camino (revocación directa; red, por la ruta aprobable del paso
+    //    6.b), así que NO se cortocircuitan aquí.
+    const extensionOnly = isInternalMethod(method) || isExtensionInvokable(method);
+    if (extensionOnly && !context.isExtensionContext && !isExtensionInvokable(method)) {
       return {
         ok: false,
         error: methodNotAllowedInContextError(),
@@ -338,9 +430,13 @@ export const handleRPCRequest = async (
     }
 
     // 6. Despacho de los 6 APROBABLES de página (M19.b, cierre de D-H4-E1): vista previa → cola →
-    //    ventana única → decisión → efecto. El `wallet_revokePermissions` del POPUP no llega aquí
-    //    (su contexto de extensión lo despacha el manejador interno de la tarea 3.11, más abajo).
-    if (entry.requiresApproval && !context.isExtensionContext) {
+    //    ventana única → decisión → efecto. Excluye los DOS métodos de red de H5, que tienen su
+    //    propio despacho (paso 6.b) para cubrir TAMBIÉN la invocación desde el popup. El
+    //    `wallet_revokePermissions` del POPUP no llega aquí (su contexto de extensión lo despacha el
+    //    manejador interno de la tarea 3.11, más abajo).
+    const isNetworkMethod =
+      method === 'wallet_switchEthereumChain' || method === 'wallet_addEthereumChain';
+    if (entry.requiresApproval && !context.isExtensionContext && !isNetworkMethod) {
       const outcome = await deps.approve({
         method: method as ApprovalMethod,
         params,
@@ -355,7 +451,7 @@ export const handleRPCRequest = async (
         : { ok: false, error: outcome.error, context, target, redactedParams };
     }
 
-    // 7. Despacho: lecturas de página (M4.b) o internos (M4).
+    // 7. Despacho: lecturas de página (M4.b), métodos de RED (M24/M25) o internos (M4).
     if (entry.resolve) {
       const call: PageCallContext = {
         context,
@@ -368,6 +464,27 @@ export const handleRPCRequest = async (
       };
       const result = await deps.invokePage(method, params, call, deps.page);
       return { ok: true, result, context, target, redactedParams };
+    }
+
+    // 7.b Métodos de RED de H5 (tareas 5.1 y 5.2) en AMBOS contextos: M24/M25 se despachan por la
+    //     ruta aprobable. El cambio exige aprobación siempre que la red destino no sea la activa
+    //     (P-19/DEC-29) —el atajo `null` sin ventana y sin entrada en la cola del caso «ya es la red
+    //     activa» lo resuelve M24 ANTES de encolar (`CA-RF-22`)— y el alta pide el permiso de host
+    //     en runtime SIEMPRE, también desde el popup (DEC-36/DEC-41/ADT-25).
+    if (isNetworkMethod) {
+      const networkOptions = {
+        params,
+        context,
+        runner: networkRunner(method as ApprovalMethod, context, requestId),
+        now: deps.now(),
+      };
+      const outcome =
+        method === 'wallet_switchEthereumChain'
+          ? await deps.network.switchChain(networkOptions)
+          : await deps.network.addChain(networkOptions);
+      return outcome.ok
+        ? { ok: true, result: outcome.result, context, target, redactedParams }
+        : { ok: false, error: outcome.error, context, target, redactedParams };
     }
 
     const result = await deps.invokeInternal(

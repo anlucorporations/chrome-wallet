@@ -257,5 +257,14 @@ export const redactParams = (method: string, params: unknown): unknown => {
   }
 };
 
-/** `data` de una entrada de log: redacción profunda y recorte de payloads largos. */
+/**
+ * `data` de una entrada de log: redacción profunda y recorte de payloads largos.
+ *
+ * Es el saneado que aplica M30 (`logging/logger.ts`) **antes** de persistir cualquier entrada, y
+ * su regla única es la de D-T/ADT-12: el calldata de `eth_sendTransaction` se registra con sus
+ * **primeros 10 bytes** (`data.slice(0, 22)`, §2.11) más `dataLength`; no existe ninguna variante
+ * de 4 bytes (solo el selector) ni de payload íntegro. M30 vuelve a aplicar esta cota, a cualquier
+ * profundidad, sobre un `data`/`input`/`calldata` que no haya pasado por {@link redactParams}
+ * (defensa en profundidad: la garantía no depende del llamador).
+ */
 export const redactLogData = (data: unknown): unknown => redactValue(data);

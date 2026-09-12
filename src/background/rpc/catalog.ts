@@ -35,6 +35,12 @@
  * 6. Ningún método interno abre la ventana única (P-21): `requiresApproval` es `false` en los
  *    dieciséis. La aprobación del revelado es una **confirmación explícita dentro del propio
  *    contexto** (§5.1.1 regla (b) y §3.8), no una `PendingRequest`.
+ * 7. **H5 (tareas 5.1 y 5.2)**: `wallet_switchEthereumChain` (M24) y `wallet_addEthereumChain`
+ *    (M25) están IMPLEMENTADOS y su **contexto** es el del contrato de §4.3 —el primero `page`, el
+ *    segundo `page` **o popup** (`context: 'any'`)—. El router los despacha por la ruta aprobable
+ *    en AMBOS contextos: el permiso de host del alta se pide siempre en runtime
+ *    (DEC-36/DEC-41/ADT-25) y el cambio exige aprobación siempre que la red destino no sea la
+ *    activa (P-19/DEC-29), también cuando lo invoca el popup.
  *
  * CONTRATO CONSUMIDO (los 16 manejadores internos son delegaciones FINAS; la lógica de cartera vive
  * en los módulos de H2). Toda la dependencia se reúne en `defaultInternalDeps`:
@@ -77,7 +83,8 @@ import type {
   TruekeateSettings,
   WalletMethod,
 } from '../../shared/types';
-import { DEFAULT_CHAIN_ID, logLimit } from '../../shared/constants';
+import { DEFAULT_CHAIN_ID } from '../../shared/constants';
+import { readLogsView } from '../logging/logger';
 import {
   STORAGE_KEYS,
   readStorage,
@@ -168,12 +175,22 @@ export const PAGE_APPROVAL_METHODS = [
 export { INTERNAL_METHODS };
 
 /**
- * Los `wallet_*` que el POPUP puede invocar aunque sean aprobables desde una página. Hoy solo la
- * revocación de la tarea 3.11 (`CA-RF-26`): "Sitios conectados" → "Revocar" borra la sesión del
- * origen sin pasar por la cola de aprobaciones (el popup es contexto de la extensión).
+ * Los `wallet_*` que el POPUP puede invocar aunque sean aprobables desde una página. Hoy la
+ * revocación de la tarea 3.11 (`CA-RF-26`) y los **dos métodos de red de H5** (tareas 5.1 y 5.2):
+ *
+ * - `wallet_revokePermissions`: «Sitios conectados» → «Revocar» borra la sesión del origen desde el
+ *   propio popup; la confirmación es la UI (RF-26), no la ventana única.
+ * - `wallet_switchEthereumChain` (M24): el cambio de red desde el popup SIGUE exigiendo aprobación
+ *   (`P-19`/`DEC-29`: siempre que la red destino no sea la activa) y **no** toca el almacén por su
+ *   cuenta; aquí solo se declara que el popup puede invocarlo.
+ * - `wallet_addEthereumChain` (M25): el alta desde el popup exige aprobación **y** solicita
+ *   `chrome.permissions.request` en runtime (DEC-36/DEC-41/ADT-25: **no hay excepción por
+ *   contexto**).
  */
 export const EXTENSION_INVOKABLE_INTERNAL_METHODS = [
   'wallet_revokePermissions',
+  'wallet_switchEthereumChain',
+  'wallet_addEthereumChain',
 ] as const satisfies readonly WalletMethod[];
 
 /** Métodos DECLARADOS por el catálogo. `eth_sign` no aparece (DEC-22 / H-11a). */
@@ -409,6 +426,39 @@ const REVOKE_ENTRY: CatalogEntry = {
 };
 
 /**
+ * Entradas de los DOS métodos de RED (H5, tareas 5.1 y 5.2), implementados en M24/M25:
+ *
+ * - `wallet_switchEthereumChain`: **solo página**. El popup puede invocarlo (está en
+ *   {@link EXTENSION_INVOKABLE_INTERNAL_METHODS}) pero el router lo despacha por la ruta aprobable
+ *   con independencia del contexto: el cambio exige aprobación siempre que la red destino no sea
+ *   la activa (P-19/DEC-29).
+ * - `wallet_addEthereumChain`: **página o popup** (`diccionario_datos.md` §4.3 registra ese doble
+ *   contexto). El alta exige aprobación y pide el permiso de host en runtime SIEMPRE.
+ *
+ * Ninguno de los dos activa la red por sí mismo salvo el cambio aprobado, que es el único camino
+ * que escribe `truekeate_chain_id` y emite `chainChanged` (`CA-RF-22`/`CA-RF-23`).
+ */
+const NETWORK_ENTRIES: Readonly<Record<'wallet_switchEthereumChain' | 'wallet_addEthereumChain', CatalogEntry>> =
+  Object.freeze({
+    wallet_switchEthereumChain: {
+      method: 'wallet_switchEthereumChain',
+      kind: 'approval',
+      context: 'page',
+      requiresApproval: true,
+      implemented: true,
+      resolve: false,
+    },
+    wallet_addEthereumChain: {
+      method: 'wallet_addEthereumChain',
+      kind: 'approval',
+      context: 'any',
+      requiresApproval: true,
+      implemented: true,
+      resolve: false,
+    },
+  });
+
+/**
  * Métodos IMPLEMENTADOS hoy: los 16 internos, las 10 lecturas de página (H3) y los 6 aprobables
  * (H4). `eth_sign` NO está: sigue fuera del catálogo (DEC-22 / H-11a) y responde `4200`.
  */
@@ -424,6 +474,8 @@ export const CATALOG: Readonly<Partial<Record<WalletMethod, CatalogEntry>>> = Ob
   ...PAGE_APPROVAL_ENTRIES,
   ...INTERNAL_ENTRIES,
   wallet_revokePermissions: REVOKE_ENTRY,
+  // H5 (tareas 5.1/5.2): el contexto de los dos métodos de red se corrige al del contrato (§4.3).
+  ...NETWORK_ENTRIES,
 });
 
 /** ¿Está el método declarado en el catálogo (aunque aún no implementado)? */
@@ -725,15 +777,11 @@ const asChainId = (value: unknown): ChainIdHex => {
   return DEFAULT_CHAIN_ID;
 };
 
-/** Proyecta `truekeate_logs` sin `any`. */
-const asLogEntries = (value: unknown): LogEntry[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter(
-    (entry): entry is LogEntry => isRecord(entry) && typeof entry.event === 'string',
-  );
-};
+/**
+ * Proyección de `truekeate_logs`: desde H5 la hace **M30** (`readLogsView`, que ya aplica la
+ * retención de M32 y publica el contador de descartes), así que el router no mantiene aquí una
+ * segunda implementación.
+ */
 
 /**
  * Desempaqueta el `AccountsResult` de M28: un `ok: false` se RELANZA con su error EIP-1193
@@ -865,18 +913,24 @@ const handleGetNetworks: InternalHandler = async () => {
 };
 
 /**
- * `wallet_getLogs` (RF-28): entradas retenidas (FIFO por `ts`, `logLimit` global) más el
- * descarte VISIBLE que exige la regla (d) de §5.1.1: `truncated` indica que hubo recorte y
- * `dropped` cuántas entradas se descartaron.
+ * `wallet_getLogs` (RF-28): entradas retenidas más el descarte VISIBLE que exigen la regla (d) de
+ * §5.1.1 y la tarea 5.9 de H5.
+ *
+ * - `entries`: lo retenido por **M32** (FIFO por `ts`, `logLimit = 500` global **y**
+ *   `logMaxPerOrigin = 200` por origen), en orden cronológico;
+ * - `truncated`: hubo recorte (retención FIFO o descarte por cuota);
+ * - `dropped`: el **contador de descartes por cuota** de §2.15 / R13, que hace visible el
+ *   agotamiento del almacén y que pinta el panel de actividad.
+ *
+ * La lectura la hace **M30** (`readLogsView`), que es quien mantiene la retención y el contador:
+ * el router no reimplementa ninguna de las dos (no duplica la política de §2.15).
  */
 const handleGetLogs: InternalHandler = async () => {
-  const stored = await readStorage([STORAGE_KEYS.logs]);
-  const all = asLogEntries(stored[STORAGE_KEYS.logs]);
-  const retained = all.length > logLimit ? all.slice(all.length - logLimit) : all;
+  const view = await readLogsView();
   return {
-    entries: retained,
-    truncated: retained.length !== all.length,
-    dropped: all.length - retained.length,
+    entries: view.entries,
+    truncated: view.truncated,
+    dropped: view.dropped,
   } satisfies InternalWalletResultMap['wallet_getLogs'];
 };
 

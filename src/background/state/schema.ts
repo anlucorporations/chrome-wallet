@@ -77,6 +77,151 @@ export const CANONICAL_STORAGE_KEYS: readonly StorageKey[] = Object.values(STORA
 /** Claves que `resetWallet` NO borra (RF-32: los logs sobreviven al reset). */
 export const STORAGE_KEYS_PRESERVED_ON_RESET: readonly StorageKey[] = [STORAGE_KEYS.logs];
 
+/**
+ * Clave del **contador de descartes por cuota** de la observabilidad (H5, §2.15 / M30).
+ *
+ * No es una clave de estado de la cartera sino el contador de diagnóstico del propio servicio de
+ * logs: la tarea 5.8 exige que el contador de descartes sea **visible**, y `wallet_getLogs` (M3)
+ * lo publica en `dropped`. Vive aquí, junto a las claves canónicas, para que su nombre cumpla la
+ * nomenclatura `truekeate_` (ACU-25) sin que ningún módulo escriba una cadena a mano; NO entra en
+ * `STORAGE_KEYS` ni en `CANONICAL_STORAGE_KEYS` (la lista de §2 sigue siendo de 14 claves) y, como
+ * el resto de la observabilidad, **sobrevive al reset** (RF-32).
+ */
+export const LOG_DROPPED_COUNTER_KEY = 'truekeate_logs_dropped' as const;
+
+// ---------------------------------------------------------------------------
+// Cuota de `chrome.storage.local`: 10 MB observables (H5, ADT-14 / D-M, §2.15)
+// ---------------------------------------------------------------------------
+
+/**
+ * Cuota OBJETIVO declarada de `chrome.storage.local`: **10 MB** (10 485 760 bytes), que es la
+ * cuota por defecto del almacén desde **Chrome 114** —exactamente el `minimum_chrome_version` que
+ * exige el proyecto— y la que Chrome publica en `chrome.storage.local.QUOTA_BYTES`.
+ *
+ * Es el valor que se usa cuando la API no informa de su propia cuota. **No** se declara
+ * `unlimitedStorage`: la política de §2.15 es reducir el consumo (retención FIFO de M32) y hacer
+ * el desbordamiento OBSERVABLE (DEC-42 / R13).
+ */
+export const STORAGE_QUOTA_BYTES = 10_485_760 as const;
+
+/**
+ * Umbral de aviso de la cuota: **90 %** (≈ 9 MB, §2.15). Por encima, el panel de actividad y el
+ * popup muestran el aviso no descartable «Almacenamiento de la extensión casi lleno: exporta y
+ * borra los logs (RF-32).». Es **estado de UI**: no se persiste ningún contador propio.
+ */
+export const STORAGE_QUOTA_WARN_RATIO = 0.9 as const;
+
+/**
+ * Nombres de error con los que Chrome rechaza una escritura por cuota agotada
+ * (`chrome.runtime.lastError` en el modo callback y `DOMException`/`Error` en el modo promesa).
+ * La comparación se hace sobre el nombre y el mensaje, porque la API real no garantiza un
+ * `instanceof` estable entre reinos.
+ */
+export const STORAGE_QUOTA_ERROR_NAMES: readonly string[] = [
+  'QuotaExceededError',
+  'QUOTA_BYTES',
+] as const;
+
+/** Lectura en texto del error sin `any` (nombre, mensaje y `code` si lo hubiera). */
+const errorText = (error: unknown): string => {
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (typeof error !== 'object' || error === null) {
+    return String(error);
+  }
+  const candidate = error as { name?: unknown; message?: unknown; code?: unknown };
+  return [candidate.name, candidate.message, candidate.code]
+    .filter((part) => part !== undefined && part !== null)
+    .map((part) => String(part))
+    .join(' | ');
+};
+
+/**
+ * ¿Es `error` el rechazo por CUOTA de `chrome.storage.local`? (`DOMException`
+ * `QuotaExceededError`, `chrome.runtime.lastError` con `QUOTA_BYTES quota exceeded`…).
+ *
+ * Es la **fuente única** de la detección: M30 (logger) la usa para decidir si aplica la política
+ * de fallo observable de §2.15 —1 reintento tras la retención FIFO, descarte con `rpc_error`
+ * `-32603` y contador de descartes— en lugar de tratar el rechazo como un fallo genérico.
+ */
+export const isStorageQuotaError = (error: unknown): boolean => {
+  const text = errorText(error);
+  return STORAGE_QUOTA_ERROR_NAMES.some((token) => text.includes(token));
+};
+
+/** Superficie de medición de la cuota: `getBytesInUse()` y la cuota declarada por la API. */
+export interface StorageQuotaLike extends StorageLocalLike {
+  getBytesInUse(keys?: string | string[] | null): Promise<number> | undefined;
+  readonly QUOTA_BYTES?: number;
+}
+
+/**
+ * Devuelve `chrome.storage.local` como superficie de cuota (con `getBytesInUse`), o `null` si la
+ * API no está disponible o no expone la medición. La cuota la publica la propia API
+ * (`QUOTA_BYTES`); si falta, se usa {@link STORAGE_QUOTA_BYTES} (10 MB desde Chrome 114).
+ */
+export const getStorageQuotaApi = (): StorageQuotaLike | null => {
+  const local = getStorageLocal();
+  if (local === null) {
+    return null;
+  }
+  const candidate = local as Partial<StorageQuotaLike>;
+  if (typeof candidate.getBytesInUse !== 'function') {
+    return null;
+  }
+  return candidate as StorageQuotaLike;
+};
+
+/** Medición de la cuota del almacén: es el dato que se registra en `sw_started` (§2.15). */
+export interface StorageQuotaReport {
+  /** Bytes ocupados por la clave medida, o por todo el almacén si `key` es `null`. */
+  bytesInUse: number | null;
+  /** Cuota declarada (la de la API si la publica; si no, {@link STORAGE_QUOTA_BYTES}). */
+  quotaBytes: number;
+  /** Proporción ocupada en `[0..1]`; `null` si no se pudo medir. */
+  usedRatio: number | null;
+  /** `true` cuando la ocupación supera {@link STORAGE_QUOTA_WARN_RATIO} (≥ 90 %). */
+  warning: boolean;
+  /** Clave medida; `null` = almacén completo. */
+  key: StorageKey | null;
+}
+
+/**
+ * Mide el uso del almacén (por clave o completo) sin lanzar jamás: un fallo de la API devuelve
+ * `bytesInUse: null`. Es la medición que §2.15 asigna al evento `sw_started` y la que permite
+ * evaluar el umbral del 90 % sin persistir ningún contador propio.
+ */
+export const readStorageQuota = async (
+  key: StorageKey | null = null,
+  storage: StorageQuotaLike | null = getStorageQuotaApi(),
+): Promise<StorageQuotaReport> => {
+  const quotaBytes =
+    typeof storage?.QUOTA_BYTES === 'number' && storage.QUOTA_BYTES > 0
+      ? storage.QUOTA_BYTES
+      : STORAGE_QUOTA_BYTES;
+  if (storage === null) {
+    return { bytesInUse: null, quotaBytes, usedRatio: null, warning: false, key };
+  }
+  try {
+    const bytes = await storage.getBytesInUse(key === null ? null : [key]);
+    if (typeof bytes !== 'number' || !Number.isFinite(bytes)) {
+      return { bytesInUse: null, quotaBytes, usedRatio: null, warning: false, key };
+    }
+    const usedRatio = bytes / quotaBytes;
+    return {
+      bytesInUse: bytes,
+      quotaBytes,
+      usedRatio,
+      warning: usedRatio >= STORAGE_QUOTA_WARN_RATIO,
+      key,
+    };
+  } catch (error) {
+    console.warn('[truekeate] no se pudo medir la cuota del almacén', error);
+    return { bytesInUse: null, quotaBytes, usedRatio: null, warning: false, key };
+  }
+};
+
 /** Prefijo obligatorio de toda clave persistida. */
 export const STORAGE_KEY_PREFIX = 'truekeate_' as const;
 

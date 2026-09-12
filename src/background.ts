@@ -26,8 +26,8 @@
  * partir de H4).
  */
 
-import { logLimit } from './shared/constants';
-import { STORAGE_KEYS, SCHEMA_VERSION, readStorage } from './background/state/schema';
+import { STORAGE_KEYS, SCHEMA_VERSION, getStorageQuotaApi, readStorage } from './background/state/schema';
+import { logEvent, hydrateLogDiagnostics } from './background/logging/logger';
 import { applyStorageAccessLevel } from './background/security/accessLevel';
 import { internalError } from './background/rpc/errors';
 import { handleRpcMessage, type RpcResponse, type RoutedMessage } from './background/rpc/router';
@@ -43,12 +43,6 @@ import { registerExpiryAlarmListener } from './background/approvals/timeout';
 import { registerApprovalWindowListeners, showOldestPending } from './background/approvals/focus';
 import { handleSignResponse } from './background/approvals/responses';
 import { reconcileApprovals, releaseInflightOnAlarm } from './background/approvals/reconcile';
-import type {
-  LogEntry,
-  LogLevel,
-  LogEventName,
-  LogCategory,
-} from './shared/types';
 import type { SenderLike } from './background/security/senderGuard';
 import type { ResponseTarget } from './background/security/senderGuard';
 
@@ -94,7 +88,6 @@ interface RuntimeEventsLike {
 interface StorageLocalLike {
   get(keys: string | string[] | null): Promise<Record<string, unknown>>;
   set(items: Record<string, unknown>): Promise<void>;
-  getBytesInUse(keys?: string | string[] | null): Promise<number>;
 }
 
 /**
@@ -129,18 +122,6 @@ const bootStartedAt = Date.now();
 // Utilidades de plataforma (sin `any`, tolerantes a entornos sin `chrome`)
 // ---------------------------------------------------------------------------
 
-/** Genera un identificador único para la entrada de log. */
-const newId = (): string => {
-  const cryptoApi: unknown = (globalThis as { crypto?: unknown }).crypto;
-  if (typeof cryptoApi === 'object' && cryptoApi !== null) {
-    const randomUUID = (cryptoApi as { randomUUID?: unknown }).randomUUID;
-    if (typeof randomUUID === 'function') {
-      return (randomUUID as () => string).call(cryptoApi);
-    }
-  }
-  return `log-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-};
-
 /** Devuelve `chrome.runtime` sin `any`, o `undefined` si no está disponible. */
 const runtimeApi = (): RuntimeEventsLike | undefined => {
   const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
@@ -152,23 +133,6 @@ const runtimeApi = (): RuntimeEventsLike | undefined => {
     return undefined;
   }
   return runtime as RuntimeEventsLike;
-};
-
-/** Devuelve `chrome.storage.local` sin `any`, o `undefined` si no está disponible. */
-const storageLocal = (): StorageLocalLike | undefined => {
-  const chromeNs: unknown = (globalThis as { chrome?: unknown }).chrome;
-  if (typeof chromeNs !== 'object' || chromeNs === null) {
-    return undefined;
-  }
-  const storage: unknown = (chromeNs as { storage?: unknown }).storage;
-  if (typeof storage !== 'object' || storage === null) {
-    return undefined;
-  }
-  const local: unknown = (storage as { local?: unknown }).local;
-  if (typeof local !== 'object' || local === null) {
-    return undefined;
-  }
-  return local as StorageLocalLike;
 };
 
 /** ¿Es un objeto plano utilizable como mensaje? */
@@ -194,27 +158,8 @@ const toSenderLike = (raw: unknown): SenderLike => {
 };
 
 // ---------------------------------------------------------------------------
-// Log del arranque: UNA entrada `sw_started`, con retención FIFO
+// Log del arranque: UNA entrada `sw_started` (M30/M31, tarea 5.6)
 // ---------------------------------------------------------------------------
-
-/** Construye la entrada de log del arranque. */
-const buildLogEntry = (
-  event: LogEventName,
-  category: LogCategory,
-  level: LogLevel,
-  message: string,
-  data: unknown,
-): LogEntry => ({
-  id: newId(),
-  ts: Date.now(),
-  level,
-  category,
-  event,
-  message,
-  origin: 'extension',
-  method: '',
-  data,
-});
 
 /** Informe de migración de esquema (M34), normalizado sin depender de su tipo exacto. */
 export interface MigrationSnapshot {
@@ -269,46 +214,43 @@ export const isWalletDamaged = (): boolean =>
   bootSnapshot !== null && !bootSnapshot.integrity.ok;
 
 /**
- * Escribe la entrada `sw_started` en `truekeate_logs`.
+ * Escribe la entrada `sw_started` en `truekeate_logs` **por M30** (`logging/logger.ts`), que es la
+ * ÚNICA implementación de la escritura de logs desde H5: aquí no se duplica ni la construcción de
+ * la entrada, ni la retención FIFO (M32), ni el modo de fallo observable de la cuota (§2.15).
  *
  * - Categoría `system`, nivel `info` (catálogo cerrado de 24 eventos, diccionario §2.11).
- * - Retención FIFO por `ts`: se descartan las entradas más antiguas al superar `logLimit`.
- * - `data` lleva la medición de `getBytesInUse()`, el tiempo de arranque y el resumen de las
- *   fases de H2 (diagnóstico de §2.15); NO se persiste ningún contador propio.
- * - Si el almacén rechaza la escritura (cuota), el arranque NO se rompe: se avisa por consola.
- *   El tratamiento observable completo de la cuota es de H5 (ADT-14 / D-M).
+ * - `data` lleva la medición de `getBytesInUse()`, el tiempo de arranque y el resumen de las fases
+ *   de H2 (diagnóstico de §2.15); NO se persiste ningún contador propio.
+ * - Si el almacén rechaza la escritura (cuota), el arranque NO se rompe: el logger aplica su
+ *   1 reintento tras la retención, descarta la entrada e incrementa el contador de descartes, que
+ *   `wallet_getLogs` publica en `dropped`.
  */
 const writeStartupLog = async (snapshot: BootSnapshot): Promise<void> => {
-  const local = storageLocal();
-  if (local === undefined) {
-    return;
-  }
+  const local = getStorageQuotaApi();
   let bytesInUse: number | null = null;
-  try {
-    bytesInUse = await local.getBytesInUse(null);
-  } catch {
-    bytesInUse = null;
+  if (local !== null) {
+    try {
+      bytesInUse = (await local.getBytesInUse(null)) ?? null;
+    } catch {
+      bytesInUse = null;
+    }
   }
 
-  const entry = buildLogEntry('sw_started', 'system', 'info', 'Service Worker arrancado', {
-    bytesInUse,
-    bootMs: snapshot.bootMs,
-    schemaVersion: snapshot.schemaVersion,
-    migrations: snapshot.migration,
-    integrity: { ok: snapshot.integrity.ok, status: snapshot.integrity.status },
-    autoLoaded: snapshot.autoLoaded,
-    // Sin cola persistida en H2: la reconciliación procesa 0 entradas.
-    pendingProcessed: snapshot.reconciliation.pendingProcessed,
-  });
-
   try {
-    const stored = await local.get(STORAGE_KEYS.logs);
-    const current: unknown = stored[STORAGE_KEYS.logs];
-    const entries: LogEntry[] = Array.isArray(current) ? (current as LogEntry[]) : [];
-    entries.push(entry);
-    // FIFO por `ts`: se conservan las `logLimit` entradas más recientes.
-    const retained = entries.length > logLimit ? entries.slice(entries.length - logLimit) : entries;
-    await local.set({ [STORAGE_KEYS.logs]: retained });
+    await logEvent({
+      event: 'sw_started',
+      origin: 'extension',
+      data: {
+        bytesInUse,
+        bootMs: snapshot.bootMs,
+        schemaVersion: snapshot.schemaVersion,
+        migrations: snapshot.migration,
+        integrity: { ok: snapshot.integrity.ok, status: snapshot.integrity.status },
+        autoLoaded: snapshot.autoLoaded,
+        // Sin cola persistida en H2: la reconciliación procesa 0 entradas.
+        pendingProcessed: snapshot.reconciliation.pendingProcessed,
+      },
+    });
   } catch (error) {
     console.warn('[truekeate] no se pudo escribir la entrada sw_started', error);
   }
@@ -694,6 +636,9 @@ const registerRpcMessageListener = (): void => {
 export const bootstrap = async (): Promise<void> => {
   // 1. Aislamiento del almacén (M21), lo ANTES posible.
   await applyStorageAccessLevel();
+  // 1.b Contador de descartes de log (M30/§2.15): se reconstruye desde el almacén para que el
+  //     descarte por cuota siga siendo visible (en `wallet_getLogs.dropped`) tras la suspensión.
+  await hydrateLogDiagnostics();
   // 2. Migraciones de esquema (M34), antes de leer estado.
   const migration = await runMigrationsPhase();
   // 3. Red por defecto (M23): Anvil se siembra en `truekeate_networks` con su `chainId` (`0x7a69`).

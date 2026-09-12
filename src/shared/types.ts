@@ -442,6 +442,36 @@ export interface StoredNetwork {
   decimals: number;
   isTestnet: boolean;
   isDefault: boolean;
+  /**
+   * Explorador de bloques declarado por EIP-3085 (`blockExplorerUrls[0]`); opcional porque en
+   * local puede no existir (`diccionario_datos.md` §2.6).
+   */
+  explorerUrl?: string;
+}
+
+/**
+ * Vista previa de una red para la ventana única de confirmación (`notification.html`, M50) y para
+ * la vista de redes del popup (M43): es lo que permite mostrar los datos de la red y el aviso de
+ * que **no** se activará (`ADT-25`/`P-22`) sin que la UI lea el almacén (RNF-14).
+ */
+export interface NetworkPreview {
+  kind: 'switch' | 'add';
+  chainId: ChainIdHex;
+  chainIdDecimal: number;
+  name: string;
+  rpcUrl: string;
+  symbol: string;
+  decimals: number;
+  /** Marca de red de pruebas; `false` dispara {@link NON_TESTNET_WARNING} (RNF-23). */
+  isTestnet: boolean;
+  /** Aviso literal de RNF-23; `null` si la red es de pruebas (no hay nada que advertir). */
+  warning: string | null;
+  /** Red activa en el momento de crear la solicitud (`switch`: la que se abandona). */
+  currentChainId: ChainIdHex;
+  /** Solo en el alta: `true` = la red ya estaba dada de alta y se reemplaza. */
+  alreadyRegistered?: boolean;
+  /** Solo en el alta: aviso explícito de que la red NO pasa a ser la activa (P-22). */
+  activationNote?: string;
 }
 
 /** Sesión de dApp por origen (`truekeate_connected_sites`). */

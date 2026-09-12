@@ -37,8 +37,11 @@
  *      - `personal_sign` y `eth_signTypedData_v4`: firma (`0x` + 130 hex) y devuelve la firma.
  *      - `wallet_switchEthereumChain`: si la red ya es la activa responde `null` **sin ventana**;
  *        si no está dada de alta, `4901`; al aprobar activa la red y emite `chainChanged` (RF-24).
+ *        Desde H5 (tarea 5.1) la lógica es de **M24** (`networks/switch.ts`): aquí solo se le
+ *        inyecta el ciclo aprobable común.
  *      - `wallet_addEthereumChain`: al aprobar pide el permiso de host del `rpcUrl`, persiste la
- *        red con `isDefault: false` y **no la activa** (ADT-25 / P-22).
+ *        red con `isDefault: false` y **no la activa** (ADT-25 / P-22). Desde H5 (tarea 5.2) la
+ *        lógica es de **M25** (`networks/addChain.ts`), con el mismo ciclo inyectado.
  *      - `wallet_revokePermissions`: tras la aprobación ejecuta la revocación de la tarea 3.11.
  *   9. **Rechazo o vencimiento**: `4001` con el literal de `diccionario_datos.md` §4.3 y la marca
  *      en vuelo liberada.
@@ -89,6 +92,11 @@ import {
   readNetworksFromSnapshot,
   resolveActiveNetwork,
 } from '../networks/catalog';
+import {
+  dispatchAddEthereumChain,
+  type NetworkApprovalRunner,
+} from '../networks/addChain';
+import { dispatchSwitchEthereumChain } from '../networks/switch';
 import { showOldestPending } from './focus';
 import {
   appendLogEntries,
@@ -648,55 +656,58 @@ export const dispatchApproval = async (
     const account = originContext.account;
     const chainId = originContext.chainId;
 
-    // --- Métodos de red: atajos SIN ventana cuando la red ya es la activa (§4.3) --------------
+    // --- Métodos de red: delegación en M24 (cambio) y M25 (alta) --------------------------------
+    // La lógica vive en los módulos del hito H5 (`networks/switch.ts` y `networks/addChain.ts`) y
+    // AQUÍ solo se le inyecta el ciclo aprobable común —cola (M14) → plazo (M15) → ventana única
+    // (M18) → decisión—, de modo que no se duplica ni el encolado ni el contrato de red: el atajo
+    // «ya es la red activa» (`null` sin ventana, CA-RF-22), el `4901` de una red no dada de alta,
+    // el permiso de host en runtime SIEMPRE y el `isTestnet`/aviso de RNF-23 son de M24/M25.
     if (method === 'wallet_switchEthereumChain' || method === 'wallet_addEthereumChain') {
-      const networkRecord = asNetworkRecord(params[0]);
-      const requested = normalizeChainId(networkRecord.chainId);
-      if (requested === null) {
-        throw chainNotRegisteredError({
-          reason: 'invalid-chain-id',
-          chainId: networkRecord.chainId,
-        });
-      }
-      const stored = await readStorage([STORAGE_KEYS.networks]);
-      const catalog = readNetworksFromSnapshot(stored);
-      if (method === 'wallet_switchEthereumChain' && requested === chainId) {
-        // Ya es la red activa: `null` SIN crear `PendingRequest` ni abrir ventana (DEC-29/P-19).
-        return { ok: true, result: null };
-      }
-      if (method === 'wallet_switchEthereumChain' && catalog[requested] === undefined) {
-        // Cambiar a una red que no está dada de alta: `4901`, sin ventana.
-        throw chainNotRegisteredError({ reason: 'chain-not-registered', chainId: requested });
-      }
-      const cycle = await runApprovalCycle(
-        {
-          method,
-          params,
-          origin: context.origin,
-          tabId: context.tabId,
-          frameId: context.frameId,
-          account,
-          chainId,
-          ...correlation,
-        },
-        deps,
+      const runner: NetworkApprovalRunner = async (draft, at) => {
+        const cycle = await runApprovalCycle(
+          {
+            method: draft.method,
+            params: draft.params,
+            origin: draft.origin,
+            tabId: draft.tabId,
+            frameId: draft.frameId,
+            account: draft.account,
+            chainId: draft.chainId,
+            ...correlation,
+          },
+          deps,
+          at,
+        );
+        if (!cycle.ok) {
+          return { ok: false, approved: false, status: 'rejected-by-queue', error: cycle.error };
+        }
+        if (!cycle.approved) {
+          return { ok: true, approved: false, status: 'rejected', error: cycle.error };
+        }
+        return { ok: true, approved: true, status: 'approved', error: null };
+      };
+      const networkOptions = {
+        params,
+        context,
+        sessionAccount: account,
+        runner,
         now,
-      );
-      if (!cycle.ok || !cycle.approved) {
-        return { ok: false, error: cycle.error };
-      }
+        // El efecto de activación usa el propagador de eventos del despacho (M27), de modo que la
+        // traza y las pruebas del router observan UN solo camino de `chainChanged` (RF-24).
+        activate: async (chainId: ChainIdHex) => {
+          await writeStorage({ [STORAGE_KEYS.chainId]: chainId });
+          const delivered = await deps.emitEvent('chainChanged', chainId);
+          return { chainId, delivered };
+        },
+      };
       if (method === 'wallet_switchEthereumChain') {
-        await applyChainSwitch(requested, deps);
-        return { ok: true, result: null };
+        const outcome = await dispatchSwitchEthereumChain(networkOptions);
+        return outcome.ok
+          ? { ok: true, result: outcome.result }
+          : { ok: false, error: outcome.error };
       }
-      // `wallet_addEthereumChain`: solo AÑADE (nunca activa) y pide el permiso de host.
-      const network = storedNetworkFrom(networkRecord);
-      await requestHostPermission(network.rpcUrl);
-      const current = readNetworksFromSnapshot(await readStorage([STORAGE_KEYS.networks]));
-      await writeStorage({
-        [STORAGE_KEYS.networks]: { ...current, [network.chainId]: network },
-      });
-      return { ok: true, result: null };
+      const outcome = await dispatchAddEthereumChain(networkOptions);
+      return outcome.ok ? { ok: true, result: null } : { ok: false, error: outcome.error };
     }
 
     // --- `from`: SIEMPRE la cuenta de la sesión vigente (RNF-11) ------------------------------

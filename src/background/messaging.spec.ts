@@ -63,6 +63,7 @@ const buildDeps = (): {
   redactParams: ReturnType<typeof vi.fn>;
   decideRateLimit: ReturnType<typeof vi.fn>;
   approve: ReturnType<typeof vi.fn>;
+  network: { switchChain: ReturnType<typeof vi.fn>; addChain: ReturnType<typeof vi.fn> };
 } => {
   const invokeInternal = vi.fn(
     async (_method: string, _params: unknown[], _context: TrustedSenderContext) => 'interno',
@@ -90,7 +91,14 @@ const buildDeps = (): {
       context: TrustedSenderContext;
       now: number;
     }) => ({ ok: true as const, result: 'aprobado' }),
-  );  const page: PageHandlerDeps = {
+  );
+  // Los DOS métodos de red de H5 (M24/M25) se despachan por su propia costura: el doble registra la
+  // invocación —incluido el contexto, que es lo que el router debe propagar— sin tocar la cola, el
+  // almacén ni `chrome.permissions` (el flujo real se prueba en `dispatch.spec.ts` y en las specs
+  // de `src/background/networks/`).
+  const switchChain = vi.fn(async () => ({ ok: true as const, result: null }));
+  const addChain = vi.fn(async () => ({ ok: true as const, result: null }));
+  const page: PageHandlerDeps = {
     rpc: { send: async () => '0x0', getBalance: async () => 0n },
     sessions: {
       touchSession: async () => ({ session: null, persisted: false }),
@@ -108,6 +116,7 @@ const buildDeps = (): {
       invokePage,
       decideRateLimit,
       approve,
+      network: { switchChain, addChain },
       page,
       now: () => 1_700_000_000_000,
     },
@@ -116,6 +125,7 @@ const buildDeps = (): {
     redactParams,
     decideRateLimit,
     approve,
+    network: { switchChain, addChain },
   };
 };
 
@@ -292,14 +302,12 @@ describe('M22/M6 · redacción previa y errores tipados', () => {
   });
 
   it('los 6 aprobables de página se despachan a M19.b (H4) y nunca por la vía de lectura', async () => {
-    const { deps, invokePage, invokeInternal, approve } = buildDeps();
+    const { deps, invokePage, invokeInternal, approve, network } = buildDeps();
     const aprobables = [
       'eth_sendTransaction',
       'eth_signTypedData_v4',
       'personal_sign',
-      'wallet_switchEthereumChain',
-      'wallet_addEthereumChain',
-      // `wallet_revokePermissions` desde una página ya se cubre arriba; aquí los 5 restantes.
+      // `wallet_revokePermissions` desde una página ya se cubre arriba; aquí los 3 restantes.
     ];
     for (const method of aprobables) {
       const routed = await handleRpcMessage(rpcMessage({ method }), SENDER_PAGINA, deps);
@@ -308,6 +316,17 @@ describe('M22/M6 · redacción previa y errores tipados', () => {
         result: 'aprobado',
       });
     }
+    expect(approve).toHaveBeenCalledTimes(aprobables.length);
+
+    // H5 (tareas 5.1 y 5.2): los DOS métodos de red se despachan por su propia costura —M24/M25—,
+    // que es la que les inyecta el ciclo aprobable; el contrato EIP-1193 de los dos es `null`.
+    const redes = ['wallet_switchEthereumChain', 'wallet_addEthereumChain'] as const;
+    for (const method of redes) {
+      const routed = await handleRpcMessage(rpcMessage({ method }), SENDER_PAGINA, deps);
+      expect(routed?.response, `${method} debería despacharse a M24/M25`).toEqual({ result: null });
+    }
+    expect(network.switchChain).toHaveBeenCalledTimes(1);
+    expect(network.addChain).toHaveBeenCalledTimes(1);
     expect(approve).toHaveBeenCalledTimes(aprobables.length);
     expect(invokePage).not.toHaveBeenCalled();
     expect(invokeInternal).not.toHaveBeenCalled();

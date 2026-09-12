@@ -7,6 +7,8 @@
  *   content script y este lo reenvía **literalmente** a la página (dos saltos, sin transformar).
  * - `plan_desarrollo.md` §3.3.5 tarea 3.8 y §3.3.6 `CA-RF-15`/`CA-RF-24` (parte `accountsChanged`):
  *   el evento llega a **todas** las pestañas, con la cuenta nueva cuando cambia desde el popup.
+ * - `plan_desarrollo.md` §3.5.5 tarea 5.4 y §3.5.6 `CA-RF-24`: `chainChanged` se emite a **todas**
+ *   las pestañas cuando el cambio de red nace en el popup **o** en una dApp (cierre de `CA-RF-24`).
  *
  * REGLAS QUE ESTE MÓDULO HACE CUMPLIR
  * 1. **Canal único**: `chrome.tabs.sendMessage` con `{ frameId }` SOLO cuando el origen del evento
@@ -15,6 +17,9 @@
  *    envío) NO rompe la propagación; su error se ignora y el resto sigue recibiendo el evento.
  * 3. **Servicio Worker puro**: no usa `setTimeout`/`setInterval` (prohibidos en MV3) ni escribe en
  *    `truekeate_logs` (la observabilidad de actividad es de H5).
+ * 4. **`chainChanged` sin destinatarios concretos** (tarea 5.4): se emite SIEMPRE a TODAS las
+ *    pestañas abiertas —no solo a las del origen que pidió el cambio—, con el `chainId` nuevo tal
+ *    y como lo exige EIP-1193; `emitProviderEvent` ya resuelve la lista de pestañas.
  */
 
 import type { Address, ChainIdHex, ProviderEventName } from '../shared/types';
@@ -164,6 +169,23 @@ export const emitDisconnect = (
   error: { code: number; message: string },
   options: EmitOptions = {},
 ): Promise<number> => emitProviderEvent('disconnect', error, options);
+
+/**
+ * `chainChanged` con la red nueva (`CA-RF-24`, tarea 5.4).
+ *
+ * EIP-1193 exige que el `data` sea el `chainId` —en hexadecimal y **sin envoltorio**—, así que la
+ * carga es el propio `ChainIdHex` y no un objeto `{ chainId }`: el content script (M38) lo reenvía
+ * LITERALMENTE a la página y el provider (M36) lo entrega tal cual al escucha.
+ *
+ * Se emite a **TODAS** las pestañas abiertas: el cambio puede nacer en el popup
+ * (`wallet_switchEthereumChain` invocado desde la extensión) o en una dApp, y ninguna pestaña debe
+ * quedarse con la red vieja. `options` permite acotarlo en las pruebas, pero el valor real de
+ * producción es «todas».
+ */
+export const emitChainChanged = (
+  chainId: ChainIdHex,
+  options: EmitOptions = {},
+): Promise<number> => emitProviderEvent('chainChanged', chainId, options);
 
 /**
  * `message`: carga arbitraria de la dApp. **NO** se emite en H3 (no hay ningún método que lo
