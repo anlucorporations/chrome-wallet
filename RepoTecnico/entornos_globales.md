@@ -302,7 +302,7 @@ Conjunto de **mínimos privilegios** (H-02/H-36): solo lo que el diseño usa de 
 |---|---|---|---|
 | `origin` | `https://github.com/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ⚠️ **No existe** (verificado: "Repository not found"). Pendiente de crear por el usuario. |
 | `gitlab` | `https://gitlab.com/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ⚠️ **No existe** (verificado: "project could not be found"). Pendiente de crear por el usuario. |
-| `codecrypto` | `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ✅ **Existe.** Ramas en el remoto: `main`, `chrome-wallet-DSH`, `cromeWalltet-qwen` (todas apuntan al commit `632d890` "Initial commit" con la implementación previa). |
+| `codecrypto` | `https://gitlab.codecrypto.academy/anlucorporations/chrome-wallet.git` | `main`, `chrome-wallet-DSH` | ✅ **Publicado el 2026-09-13** (`chrome-wallet-DSH` = `dc1dc4a`, 29 commits). Existe. Ramas en el remoto: `main`, `chrome-wallet-DSH`, `cromeWalltet-qwen` (todas apuntan al commit `632d890` "Initial commit" con la implementación previa). |
 
 > El remoto `codecrypto` es accesible de forma anónima para lectura (`git ls-remote` funcionó). Se asume que el `push` requiere credenciales del usuario.
 

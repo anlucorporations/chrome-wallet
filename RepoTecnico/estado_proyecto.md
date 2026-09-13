@@ -584,4 +584,4 @@ Habilitada por el cierre de la Fase 4. Parte ya entregada en H6 (`README.md`, `I
 - Avisos nativos de Chrome (`permissions.request`) — no verificables en modo headless.
 - Los **10 RF Should** del ciclo posterior (unidades C1–C10) quedan fuera del MVP.
 
-**Acciones del usuario pendientes:** crear los repositorios `chrome-wallet` en GitHub y GitLab.com (organización `anlucorporations`; los remotos `origin` y `gitlab` están configurados pero los repositorios no existen) y autorizar el `/push` de la rama `chrome-wallet-DSH`.
+**Publicación (2026-09-13):** ✅ **`/push` ejecutado** por orden del usuario. La rama `chrome-wallet-DSH` (29 commits, commit `dc1dc4a`) está publicada en los **tres** remotos: `origin` (GitHub `anlucorporations/chrome-wallet`), `gitlab` (GitLab.com `anlucorporations/chrome-wallet`) y `codecrypto` (GitLab ANLU). En GitHub y GitLab.com el remoto solo contenía el `README.md` de inicialización; en `codecrypto` se sustituyó la línea base antigua, que **sigue accesible** en las ramas `cromeWalltet-qwen` (mismo commit `632d890`) y `main` (`8ca10ef`). La rama `main` de los tres remotos **no** se ha tocado (queda pendiente de decisión).
