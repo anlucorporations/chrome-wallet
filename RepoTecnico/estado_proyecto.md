@@ -585,3 +585,12 @@ Habilitada por el cierre de la Fase 4. Parte ya entregada en H6 (`README.md`, `I
 - Los **10 RF Should** del ciclo posterior (unidades C1–C10) quedan fuera del MVP.
 
 **Publicación (2026-09-13):** ✅ **`/push` ejecutado** por orden del usuario. La rama `chrome-wallet-DSH` (29 commits, commit `dc1dc4a`) está publicada en los **tres** remotos: `origin` (GitHub `anlucorporations/chrome-wallet`), `gitlab` (GitLab.com `anlucorporations/chrome-wallet`) y `codecrypto` (GitLab ANLU). En GitHub y GitLab.com el remoto solo contenía el `README.md` de inicialización; en `codecrypto` se sustituyó la línea base antigua, que **sigue accesible** en las ramas `cromeWalltet-qwen` (mismo commit `632d890`) y `main` (`8ca10ef`). La rama `main` de los tres remotos **no** se ha tocado (queda pendiente de decisión).
+### Actualización de publicación (2026-09-13, tras la orden de subir `main`)
+
+| Remoto | `main` | `chrome-wallet-DSH` | Nota |
+|---|---|---|---|
+| **GitHub** (`origin`) | ✅ al día | ✅ al día | `main` actualizada por *force-with-lease* (solo contenía el `README.md` de inicialización). |
+| **GitLab.com** (`gitlab`) | ✅ al día | ✅ al día | `main` es una **rama protegida**: rechaza *force-push* (`pre-receive hook declined`). Se resolvió **fusionando** su único commit (el `README.md` de inicialización) conservando el nuestro, y subiendo **sin forzar**. |
+| **GitLab ANLU** (`codecrypto`) | ⚠️ **pendiente** | ✅ al día | Su `main` (`8ca10ef`, 89 ficheros) contiene la **línea base antigua**; fusionarla resucitaría código descartado (P-10/DEC-09). Requiere **desproteger `main`** en GitLab (Settings → Repository → Protected branches) para poder publicar por *force-with-lease*. |
+
+**La línea base antigua de `codecrypto` sigue intacta y accesible** en `main` (`8ca10ef`) y `cromeWalltet-qwen` (`632d890`): no se ha borrado nada de forma irreversible.
