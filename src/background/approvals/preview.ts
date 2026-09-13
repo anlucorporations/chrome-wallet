@@ -42,7 +42,7 @@ import type {
 } from '../../shared/types';
 import { createEip1193Error } from '../rpc/errors';
 import { hashValue } from '../security/redaction';
-import { toBigIntOrNull, toChainIdNumber, type TypedDataTypes } from '../crypto/sign';
+import { toBigIntOrNull, parseChainIdOrNull, type TypedDataTypes } from '../crypto/sign';
 import {
   UNKNOWN_TO_LABEL,
   calldataByteLength,
@@ -426,10 +426,19 @@ export const buildTypedDataPreview = async (
   const cleanTypes = stripDomainType(input.types);
   const verifyingContract = normalizeAddressOrNull(input.domain?.verifyingContract);
   const domainChainId = input.domain?.chainId;
+  // DEFECTO MEDIDO Y CORREGIDO (fase 4): la comparación usaba `toChainIdNumber` en AMBOS lados, y
+  // esa función cae al `chainId` por defecto ante un valor ilegible. Con `domain.chainId` basura
+  // (`'no-es-un-numero'`, `''`, `'0x'`) y la red por defecto activa (Anvil 31337) el resultado era
+  // `31337 === 31337` → `domainChainMismatch: false`, así que NO se emitía el aviso destacado ni la
+  // doble confirmación obligatoria de §3.4 aunque el dominio declarara una red que no se puede
+  // verificar. Ahora un `chainId` declarado e ininterpretable cuenta como discrepancia (falla
+  // seguro); «ausente» sigue sin ser discrepancia.
+  const declaredChain = parseChainIdOrNull(domainChainId);
+  const activeChain = parseChainIdOrNull(input.chainId);
   const domainChainMismatch =
     domainChainId !== undefined &&
     domainChainId !== null &&
-    toChainIdNumber(domainChainId) !== toChainIdNumber(input.chainId);
+    (declaredChain === null || activeChain === null || declaredChain !== activeChain);
 
   let code: Hex | null = null;
   if (verifyingContract !== null && deps.getCode !== undefined) {

@@ -12,16 +12,19 @@
  * {@link ETH_AMOUNT_MAX_DECIMALS} decimales (`RF-34`: ETH a 4 decimales) y sin notación
  * científica, signo ni separador de millares. El importe resultante debe caber en `uint256`.
  *
- * Nota declarada al corpus: `diccionario_datos.md` §4.3 **no registra una causa de error para
- * «importe inválido»**, así que un fallo de formato se describe con `problem` (un código
- * interno de diagnóstico) y `error: null`; NO se inventa ningún literal nuevo. El único fallo
- * que sí tiene fila propia en el catálogo es el saldo insuficiente (`-32000`), que se devuelve
- * con `insufficientFundsError()` de M6 (fuente única de los literales).
+ * DEFECTO CERRADO (fase 4, fleco 2). `validateAmount` devolvía `error: null` en TODOS los fallos,
+ * con el argumento de que `diccionario_datos.md` §4.3 no registraba la causa «importe inválido».
+ * Esa causa SÍ existe desde la v1.9 (§4.3.1, fila `-32602 invalidAmount`, transcrita en
+ * `EXTENDED_ERROR_CATALOG` de M6), de modo que un fallo de formato se describe con el error
+ * TIPADO documentado —`{ code: -32602, message: «El importe no es válido: usa un número decimal
+ * positivo con hasta 18 decimales.», data: { reason, problem } }`— y `problem` queda como detalle
+ * de diagnóstico dentro de `data`. El saldo insuficiente sigue devolviéndose con
+ * `insufficientFundsError()` de M6: la fuente única de los literales es §4.3.
  */
 
 import { ETH_AMOUNT_MAX_DECIMALS, ETH_DECIMALS } from '../constants';
 import type { Eip1193Error, WeiString } from '../types';
-import { insufficientFundsError } from '../../background/rpc/errors';
+import { insufficientFundsError, invalidAmountError } from '../../background/rpc/errors';
 
 /** Importe máximo representable en `uint256` (cota real del EVM). */
 export const MAX_UINT256 = (1n << 256n) - 1n;
@@ -40,11 +43,22 @@ export interface AmountCheck {
   /** Forma canónica con punto (`1.5`), sin ceros sobrantes; `null` si no es válido. */
   normalized: string | null;
   problem: AmountProblem;
-  /** Error del catálogo cuando existe causa que lo cubra; hoy solo el saldo insuficiente. */
+  /**
+   * Error del catálogo: `-32602 invalidAmount` en cualquier fallo de importe (§4.3.1) y `-32000
+   * insufficientFunds` en el contraste con el saldo ({@link insufficientBalanceError}); `null`
+   * solo cuando el importe es válido.
+   */
   error: Eip1193Error | null;
 }
 
-/** Convierte una cadena decimal de ETH a wei con aritmética exacta. `null` si no es válida. */
+/**
+ * Convierte una cadena decimal de ETH a wei con aritmética exacta. `null` si no es válida.
+ *
+ * `maxDecimals` es la cota de decimales ACEPTADOS (por encima se rechaza con `null`). La escala
+ * de wei es fija (18 decimales), así que un `maxDecimals` mayor que {@link ETH_DECIMALS} no puede
+ * representarse: los dígitos por debajo del 18 se truncan hacia abajo (nunca se reinterpretan
+ * como una magnitud mayor).
+ */
 export const ethToWei = (
   raw: unknown,
   maxDecimals: number = ETH_AMOUNT_MAX_DECIMALS,
@@ -57,9 +71,15 @@ export const ethToWei = (
   if (fractionPart.length > maxDecimals) {
     return null;
   }
-  const paddedFraction = fractionPart.padEnd(ETH_DECIMALS, '0');
+  // DEFECTO MEDIDO Y CORREGIDO (fase 4): `padEnd(ETH_DECIMALS, '0')` NO recorta. Con un
+  // `maxDecimals` mayor que `ETH_DECIMALS` (18) la fracción conservaba todos sus dígitos y
+  // `BigInt` la reinterpretaba como una magnitud 10^(n-18) veces mayor: `0.0000000000000000009`
+  // con `maxDecimals = 19` devolvía 9 wei (cierto: 0,9 wei → 0). La escala de wei es FIJA (18
+  // decimales), así que todo dígito por debajo del 18 se TRUNCA (nunca se expande la escala):
+  // es la misma política de truncado hacia abajo que aplica `formatEth`.
+  const scaledFraction = fractionPart.slice(0, ETH_DECIMALS).padEnd(ETH_DECIMALS, '0');
   const scale = 10n ** BigInt(ETH_DECIMALS);
-  const wei = BigInt(integerPart) * scale + BigInt(paddedFraction.length === 0 ? '0' : paddedFraction);
+  const wei = BigInt(integerPart) * scale + BigInt(scaledFraction.length === 0 ? '0' : scaledFraction);
   return wei > MAX_UINT256 ? null : wei;
 };
 
@@ -82,7 +102,9 @@ export const validateAmount = (
     wei: null,
     normalized: null,
     problem,
-    error: null,
+    // Error TIPADO de §4.3.1 (`-32602 invalidAmount`): `data.reason` identifica la causa y
+    // `data.problem` conserva el diagnóstico interno (`empty`/`format`/`decimals`/`overflow`).
+    error: invalidAmountError({ reason: 'invalid-amount', problem }),
   });
 
   if (text.length === 0) {

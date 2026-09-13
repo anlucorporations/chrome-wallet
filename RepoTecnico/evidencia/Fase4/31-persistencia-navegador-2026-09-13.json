@@ -1,0 +1,22 @@
+{
+  "flujo": "cerrar el navegador y reabrirlo sobre el mismo perfil",
+  "idExtensionPrimero": "oiahebaliobknoeeonhgaacapjcpgblo",
+  "idExtensionSegundo": "oiahebaliobknoeeonhgaacapjcpgblo",
+  "clavesPersistidas": [
+    "truekeate_accounts",
+    "truekeate_chain_id",
+    "truekeate_connected_sites",
+    "truekeate_current_account",
+    "truekeate_imported_accounts",
+    "truekeate_logs",
+    "truekeate_mnemonic",
+    "truekeate_networks",
+    "truekeate_settings"
+  ],
+  "mnemonicConservado": true,
+  "cuentaActiva": "idx:3",
+  "importadasConservadas": 1,
+  "sesionesConservadas": 1,
+  "chainIdConservado": "0x7a69",
+  "entradasDeLogConservadas": 16
+}

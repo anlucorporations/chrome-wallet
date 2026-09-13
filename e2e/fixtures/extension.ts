@@ -75,6 +75,28 @@ const ARGUMENTOS_EXTENSION = [
 // Fixtures publicados
 // ---------------------------------------------------------------------------
 
+/**
+ * Lanza un contexto persistente de Chromium con la extensión cargada desde `dist/` (§7.4.1.a).
+ *
+ * AÑADIDO EN LA FASE 4 (arnés, no producto): la prueba `31-persistencia-navegador.spec.ts` necesita
+ * **cerrar el navegador entero y volver a abrirlo sobre el MISMO perfil**, que es lo único que
+ * demuestra `CA-RF-09`/`CA-RF-10` a nivel de navegador (el resto de la suite solo reabre el popup o
+ * reinicia el Service Worker). Extraer el lanzamiento aquí evita duplicar los argumentos de Chrome.
+ *
+ * `perfil` es la ruta del directorio de perfil: reutilizarla es lo que conserva `chrome.storage.local`.
+ */
+export async function lanzarContextoPersistente(
+  perfil: string,
+  opciones: { acceptDownloads?: boolean } = {},
+): Promise<BrowserContext> {
+  return chromium.launchPersistentContext(perfil, {
+    channel: 'chromium',
+    headless: HEADLESS,
+    args: ARGUMENTOS_EXTENSION,
+    acceptDownloads: opciones.acceptDownloads ?? false,
+  });
+}
+
 /** Fixtures que exponen a las pruebas el contexto persistente y la identidad descubierta. */
 export interface ExtensionFixtures {
   /** Contexto persistente con la extensión cargada desde `dist/`. */
@@ -443,12 +465,7 @@ export const test = base.extend<ExtensionFixtures>({
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
     const profileDir = mkdtempSync(join(tmpdir(), 'tk-e2e-'));
-    const context = await chromium.launchPersistentContext(profileDir, {
-      channel: 'chromium',
-      headless: HEADLESS,
-      args: ARGUMENTOS_EXTENSION,
-      acceptDownloads: false,
-    });
+    const context = await lanzarContextoPersistente(profileDir);
     try {
       await use(context);
     } finally {

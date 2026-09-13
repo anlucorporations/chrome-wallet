@@ -170,12 +170,6 @@ export const PENDING_REQUESTS_MAX_PER_ORIGIN: number = pendingRequestsMaxPerOrig
 export const pendingRequestsPerMinute = 6 as const;
 export const PENDING_REQUESTS_PER_MINUTE: number = pendingRequestsPerMinute;
 
-/** Capacidad del *token bucket* por origen (1 token = 1 llamada RPC de página). */
-export const rateLimitBurst = 20 as const;
-
-/** Recarga lineal del bucket por segundo. */
-export const rateLimitRefillPerSecond = 5 as const;
-
 /** Purga de entradas inactivas de `truekeate_rate_windows`: 10 min sin uso. */
 export const rateWindowTtlMs = 600_000 as const;
 
@@ -189,6 +183,13 @@ export const RATE_PERSIST_DEBOUNCE_MS = 1_000 as const;
  * corpus fija en **6 solicitudes por ventana de 60 s** (`documento_tecnico.md` §2.3, invariante
  * «*Token bucket* de todo el catálogo de H3»). Se deriva de aquel valor, de modo que el bucket de
  * todo el catálogo y la cardinalidad de las aprobables tienen UNA sola fuente y no divergen.
+ *
+ * DESVIACIÓN CERRADA (fase 4, fleco 1). El diccionario declaraba `rateLimitBurst = 20` con recarga
+ * lineal `rateLimitRefillPerSecond = 5`, constantes **muertas** (ningún módulo las importaba) que
+ * contradecían la fuente autoritativa: `plan_desarrollo.md` §3.13 fija **6 solicitudes / 60 s por
+ * origen** y el propio `diccionario_datos.md` §2.13 registraba esa ventana en `approvalsInWindow`.
+ * Se eliminan las dos constantes muertas y la ventana queda con UNA sola fuente (esta), sin
+ * debilitar la defensa: el límite efectivo sigue siendo el MÁS ESTRICTO de los dos (6/60 s).
  */
 export const rateLimitWindowRequests: number = pendingRequestsPerMinute;
 

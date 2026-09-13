@@ -91,24 +91,52 @@ export const toBigIntOrNull = (value: unknown): bigint | null => {
   return null;
 };
 
-/** Convierte a `number` de `chainId` un hexadecimal (`0x7a69`) o un decimal (31337). */
-export const toChainIdNumber = (value: unknown): number => {
-  if (typeof value === 'number' && Number.isInteger(value)) {
-    return value;
+/**
+ * `chainId` interpretable a partir de un decimal, un hexadecimal (`0x7a69`) o un número entero no
+ * negativo; `null` si el valor NO tiene forma de `chainId`.
+ *
+ * Es la primitiva que permite distinguir «no declarado» de «declarado e ininterpretable», que es la
+ * diferencia entre no avisar y avisar: comparar dos valores con {@link toChainIdNumber} (que cae al
+ * `chainId` por defecto ante lo ilegible) hacía que un `domain.chainId` basura se considerara
+ * igual a la red activa cuando la red activa es la de por defecto.
+ */
+export const parseChainIdOrNull = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value >= 0 ? value : null;
   }
   if (typeof value === 'string') {
-    const text = value.trim().toLowerCase();
-    const parsed = text.startsWith('0x') ? Number.parseInt(text, 16) : Number.parseInt(text, 10);
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
+    const text = value.trim();
+    const parsed = /^\d+$/.test(text)
+      ? Number.parseInt(text, 10)
+      : /^0x[0-9a-f]+$/i.test(text)
+        ? Number.parseInt(text.slice(2), 16)
+        : Number.NaN;
+    return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
   }
-  return DEFAULT_CHAIN_ID_DECIMAL;
+  return null;
 };
 
-/** `chainId` en hexadecimal canónico (`0x7a69`) a partir de un decimal. */
+/**
+ * Convierte a `number` de `chainId` un hexadecimal (`0x7a69`) o un decimal (`31337`), con el
+ * `chainId` por defecto como respaldo cuando el valor no es interpretable.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): la rama de cadena usaba `Number.parseInt` SIN comprobar la
+ * forma, de modo que TRUNCABA y aceptaba valores que no son un `chainId`: `'1.5' → 1`,
+ * `'31337abc' → 31337` y `'-5' → -5` (y `chainIdHexOf(-5)` producía `'0x-5'`, que no es una forma
+ * hexadecimal válida). La propia spec de este módulo fija el criterio contrario para los números
+ * («1.5 no es un `chainId`: tampoco se trunca»), así que ahora la cadena debe ser un entero
+ * decimal o hexadecimal COMPLETO; cualquier otra cosa cae al `chainId` por defecto, igual que los
+ * números no enteros.
+ */
+export const toChainIdNumber = (value: unknown): number =>
+  parseChainIdOrNull(value) ?? DEFAULT_CHAIN_ID_DECIMAL;
+
+/**
+ * `chainId` en hexadecimal canónico (`0x7a69`) a partir de un decimal. Un valor que no sea un
+ * entero no negativo cae al `chainId` por defecto: nunca se emite una forma inválida como `0x-5`.
+ */
 export const chainIdHexOf = (decimal: number): ChainIdHex =>
-  `0x${decimal.toString(16)}` as ChainIdHex;
+  `0x${(Number.isSafeInteger(decimal) && decimal >= 0 ? decimal : DEFAULT_CHAIN_ID_DECIMAL).toString(16)}` as ChainIdHex;
 
 /**
  * Fórmula de EIP-155 para el `v` de una transacción legada: `chainId * 2 + 35 + yParity`.

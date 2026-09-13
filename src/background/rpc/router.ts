@@ -577,12 +577,23 @@ const dispatchRPCRequest = async (
 
     // 6. Despacho de los 6 APROBABLES de página (M19.b, cierre de D-H4-E1): vista previa → cola →
     //    ventana única → decisión → efecto. Excluye los DOS métodos de red de H5, que tienen su
-    //    propio despacho (paso 6.b) para cubrir TAMBIÉN la invocación desde el popup. El
-    //    `wallet_revokePermissions` del POPUP no llega aquí (su contexto de extensión lo despacha el
-    //    manejador interno de la tarea 3.11, más abajo).
+    //    propio despacho (paso 6.b) para cubrir TAMBIÉN la invocación desde el popup.
+    //
+    //    DEFECTO CORREGIDO EN LA FASE 4 (E2E `33-envio-desde-el-popup`): la condición excluía TODO
+    //    contexto de extensión, de modo que los TRES métodos de firma invocados por el POPUP
+    //    (`eth_sendTransaction` de la pestaña «Enviar» de M42, y también `personal_sign` y
+    //    `eth_signTypedData_v4`) saltaban la ruta aprobable y caían al despacho interno, que
+    //    respondía `4200 «El método solicitado no está soportado por TrueKeate Wallet»` **sin abrir
+    //    nunca la ventana única**: el popup no podía enviar nada. La única exclusión legítima del
+    //    contexto de extensión es `wallet_revokePermissions` desde el popup, cuya confirmación es
+    //    la propia UI de «Sitios conectados» (RF-26/`CA-RF-26`) y que se despacha por el manejador
+    //    interno de la tarea 3.11 (paso 7.c).
     const isNetworkMethod =
       method === 'wallet_switchEthereumChain' || method === 'wallet_addEthereumChain';
-    if (entry.requiresApproval && !context.isExtensionContext && !isNetworkMethod) {
+    /** Revocación del POPUP: su confirmación es la UI de «Sitios conectados», no la ventana única. */
+    const revocacionDesdeElPopup =
+      context.isExtensionContext && method === 'wallet_revokePermissions';
+    if (entry.requiresApproval && !isNetworkMethod && !revocacionDesdeElPopup) {
       const outcome = await deps.approve({
         method: method as ApprovalMethod,
         params,

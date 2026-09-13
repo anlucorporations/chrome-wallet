@@ -288,12 +288,44 @@ describe('M60 · importe en ETH (formulario 4 de CA-RF-33)', () => {
       expect(check.valid, `«${entrada}» debería rechazarse`).toBe(false);
       expect(check.wei).toBeNull();
       expect(check.normalized).toBeNull();
-      expect(check.error).toBeNull();
+      // DEFECTO CERRADO (fase 4, fleco 2): el fallo devuelve el error TIPADO de §4.3.1
+      // (`-32602 invalidAmount`) en vez de `error: null`. El `problem` interno sigue disponible.
+      expect(check.problem, `«${entrada}» debe describir su causa`).not.toBeNull();
+      expect(check.error?.code).toBe(-32602);
+      expect(check.error?.message).toBe(
+        'El importe no es válido: usa un número decimal positivo con hasta 18 decimales.',
+      );
+      expect(check.error?.data).toEqual({
+        reason: 'invalid-amount',
+        problem: check.problem,
+      });
     }
     expect(validateAmount('').problem).toBe('empty');
     expect(validateAmount('-1').problem).toBe('format');
     expect(isValidAmount('1.5')).toBe(true);
     expect(isValidAmount('1.5.5')).toBe(false);
+  });
+
+  it('el error tipado de importe inválido cubre las CUATRO causas y no se filtra al caso válido', () => {
+    // Cada causa del diagnóstico tiene su error documentado, uno por causa (§4.3.1).
+    const causas = [
+      { entrada: '   ', problem: 'empty' },
+      { entrada: '1e18', problem: 'format' },
+      { entrada: '0.00001', problem: 'decimals' },
+      { entrada: MAX_UINT256.toString(), problem: 'overflow' },
+    ] as const;
+    for (const { entrada, problem } of causas) {
+      const check = validateAmount(entrada);
+      expect(check.problem).toBe(problem);
+      expect(check.error).toMatchObject({
+        code: -32602,
+        data: { reason: 'invalid-amount', problem },
+      });
+    }
+    // Un importe VÁLIDO no arrastra error: `error` es `null` solo cuando el importe vale.
+    const valido = validateAmount('1.5');
+    expect(valido.valid).toBe(true);
+    expect(valido.error).toBeNull();
   });
 
   it('rechaza el importe que desborda `uint256` con `overflow`', () => {
@@ -336,5 +368,52 @@ describe('M60 · importe en ETH (formulario 4 de CA-RF-33)', () => {
     const error = insufficientBalanceError('1001', '1000');
     expect(error?.code).toBe(-32000);
     expect(error?.message).toBe('Saldo insuficiente para cubrir el valor y la comisión estimada.');
+  });
+
+  it('la frontera de `uint256` es exacta: el techo se acepta y un wei más desborda', () => {
+    // El importe máximo representable en wei ES `2^256 − 1`; su forma en ETH tiene 78 dígitos
+    // enteros y 18 decimales. La frontera es EXACTA, no aproximada.
+    const techoWei = MAX_UINT256;
+    const escala = 10n ** BigInt(ETH_DECIMALS);
+    const techoEth = `${techoWei / escala}.${(techoWei % escala).toString().padStart(ETH_DECIMALS, '0')}`;
+    const check = validateAmount(techoEth, ETH_DECIMALS);
+    expect(check.valid).toBe(true);
+    expect(check.wei).toBe(techoWei.toString());
+    expect(ethToWei(techoEth, ETH_DECIMALS)).toBe(techoWei);
+    // Una cota de decimales MÁS permisiva no cambia el resultado: el valor sigue cabiendo.
+    expect(ethToWei(techoEth, ETH_DECIMALS + 1)).toBe(techoWei);
+
+    // Un solo wei por encima del techo ya no cabe en `uint256`.
+    const porEncima = (techoWei + 1n).toString();
+    expect(validateAmount(`${porEncima}.0`, 1).valid).toBe(false);
+    expect(validateAmount(`${porEncima}.0`, 1).problem).toBe('overflow');
+    expect(ethToWei(`${porEncima}.0`, 1)).toBeNull();
+    // El cero se acepta como importe: la regla «positivo» es del formulario, no del tipo.
+    expect(validateAmount('0').wei).toBe('0');
+    expect(validateAmount('0.0000').wei).toBe('0');
+  });
+
+  it('un `maxDecimals` mayor que los 18 decimales de wei TRUNCA, no reescala la magnitud', () => {
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): con `maxDecimals = 19` la fracción se conservaba entera
+    // y `BigInt` la reinterpretaba 10 veces mayor. Magnitudes exactas de la frontera:
+    //   0,0000000000000000009 ETH = 0,9 wei → 0 wei (antes devolvía 9)
+    //   1,0000000000000000001 ETH = 1e18 + 0,1 wei → 1e18 wei (antes devolvía 1e18 + 1)
+    //   0,9999999999999999999 ETH → 999999999999999999 wei (antes 9999999999999999999)
+    expect(ethToWei('0.0000000000000000009', 19)).toBe(0n);
+    expect(ethToWei('0.0000000000000000001', 19)).toBe(0n);
+    expect(ethToWei('1.0000000000000000001', 19)).toBe(1_000_000_000_000_000_000n);
+    expect(ethToWei('0.9999999999999999999', 19)).toBe(999_999_999_999_999_999n);
+    expect(validateAmount('1.0000000000000000001', 19).wei).toBe('1000000000000000000');
+    expect(validateAmount('0.9999999999999999999', 19).wei).toBe('999999999999999999');
+    expect(validateAmount('0.0000000000000000009', 19).wei).toBe('0');
+    // El truncado del exceso y el RECHAZO del exceso son reglas distintas: con `maxDecimals = 18`
+    // una fracción de 19 dígitos se rechaza (no se trunca en silencio), y la misma magnitud
+    // recortada a 18 dígitos da exactamente el mismo wei que con la cota de 19.
+    expect(ethToWei('1.0000000000000000001', ETH_DECIMALS)).toBeNull();
+    expect(ethToWei('1.0000000000000000001'.slice(0, -1), ETH_DECIMALS)).toBe(1_000_000_000_000_000_000n);
+    expect(ethToWei('1.0000000000000000001', ETH_DECIMALS + 1)).toBe(1_000_000_000_000_000_000n);
+    // Y por encima de `maxDecimals` se sigue rechazando (no hay truncado silencioso del exceso).
+    expect(ethToWei('0.00000000000000000001', 19)).toBeNull();
+    expect(validateAmount('0.00000000000000000001', 19).problem).toBe('decimals');
   });
 });

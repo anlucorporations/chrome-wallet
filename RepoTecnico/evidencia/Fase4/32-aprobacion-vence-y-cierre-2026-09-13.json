@@ -1,0 +1,25 @@
+{
+  "flujo": "rechazo explícito de una eth_sendTransaction",
+  "code": 4001,
+  "mensaje": "Operación cancelada por el usuario.",
+  "ventanasRestantes": 0,
+  "colaFinal": 0,
+  "nodoIntacto": true,
+  "log": {
+    "category": "event",
+    "data": {
+      "approvalId": "9ed5a752-8748-4c52-9f23-5bf69a95e131",
+      "entrega": "tab",
+      "errorCode": 4001,
+      "status": "rejected"
+    },
+    "event": "approval_resolved",
+    "id": "6269061f-c2fe-4102-ad66-b74e90f491ce",
+    "level": "warn",
+    "message": "Solicitud de aprobación rechazada por el usuario",
+    "method": "eth_sendTransaction",
+    "origin": "http://localhost:5174",
+    "ts": 1789266330889
+  },
+  "ventanaReabierta": true
+}

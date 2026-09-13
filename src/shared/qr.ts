@@ -457,7 +457,7 @@ const applyMask = (
 };
 
 /** Puntuación de penalización del estándar (reglas 1 a 4) para elegir la máscara. */
-const maskPenalty = (modules: readonly (readonly boolean[])[]): number => {
+export const maskPenalty = (modules: readonly (readonly boolean[])[]): number => {
   const size = modules.length;
   const dark = (row: number, col: number): boolean => modules[row]?.[col] === true;
   let penalty = 0;
@@ -477,11 +477,16 @@ const maskPenalty = (modules: readonly (readonly boolean[])[]): number => {
     if (run >= 5) total += 3 + (run - 5);
     return total;
   };
+  // DEFECTO MEDIDO Y CORREGIDO (fase 4): las dos pasadas descartaban el valor devuelto por
+  // `runPenalty`, de modo que la regla 1 NO sumaba nada y la máscara se elegía con las reglas
+  // 2/3/4 solamente (la penalización de una matriz 21×21 toda oscura daba 1300 en vez de 2098).
+  // El símbolo seguía siendo decodificable —la máscara viaja en la información de formato— pero
+  // la selección dejaba de ser la de ISO/IEC 18004 §8.8.2. Ahora las dos pasadas acumulan.
   for (let row = 0; row < size; row += 1) {
-    runPenalty(Array.from({ length: size }, (_unused, col) => dark(row, col)));
+    penalty += runPenalty(Array.from({ length: size }, (_unused, col) => dark(row, col)));
   }
   for (let col = 0; col < size; col += 1) {
-    runPenalty(Array.from({ length: size }, (_unused, row) => dark(row, col)));
+    penalty += runPenalty(Array.from({ length: size }, (_unused, row) => dark(row, col)));
   }
 
   // Regla 2: bloques 2×2 del mismo color.

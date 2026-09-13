@@ -418,6 +418,31 @@ describe('M19 · buildTypedDataPreview (M19.b)', () => {
     expect(sinChainId.domainChainMismatch).toBe(false);
   });
 
+  it('un `chainId` de dominio PRESENTE pero ininterpretable cuenta como discrepancia', async () => {
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): `toChainIdNumber` cae al `chainId` por defecto ante un
+    // valor ilegible, así que con la red por defecto activa (Anvil 31337) un `domain.chainId`
+    // basura daba `31337 === 31337` y el aviso destacado NO se emitía: el usuario firmaba datos
+    // tipados de un dominio que la cartera no podía situar en ninguna red.
+    for (const basura of ['no-es-un-numero', '', '0x', '0xzz', 1.5, -1] as const) {
+      const preview = await buildTypedDataPreview({
+        domain: { chainId: basura },
+        types: { Permit: [{ name: 'spender', type: 'address' }] },
+        message: {},
+        chainId: 31337,
+      });
+      expect(preview.domainChainMismatch, `«${String(basura)}»`).toBe(true);
+      expect(typedDataRiskWarnings(preview)).toContain(RISK_WARNINGS.domainChainMismatch);
+    }
+    // El `chainId` correcto y el ausente siguen sin ser discrepancia (control positivo).
+    const correcto = await buildTypedDataPreview({
+      domain: { chainId: 31337 },
+      types: {},
+      message: {},
+      chainId: 31337,
+    });
+    expect(correcto.domainChainMismatch).toBe(false);
+  });
+
   it('`primaryType` cae al primer tipo declarado cuando no se aporta', async () => {
     const inferido = await buildTypedDataPreview({
       domain: {},

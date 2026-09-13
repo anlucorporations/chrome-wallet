@@ -1,0 +1,34 @@
+{
+  "flujo": "validación inline del formulario de envío del popup",
+  "origenMostradoEnLaVentana": "extension",
+  "contadorVentana": "1 solicitud en espera",
+  "hash": "0x4b1157aca73eddaca3c618d7fcc4e434952dd53e7f40ba422f1f36e560b791ed",
+  "reciboStatus": "0x1",
+  "desde": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  "hasta": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+  "colaFinal": 0,
+  "rpc": "http://127.0.0.1:8545",
+  "referenciasOfrecidas": [
+    "idx:1",
+    "idx:2",
+    "idx:3",
+    "idx:4"
+  ],
+  "origenExcluido": true,
+  "direccionInvalida": {
+    "ariaInvalid": "true",
+    "errorVisible": true,
+    "estimacionBloqueada": true,
+    "ventanas": 0
+  },
+  "valorPorEncimaDelSaldo": {
+    "code": -32000,
+    "motivo": "La estimación de gas falló: Error interno de la cartera.. El envío se ha bloqueado.",
+    "bloqueaEnvio": true,
+    "ventanas": 0,
+    "colaVacia": true
+  },
+  "origenDeLaPrueba": "http://localhost:5174",
+  "plazoNoConsumido": "no se creó ninguna entrada en truekeate_pending_requests",
+  "esperaFirmaMs": 45000
+}

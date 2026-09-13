@@ -1,0 +1,10 @@
+{
+  "flujo": "eth_sendTransaction · 1 ETH entre cuentas de Anvil",
+  "dapp": "http://localhost:5174",
+  "contadorVentana": "1 solicitud en espera",
+  "ventanasDeDecision": 0,
+  "hash": "0x2b343736c70cea589fa45a611e852bbcefc57b3c08c462da7d4f7f2f71b384d3",
+  "reciboStatus": "0x1",
+  "gastadoWei": "1000037084556901000",
+  "colaVacia": true
+}

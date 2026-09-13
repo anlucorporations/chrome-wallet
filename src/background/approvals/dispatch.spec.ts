@@ -307,6 +307,59 @@ describe('M19.b · ruta de los 6 métodos aprobables', () => {
     expect(show).toHaveBeenCalledTimes(1);
   });
 
+  it('el destino PROPIO lleva la etiqueta efectiva de la cuenta (no `desconocido`)', async () => {
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): `localLabelFor` indexaba `accountLabels`
+    // (`Record<number, string>`, clave = índice BIP-44) por DIRECCIÓN, así que la búsqueda era
+    // siempre `undefined` y CUALQUIER destino propio salía como «desconocido» con el aviso
+    // «Destino sin etiqueta», aunque el usuario lo hubiera etiquetado.
+    await chromeStub.storage.local.set({
+      [STORAGE_KEYS.accounts]: [CUENTA_0, CUENTA_1],
+      [STORAGE_KEYS.settings]: { accountLabels: { 1: 'Nómina' } },
+    });
+    const { deps, enqueue } = buildDeps();
+
+    const resultado = await dispatchApproval({
+      method: 'eth_sendTransaction',
+      params: transferencia(),
+      context: contexto(),
+      deps,
+      now: ahora(),
+    });
+
+    expect(resultado.ok).toBe(true);
+    const draft = enqueue.mock.calls[0]?.[0] as PendingRequestDraft;
+    expect(draft.txPreview?.to).toBe(CUENTA_1);
+    expect(draft.txPreview?.toLabel).toBe('Nómina');
+    const avisos = draft.txPreview?.riskWarnings ?? [];
+    expect(avisos.some((aviso) => aviso.includes('Destino sin etiqueta'))).toBe(false);
+  });
+
+  it('un destino que NO es de la cartera sigue sin etiqueta (control negativo)', async () => {
+    await chromeStub.storage.local.set({
+      [STORAGE_KEYS.accounts]: [CUENTA_0, CUENTA_1],
+      [STORAGE_KEYS.settings]: { accountLabels: { 1: 'Nómina' } },
+    });
+    const { deps, enqueue } = buildDeps();
+    const ajena = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC';
+
+    const resultado = await dispatchApproval({
+      method: 'eth_sendTransaction',
+      params: [{ from: CUENTA_0, to: ajena, value: '0x1' }],
+      context: contexto(),
+      deps,
+      now: ahora(),
+    });
+
+    expect(resultado.ok).toBe(true);
+    const draft = enqueue.mock.calls[0]?.[0] as PendingRequestDraft;
+    expect(draft.txPreview?.toLabel).toBe('desconocido');
+    expect(draft.txPreview?.riskWarnings ?? []).toContain(
+      'Destino sin etiqueta: la dirección no está etiquetada en la cartera.',
+    );
+    // La cuenta etiquetada de la cartera NO se ha usado para el destino ajeno.
+    expect(draft.txPreview?.toLabel).not.toBe('Nómina');
+  });
+
   it('un `estimateGas` fallido responde -32000 SIN encolar y SIN abrir ventana (RNF-25)', async () => {
     const error = estimateGasFailedError('execution reverted');
     const { deps, enqueue, show } = buildDeps({

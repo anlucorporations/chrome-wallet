@@ -118,7 +118,20 @@ export const normalizeRateWindow = (
     return freshRateWindow(now);
   }
   if (now - stored.approvalWindowStart >= RATE_WINDOW_MS) {
-    return { ...stored, tokens: rateLimitWindowRequests, approvalWindowStart: now };
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): esta rama reiniciaba `tokens` y `approvalWindowStart`
+    // pero NO `approvalsInWindow`, así que el contador de aprobables se quedaba en su valor
+    // anterior (6) para siempre. `enqueueApprovalRequest` lee la ventana con ESTA función y
+    // compara `approvalsInWindow >= perMinute`: la PRIMERA solicitud de la ventana nueva ya se
+    // rechazaba con `4001` y, como el rechazo retorna antes de persistir, el origen quedaba
+    // bloqueado hasta la purga por inactividad (10 min). `diccionario_datos.md` §2.13 regla (4)
+    // lo dice literalmente: «si `now - approvalWindowStart >= 60000` la ventana se reinicia con
+    // `approvalsInWindow = 0`».
+    return {
+      ...stored,
+      tokens: rateLimitWindowRequests,
+      approvalWindowStart: now,
+      approvalsInWindow: 0,
+    };
   }
   return { ...stored, tokens: Math.min(stored.tokens, rateLimitWindowRequests) };
 };
@@ -128,22 +141,27 @@ export const normalizeRateWindow = (
  *
  * - Dentro de la ventana: consume 1 token; con `tokens <= 0` la llamada se RECHAZA y solo se
  *   incrementa `deniedCount` (diagnóstico; no se ejecuta la llamada al nodo).
- * - Fuera de la ventana (`now - approvalWindowStart >= 60 s`): la ventana se reinicia y la llamada
- *   consume el primer token de la nueva ventana.
+ * - Fuera de la ventana (`now - approvalWindowStart >= 60 s`): la ventana se reinicia (lo resuelve
+ *   {@link normalizeRateWindow}) y la llamada consume el primer token de la nueva ventana.
+ *
+ * NO toca `approvalsInWindow`: ese contador es de las solicitudes **APROBABLES** (§2.13) y quien
+ * las cuenta es `enqueueApprovalRequest`, que es el único que sabe si la llamada abrió una
+ * solicitud. Ver la nota de {@link consumeRateWindow}.
  */
 export const consumeRateWindow = (
   stored: RateWindow | null | undefined,
   now: number,
 ): RateLimitDecision => {
+  // DEFECTO MEDIDO Y CORREGIDO (fase 4): aquí se incrementaba `approvalsInWindow` en TODA llamada
+  // permitida del catálogo (esta función no recibe el método, así que también contaba
+  // `eth_getBalance`), y la MISMA llamada aprobable lo volvía a incrementar en
+  // `enqueueApprovalRequest` (el router ejecuta las dos). Resultado: una aprobación consumía DOS
+  // posiciones de la ventana de 6/min, de modo que el límite efectivo era de 3 aprobaciones por
+  // minuto y cualquier lectura previa lo agotaba antes. `diccionario_datos.md` §2.13 define el
+  // campo como «solicitudes **aprobables** contadas dentro de la ventana vigente», así que el
+  // contador pertenece a la cola. El reinicio de la ventana sigue ocurriendo en
+  // `normalizeRateWindow` (que lo deja a 0 al vencer).
   const base = normalizeRateWindow(stored, now);
-  // La ventana se reinicia cuando no había historial, cuando venció o cuando el reloj iba por
-  // detrás (`approvalWindowStart`/`lastRefillAt` en el futuro).
-  const reset =
-    stored === null ||
-    stored === undefined ||
-    now - stored.approvalWindowStart >= RATE_WINDOW_MS ||
-    stored.approvalWindowStart > now ||
-    stored.lastRefillAt > now;
   if (base.tokens <= 0) {
     return {
       allowed: false,
@@ -153,12 +171,7 @@ export const consumeRateWindow = (
   }
   return {
     allowed: true,
-    window: {
-      ...base,
-      tokens: base.tokens - 1,
-      approvalsInWindow: reset ? 1 : base.approvalsInWindow + 1,
-      updatedAt: now,
-    },
+    window: { ...base, tokens: base.tokens - 1, updatedAt: now },
     changed: true,
   };
 };

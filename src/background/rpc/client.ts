@@ -74,6 +74,85 @@ interface RpcAttemptFailure {
   detail: string;
 }
 
+/**
+ * RECHAZO DEL NODO (fleco 3 de la fase 4): el nodo respondió, pero con un error JSON-RPC
+ * determinista (`-32003 Insufficient funds for gas * price + value`, `-32000`, un revert, …).
+ *
+ * Es la clase de fallo que faltaba: hasta ahora se contaba como un intento fallido más, así que un
+ * rechazo DETERMINISTA del nodo gastaba los 4 intentos con 7 s de backoff y acababa saliendo como
+ * `4900 rpcUnavailable` («Sin conexión con la red local (Anvil).»), confundiendo «el nodo me
+ * rechazó» con «no hay conexión» y marcando la UI como «desconectado». Un error de respuesta NO se
+ * reintenta: reintentarlo no puede cambiar el resultado.
+ */
+export interface RpcNodeRejection {
+  ok: false;
+  /** Código JSON-RPC devuelto por el nodo (numérico y, en la práctica, negativo). */
+  nodeCode: number;
+  /** Motivo accionable tal y como lo devolvió el nodo (texto en inglés de Anvil/EVM). */
+  nodeMessage: string;
+  /** `data` del error JSON-RPC, solo diagnóstico. */
+  nodeData?: unknown;
+  method: string;
+}
+
+/** ¿Es un rechazo del nodo con `code` numérico (respuesta JSON-RPC), y no un fallo de transporte? */
+export const nodeRejectionOf = (error: unknown): RpcNodeRejection | null => {
+  if (typeof error !== 'object' || error === null) {
+    return null;
+  }
+  const record = error as { code?: unknown; message?: unknown; data?: unknown; method?: unknown };
+  // Los fallos de `ethers` y de `fetch` usan `code` de CADENA (`TIMEOUT`, `ECONNREFUSED`,
+  // `NETWORK_ERROR`): no son rechazos del nodo.
+  if (typeof record.code !== 'number' || !Number.isFinite(record.code)) {
+    return null;
+  }
+  // Un rechazo del NODO es un error JSON-RPC de servidor: `-32768 … -32000` (rango reservado de
+  // `-32000` a `-32099` para el servidor y `-32768` a `-32000` para la implementación). Los
+  // códigos PROPIOS de la cartera (4001, 4100, 4200, 4900, 4901) quedan FUERA a propósito: un
+  // `4900` del cliente NO es un rechazo del nodo y debe seguir siendo «sin conexión».
+  if (record.code > -32_000 || record.code < -32_768) {
+    return null;
+  }
+  const rejection: RpcNodeRejection = {
+    ok: false,
+    nodeCode: record.code,
+    nodeMessage: typeof record.message === 'string' ? record.message : '',
+    method: typeof record.method === 'string' ? record.method : '',
+  };
+  if (record.data !== undefined) {
+    rejection.nodeData = record.data;
+  }
+  return rejection;
+};
+
+/** Extrae la cadena de errores anidados de `ethers` (`error` / `info.error` / `data`). */
+const nestedRecords = (error: unknown): Record<string, unknown>[] => {
+  const found: Record<string, unknown>[] = [];
+  let current: unknown = error;
+  for (let depth = 0; depth < 4 && typeof current === 'object' && current !== null; depth += 1) {
+    const record = current as Record<string, unknown>;
+    found.push(record);
+    const next = record.error ?? (record.info as { error?: unknown } | undefined)?.error;
+    current = next;
+  }
+  return found;
+};
+
+/**
+ * ¿La cadena de errores contiene un RECHAZO DEL NODO? Se recorre la cadena de causas porque
+ * `ethers` envuelve el error JSON-RPC original en un error propio (`code: 'CALL_EXCEPTION'`), de
+ * modo que la respuesta del nodo (`-32003`) queda anidada.
+ */
+export const findNodeRejection = (error: unknown): RpcNodeRejection | null => {
+  for (const record of nestedRecords(error)) {
+    const rejection = nodeRejectionOf(record);
+    if (rejection !== null) {
+      return rejection;
+    }
+  }
+  return null;
+};
+
 // ---------------------------------------------------------------------------
 // Proveedor único
 // ---------------------------------------------------------------------------
@@ -156,6 +235,15 @@ const attemptCall = async (
     const result = await provider.send(method, params);
     return { ok: true, result };
   } catch (error) {
+    // Rechazo DETERMINISTA del nodo: se lanza tal cual para que NO se reintente y para que el
+    // llamador pueda tiparlo con la causa de §4.3 que corresponda (p. ej. `estimateGasFailed`).
+    // El nodo respondió, así que la conexión se da por buena: «desconectado» queda reservado a
+    // «no hubo respuesta» (RNF-07).
+    const rejection = findNodeRejection(error);
+    if (rejection !== null) {
+      status = 'connected';
+      throw rejection;
+    }
     return { ok: false, failure: describeFailure(error, timeoutMs) };
   }
 };
@@ -181,6 +269,9 @@ const describeFailure = (error: unknown, timeoutMs: number): RpcAttemptFailure =
  * @param params Parámetros posicionales del método (nunca secretos: viajan al nodo).
  * @param options Sobrescrituras de prueba; en producción, ninguna.
  * @throws Eip1193Error `4900 rpcUnavailable` cuando se agotan los `attempts` (4).
+ * @throws RpcNodeRejection cuando el nodo RECHAZA la llamada (error JSON-RPC determinista): es una
+ * respuesta, no un fallo de conexión, así que **no** se reintenta, **no** se responde `4900` y la
+ * UI **no** pasa a «desconectado».
  */
 export const rpcSend = async (
   method: string,

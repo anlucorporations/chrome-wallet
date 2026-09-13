@@ -52,5 +52,28 @@ describe('M11 · toChainIdNumber: hexadecimal, decimal y respaldo normativo', ()
   it('chainIdHexOf es la forma hexadecimal canónica del decimal', () => {
     expect(chainIdHexOf(31337)).toBe('0x7a69');
     expect(chainIdHexOf(1)).toBe('0x1');
+    // Un valor que no es un entero no negativo NUNCA produce una forma hexadecimal inválida.
+    expect(chainIdHexOf(-5)).toBe('0x7a69');
+    expect(chainIdHexOf(Number.NaN)).toBe('0x7a69');
+    expect(chainIdHexOf(1.5)).toBe('0x7a69');
+    expect(chainIdHexOf(0)).toBe('0x0');
+  });
+
+  it('una CADENA no entera tampoco se trunca: cae al `chainId` por defecto', () => {
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): la rama de cadena usaba `Number.parseInt` sin comprobar
+    // la forma, así que truncaba en silencio (`'1.5' → 1`, `'31337abc' → 31337`) y aceptaba
+    // NEGATIVOS (`'-5' → -5`), que no son un `chainId` y que además producían `'0x-5'` al
+    // convertirlos a hexadecimal. El criterio es el MISMO que ya se aplicaba a los números.
+    for (const entrada of ['1.5', '-5', '31337abc', '3 1337', '1e3', '0x', '0x7a69zz', '12,5']) {
+      expect(toChainIdNumber(entrada), `«${entrada}»`).toBe(DEFAULT_CHAIN_ID_DECIMAL);
+    }
+    // Y las formas bien construidas siguen interpretándose (control positivo).
+    expect(toChainIdNumber('0X7A69')).toBe(31337);
+    expect(toChainIdNumber(' 0x7a69 ')).toBe(31337);
+    expect(toChainIdNumber('1')).toBe(1);
+    expect(toChainIdNumber('0x1')).toBe(1);
+    // Un número negativo tampoco vale como `chainId`.
+    expect(toChainIdNumber(-1)).toBe(DEFAULT_CHAIN_ID_DECIMAL);
+    expect(toChainIdNumber(0)).toBe(0);
   });
 });

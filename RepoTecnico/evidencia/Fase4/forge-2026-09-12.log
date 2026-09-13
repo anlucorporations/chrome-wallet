@@ -1,0 +1,274 @@
+﻿=====================================================================
+EVIDENCIA FASE 4 (PRUEBAS) - FRENTE CONTRATO + CORRESPONDENCIA WALLET
+Proyecto: TrueKeate Wallet - C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet
+Fecha de captura: 2026-09-12 (hora local)
+Alcance: contracts/** (contrato, tests, fixtures, scripts) + contracts/README.md
+NO se modifico ningun fichero de src/ ni de e2e/ ni de public/ ni de configuracion de build.
+=====================================================================
+
+### 0. Versiones ###
+forge Version: 1.7.2-dev
+Commit SHA: 27717f4a1bbde3be3b456a04edc8b3cce2f7798d
+Build Timestamp: 2026-06-16T23:45:08.022265700Z (1781653508)
+Build Profile: release
+cast Version: 1.7.2-dev
+Commit SHA: 27717f4a1bbde3be3b456a04edc8b3cce2f7798d
+Build Timestamp: 2026-06-17T00:25:06.247183400Z (1781655906)
+Build Profile: release
+foundry.toml: solc=0.8.24, evm_version=cancun, optimizer=false
+
+### 1. forge build --root contracts ###
+Comando: forge build --root contracts
+    │
+    ╰ help: https://getfoundry.sh/forge/linting/unused-return
+System.Management.Automation.RemoteException
+EXIT=0 (el 'forge build' con lint imprime avisos pero termina con exit 0; verificado con LASTEXITCODE)
+
+### 2. forge test --root contracts -vv (SUITE COMPLETA) ###
+Comando: forge test --root contracts -vv
+No files changed, compilation skipped
+
+Ran 10 tests for test/EIP712Verifier.t.sol:EIP712VerifierTest
+[PASS] test_AlteredDomainReturnsFalse() (gas: 58621)
+[PASS] test_FixtureDomainAndDigestMatchContract() (gas: 31929)
+[PASS] test_MalformedSignatureReturnsFalseWithoutRevert() (gas: 184935)
+[PASS] test_OneAlteredByteReturnsFalse() (gas: 41181)
+[PASS] test_ValidSignatureReturnsTrue() (gas: 33286)
+[PASS] test_ValidSignatureViaTypedDataReturnsTrue() (gas: 45849)
+[PASS] test_WalletSignatureRejectsForeignSignerAndDomain() (gas: 115028)
+[PASS] test_WalletSignatureVerifiesOnChain() (gas: 122773)
+[PASS] test_WalletSignatureWithOneAlteredMessageByteReturnsFalse() (gas: 143211)
+[PASS] test_WrongSignerReturnsFalse() (gas: 28968)
+Suite result: ok. 10 passed; 0 failed; 0 skipped; finished in 6.96s (84.00ms CPU time)
+
+Ran 20 tests for test/EIP712VerifierFase4.t.sol:EIP712VerifierFase4Test
+[PASS] testF4_ChainIdAjenoYVerifyingContractCeroDevuelvenFalse() (gas: 85306)
+[PASS] testF4_ContentVacioYContentLargo() (gas: 61774)
+[PASS] testF4_ContratoSinEstado() (gas: 2910218)
+[PASS] testF4_CorrespondenciaWalletContratoBidireccional() (gas: 82848)
+[PASS] testF4_DominioAlteradoDevuelveFalse() (gas: 94343)
+[PASS] testF4_FirmaConColaAnadidaDevuelveFalse() (gas: 38167)
+[PASS] testF4_FirmaMaleableConSAltoSeRechaza() (gas: 59941)
+[PASS] testF4_FirmanteAjenoYFirmanteCeroDevuelvenFalse() (gas: 62718)
+[PASS] testF4_FronterasDeSSeRechazan() (gas: 141471)
+[PASS] testF4_Fuzz_BitAlteradoDelDigestInvalida(bytes32,uint256) (runs: 256, μ: 1725953, ~: 1723519)
+[PASS] testF4_Fuzz_FirmaSoloValeParaElMensajeExacto(uint256,string) (runs: 256, μ: 59853, ~: 59758)
+[PASS] testF4_GasDeterministaYEstable() (gas: 315677)
+[PASS] testF4_LongitudesDistintasDe65DevuelvenFalse() (gas: 2894047)
+[PASS] testF4_NingunaFirmaMalformadaRevierte() (gas: 266723)
+[PASS] testF4_RCeroYSCeroDevuelvenFalse() (gas: 63712)
+[PASS] testF4_RecoverDevuelveCeroAnteFirmaInvalida() (gas: 78009)
+[PASS] testF4_RecoverNuncaDevuelveDireccionCero() (gas: 127869)
+[PASS] testF4_TypehashYVerifyTypedDataEquivalen() (gas: 54056)
+[PASS] testF4_ValoresDeVFueraDeRangoDevuelvenFalse() (gas: 87236)
+[PASS] testF4_WalletUnBitAlteradoDevuelveFalse() (gas: 68792)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 6.97s (7.54s CPU time)
+
+Ran 2 test suites in 6.97s (13.93s CPU time): 30 tests passed, 0 failed, 0 skipped (30 total tests)
+EXIT=0
+
+### 3. forge test --root contracts --gas-report (tabla de gas) ###
+Comando: forge test --root contracts --match-contract EIP712VerifierTest --gas-report
+No files changed, compilation skipped
+
+Ran 10 tests for test/EIP712Verifier.t.sol:EIP712VerifierTest
+[PASS] test_AlteredDomainReturnsFalse() (gas: 107621)
+[PASS] test_FixtureDomainAndDigestMatchContract() (gas: 52929)
+[PASS] test_MalformedSignatureReturnsFalseWithoutRevert() (gas: 333935)
+[PASS] test_OneAlteredByteReturnsFalse() (gas: 74181)
+[PASS] test_ValidSignatureReturnsTrue() (gas: 47786)
+[PASS] test_ValidSignatureViaTypedDataReturnsTrue() (gas: 64849)
+[PASS] test_WalletSignatureRejectsForeignSignerAndDomain() (gas: 138028)
+[PASS] test_WalletSignatureVerifiesOnChain() (gas: 145273)
+[PASS] test_WalletSignatureWithOneAlteredMessageByteReturnsFalse() (gas: 173211)
+[PASS] test_WrongSignerReturnsFalse() (gas: 43468)
+Suite result: ok. 10 passed; 0 failed; 0 skipped; finished in 15.95ms (30.26ms CPU time)
+
+╭--------------------------------------------------+-----------------+------+--------+------+---------╮
+| src/EIP712Verifier.sol:EIP712Verifier Contract   |                 |      |        |      |         |
++=====================================================================================================+
+| Deployment Cost                                  | Deployment Size |      |        |      |         |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+|                                                0 |            3089 |      |        |      |         |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+|                                                  |                 |      |        |      |         |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| Function Name                                    | Min             | Avg  | Median | Max  | # Calls |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| domainSeparator((string,string,uint256,address)) |            2709 | 2709 |   2709 | 2709 |       1 |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| domainSeparator(string,string,uint256,address)   |            2681 | 2681 |   2681 | 2681 |      20 |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| hashTypedData                                    |            1403 | 1403 |   1403 | 1403 |      19 |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| verify                                           |            1233 | 3493 |   4780 | 4825 |      29 |
+|--------------------------------------------------+-----------------+------+--------+------+---------|
+| verifyTypedData                                  |            5635 | 5657 |   5657 | 5680 |       4 |
+╰--------------------------------------------------+-----------------+------+--------+------+---------╯
+
+
+Ran 1 test suite in 42.02ms (15.95ms CPU time): 10 tests passed, 0 failed, 0 skipped (10 total tests)
+EXIT=0
+
+### 3.b Reproduccion con semilla de fuzz FIJA (512 vueltas por test fuzz) ###
+Comando: forge test --root contracts --fuzz-seed 0x547275654b656174652d4661736534 --fuzz-runs 512 -vv
+No files changed, compilation skipped
+
+Ran 20 tests for test/EIP712VerifierFase4.t.sol:EIP712VerifierFase4Test
+[PASS] testF4_ChainIdAjenoYVerifyingContractCeroDevuelvenFalse() (gas: 85306)
+[PASS] testF4_ContentVacioYContentLargo() (gas: 61774)
+[PASS] testF4_ContratoSinEstado() (gas: 2910218)
+[PASS] testF4_CorrespondenciaWalletContratoBidireccional() (gas: 82848)
+[PASS] testF4_DominioAlteradoDevuelveFalse() (gas: 94343)
+[PASS] testF4_FirmaConColaAnadidaDevuelveFalse() (gas: 38167)
+[PASS] testF4_FirmaMaleableConSAltoSeRechaza() (gas: 59941)
+[PASS] testF4_FirmanteAjenoYFirmanteCeroDevuelvenFalse() (gas: 62718)
+[PASS] testF4_FronterasDeSSeRechazan() (gas: 141471)
+[PASS] testF4_Fuzz_BitAlteradoDelDigestInvalida(bytes32,uint256) (runs: 512, μ: 1726151, ~: 1724990)
+[PASS] testF4_Fuzz_FirmaSoloValeParaElMensajeExacto(uint256,string) (runs: 512, μ: 59841, ~: 59828)
+[PASS] testF4_GasDeterministaYEstable() (gas: 315677)
+[PASS] testF4_LongitudesDistintasDe65DevuelvenFalse() (gas: 2894047)
+[PASS] testF4_NingunaFirmaMalformadaRevierte() (gas: 266723)
+[PASS] testF4_RCeroYSCeroDevuelvenFalse() (gas: 63712)
+[PASS] testF4_RecoverDevuelveCeroAnteFirmaInvalida() (gas: 78009)
+[PASS] testF4_RecoverNuncaDevuelveDireccionCero() (gas: 127869)
+[PASS] testF4_TypehashYVerifyTypedDataEquivalen() (gas: 54056)
+[PASS] testF4_ValoresDeVFueraDeRangoDevuelvenFalse() (gas: 87236)
+[PASS] testF4_WalletUnBitAlteradoDevuelveFalse() (gas: 68792)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 15.89s (31.84s CPU time)
+
+Ran 10 tests for test/EIP712Verifier.t.sol:EIP712VerifierTest
+[PASS] test_AlteredDomainReturnsFalse() (gas: 58621)
+[PASS] test_FixtureDomainAndDigestMatchContract() (gas: 31929)
+[PASS] test_MalformedSignatureReturnsFalseWithoutRevert() (gas: 184935)
+[PASS] test_OneAlteredByteReturnsFalse() (gas: 41181)
+[PASS] test_ValidSignatureReturnsTrue() (gas: 33286)
+[PASS] test_ValidSignatureViaTypedDataReturnsTrue() (gas: 45849)
+[PASS] test_WalletSignatureRejectsForeignSignerAndDomain() (gas: 115028)
+[PASS] test_WalletSignatureVerifiesOnChain() (gas: 122773)
+[PASS] test_WalletSignatureWithOneAlteredMessageByteReturnsFalse() (gas: 143211)
+[PASS] test_WrongSignerReturnsFalse() (gas: 28968)
+Suite result: ok. 10 passed; 0 failed; 0 skipped; finished in 15.90s (44.53ms CPU time)
+
+Ran 2 test suites in 15.90s (31.79s CPU time): 30 tests passed, 0 failed, 0 skipped (30 total tests)
+
+
+=====================================================================
+### 4. CORRESPONDENCIA WALLET <-> CONTRATO (script en el ambito del contrato) ###
+Comando: node contracts/scripts/generar-fixture-wallet.mjs
+fichero            : C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\contracts\test\fixtures\eip712-wallet-signature.json
+firmante (M11)     : 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+domainSeparator    : 0x9b6b5bdb23be9845267bc613db394852637c66a6ad6fa47ccbb9e985798fd6ae
+digest             : 0x617f47605752a33464938912ead84ac2283bca6d2e20eae51a5ca22b2348f52f
+firma              : 0x8dab23606ca625dab10714f0edb471d995f4afce818cb7866a79815b42ed712460d28da649ccca67db96e552653a253457614489dd77794560d793f869cd36ee1b
+recuperado         : 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+s (mitad baja EIP-2): true
+
+OK: el fixture de la wallet es coherente con M11 (digest, firma y firmante).
+EXIT=0 (el fixture versionado coincide con la firma de M11: digest, firma, firmante y s bajo EIP-2)
+
+### 4.b Tercer oraculo independiente: cast wallet sign sobre el MISMO typed data ###
+Comando: cast wallet sign --data --from-file contracts/scripts/typed-data-wallet.json --private-key 0x59c6...
+firma producida: 0x8dab23606ca625dab10714f0edb471d995f4afce818cb7866a79815b42ed712460d28da649ccca67db96e552653a253457614489dd77794560d793f869cd36ee1b
+firma del fixture: 0x8dab23606ca625dab10714f0edb471d995f4afce818cb7866a79815b42ed712460d28da649ccca67db96e552653a253457614489dd77794560d793f869cd36ee1b
+COINCIDEN: True
+Comando: cast wallet verify --data --from-file contracts/scripts/typed-data-wallet.json --address 0x7099... <firma>
+Validation succeeded. Address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 signed this message.
+
+=====================================================================
+### 5. VERIFICACION ON-CHAIN CONTRA UN NODO REAL (Anvil, chainId 31337) ###
+Nodo: anvil --host 127.0.0.1 --port 8545 --chain-id 31337 (ya en marcha, PID 13060)
+chain-id del nodo: 31337
+block-number al desplegar: 0
+
+Despliegue: forge create --root contracts --rpc-url http://127.0.0.1:8545 --private-key 0x59c6... src/EIP712Verifier.sol:EIP712Verifier --broadcast
+  Deployer:    0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+  Deployed to: 0x8464135c8F25Da09e49BC8782676a84730C318bC  (coincide con verifyingContract del fixture = nonce 0)
+  Tx hash:     0x246234ffb36bbf0951b15ee9612c5d50150d862bb11a0fba1e09e59734c57707
+
+Llamadas (cast call, NO revierte ninguna):
+  [A ] verify(signer, digest_wallet, sig_wallet)                  -> true   (esperado true)
+  [B ] verify(signer, digest_cast,   sig_cast)                    -> true   (esperado true)
+  [C ] verify(signer, digest_wallet XOR 1, sig_wallet)            -> false   (esperado false)
+  [D ] verify(signer, digest_wallet, firma maleable s'=n-s)       -> false   (esperado false)
+  [E ] verify(signer, digest_wallet, firma con v=0)               -> false   (esperado false)
+  [F ] verify(signer, digest_wallet, firma de 64 bytes)           -> false   (esperado false, SIN revert)
+  [G ] verify(signer=address(0), digest_wallet, sig_wallet)       -> false   (esperado false)
+  [H ] verify(signer, digest_wallet, r=0)                        -> false   (esperado false)
+  [I ] verify(signer, digest_wallet, s=0)                        -> false   (esperado false)
+  [J ] verify(signer, digest_wallet, s = n/2)                     -> false   (esperado false; EIP-2 permite s <= n/2)
+  [K ] verify(signer, digest_wallet, s = n/2+1)                   -> false   (esperado false, mitad alta)
+  [L ] recover(digest_wallet, sig_wallet)                        -> 0x70997970C51812dc3A010C7d01b50e0d17dc79C8   (= el firmante de la wallet)
+  [M ] domainSeparator('TrueKeate Test App','1',31337,contrato)   -> 0x9b6b5bdb23be9845267bc613db394852637c66a6ad6fa47ccbb9e985798fd6ae
+       domainSeparator esperado (fixtures)                        -> 0x9b6b5bdb23be9845267bc613db394852637c66a6ad6fa47ccbb9e985798fd6ae
+       COINCIDEN: True
+  [N ] storage slot 0 y 1 del contrato                           -> 0x0000000000000000000000000000000000000000000000000000000000000000 / 0x0000000000000000000000000000000000000000000000000000000000000000  (vacios: sin estado)
+  [O ] cast nonce del contrato (no ha creado nada)               -> 1
+  [P ] cast estimate de verify (nivel de transaccion)            -> 28193 gas (incluye 21000 + calldata; el coste de ejecucion medido es 4825)
+
+=====================================================================
+### 6. CONTRATO SIN ESTADO: analisis del runtime DESPLEGADO en Anvil ###
+Direccion: 0x8464135c8F25Da09e49BC8782676a84730C318bC   (runtime: 6122 hex chars = 3060 bytes)
+Bytecode de creacion: 6180 hex chars
+Recorrido del runtime saltando el dato inmediato de los PUSH (0x60..0x7f):
+  SSTORE (0x55)        apariciones: 0   <- ninguna escritura de almacenamiento
+  SLOAD  (0x54)        apariciones: 0   <- ninguna lectura de almacenamiento
+  DELEGATECALL (0xf4)  apariciones: 0   <- no puede ejecutar codigo ajeno en su contexto
+  CALLCODE (0xf2)      apariciones: 0
+  SELFDESTRUCT (0xff)  apariciones: 0   <- no se puede autodestruir
+El unico CALL es el staticcall al precompilado 0x01 (ecrecover), que no puede modificar estado.
+Slots 0 y 1 del contrato: vacios antes y despues de verificar (ver [N]).
+extcodehash estable tras verificar: lo comprueba testF4_ContratoSinEstado.
+
+=====================================================================
+### 7. DEFECTOS ENCONTRADOS Y CORRECCIONES ###
+
+D-1 (DOCUMENTAL, contratos/README.md) - DEFECTO CORREGIDO
+  Sintoma: la seccion API del README citaba un 'recoverSigner(...)' entre las funciones
+           auxiliares del contrato. Esa funcion NO EXISTE en EIP712Verifier.sol (la funcion
+           real se llama 'recover').
+  Impacto: nulo en seguridad (no habia ninguna llamada en codigo a ese nombre: grep de
+           'recoverSigner' sobre contracts/ solo daba el README). Impacto real en trazabilidad:
+           documentaba una API inexistente, que es justo lo que el corpus prohibe.
+  Causa raiz: el README se escribio describiendo una version previa del contrato que si tenia
+           ese envoltorio (mencionado como 'envoltorio publico para cast call'); al renombrarse
+           a 'recover', el README no se actualizo.
+  Correccion: contracts/README.md cita ahora 'recover(bytes32,bytes)' y anota expresamente la
+           correccion.
+
+D-2 (DOCUMENTAL, comentario del contrato) - AFINADO
+  Sintoma: el comentario de _SECP256K1N_HALF decia 's debe ser estrictamente menor'.
+           La guarda real es 's > n/2 -> invalida', esto es, admite s = n/2 exacto.
+  Verificacion: EIP-2 y ECDSA.recover de OpenZeppelin usan 's > HALF_ORDER', luego el limite
+           EXCLUSIVO en el rechazo es el correcto; el comentario/README eran los imprecisos.
+           La traza on-chain muestra que con s = n/2 el precompilado SI devuelve una direccion
+           (distinta del firmante), de modo que la verificacion falla por comparacion.
+  Impacto: ninguno en seguridad; se documenta la frontera exacta.
+  Correccion: nota 'Frontera EIP-2' anadida a contracts/README.md.
+
+NO SE ENCONTRO NINGUN DEFECTO DE SEGURIDAD en EIP712Verifier.sol:
+  - longitud != 65, v fuera de {27,28}, s en la mitad alta, r/s nulos, direccion recuperada
+    nula y signer = address(0) -> false SIN revert (probado con 0..70 bytes y en Anvil real);
+  - dominio y mensaje: cualquier alteracion (byte, campo, chainId ajeno, contrato en cero) -> false;
+  - FALSO RECHAZO comprobado: la firma legitima de la wallet y la de cast verifican con true;
+  - antimaleabilidad EIP-2 verificada con la firma maleable (n-s, v conmutado) -> false;
+  - fuzz: alterar cualquiera de los 256 bits del digest invalida una firma valida;
+  - sin estado: 0 SSTORE/SLOAD/DELEGATECALL/SELFDESTRUCT en el runtime desplegado.
+
+LIMITE DECLARADO (diseno, no defecto): el contrato es un instrumento sin estado y no
+  implementa replay protection (nonce consumido, caducidad ni lote). El 'digest' que recibe
+  ya incluye el 'nonce' y el 'deadline' del struct, de modo que la caducidad y el uso unico
+  son responsabilidad de quien llama (en el producto, la cola de aprobaciones). Anadirlos
+  exigiria estado en el instrumento, contra P-07.
+
+=====================================================================
+### 8. RESUMEN ###
+  forge test --root contracts -vv : 30 passed, 0 failed, 0 skipped (2 suites)
+      - EIP712VerifierTest      : 10 passed (los 5 obligatorios de CA-RT-11 + H4)
+      - EIP712VerifierFase4Test : 20 passed (bateria adversaria de Fase 4)
+  forge build --root contracts   : EXIT 0
+  node contracts/scripts/generar-fixture-wallet.mjs : EXIT 0 (fixture de la wallet coherente con M11)
+  cast wallet sign/verify        : firma identica a la del fixture; 'Validation succeeded'
+  Anvil real (chainId 31337)     : verify(firma de la wallet) = true; toda alteracion = false; sin revert
+=====================================================================
+

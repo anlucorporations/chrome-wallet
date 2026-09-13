@@ -1,0 +1,9 @@
+{
+  "flujo": "revelado del mnemonic ocultado por el plazo de 30 s",
+  "plazoDeProduccionMs": 30000,
+  "transcurridoMs": 30080,
+  "seOcultoAntesDelPlazo": false,
+  "avisoMostrado": "El plazo de 30 s ha terminado: el valor se ha ocultado.",
+  "portapapelesVacio": true,
+  "valorDescartadoDelDom": true
+}

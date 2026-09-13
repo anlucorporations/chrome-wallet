@@ -1,0 +1,17 @@
+{
+  "flujo": "SW suspendido por CDP con una aprobación pendiente",
+  "rpc": "http://127.0.0.1:8545",
+  "approvalId": "02a2e14c-55c6-4383-a4e6-37d1b2ea7b8b",
+  "estadoTrasSuspender": "stopped",
+  "msHastaArrancar": 1891,
+  "msReconstruccion": 579,
+  "errorAlSolicitante": {
+    "estado": "error",
+    "code": 4001,
+    "message": "El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado."
+  },
+  "nonceAntes": "0x0",
+  "nonceDespues": "0x0",
+  "dobleDifusion": false,
+  "inflightVacio": true
+}

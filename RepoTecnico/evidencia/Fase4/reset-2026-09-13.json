@@ -1,0 +1,10 @@
+{
+  "flujo": "reset con la cola vacía",
+  "fecha": "2026-09-13",
+  "clavesTrasElReset": [
+    "truekeate_logs",
+    "truekeate_settings"
+  ],
+  "logsConservados": 19,
+  "importadasEnumeradasEnElDialogo": 1
+}

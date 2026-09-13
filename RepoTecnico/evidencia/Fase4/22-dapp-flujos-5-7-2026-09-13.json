@@ -1,0 +1,13 @@
+{
+  "flujo": "flujos 5 a 7 de test.html con resultado en pantalla",
+  "fecha": "2026-09-13",
+  "limiteMs": 5000,
+  "tiemposMedidosPorLaPrueba": {
+    "eip712": 337,
+    "cambiarRed": 256,
+    "eventos": 69
+  },
+  "firmaEip712": "\"0x09c7bbd61a16919b72d77ff4df7dd36a656e3799cc7259d024058e4cb2adbdca77ecf8833228b6b110a79d44f47b50783a828bc9fbce666787b3e0551d3b25c01c\"",
+  "redActiva": "0x7a6a",
+  "historial": "window.truekeate: ausente\nwindow.codecrypto: ausente\nwindow.truekeate === window.codecrypto: false\nintento de detección: 1\nflujo detectar: 1 ms\nflujo EIP-6963: requestProvider emitido en 0 ms\nwindow.truekeate: ausente\nwindow.codecrypto: ausente\nwindow.truekeate === window.codecrypto: false\nintento de detección: 2\nflujo detectar: 0 ms\nEIP-6963: name=TrueKeate rdns=academy.codecrypto.truekeate uuid=9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90\nEIP-6963: name=TrueKeate rdns=academy.codecrypto.truekeate uuid=9f2a4c1e-6b7d-4e0a-8c33-4f5b6d7e8a90\nwindow.truekeate: presente\nwindow.codecrypto: presente\nwindow.truekeate === window.codecrypto: true\nintento de detección: 3\nflujo detectar: 0 ms\neth_requestAccounts → [\n  \"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\"\n]\neth_signTypedData_v4 → \"0x09c7bbd61a16919b72d77ff4df7dd36a656e3799cc7259d024058e4cb2adbdca77ecf8833228b6b110a79d44f47b50783a828bc9fbce666787b3e0551d3b25c01c\"\nwallet_switchEthereumChain → \"wallet_switchEthereumChain(0x7a6a) → null\"\nflujo eventos: suscripción a accountsChanged y chainChanged registrada"
+}

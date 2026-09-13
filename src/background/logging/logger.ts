@@ -256,15 +256,24 @@ export const measureLogBytes = (entries: readonly LogEntry[]): number => {
 };
 
 /**
- * ¿Es `key` una clave de CALLDATA (`data`/`calldata`/`input`)?
+ * ¿Es `key` una clave de CALLDATA?
  *
  * La regla única de `diccionario_datos.md` §2.11 (ADT-12 / D-T) dice «cualquier `data` (calldata)
  * que se registre»: no solo el de `eth_sendTransaction`. Esta pasada la aplica a CUALQUIER
  * entrada y a cualquier profundidad, de modo que la cota de 10 bytes no dependa de que el
  * llamador haya pasado por `redactParams` (defensa en profundidad, RNF-09).
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): la lista era de IGUALDAD exacta (`data`/`calldata`/
+ * `input`), así que `{ txData: CALLDATA }` o `{ inputData: CALLDATA }` —un parámetro extra
+ * cualquiera de una lectura que responda OK— se persistían con el calldata COMPLETO, justo lo que
+ * el propio comentario de arriba promete truncar. La lista sigue siendo cerrada (no cualquier clave
+ * que acabe en `data`: `metadata` no es calldata), pero cubre las formas reales.
  */
+const CALLDATA_KEY_PATTERN =
+  /^(?:data|input|calldata|txdata|inputdata|rawdata|hexdata|bytedata|calldatahex|transactiondata)$/;
+
 const isCalldataKey = (key: string): boolean =>
-  ['data', 'calldata', 'input'].includes(key.toLowerCase().replace(/[_\-\s]/g, ''));
+  CALLDATA_KEY_PATTERN.test(key.toLowerCase().replace(/[_\-\s]/g, ''));
 
 /** ¿Tiene forma de cadena hexadecimal `0x…`? */
 const looksLikeHex = (value: string): boolean => value.startsWith('0x');

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * M14 â€” `src/background/approvals/queue.ts`
  * Cola persistida de solicitudes de aprobaciÃ³n: `truekeate_pending_requests` como
  * **`Record<approvalId, PendingRequest>`** (H4, tareas 4.1, 4.6 y 4.8 de `plan_desarrollo.md` Â§3.4.5).
@@ -61,6 +61,7 @@ import {
   tooManyPendingRequestsError,
 } from '../rpc/errors';
 import { normalizeRateWindow, readRateWindowsFromSnapshot } from '../rpc/rateLimit';
+import { createSerialLock, type SerialLock } from '../state/serialLock';
 import { measurePayloadBytes } from '../security/redaction';
 import { normalizeOrigin } from '../security/senderGuard';
 // `decisions.ts` solo CONSUME el tipo `ResolvedRequest` de este mÃ³dulo (`import type`), de modo que
@@ -78,38 +79,13 @@ import {
 // Cerrojo de escritura serializada (rmwLock, H-08)
 // ---------------------------------------------------------------------------
 
-/** Cerrojo FIFO: encadena las tareas de lectura-modificaciÃ³n-escritura. */
-export interface SerialLock {
-  /**
-   * Ejecuta `task` cuando todas las tareas anteriores hayan terminado. La promesa devuelta
-   * resuelve o rechaza con el resultado de `task`; un fallo NO rompe la cadena.
-   */
-  run<T>(task: () => Promise<T>): Promise<T>;
-  /** Tareas encadenadas pendientes de terminar (diagnÃ³stico y pruebas). */
-  depth(): number;
-}
-
-/** Crea un cerrojo FIFO independiente. */
-export const createSerialLock = (): SerialLock => {
-  let tail: Promise<void> = Promise.resolve();
-  let pending = 0;
-  return {
-    run<T>(task: () => Promise<T>): Promise<T> {
-      pending += 1;
-      const result = tail.then(() => task());
-      tail = result.then(
-        () => {
-          pending -= 1;
-        },
-        () => {
-          pending -= 1;
-        },
-      );
-      return result;
-    },
-    depth: () => pending,
-  };
-};
+/**
+ * El cerrojo FIFO vive desde la fase 4 en `state/serialLock.ts` (M33.b), para que M26
+ * (`sessions.ts`) y M26.b (`connections.ts`) usen la MISMA implementación y no una copia. Se
+ * REEXPORTA aquí sin cambiar ningún nombre: `createSerialLock`, `SerialLock` y `withRmwLock`
+ * siguen siendo el contrato que ya importaban `focus.ts` y las pruebas.
+ */
+export { createSerialLock, type SerialLock } from '../state/serialLock';
 
 /**
  * `rmwLock` (estado VOLÃTIL admisible, reconstruible): es el cerrojo que serializa TODA mutaciÃ³n

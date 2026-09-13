@@ -63,6 +63,7 @@ import type {
   TypedDataPreview,
 } from '../../shared/types';
 import { STORAGE_KEYS, readStorage, writeStorage } from '../state/schema';
+import { buildAccountViews, getCurrentAddress, readWalletState } from '../accounts';
 import {
   chainNotRegisteredError,
   estimateGasFailedError,
@@ -120,6 +121,7 @@ import {
   type ApprovalPreviewContext,
 } from './preview';
 import type { TrustedSenderContext } from '../security/senderGuard';
+import { EXTENSION_ORIGIN } from '../../shared/constants';
 
 /** Alias local del tipo hexadecimal, para no importar el alias solo por un retorno. */
 type Hex = `0x${string}`;
@@ -219,19 +221,63 @@ export interface ApprovalOriginContext {
  * Regla dura (RNF-11): la dApp **solo** conoce la cuenta de su sesión vigente, así que `from` es
  * SIEMPRE esa cuenta. Sin sesión no se abre ninguna ventana: `4100` (`unauthorizedOrigin`), el
  * código que §4.3 reserva a «esta dApp no tiene permiso para usar la cartera».
+ *
+ * CONTEXTO DE EXTENSIÓN (Fase 4, E2E `33-envio-desde-el-popup`): el POPUP también aprueba. La
+ * pestaña «Enviar» (M42) pide `eth_sendTransaction` al Service Worker y la transacción tiene que
+ * pasar por la ventana única igual que la de una dApp, pero aquí **no hay sesión que consultar**:
+ * la sesión es el permiso de una dApp sobre una cuenta, y quien pide es la propia cartera. La
+ * cuenta con la que se firma es la **activa**; `assertWalletAccount` valida después que la cuenta
+ * pedida pertenece a la cartera (el popup permite elegir el origen).
  */
 export const resolveApprovalOrigin = async (
   context: TrustedSenderContext,
 ): Promise<ApprovalOriginContext> => {
+  const stored = await readStorage([STORAGE_KEYS.networks, STORAGE_KEYS.chainId]);
+  const catalog = readNetworksFromSnapshot(stored);
+  const network = resolveActiveNetwork(stored[STORAGE_KEYS.chainId], catalog);
+
+  if (context.isExtensionContext) {
+    const account = await getCurrentAddress();
+    if (account === null) {
+      // Cartera sin cuentas: no hay nada que firmar (`-32603`, «cartera sin cuentas»).
+      throw internalError({ reason: 'wallet-without-accounts', method: 'eth_sendTransaction' });
+    }
+    return { account, chainId: network.chainId, network };
+  }
+
   const sessions = await readSessions();
   const session = currentSessionFor(sessions, context.origin);
   if (session === null) {
     throw unauthorizedOriginError({ reason: 'no-session-for-approval', origin: context.origin });
   }
-  const stored = await readStorage([STORAGE_KEYS.networks, STORAGE_KEYS.chainId]);
-  const catalog = readNetworksFromSnapshot(stored);
-  const network = resolveActiveNetwork(stored[STORAGE_KEYS.chainId], catalog);
   return { account: session.account, chainId: network.chainId, network };
+};
+
+/**
+ * Comprueba que la cuenta con la que firma el **POPUP** pertenece a la cartera (derivada o
+ * importada) y devuelve la dirección canónica de esa cuenta.
+ *
+ * El popup (M42) ofrece un selector de cuenta de origen, así que `from` **no** tiene por qué ser la
+ * cuenta activa: lo que no puede es firmar con una cuenta ajena. Sin `from` se firma con la activa
+ * (mismo comportamiento que la dApp cuando omite la dirección, §3.1).
+ */
+export const assertWalletAccount = async (
+  requested: Address | null,
+  activeAccount: Address,
+): Promise<Address> => {
+  if (requested === null) {
+    return activeAccount;
+  }
+  const views = buildAccountViews(await readWalletState());
+  const owned = views.find((view) => view.address.toLowerCase() === requested.toLowerCase());
+  if (owned === undefined) {
+    throw unauthorizedOriginError({
+      reason: 'account-not-authorized',
+      origin: EXTENSION_ORIGIN,
+      requested,
+    });
+  }
+  return owned.address;
 };
 
 /**
@@ -272,26 +318,28 @@ const safeBalance = async (address: Address): Promise<bigint | null> => {
 };
 
 /**
- * Etiqueta LOCAL del destino (`truekeate_settings.accountLabels`): es la única fuente que puede
- * convertir `toLabel` en algo distinto de `"desconocido"` (§3.1). Sin etiqueta, M19 pone el literal
- * y el aviso «destino sin etiqueta».
+ * Etiqueta LOCAL del destino: es la única fuente que puede convertir `toLabel` en algo distinto de
+ * `"desconocido"` (§3.1). Sin etiqueta, M19 pone el literal y el aviso «destino sin etiqueta».
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): aquí se indexaba `truekeate_settings.accountLabels` por
+ * DIRECCIÓN, pero ese mapa tiene el **índice BIP-44** como clave (`Record<number, string>`,
+ * `shared/types.ts`; `sanitizeAccountLabels` descarta toda clave no entera). La búsqueda era
+ * SIEMPRE `undefined` —`accountLabels['0x7099…']` no existe nunca—, así que `toLabel` valía
+ * `"desconocido"` incluso para una cuenta propia etiquetada y la vista previa añadía el aviso
+ * «Destino sin etiqueta». La resolución correcta es la etiqueta EFECTIVA de la cuenta
+ * (`buildAccountViews`: `accountLabels[índice]` en las derivadas, `label` en las importadas), que
+ * es exactamente el mapa dirección → etiqueta que ya usa la ventana de decisión
+ * (`notification/App.tsx`).
  */
 const localLabelFor = async (address: Address | null): Promise<string | null> => {
   if (address === null) {
     return null;
   }
-  const stored = await readStorage([STORAGE_KEYS.settings]);
-  const settings = stored[STORAGE_KEYS.settings];
-  const record =
-    typeof settings === 'object' && settings !== null && !Array.isArray(settings)
-      ? (settings as Record<string, unknown>)
-      : {};
-  const labels = record.accountLabels;
-  if (typeof labels !== 'object' || labels === null || Array.isArray(labels)) {
-    return null;
-  }
-  const value = (labels as Record<string, unknown>)[address];
-  return typeof value === 'string' && value.length > 0 ? value : null;
+  const wanted = address.trim().toLowerCase();
+  const views = buildAccountViews(await readWalletState());
+  const view = views.find((entry) => entry.address.toLowerCase() === wanted);
+  const label = view?.label.trim() ?? '';
+  return label.length > 0 ? label : null;
 };
 
 // ---------------------------------------------------------------------------
@@ -710,13 +758,15 @@ export const dispatchApproval = async (
       return outcome.ok ? { ok: true, result: null } : { ok: false, error: outcome.error };
     }
 
-    // --- `from`: SIEMPRE la cuenta de la sesión vigente (RNF-11) ------------------------------
+    // --- `from`: SIEMPRE la cuenta de la sesión vigente (RNF-11); en el POPUP, una cuenta PROPIA ---
     const transaction = method === 'eth_sendTransaction' ? transactionFieldsOf(params) : {};
     const requestedFrom =
       method === 'eth_sendTransaction'
         ? normalizeAddressOrNull(transaction.from)
         : pickSigningAddress(params);
-    const from = assertSessionAccount(requestedFrom, account, context.origin);
+    const from = context.isExtensionContext
+      ? await assertWalletAccount(requestedFrom, account)
+      : assertSessionAccount(requestedFrom, account, context.origin);
 
     // --- Bloqueo previo: `estimateGas` ANTES de abrir la ventana (RNF-25) ---------------------
     let gasLimit: string | null = null;

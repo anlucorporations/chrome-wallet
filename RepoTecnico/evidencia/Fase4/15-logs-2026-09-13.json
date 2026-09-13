@@ -1,0 +1,11 @@
+{
+  "flujo": "exportación JSON del histórico desde el panel de actividad",
+  "fecha": "2026-09-13",
+  "fichero": "truekeate-logs-2026-09-13.json",
+  "blobUrl": "blob:chrome-extension://oiahebaliobknoeeonhgaacapjcpgblo/af448130-3584-4209-bb11-5cbdb794e98f",
+  "bytes": 7261,
+  "entradas": 12,
+  "dropped": 0,
+  "truncated": false,
+  "peticionesDeRedDuranteLaExportacion": []
+}

@@ -290,10 +290,21 @@ describe('CA-RT-10 · no marca identificadores del API ni propiedades (regresió
 });
 
 describe('CA-RT-10 · la UI real no tiene texto visible en inglés', () => {
+  /**
+   * Análisis de la UI REAL, calculado UNA vez al evaluar el módulo en vez de dentro del caso.
+   *
+   * MOTIVO MEDIDO (fase 4): el análisis parsea con TypeScript todos los ficheros de
+   * `src/popup`, `src/connect` y `src/notification`; en frío son ~4,7 s y con la instrumentación
+   * de `npm run coverage` el caso superaba el plazo por defecto de 5 s (6,9 s medidos) y hacía
+   * fallar `npm run coverage` con un `Test timed out`. Evaluarlo al importar el módulo lo saca del
+   * plazo del caso SIN relajar nada: la aserción sigue siendo la misma y, si la UI tuviera texto en
+   * inglés, `HALLAZGOS_UI` lo contendría y el caso seguiría fallando.
+   */
+  const HALLAZGOS_UI = revisarUi();
+
   it('src/popup, src/connect y src/notification: 0 coincidencias en texto visible', () => {
-    const hallazgos = revisarUi();
     expect(
-      hallazgos.map((h) => `${h.fichero}:${h.linea}:${h.columna} «${h.palabra}» en ${h.contexto}`),
+      HALLAZGOS_UI.map((h) => `${h.fichero}:${h.linea}:${h.columna} «${h.palabra}» en ${h.contexto}`),
       'CA-RT-10: hay texto visible en inglés (RF-34)',
     ).toEqual([]);
   });

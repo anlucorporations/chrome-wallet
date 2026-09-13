@@ -1,0 +1,17 @@
+{
+  "flujo": "ocultar y volver a mostrar una cuenta importada",
+  "cuentasDerivadas": 5,
+  "oculta": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "indiceBip44": 2,
+  "hiddenAccountsTrasOcultar": [
+    2
+  ],
+  "hiddenAccountsTrasMostrar": [],
+  "direccionConservada": true,
+  "visibleTrasReabrir": false,
+  "etiqueta": "Ahorros",
+  "direccion": "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF",
+  "visibleTrasOcultar": false,
+  "clavePrivadaConservada": true,
+  "visibleTrasMostrar": true
+}

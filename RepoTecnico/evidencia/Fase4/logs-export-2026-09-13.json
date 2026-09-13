@@ -1,0 +1,285 @@
+{
+  "exportedAt": 1789266186812,
+  "entries": [
+    {
+      "category": "call",
+      "data": {
+        "params": [
+          {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          }
+        ]
+      },
+      "event": "rpc_call",
+      "id": "log-rpc-call",
+      "level": "info",
+      "message": "Llamada a eth_getBalance de http://localhost:5174",
+      "method": "eth_getBalance",
+      "origin": "http://localhost:5174",
+      "ts": 1700000000000
+    },
+    {
+      "category": "tx",
+      "data": {
+        "state": "pending"
+      },
+      "event": "tx_sent",
+      "id": "log-tx",
+      "level": "info",
+      "message": "Transacción difundida; pendiente de confirmación.",
+      "method": "eth_sendTransaction",
+      "origin": "http://localhost:5174",
+      "ts": 1700000001000,
+      "txHash": "0xabababababababababababababababababababababababababababababababab"
+    },
+    {
+      "category": "sign",
+      "data": {
+        "signature": "0x1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+        "truncated": true
+      },
+      "event": "sign_personal",
+      "id": "log-firma",
+      "level": "success",
+      "message": "Firma de texto plano (personal_sign)",
+      "method": "personal_sign",
+      "origin": "http://localhost:5174",
+      "ts": 1700000002000
+    },
+    {
+      "category": "system",
+      "data": {
+        "code": -32603,
+        "message": "no se pudo guardar el registro por falta de espacio",
+        "retried": true
+      },
+      "event": "storage_quota_exceeded",
+      "id": "log-cuota",
+      "level": "error",
+      "message": "No se pudo guardar el registro por falta de espacio",
+      "method": "",
+      "origin": "extension",
+      "ts": 1700000003000
+    },
+    {
+      "category": "system",
+      "data": {
+        "inflight": {
+          "alarmsArmed": 0,
+          "alarmsCleared": 0,
+          "confirmed": 0,
+          "dropped": 0,
+          "failed": 0,
+          "released": 0,
+          "retained": 0
+        },
+        "orphansDelivered": 0,
+        "orphansUndelivered": 0,
+        "pendingAfter": 0,
+        "pendingBefore": 0,
+        "purgedExpired": 0,
+        "purgedResolved": 0,
+        "rateWindows": {
+          "applied": true,
+          "purged": 0,
+          "reset": 0,
+          "retained": 0
+        },
+        "rearm": {
+          "armed": 0,
+          "cleared": 0,
+          "pending": 0
+        },
+        "window": "none"
+      },
+      "event": "sw_reconcile",
+      "id": "2cc49835-4bdb-4d14-abca-a4e93f69f901",
+      "level": "info",
+      "message": "Reconciliación al arrancar el Service Worker",
+      "method": "",
+      "origin": "extension",
+      "ts": 1789266186468
+    },
+    {
+      "category": "system",
+      "data": {
+        "inflight": {
+          "alarmsArmed": 0,
+          "alarmsCleared": 0,
+          "confirmed": 0,
+          "dropped": 0,
+          "failed": 0,
+          "released": 0,
+          "retained": 0
+        },
+        "orphansDelivered": 0,
+        "orphansUndelivered": 0,
+        "pendingAfter": 0,
+        "pendingBefore": 0,
+        "purgedExpired": 0,
+        "purgedResolved": 0,
+        "rateWindows": {
+          "applied": true,
+          "purged": 0,
+          "reset": 0,
+          "retained": 0
+        },
+        "rearm": {
+          "armed": 0,
+          "cleared": 0,
+          "pending": 0
+        },
+        "window": "none"
+      },
+      "event": "sw_reconcile",
+      "id": "989419d6-e71f-435a-a2a5-b50c8c05536e",
+      "level": "info",
+      "message": "Reconciliación al arrancar el Service Worker",
+      "method": "",
+      "origin": "extension",
+      "ts": 1789266186471
+    },
+    {
+      "category": "system",
+      "data": {
+        "autoLoaded": {
+          "accountCount": 5,
+          "chainId": "0x7a69",
+          "currentAccount": "idx:0",
+          "hasMnemonic": true,
+          "importedCount": 0,
+          "labelCount": 0,
+          "networkCount": 1,
+          "sessionCount": 0,
+          "visibleImportedCount": 0
+        },
+        "bootMs": 177,
+        "bytesInUse": 2685,
+        "integrity": {
+          "ok": true,
+          "status": "ok"
+        },
+        "migrations": {
+          "from": "1.4",
+          "migrated": false,
+          "ok": true,
+          "to": "1.4"
+        },
+        "pendingProcessed": 0,
+        "schemaVersion": "1.4"
+      },
+      "event": "sw_started",
+      "id": "07a1149c-6151-4c8c-a987-f2b05e3b35b6",
+      "level": "info",
+      "message": "Service Worker arrancado",
+      "method": "",
+      "origin": "extension",
+      "ts": 1789266186506
+    },
+    {
+      "category": "system",
+      "data": {
+        "autoLoaded": {
+          "accountCount": 5,
+          "chainId": "0x7a69",
+          "currentAccount": "idx:0",
+          "hasMnemonic": true,
+          "importedCount": 0,
+          "labelCount": 0,
+          "networkCount": 1,
+          "sessionCount": 0,
+          "visibleImportedCount": 0
+        },
+        "bootMs": 181,
+        "bytesInUse": 3264,
+        "integrity": {
+          "ok": true,
+          "status": "ok"
+        },
+        "migrations": {
+          "from": "1.4",
+          "migrated": false,
+          "ok": true,
+          "to": "1.4"
+        },
+        "pendingProcessed": 0,
+        "schemaVersion": "1.4"
+      },
+      "event": "sw_started",
+      "id": "20632362-2724-4c3f-95a6-5b403c615579",
+      "level": "info",
+      "message": "Service Worker arrancado",
+      "method": "",
+      "origin": "extension",
+      "ts": 1789266186509
+    },
+    {
+      "category": "call",
+      "data": {
+        "params": []
+      },
+      "event": "rpc_call",
+      "id": "bbb743d1-dd92-479c-93d2-afa11cc8be9e",
+      "level": "info",
+      "message": "Llamada RPC del catálogo",
+      "method": "wallet_getState",
+      "origin": "extension",
+      "ts": 1789266186601
+    },
+    {
+      "category": "call",
+      "data": {
+        "params": [
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "latest"
+        ]
+      },
+      "event": "rpc_call",
+      "id": "1883f8d9-2d2b-425a-9851-1915ae845c00",
+      "level": "info",
+      "message": "Llamada RPC del catálogo",
+      "method": "eth_getBalance",
+      "origin": "extension",
+      "ts": 1789266186666
+    },
+    {
+      "category": "call",
+      "data": {
+        "params": [
+          "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "latest"
+        ]
+      },
+      "event": "rpc_call",
+      "id": "b62609bf-307b-4cf9-9df9-bbe3f85d0a71",
+      "level": "info",
+      "message": "Llamada RPC del catálogo",
+      "method": "eth_getBalance",
+      "origin": "extension",
+      "ts": 1789266186685
+    },
+    {
+      "category": "call",
+      "data": {
+        "params": [
+          "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "latest"
+        ]
+      },
+      "event": "rpc_call",
+      "id": "265825f9-1626-43ab-928f-3e440cc461d2",
+      "level": "info",
+      "message": "Llamada RPC del catálogo",
+      "method": "eth_getBalance",
+      "origin": "extension",
+      "ts": 1789266186704
+    }
+  ],
+  "totalEntries": 12,
+  "dropped": 0,
+  "truncated": false,
+  "filters": {
+    "level": "todos",
+    "category": "todas"
+  }
+}

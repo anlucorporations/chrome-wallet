@@ -93,6 +93,13 @@ export const accountRefForAddress = (address: string): AccountRef => `imp:${addr
 /**
  * Interpreta una referencia. Acepta la forma heredada sin prefijo (`"0"`), que el diccionario
  * §2.4 declara retrocompatible y que M34 normaliza a `idx:0`.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): el cuerpo de `idx:` se convertía con `Number()`, que NO es
+ * una validación de forma: `Number('') === 0`, `Number('0x10') === 16` y `Number('1e1') === 10`.
+ * Una referencia VACÍA (`'idx:'`) resolvía por tanto a la cuenta 0 —revelar, renombrar o fijar
+ * «ninguna cuenta» actuaba sobre la primera—. Además la rama heredada `^\d+$` devolvía el índice
+ * SIN comprobar el rango, de modo que `'9999999999'` se aceptaba mientras `'idx:9999999999'` se
+ * rechazaba. Ahora las dos ramas exigen dígitos y pasan por {@link isValidDerivationIndex}.
  */
 export const parseAccountRef = (ref: unknown): ParsedAccountRef | null => {
   if (typeof ref !== 'string') {
@@ -100,10 +107,15 @@ export const parseAccountRef = (ref: unknown): ParsedAccountRef | null => {
   }
   const text = ref.trim();
   if (/^\d+$/.test(text)) {
-    return { kind: 'derived', index: Number(text) };
+    const index = Number(text);
+    return isValidDerivationIndex(index) ? { kind: 'derived', index } : null;
   }
   if (text.startsWith('idx:')) {
-    const index = Number(text.slice(4));
+    const body = text.slice(4).trim();
+    if (!/^\d+$/.test(body)) {
+      return null;
+    }
+    const index = Number(body);
     return isValidDerivationIndex(index) ? { kind: 'derived', index } : null;
   }
   if (text.startsWith('imp:')) {
@@ -136,7 +148,18 @@ export const addressForRef = (state: WalletState, ref: AccountRef): Address | nu
 // Lectura del estado
 // ---------------------------------------------------------------------------
 
-/** Normaliza la lista de direcciones derivadas: solo cadenas con forma de dirección. */
+/**
+ * Normaliza la lista de direcciones derivadas: solo cadenas con forma de dirección.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): antes se DESCARTABAN las entradas malformadas y la lista se
+ * compactaba. Como **el índice del array ES el índice BIP-44** (`accounts.ts`, cabecera), con
+ * `truekeate_accounts = [A0, A1, null, A3]` la cuenta `A3` pasaba a ocupar la posición 2 y
+ * `wallet_revealSecret('idx:2')` entregaba la clave privada de `A2` etiquetada con la dirección
+ * `A3`. Una lista con un hueco no se puede compactar sin mentir sobre los índices, así que se falla
+ * CERRADO: la lista entera se considera inutilizable (`[]`) y M13 la marca como cartera dañada
+ * (RNF-22: «cero correcciones silenciosas»). Sin cuentas, toda referencia `idx:` responde
+ * `-32602 unknownAccount` en lugar de revelar la clave de otra cuenta.
+ */
 const sanitizeAccounts = (value: unknown): Address[] => {
   if (!Array.isArray(value)) {
     return [];
@@ -144,9 +167,10 @@ const sanitizeAccounts = (value: unknown): Address[] => {
   const accounts: Address[] = [];
   for (const entry of value) {
     const address = normalizeAddress(entry);
-    if (address !== null) {
-      accounts.push(address);
+    if (address === null) {
+      return [];
     }
+    accounts.push(address);
   }
   return accounts;
 };
@@ -549,12 +573,24 @@ export const importAccountByPrivateKey = async (
     if (alreadyDerived || alreadyImported) {
       return { ok: false as const, error: duplicateAccountError() };
     }
+    // DEFECTO MEDIDO Y CORREGIDO (fase 4): solo se miraba `check.label.length > 0`, de modo que
+    // una etiqueta de 33 caracteres (o con caracteres de control) se persistía tal cual, mientras
+    // `renameAccount` la rechazaba con `-32602 invalidLabel`. La cota de 1..32 caracteres es la
+    // MISMA para derivadas e importadas. Una etiqueta ausente o vacía sigue significando «usa la
+    // de por defecto» (`Importada N`), que no es un fallo de validación.
     const check = validateLabel(label);
+    const providedLabel = check.label.length > 0;
+    if (providedLabel && !check.valid) {
+      return {
+        ok: false as const,
+        error: invalidLabelError({ reason: 'invalid-label', problem: check.problem }),
+      };
+    }
     const ordinal = state.importedAccounts.length + 1;
     const entry: ImportedAccount = {
       address: candidate.address,
       privateKey: candidate.privateKey,
-      label: check.label.length > 0 ? check.label : defaultImportedLabel(ordinal),
+      label: providedLabel ? check.label : defaultImportedLabel(ordinal),
       importedAt: Date.now(),
       visible: true,
     };

@@ -23,6 +23,7 @@ import {
 } from '../../shared/constants';
 import {
   backoffFor,
+  findNodeRejection,
   getRpcProvider,
   getRpcStatus,
   resetRpcProvider,
@@ -171,5 +172,90 @@ describe('M5 · política cerrada 1+3 con backoff 1/2/4 s (CA-RF-18 / RNF-07)', 
     expect(backoffFor(-1)).toBe(0);
     expect(backoffFor(1, [10, 20])).toBe(20);
     expect(backoffFor(5, [])).toBe(0);
+  });
+});
+
+/**
+ * Rechazo DETERMINISTA del nodo (fleco 3 de la fase 4). El nodo RESPONDIÓ: no es «sin conexión».
+ * Un error de respuesta no se reintenta —reintentarlo no puede cambiar el resultado— y no se
+ * degrada a `4900`. El caso medido en el E2E (`-32003 Insufficient funds for gas * price + value`)
+ * gastaba los 4 intentos con 7 s de backoff y salía como `4900`.
+ */
+describe('M5 · el rechazo del nodo NO se confunde con «sin conexión» (fleco 3 de la fase 4)', () => {
+  /** Error JSON-RPC tal y como lo devuelve Anvil dentro de la cadena de `ethers`. */
+  const nodeRejection = (code: number, message: string): Error =>
+    Object.assign(new Error(message), { code, data: { message } });
+
+  /** Error de `ethers` que ENVUELVE el rechazo del nodo (`code` de cadena + `error` anidado). */
+  const wrappedRejection = (code: number, message: string): Error => {
+    const wrapper = Object.assign(new Error('execution reverted (action="estimateGas")'), {
+      code: 'CALL_EXCEPTION',
+    }) as Error & { error?: unknown };
+    wrapper.error = nodeRejection(code, message);
+    return wrapper;
+  };
+
+  it('con `-32003` hace UNA sola llamada: ni reintentos ni backoff', async () => {
+    const send = spyOnSend(async () => {
+      throw nodeRejection(-32003, 'Insufficient funds for gas * price + value');
+    });
+    const sleep = sleepSpy();
+
+    const error = await rpcSend('eth_estimateGas', [{}], { sleep }).then(
+      () => null,
+      (causa: unknown) => causa as { nodeCode?: number; nodeMessage?: string },
+    );
+
+    expect(error?.nodeCode).toBe(-32003);
+    expect(error?.nodeMessage).toBe('Insufficient funds for gas * price + value');
+    expect(send, 'un rechazo determinista NO se reintenta').toHaveBeenCalledTimes(1);
+    expect(sleep).not.toHaveBeenCalled();
+  });
+
+  it('el rechazo envuelto por `ethers` también se detecta y tampoco se reintenta', async () => {
+    const send = spyOnSend(async () => {
+      throw wrappedRejection(-32003, 'Insufficient funds for gas * price + value');
+    });
+    const sleep = sleepSpy();
+
+    await expect(rpcSend('eth_estimateGas', [{}], { sleep })).rejects.toMatchObject({
+      nodeCode: -32003,
+    });
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(sleep).not.toHaveBeenCalled();
+  });
+
+  it('el nodo que responde NO deja la conexión «desconectada»', async () => {
+    spyOnSend(async () => {
+      throw nodeRejection(-32003, 'Insufficient funds for gas * price + value');
+    });
+    await expect(rpcSend('eth_estimateGas', [{}], { sleep: sleepSpy() })).rejects.toMatchObject({
+      nodeCode: -32003,
+    });
+    // El nodo contestó (con un error), así que sigue habiendo conexión: el `4900` y el estado
+    // «desconectado» quedan reservados a «no hubo respuesta» (RNF-07).
+    expect(getRpcStatus()).toBe('connected');
+  });
+
+  it('los códigos PROPIOS de la cartera (4900, 4001…) NO se clasifican como rechazo del nodo', () => {
+    // Un `4900` del cliente es «sin conexión» y debe seguir agotando la política completa.
+    expect(findNodeRejection(Object.assign(new Error('x'), { code: 4900 }))).toBeNull();
+    expect(findNodeRejection(Object.assign(new Error('x'), { code: 4001 }))).toBeNull();
+    expect(findNodeRejection(refusedError())).toBeNull();
+    expect(findNodeRejection(timeoutError())).toBeNull();
+    expect(findNodeRejection(null)).toBeNull();
+    expect(findNodeRejection('texto')).toBeNull();
+    // El rango reservado del servidor JSON-RPC SÍ es un rechazo del nodo.
+    expect(findNodeRejection(nodeRejection(-32000, 'execution reverted'))?.nodeCode).toBe(-32000);
+  });
+
+  it('el transporte caído sigue agotando los 4 intentos y saliendo como 4900', async () => {
+    const send = spyOnSend(async () => {
+      throw refusedError();
+    });
+    const sleep = sleepSpy();
+    await expect(rpcSend('eth_estimateGas', [{}], { sleep })).rejects.toMatchObject({ code: 4900 });
+    expect(send).toHaveBeenCalledTimes(RPC_ATTEMPTS);
+    expect(sleep.mock.calls.map((llamada) => llamada[0])).toEqual([1_000, 2_000, 4_000]);
   });
 });

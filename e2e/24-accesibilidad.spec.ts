@@ -228,28 +228,40 @@ test.describe('24 · accesibilidad AA: axe-core, teclado, foco y zoom (RNF-21)',
     await seedWallet(background);
     const popup = await openPopupReady(context, extensionId);
 
-    const antes = await popup.evaluate(() => document.querySelectorAll('*').length);
-    const conZoom = await popup.evaluate(() => {
+    /**
+     * HALLAZGO DEL ARNÉS (Fase 4, corregido): antes se tomaban las dos cuentas de nodos en DOS
+     * `evaluate` distintos, de modo que un re-render del popup entre ambos (el polling de saldos
+     * de M47 repinta cada 5 s) cambiaba el recuento y la aserción fallaba de forma intermitente
+     * (`Expected: 93, Received: 98`) sin que el zoom tuviera nada que ver. La aserción NO se relaja:
+     * es la MISMA (`nodos === antes`, «el zoom no puede vaciar el DOM»), pero las dos medidas se
+     * toman ahora dentro de un ÚNICO bloque síncrono, que es indivisible para React.
+     */
+    const medicion = await popup.evaluate(() => {
+      const antes = document.querySelectorAll('*').length;
       // `zoom` es la forma en que Chrome emula el 200 % de zoom del navegador sobre el documento.
       document.documentElement.style.zoom = '2';
       const caja = document.querySelector('.tk-window')?.getBoundingClientRect();
       return {
+        antes,
         nodos: document.querySelectorAll('*').length,
         anchoVisible: caja === undefined ? 0 : Math.round(caja.width),
         desbordeHorizontal: document.documentElement.scrollWidth > window.innerWidth + 1,
         titulo: document.querySelector('.tk-header__title')?.textContent ?? '',
       };
     });
-    expect(conZoom.nodos, 'el zoom no puede vaciar el DOM').toBe(antes);
-    expect(conZoom.titulo).toContain('TrueKeate');
-    expect(conZoom.desbordeHorizontal, 'al 200 % el contenido no debe desbordar en horizontal').toBe(false);
+    expect(medicion.nodos, 'el zoom no puede vaciar el DOM').toBe(medicion.antes);
+    expect(medicion.titulo).toContain('TrueKeate');
+    expect(
+      medicion.desbordeHorizontal,
+      'al 200 % el contenido no debe desbordar en horizontal',
+    ).toBe(false);
 
     archivarEvidencia(EVIDENCIA, {
       criterio: 'RNF-21 · sin pérdida al 200 % de zoom',
-      nodosAntes: antes,
-      nodosConZoom: conZoom.nodos,
-      anchoTrasZoom: conZoom.anchoVisible,
-      desbordeHorizontal: conZoom.desbordeHorizontal,
+      nodosAntes: medicion.antes,
+      nodosConZoom: medicion.nodos,
+      anchoTrasZoom: medicion.anchoVisible,
+      desbordeHorizontal: medicion.desbordeHorizontal,
     });
   });
 

@@ -1,0 +1,90 @@
+{
+  "criterio": "RNF-21 · sin pérdida al 200 % de zoom",
+  "superficies": [
+    {
+      "superficie": "popup · Cuentas",
+      "violaciones": [],
+      "nodosAprobados": 362,
+      "reglas": 34
+    },
+    {
+      "superficie": "popup · Recibir",
+      "violaciones": [],
+      "nodosAprobados": 181,
+      "reglas": 32
+    },
+    {
+      "superficie": "popup · Enviar",
+      "violaciones": [],
+      "nodosAprobados": 261,
+      "reglas": 38
+    },
+    {
+      "superficie": "popup · Sitios",
+      "violaciones": [],
+      "nodosAprobados": 207,
+      "reglas": 36
+    },
+    {
+      "superficie": "popup · Seguridad",
+      "violaciones": [],
+      "nodosAprobados": 188,
+      "reglas": 32
+    },
+    {
+      "superficie": "popup · Redes",
+      "violaciones": [],
+      "nodosAprobados": 312,
+      "reglas": 38
+    },
+    {
+      "superficie": "popup · Actividad",
+      "violaciones": [],
+      "nodosAprobados": 609,
+      "reglas": 37
+    },
+    {
+      "superficie": "connect.html",
+      "violaciones": [],
+      "nodosAprobados": 74,
+      "reglas": 30
+    },
+    {
+      "superficie": "notification.html",
+      "violaciones": [],
+      "nodosAprobados": 102,
+      "reglas": 34
+    },
+    {
+      "superficie": "test.html (dApp)",
+      "violaciones": [],
+      "nodosAprobados": 194,
+      "reglas": 40
+    }
+  ],
+  "violacionesTotales": 0,
+  "nodosAprobados": 2490,
+  "foco": {
+    "width": "2px",
+    "color": "rgb(62, 147, 166)",
+    "style": "solid"
+  },
+  "areasTactiles": [
+    {
+      "texto": "Rechazar",
+      "ancho": 190,
+      "alto": 44
+    },
+    {
+      "texto": "Aprobar",
+      "ancho": 190,
+      "alto": 44
+    }
+  ],
+  "separacion": 8,
+  "escape": "la ventana se cerró tras rechazar (observable)",
+  "nodosAntes": 93,
+  "nodosConZoom": 93,
+  "anchoTrasZoom": 760,
+  "desbordeHorizontal": false
+}

@@ -38,12 +38,24 @@ export const DATA_PREVIEW_BYTES = 10 as const;
 /** Longitud en caracteres del recorte de `data` (`0x` + 20 hex). */
 export const DATA_PREVIEW_CHARS = 2 + DATA_PREVIEW_BYTES * 2;
 
-/** Claves cuyo valor NUNCA se persiste (comparación sin distinguir mayúsculas ni `_`). */
+/** Normaliza una clave de `params`/`data`: minúsculas y sin separadores (`private_key` → `privatekey`). */
+export const normalizeParamKey = (key: string): string => key.toLowerCase().replace(/[_\-\s]/g, '');
+
+/**
+ * Tokens cuyo valor NUNCA se persiste. La comparación es por **contención** sobre la clave
+ * normalizada, no por igualdad exacta.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): la lista se consultaba con `includes` sobre la clave
+ * normalizada EXACTA, así que `privKey` o `accountPrivateKey` no casaban con `privatekey` y la
+ * clave privada se persistía ÍNTEGRA en `truekeate_logs` (el log es exportable en JSON). Lo mismo
+ * ocurría con `seedWords` o `walletPassword`. La regla del módulo es «nunca se persiste el
+ * mnemonic ni una clave privada», y una lista cerrada de igualdad exacta no la cumplía.
+ */
 export const SENSITIVE_PARAM_KEYS: readonly string[] = [
   'privatekey',
+  'privkey',
   'mnemonic',
   'seed',
-  'seedphrase',
   'passphrase',
   'password',
   'secret',
@@ -53,9 +65,34 @@ export const SENSITIVE_PARAM_KEYS: readonly string[] = [
   'phrase',
 ];
 
-/** ¿Es `key` una clave sensible según la lista cerrada? */
-export const isSensitiveKey = (key: string): boolean =>
-  SENSITIVE_PARAM_KEYS.includes(key.toLowerCase().replace(/[_\-\s]/g, ''));
+/**
+ * Tokens de una clave que transporta una FIRMA (`signature`, `sig`, `rsv`, `ecdsaSignature`…).
+ * El valor se trunca a `0x1234…abcd`; en un objeto con clave de firma, TODOS sus hijos
+ * hexadecimales se tratan igual (es el caso de `{ signature: { r, s, v } }`).
+ *
+ * La comparación es exacta para los alias cortos (`sig`, `rsv`) porque la contención ingenua
+ * convertiría en «firma» una clave que solo EMPIEZA igual —`signer` es una dirección y truncarla
+ * mutilaría un dato no secreto—.
+ */
+export const SIGNATURE_PARAM_KEYS: readonly string[] = ['sig', 'sighex', 'rsv', 'ecdsa', 'ecdsasig'];
+
+/** ¿Es `key` una clave que transporta una firma? */
+export const isSignatureKey = (key: string): boolean => {
+  const normalized = normalizeParamKey(key);
+  if (normalized.length === 0) {
+    return false;
+  }
+  return normalized.includes('signature') || SIGNATURE_PARAM_KEYS.includes(normalized);
+};
+
+/** ¿Es `key` una clave sensible según la lista cerrada (por contención)? */
+export const isSensitiveKey = (key: string): boolean => {
+  const normalized = normalizeParamKey(key);
+  return normalized.length > 0 && SENSITIVE_PARAM_KEYS.some((token) => normalized.includes(token));
+};
+
+/** ¿Tiene forma hexadecimal `0x…`? Solo a esos valores se les aplica el recorte de firma. */
+const looksHex = (value: string): boolean => /^0x[0-9a-fA-F]+$/.test(value);
 
 /**
  * `sha256:<hex>` de un texto: lo único que llega a los logs (nunca el valor).
@@ -117,8 +154,20 @@ export const containsSecretMaterial = (value: unknown, depth = 0): boolean => {
  * Redacción genérica por clave: los valores de una clave sensible se sustituyen por
  * {@link REDACTED}, las firmas se recortan y cualquier frase BIP-39 detectada se redacta aunque
  * su clave no esté en la lista.
+ *
+ * `signatureContext` propaga la condición de «estoy dentro de un objeto de firma» a los hijos.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): la rama de objeto solo miraba la clave HIJA, sin propagar
+ * la del padre, de modo que `{ signature: { r, s, v } }` se persistía con `r` y `s` COMPLETOS
+ * (64 hex cada uno) y `{ sig: '0x…130 hex' }` no se truncaba por no llamarse exactamente
+ * `signature`. El módulo promete lo contrario en su cabecera.
  */
-export const redactValue = (value: unknown, key = '', depth = 0): unknown => {
+export const redactValue = (
+  value: unknown,
+  key = '',
+  depth = 0,
+  signatureContext = false,
+): unknown => {
   if (depth > 6) {
     return REDACTED;
   }
@@ -126,7 +175,7 @@ export const redactValue = (value: unknown, key = '', depth = 0): unknown => {
     if (isSensitiveKey(key)) {
       return REDACTED;
     }
-    if (key.toLowerCase().includes('signature')) {
+    if ((signatureContext || isSignatureKey(key)) && looksHex(value)) {
       return previewSignature(value);
     }
     if (looksLikeMnemonic(value)) {
@@ -138,12 +187,13 @@ export const redactValue = (value: unknown, key = '', depth = 0): unknown => {
     return value;
   }
   if (Array.isArray(value)) {
-    return value.map((entry) => redactValue(entry, key, depth + 1));
+    return value.map((entry) => redactValue(entry, key, depth + 1, signatureContext));
   }
   if (typeof value === 'object' && value !== null) {
+    const context = signatureContext || isSignatureKey(key);
     const result: Record<string, unknown> = {};
     for (const [childKey, childValue] of Object.entries(value as Record<string, unknown>)) {
-      result[childKey] = redactValue(childValue, childKey, depth + 1);
+      result[childKey] = redactValue(childValue, childKey, depth + 1, context);
     }
     return result;
   }
@@ -198,10 +248,17 @@ export const redactParams = (method: string, params: unknown): unknown => {
   const list = Array.isArray(params) ? params : [];
   switch (method) {
     case 'personal_sign': {
-      // Parámetros de EIP-1193: [mensaje, dirección] (o el orden inverso según la dApp).
-      const address = list.find(
-        (entry) => typeof entry === 'string' && /^0x[0-9a-fA-F]{40}$/.test(entry),
+      // EIP-1193 fija el orden canónico `[mensaje, dirección]` aunque algunas dApps lo invierten.
+      // DEFECTO MEDIDO Y CORREGIDO (fase 4): cuando el MENSAJE tiene 20 bytes hexadecimales (es
+      // decir, «parece» una dirección), elegir el PRIMER parámetro con forma de dirección
+      // guardaba el payload ÍNTEGRO dentro de `address` y calculaba el `messageHash` de la
+      // DIRECCIÓN, no del mensaje: el texto firmado quedaba en claro en el log. Con dos
+      // candidatos, la dirección de firma es la ÚLTIMA posición (orden canónico) y el mensaje es
+      // la otra, así que el payload se registra solo como `sha256` + longitud.
+      const shaped = list.filter(
+        (entry): entry is string => typeof entry === 'string' && /^0x[0-9a-fA-F]{40}$/.test(entry),
       );
+      const address = shaped.length >= 2 ? shaped[shaped.length - 1] : shaped[0];
       const message = list.find((entry) => typeof entry === 'string' && entry !== address);
       const text = typeof message === 'string' ? message : '';
       return {

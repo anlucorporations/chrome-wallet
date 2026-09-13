@@ -38,7 +38,26 @@ import {
   type StorageLocalLike,
   type StorageSnapshot,
 } from './state/schema';
+import { createSerialLock } from './state/serialLock';
 import { normalizeOrigin } from './security/senderGuard';
+
+/**
+ * `sessionsLock` — cerrojo FIFO de la RMW de `truekeate_connected_sites` (fleco 4 de la fase 4,
+ * patrón `rmwLock` de `approvals/queue.ts`).
+ *
+ * DEFECTO MEDIDO: todas las mutaciones de este módulo hacían `readStorage` → mutar → `writeStorage`
+ * **sin cerrojo**, de modo que dos mutaciones solapadas (dos `touchSession` del mismo origen, o una
+ * revocación mientras otra pestaña renueva) partían de la MISMA instantánea y la segunda escritura
+ * pisaba a la primera: una renovación, una pestaña recordada o una revocación se perdían.
+ *
+ * Es un cerrojo VOLÁTIL y reconstruible (no es fuente de verdad, igual que el de la cola): la
+ * verdad sigue en el almacén, y lo único que garantiza es que la escritura se calcula sobre la
+ * lectura inmediatamente anterior.
+ */
+export const sessionsLock = createSerialLock();
+
+/** Ejecuta `task` bajo `sessionsLock`: TODA mutación del mapa de sesiones pasa por aquí. */
+export const withSessionsLock = <T>(task: () => Promise<T>): Promise<T> => sessionsLock.run(task);
 
 /** Mapa completo `truekeate_connected_sites`. */
 export type ConnectedSitesMap = DappSessionsByOrigin;
@@ -121,7 +140,7 @@ export interface TouchedSession {
   persisted: boolean;
 }
 
-/** Renueva la sesión (y la persiste) o la purga si venció. */
+/** Renueva la sesión (y la persiste) o la purga si venció. RMW serializado con `sessionsLock`. */
 export const touchSession = async (
   origin: string,
   options: { now?: number; ttlMs?: number; storage?: StorageLocalLike | null; tabId?: number | null } = {},
@@ -133,37 +152,39 @@ export const touchSession = async (
   const now = options.now ?? Date.now();
   const ttlMs = options.ttlMs ?? SESSION_TTL_MS;
   const storage = options.storage ?? undefined;
-  const sessions = await readSessions(storage);
-  const current = sessions[key];
-
-  if (current === undefined) {
-    return { session: null, persisted: false };
-  }
-  if (!isSessionValid(current, now)) {
-    // Vencida: se elimina (el origen vuelve a necesitar `eth_requestAccounts`) y NO se emite error.
-    const next = { ...sessions };
-    delete next[key];
-    await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
-    return { session: null, persisted: true };
-  }
-
   const tabId = options.tabId ?? null;
-  const tabIds =
-    tabId === null || current.tabIds.includes(tabId)
-      ? current.tabIds
-      : [...current.tabIds, tabId];
-  const renewed: DappSession = {
-    ...current,
-    tabIds,
-    lastUsedAt: now,
-    expiresAt: expiresAtFrom(now, ttlMs),
-    connected: true,
-  };
-  await writeStorage(
-    { [STORAGE_KEYS.connectedSites]: { ...sessions, [key]: renewed } },
-    storage,
-  );
-  return { session: renewed, persisted: true };
+  return withSessionsLock(async () => {
+    const sessions = await readSessions(storage);
+    const current = sessions[key];
+
+    if (current === undefined) {
+      return { session: null, persisted: false };
+    }
+    if (!isSessionValid(current, now)) {
+      // Vencida: se elimina (el origen vuelve a necesitar `eth_requestAccounts`) y NO se emite error.
+      const next = { ...sessions };
+      delete next[key];
+      await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
+      return { session: null, persisted: true };
+    }
+
+    const tabIds =
+      tabId === null || current.tabIds.includes(tabId)
+        ? current.tabIds
+        : [...current.tabIds, tabId];
+    const renewed: DappSession = {
+      ...current,
+      tabIds,
+      lastUsedAt: now,
+      expiresAt: expiresAtFrom(now, ttlMs),
+      connected: true,
+    };
+    await writeStorage(
+      { [STORAGE_KEYS.connectedSites]: { ...sessions, [key]: renewed } },
+      storage,
+    );
+    return { session: renewed, persisted: true };
+  });
 };
 
 /**
@@ -265,23 +286,25 @@ export const connectSession = async (
   const now = options.now ?? Date.now();
   const ttlMs = options.ttlMs ?? SESSION_TTL_MS;
   const storage = options.storage ?? undefined;
-  const sessions = await readSessions(storage);
-  const previous = sessions[key];
-  const isNewConnection = !isSessionValid(previous, now);
   const tabId = options.tabId ?? null;
-  const tabIds = tabId === null ? [] : [tabId];
-  const session: DappSession = {
-    origin: key,
-    account: options.account,
-    chainId: options.chainId,
-    tabIds,
-    connectedAt: isNewConnection ? now : (previous?.connectedAt ?? now),
-    lastUsedAt: now,
-    expiresAt: expiresAtFrom(now, ttlMs),
-    connected: true,
-  };
-  await writeStorage({ [STORAGE_KEYS.connectedSites]: { ...sessions, [key]: session } }, storage);
-  return { origin: key, session, isNewConnection };
+  return withSessionsLock(async () => {
+    const sessions = await readSessions(storage);
+    const previous = sessions[key];
+    const isNewConnection = !isSessionValid(previous, now);
+    const tabIds = tabId === null ? [] : [tabId];
+    const session: DappSession = {
+      origin: key,
+      account: options.account,
+      chainId: options.chainId,
+      tabIds,
+      connectedAt: isNewConnection ? now : (previous?.connectedAt ?? now),
+      lastUsedAt: now,
+      expiresAt: expiresAtFrom(now, ttlMs),
+      connected: true,
+    };
+    await writeStorage({ [STORAGE_KEYS.connectedSites]: { ...sessions, [key]: session } }, storage);
+    return { origin: key, session, isNewConnection };
+  });
 };
 
 /** Resultado de una revocación. */
@@ -310,19 +333,21 @@ export const revokeSession = async (
     return null;
   }
   const storage = options.storage ?? undefined;
-  const sessions = await readSessions(storage);
-  const current = sessions[key];
-  if (current === undefined) {
-    return { origin: key, revoked: false, tabIds: [] };
-  }
-  const next = { ...sessions };
-  delete next[key];
-  await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
-  const tabIds = [...current.tabIds];
-  if (options.tabId !== undefined && options.tabId !== null && !tabIds.includes(options.tabId)) {
-    tabIds.push(options.tabId);
-  }
-  return { origin: key, revoked: true, tabIds };
+  return withSessionsLock(async () => {
+    const sessions = await readSessions(storage);
+    const current = sessions[key];
+    if (current === undefined) {
+      return { origin: key, revoked: false, tabIds: [] };
+    }
+    const next = { ...sessions };
+    delete next[key];
+    await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
+    const tabIds = [...current.tabIds];
+    if (options.tabId !== undefined && options.tabId !== null && !tabIds.includes(options.tabId)) {
+      tabIds.push(options.tabId);
+    }
+    return { origin: key, revoked: true, tabIds };
+  });
 };
 
 /**
@@ -342,20 +367,22 @@ export const rememberTab = async (
     return;
   }
   const storage = options.storage ?? undefined;
-  const sessions = await readSessions(storage);
-  const current = sessions[key];
-  if (current === undefined || current.tabIds.includes(tabId)) {
-    return;
-  }
-  await writeStorage(
-    {
-      [STORAGE_KEYS.connectedSites]: {
-        ...sessions,
-        [key]: { ...current, tabIds: [...current.tabIds, tabId] },
+  return withSessionsLock(async () => {
+    const sessions = await readSessions(storage);
+    const current = sessions[key];
+    if (current === undefined || current.tabIds.includes(tabId)) {
+      return;
+    }
+    await writeStorage(
+      {
+        [STORAGE_KEYS.connectedSites]: {
+          ...sessions,
+          [key]: { ...current, tabIds: [...current.tabIds, tabId] },
+        },
       },
-    },
-    storage,
-  );
+      storage,
+    );
+  });
 };
 
 // ---------------------------------------------------------------------------
@@ -399,25 +426,27 @@ export const applyActiveAccountToSessions = async (
 ): Promise<ActiveAccountSync> => {
   const now = options.now ?? Date.now();
   const storage = options.storage ?? undefined;
-  const sessions = await readSessions(storage);
-  const next: ConnectedSitesMap = { ...sessions };
-  const origins: string[] = [];
-  const tabIds = new Set<number>();
+  return withSessionsLock(async () => {
+    const sessions = await readSessions(storage);
+    const next: ConnectedSitesMap = { ...sessions };
+    const origins: string[] = [];
+    const tabIds = new Set<number>();
 
-  for (const [key, session] of Object.entries(sessions)) {
-    if (!isSessionValid(session, now) || session.account === account) {
-      continue;
+    for (const [key, session] of Object.entries(sessions)) {
+      if (!isSessionValid(session, now) || session.account === account) {
+        continue;
+      }
+      next[key] = { ...session, account };
+      origins.push(normalizeOrigin(session.origin) ?? normalizeOrigin(key) ?? key);
+      for (const tabId of session.tabIds) {
+        tabIds.add(tabId);
+      }
     }
-    next[key] = { ...session, account };
-    origins.push(normalizeOrigin(session.origin) ?? normalizeOrigin(key) ?? key);
-    for (const tabId of session.tabIds) {
-      tabIds.add(tabId);
-    }
-  }
 
-  if (origins.length === 0) {
-    return { origins: [], tabIds: [] };
-  }
-  await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
-  return { origins, tabIds: [...tabIds] };
+    if (origins.length === 0) {
+      return { origins: [], tabIds: [] };
+    }
+    await writeStorage({ [STORAGE_KEYS.connectedSites]: next }, storage);
+    return { origins, tabIds: [...tabIds] };
+  });
 };

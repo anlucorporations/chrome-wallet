@@ -91,9 +91,23 @@ export const isChecksummedAddress = (address: unknown): boolean => {
 export const hasAddressShape = (address: unknown): boolean =>
   typeof address === 'string' && /^0x[0-9a-fA-F]{40}$/.test(address.trim());
 
-/** Lee una lista de direcciones sin confiar en la forma almacenada. */
+/**
+ * Lee una lista de direcciones **conservando las posiciones**: un hueco se representa con la
+ * cadena vacía en lugar de eliminarse.
+ *
+ * DEFECTO MEDIDO Y CORREGIDO (fase 4): antes se FILTRABAN las entradas que no eran cadena
+ * (`Array.isArray(value) ? value.filter(...) : []`). Con `truekeate_accounts = [A0, A1, null, A3]`
+ * el `null` desaparecía, así que (a) el informe NO emitía ningún aviso —`status: 'ok'`— y (b) los
+ * índices de los avisos se desplazaban. Peor aún: `sanitizeAccounts` (M28) compacta igual, de modo
+ * que `state.accounts[2]` pasaba a ser `A3` mientras `derivePrivateKey(mnemonic, 2)` devuelve la
+ * clave de `A2`: el revelado entregaba la clave privada de OTRA cuenta etiquetada con la dirección
+ * mostrada. El índice del array ES el índice BIP-44 (`accounts.ts`), así que una lista con un
+ * hueco es una cartera DAÑADA (RNF-22), no una lista que se pueda compactar en silencio.
+ */
 const readAddressList = (value: unknown): string[] =>
-  Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
+  Array.isArray(value)
+    ? value.map((entry) => (typeof entry === 'string' ? entry : ''))
+    : [];
 
 /**
  * Comprueba la integridad de una instantánea del almacén. Función **pura**: no escribe nada y no
@@ -174,7 +188,19 @@ export const inspectWalletIntegrity = (
         source: 'imported',
       });
     }
-    if (typeof entry.privateKey === 'string' && !isPrivateKeyForAddress(entry.privateKey, String(address))) {
+    if (typeof entry.privateKey !== 'string') {
+      // DEFECTO MEDIDO Y CORREGIDO (fase 4): antes esta rama se SALTABA en silencio cuando
+      // `privateKey` no era una cadena, de modo que el informe decía `ok` mientras
+      // `sanitizeImportedAccounts` (M28) descartaba la entrada y la cuenta desaparecía de la
+      // cartera (no se listaba, no firmaba ni se podía borrar). Una cuenta importada sin clave
+      // utilizable es corrupción y debe verse en el informe.
+      issues.push({
+        code: 'imported-key-mismatch',
+        message: `La cuenta importada ${String(address)} no tiene una clave privada utilizable.`,
+        address: String(address),
+        source: 'imported',
+      });
+    } else if (!isPrivateKeyForAddress(entry.privateKey, String(address))) {
       issues.push({
         code: 'imported-key-mismatch',
         message: `La clave privada de la cuenta importada ${String(address)} no corresponde a esa dirección.`,

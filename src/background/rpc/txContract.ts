@@ -28,7 +28,7 @@ import {
   TX_RECEIPT_TIMEOUT_MS,
 } from '../../shared/constants';
 import type { Eip1193Error, Hex, LogCategory, LogEventName, LogLevel } from '../../shared/types';
-import { getRpcProvider, rpcSend } from './client';
+import { getRpcProvider, nodeRejectionOf, rpcSend } from './client';
 import {
   broadcastRejectedError,
   createEip1193Error,
@@ -295,7 +295,9 @@ const rpcFailureData = (error: Eip1193Error): RpcFailureData => {
 /**
  * Clasifica el fallo de una llamada al nodo:
  * - **`node`**: el nodo respondió con un error de contrato/transacción (`reason: 'rpc-error'`) →
- *   el motivo es accionable (revert, nonce, fondos…) y se responde `-32000`.
+ *   el motivo es accionable (revert, nonce, fondos…) y se responde `-32000`. Desde la corrección
+ *   del fleco 3 de la fase 4, el rechazo determinista del nodo llega como
+ *   {@link RpcNodeRejection} (con su `nodeCode`, p. ej. `-32003`) y entra por esta misma rama.
  * - **`transport`**: no hubo respuesta (timeout, `ECONNREFUSED`) → se propaga `4900` del cliente,
  *   porque el problema no es la transacción sino la red local caída.
  */
@@ -303,6 +305,11 @@ const classifyRpcFailure = (
   error: unknown,
   method: string,
 ): { kind: 'node'; reason: string } | { kind: 'transport'; error: Eip1193Error } | null => {
+  // Rechazo del nodo (respuesta JSON-RPC con `code` numérico): NUNCA es «sin conexión».
+  const rejection = nodeRejectionOf(error);
+  if (rejection !== null) {
+    return { kind: 'node', reason: rejection.nodeMessage };
+  }
   if (!isEip1193Error(error)) {
     return null;
   }

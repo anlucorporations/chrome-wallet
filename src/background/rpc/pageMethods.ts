@@ -33,7 +33,13 @@ import {
 } from '../state/schema';
 import { resolveActiveNetwork } from '../networks/catalog';
 import type { TrustedSenderContext } from '../security/senderGuard';
-import { internalError, unsupportedMethodError, userRejectedError } from './errors';
+import { nodeRejectionOf } from './client';
+import {
+  estimateGasFailedError,
+  internalError,
+  unsupportedMethodError,
+  userRejectedError,
+} from './errors';
 
 // ---------------------------------------------------------------------------
 // Dependencias inyectables (costura única con M5, M26 y M27)
@@ -189,9 +195,28 @@ const handleGetBalance: PageHandler = async (params, _call, deps) => {
 const handleFeeHistory: PageHandler = async (params, _call, deps) =>
   asJsonRpcResult(await deps.rpc.send('eth_feeHistory', params));
 
-/** `eth_estimateGas` → estimación del nodo; un revert se propaga como error del nodo. */
-const handleEstimateGas: PageHandler = async (params, _call, deps) =>
-  asJsonRpcResult(await deps.rpc.send('eth_estimateGas', params));
+/**
+ * `eth_estimateGas` → estimación del nodo.
+ *
+ * Si el nodo RESPONDE con un rechazo determinista (`-32003 Insufficient funds for gas * price +
+ * value`, un revert, …) NO se devuelve `4900`: desde el fleco 3 de la fase 4, `rpcSend` no
+ * reintenta un error de respuesta y este manejador lo tipa con la causa de §4.3
+ * `-32000 estimateGasFailed`, con el motivo del nodo en el mensaje. `4900` queda RESERVADO para
+ * «no hubo respuesta» (red local caída, RNF-07).
+ */
+const handleEstimateGas: PageHandler = async (params, _call, deps) => {
+  try {
+    return asJsonRpcResult(await deps.rpc.send('eth_estimateGas', params));
+  } catch (error) {
+    const rejection = nodeRejectionOf(error);
+    if (rejection === null) {
+      throw error;
+    }
+    throw estimateGasFailedError(
+      rejection.nodeMessage.length > 0 ? rejection.nodeMessage : `error JSON-RPC ${rejection.nodeCode}`,
+    );
+  }
+};
 
 /** `eth_getTransactionByHash` → transacción o `null`. */
 const handleGetTransactionByHash: PageHandler = async (params, _call, deps) =>

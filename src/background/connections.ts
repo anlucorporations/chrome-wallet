@@ -45,6 +45,7 @@ import {
   writeStorage,
   type StorageLocalLike,
 } from './state/schema';
+import { createSerialLock } from './state/serialLock';
 import {
   connectSession,
   currentSessionFor,
@@ -75,6 +76,21 @@ interface PendingConnect {
 
 /** Solicitudes vivas en ESTE proceso del SW (se reconstruyen desde el almacén si se suspende). */
 const pendingConnects = new Map<string, PendingConnect>();
+
+/**
+ * `connectRequestsLock` — cerrojo FIFO de la RMW de `truekeate_connect_request` (fleco 4 de la
+ * fase 4; MISMO patrón que el `rmwLock` de `approvals/queue.ts`).
+ *
+ * DEFECTO MEDIDO: `openConnectWindow` y `applyConnectResponse` leían, mutaban y escribían el mapa
+ * **sin cerrojo**, así que dos operaciones simultáneas partían de la MISMA instantánea y la
+ * segunda escritura pisaba a la primera: `connect.html` podía quedarse sin su solicitud y la
+ * promesa de `eth_requestAccounts` colgaba hasta la red de seguridad de 60 s.
+ */
+export const connectRequestsLock = createSerialLock();
+
+/** Ejecuta `task` bajo `connectRequestsLock`: TODA mutación de las solicitudes pasa por aquí. */
+export const withConnectRequestsLock = <T>(task: () => Promise<T>): Promise<T> =>
+  connectRequestsLock.run(task);
 
 /** Superficie mínima de `chrome.windows` (sin `any`). */
 export interface WindowsLike {
@@ -206,6 +222,73 @@ export const hasPendingConnectFor = (
       request.expiresAt > now,
   );
 };
+
+// ---------------------------------------------------------------------------
+// Purga de `truekeate_connect_request` (fleco 4 de la fase 4)
+// ---------------------------------------------------------------------------
+
+/** Resultado de una purga de solicitudes de conexión. */
+export interface ConnectRequestPurgePlan {
+  /** Mapa resultante (solo solicitudes `pending` VIGENTES). */
+  map: Record<string, ConnectRequest>;
+  /** Identificadores retirados por vencimiento (`expiresAt <= now`). */
+  expired: string[];
+  /** Identificadores retirados por resolución (`status !== 'pending'`). */
+  resolved: string[];
+  /** `true` cuando el mapa difiere del leído (hay que reescribirlo). */
+  changed: boolean;
+}
+
+/**
+ * Plan de purga de `truekeate_connect_request`: función PURA, no toca el almacén.
+ *
+ * DEFECTO MEDIDO: hasta la fase 4 este mapa **nunca se purgaba**. `applyConnectResponse` borraba
+ * solo la entrada que resolvía, así que toda solicitud cuyo `connect.html` se cerrara sin decidir
+ * (o cuyo SW se suspendiera antes de la respuesta) se quedaba en el almacén **para siempre**, con
+ * su lista de cuentas y su origen: basura persistida que además hacía que
+ * `hasPendingConnectFor` bloquease el origen hasta que su `expiresAt` venciera. La purga es
+ * perezosa y con doble motivo: **vencimiento** y **resolución**.
+ */
+export const planConnectRequestPurge = (
+  requests: Record<string, ConnectRequest>,
+  now: number,
+): ConnectRequestPurgePlan => {
+  const map: Record<string, ConnectRequest> = {};
+  const expired: string[] = [];
+  const resolved: string[] = [];
+  for (const [requestId, request] of Object.entries(requests)) {
+    if (request.status !== 'pending') {
+      resolved.push(requestId);
+      continue;
+    }
+    if (request.expiresAt <= now) {
+      expired.push(requestId);
+      continue;
+    }
+    map[requestId] = request;
+  }
+  expired.sort();
+  resolved.sort();
+  return { map, expired, resolved, changed: expired.length > 0 || resolved.length > 0 };
+};
+
+/**
+ * Aplica el plan de purga al almacén bajo `connectRequestsLock`. Devuelve el mapa resultante y lo
+ * retirado; es el ÚNICO camino por el que una solicitud vencida o ya resuelta desaparece del
+ * almacén sin haberse resuelto por `applyConnectResponse`.
+ */
+export const purgeConnectRequests = async (
+  options: { now?: number; storage?: StorageLocalLike | null } = {},
+): Promise<ConnectRequestPurgePlan> =>
+  withConnectRequestsLock(async () => {
+    const now = options.now ?? Date.now();
+    const requests = await readConnectRequests(options.storage);
+    const plan = planConnectRequestPurge(requests, now);
+    if (plan.changed) {
+      await writeStorage({ [STORAGE_KEYS.connectRequest]: plan.map }, options.storage);
+    }
+    return plan;
+  });
 
 /**
  * Comprueba si el origen ya tiene sesión VIGENTE y, en tal caso, la renueva sin abrir ventana
@@ -383,13 +466,6 @@ export const openConnectWindow = async (
   const key = normalizeOrigin(options.origin) ?? options.origin;
   const requestId = newRequestId();
 
-  // Máximo 1 `pending` por origen (§2.9): una solicitud viva se resuelve por su ventana; abrir
-  // otra dejaría dos ventanas compitiendo por el mismo origen.
-  const live = await readConnectRequests(storage);
-  if (hasPendingConnectFor(live, key, now)) {
-    return { success: false, error: tooManyPendingRequestsError({ reason: 'connect-pending' }) };
-  }
-
   // Red activa y cuentas de la cartera: es lo que la ventana necesita para pintarse sin tocar el
   // almacén por su cuenta (RNF-14). El orden de las cuentas es el de `truekeate_accounts`.
   const snapshot = await getAccountsSnapshot(storage);
@@ -412,11 +488,35 @@ export const openConnectWindow = async (
     expiresAt: now + CONNECT_TIMEOUT_MS,
     status: 'pending',
   };
-  const stored = await readConnectRequests(storage);
-  await writeStorage(
-    { [STORAGE_KEYS.connectRequest]: { ...stored, [requestId]: request } },
-    storage,
-  );
+
+  /**
+   * Lectura + comprobación + escritura en UN SOLO tramo crítico (RMW serializado).
+   *
+   * DEFECTO MEDIDO al escribir estas pruebas: comprobar «máximo 1 `pending` por origen» FUERA del
+   * cerrojo no basta, porque dos altas simultáneas leen el mapa antes de que la otra escriba y
+   * ambas pasan la comprobación: el cerrojo solo serializaría las escrituras, no la decisión. Con
+   * el tramo crítico completo, la segunda alta responde `4001` sin abrir una segunda ventana y sin
+   * persistir una segunda solicitud.
+   */
+  const admitted = await withConnectRequestsLock(async () => {
+    const stored = await readConnectRequests(storage);
+    // Purga perezosa: lo vencido y lo ya resuelto se retira antes de decidir (§2.9).
+    const plan = planConnectRequestPurge(stored, now);
+    if (hasPendingConnectFor(plan.map, key, now)) {
+      if (plan.changed) {
+        await writeStorage({ [STORAGE_KEYS.connectRequest]: plan.map }, storage);
+      }
+      return false;
+    }
+    await writeStorage(
+      { [STORAGE_KEYS.connectRequest]: { ...plan.map, [requestId]: request } },
+      storage,
+    );
+    return true;
+  });
+  if (!admitted) {
+    return { success: false, error: tooManyPendingRequestsError({ reason: 'connect-pending' }) };
+  }
 
   const resolution = awaitConnectResolution(requestId);
   registerPendingConnect(
@@ -465,84 +565,118 @@ export const applyConnectResponse = async (
   const requestId = typeof record.requestId === 'string' ? record.requestId : '';
   const storage = options.storage ?? undefined;
   const now = options.now ?? Date.now();
-  const requests = await readConnectRequests(storage);
-  const request = requests[requestId];
 
-  if (requestId.length === 0 || request === undefined) {
+  /**
+   * Bajo el MISMO cerrojo (RMW serializado): purgar (vencidas y ya resueltas), localizar la
+   * solicitud, decidir y persistir el mapa resultante. `settlePendingConnect` se llama FUERA del
+   * cerrojo: resolver la promesa puede despertar a quien la esperaba y no debe reentrar aquí.
+   */
+  const outcome = await withConnectRequestsLock(
+    async (): Promise<
+      | { kind: 'unknown' }
+      | { kind: 'error'; resolution: ConnectResolution }
+      | { kind: 'approved'; resolution: ConnectResolution }
+    > => {
+      const stored = await readConnectRequests(storage);
+      const purge = planConnectRequestPurge(stored, now);
+      const requests = purge.map;
+      const request = requests[requestId];
+
+      /** Reescribe el mapa aplicando una mutación sobre la instantánea VIVA. */
+      const writeMap = async (
+        mutate: (current: Record<string, ConnectRequest>) => Record<string, ConnectRequest>,
+      ): Promise<void> => {
+        const live = purge.changed ? requests : stored;
+        await writeStorage({ [STORAGE_KEYS.connectRequest]: mutate(live) }, storage);
+      };
+
+      /** Aplica la purga pendiente (vencidas y ya resueltas) antes de decidir. */
+      const flushPurge = async (): Promise<void> => {
+        if (purge.changed) {
+          await writeStorage({ [STORAGE_KEYS.connectRequest]: requests }, storage);
+        }
+      };
+
+      if (requestId.length === 0 || request === undefined) {
+        // Desconocida o ya purgada: `4001` sin crear sesión.
+        await flushPurge();
+        return { kind: 'unknown' };
+      }
+
+      const clearRequest = async (): Promise<void> =>
+        writeMap((current) => {
+          const next = { ...current };
+          delete next[requestId];
+          return next;
+        });
+
+      if (request.status !== 'pending' || request.expiresAt <= now) {
+        await clearRequest();
+        const expired: ConnectResolution = {
+          success: false,
+          error:
+            request.status === 'pending' && request.expiresAt <= now
+              ? userRejectedError({ reason: 'connect-expired' })
+              : userRejectedError({ reason: 'connect-already-resolved' }),
+        };
+        return { kind: 'error', resolution: expired };
+      }
+
+      if (record.success !== true) {
+        await clearRequest();
+        return {
+          kind: 'error',
+          resolution: { success: false, error: userRejectedError({ reason: 'connect-cancelled' }) },
+        };
+      }
+
+      const account = typeof record.account === 'string' ? (record.account as Address) : null;
+      const known = account !== null && request.accounts.some((entry) => entry === account);
+      if (account === null || !known) {
+        // Cuenta fuera de la lista ofrecida: petición manipulada → `4100`, sin sesión.
+        await clearRequest();
+        return {
+          kind: 'error',
+          resolution: {
+            success: false,
+            error: unauthorizedOriginError({ reason: 'connect-unknown-account' }),
+          },
+        };
+      }
+
+      const sentIndex = record.accountIndex;
+      const accountIndex =
+        typeof sentIndex === 'number' && request.accounts[sentIndex] === account
+          ? sentIndex
+          : request.accounts.indexOf(account);
+      const session = await connectSession({
+        origin: request.origin,
+        account,
+        chainId: request.chainId,
+        tabId: request.tabId >= 0 ? request.tabId : null,
+        now,
+        ttlMs: options.ttlMs ?? SESSION_TTL_MS,
+        storage,
+      });
+      // Al resolverse la conexión la solicitud se retira: es el segundo motivo de purga (además
+      // del vencimiento) que hasta la fase 4 no existía.
+      await clearRequest();
+      return {
+        kind: 'approved',
+        resolution:
+          session === null
+            ? { success: false, error: userRejectedError({ reason: 'connect-origin-invalid' }) }
+            : { success: true, account, accountIndex },
+      };
+    },
+  );
+
+  if (outcome.kind === 'unknown') {
     // Solicitud desconocida: se responde `4001` sin tocar el almacén ni crear sesión.
     return { success: false, error: userRejectedError({ reason: 'unknown-connect-request' }) };
   }
-
-  const clearRequest = async (): Promise<void> => {
-    const next = { ...requests };
-    delete next[requestId];
-    await writeStorage({ [STORAGE_KEYS.connectRequest]: next }, storage);
-  };
-
-  if (request.status !== 'pending' || request.expiresAt <= now) {
-    await clearRequest();
-    const expired: ConnectResolution = {
-      success: false,
-      error:
-        request.status === 'pending' && request.expiresAt <= now
-          ? userRejectedError({ reason: 'connect-expired' })
-          : userRejectedError({ reason: 'connect-already-resolved' }),
-    };
-    settlePendingConnect(requestId, expired);
-    return expired;
-  }
-
-  if (record.success !== true) {
-    await clearRequest();
-    const cancelled: ConnectResolution = {
-      success: false,
-      error: userRejectedError({ reason: 'connect-cancelled' }),
-    };
-    settlePendingConnect(requestId, cancelled);
-    return cancelled;
-  }
-
-  const account = typeof record.account === 'string' ? (record.account as Address) : null;
-  const known = account !== null && request.accounts.some((entry) => entry === account);
-  if (account === null || !known) {
-    // Cuenta fuera de la lista ofrecida: petición manipulada → `4100`, sin sesión.
-    await clearRequest();
-    const unknownAccount: ConnectResolution = {
-      success: false,
-      error: unauthorizedOriginError({ reason: 'connect-unknown-account' }),
-    };
-    settlePendingConnect(requestId, unknownAccount);
-    return unknownAccount;
-  }
-
-  /**
-   * `accountIndex` es la POSICIÓN de la cuenta elegida dentro de `request.accounts` (§2.9). La
-   * ventana lo envía calculado sobre la lista que le entregó el SW (`wallet_getConnectRequest`,
-   * v1.7), pero aquí NO se confía en él: si el índice no apunta a la MISMA cuenta, se recalcula
-   * con `indexOf(account)`, que es el respaldo canónico. Así una respuesta manipulada no puede
-   * hacer que la dApp reciba un índice que no corresponde a la cuenta autorizada.
-   */
-  const sentIndex = record.accountIndex;
-  const accountIndex =
-    typeof sentIndex === 'number' && request.accounts[sentIndex] === account
-      ? sentIndex
-      : request.accounts.indexOf(account);
-  const session = await connectSession({
-    origin: request.origin,
-    account,
-    chainId: request.chainId,
-    tabId: request.tabId >= 0 ? request.tabId : null,
-    now,
-    ttlMs: options.ttlMs ?? SESSION_TTL_MS,
-    storage,
-  });
-  await clearRequest();
-  const resolution: ConnectResolution =
-    session === null
-      ? { success: false, error: userRejectedError({ reason: 'connect-origin-invalid' }) }
-      : { success: true, account, accountIndex };
-  settlePendingConnect(requestId, resolution);
-  return resolution;
+  settlePendingConnect(requestId, outcome.resolution);
+  return outcome.resolution;
 };
 
 /** ¿Es `requestId` una respuesta de conexión dirigida a una solicitud abierta? */

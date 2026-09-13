@@ -24,6 +24,7 @@ import {
   readSessions,
   rememberTab,
   revokeSession,
+  sessionsLock,
   touchSession,
 } from './sessions';
 
@@ -269,5 +270,84 @@ describe('M26 · cambio de la cuenta activa (D-H3-A / D-H3-B, `CA-RF-15`)', () =
 
     expect(propagado).toEqual({ origins: [], tabIds: [] });
     expect(chromeStub.storage.local.writes().length).toBe(escriturasAntes);
+  });
+});
+
+/**
+ * RMW SERIALIZADO (fleco 4 de la fase 4). La auditoría de unitarias midió que `sessions.ts` hacía
+ * `readStorage` → mutar → `writeStorage` **sin cerrojo**: dos mutaciones solapadas partían de la
+ * MISMA instantánea y la segunda pisaba a la primera, perdiendo una renovación, una pestaña o una
+ * revocación. El patrón aplicado es el `rmwLock` que ya existía en `approvals/queue.ts`.
+ */
+describe('M26 · RMW serializado de `truekeate_connected_sites` (fleco 4 de la fase 4)', () => {
+  it('dos renovaciones simultáneas de orígenes distintos NO se pisan', async () => {
+    const A = 'http://a.test';
+    const B = 'http://b.test';
+    await seed({ [A]: sessionOf({ origin: A, tabIds: [1] }), [B]: sessionOf({ origin: B, tabIds: [2] }) });
+
+    const [a, b] = await Promise.all([
+      touchSession(A, { now: T0 + 1_000, tabId: 10 }),
+      touchSession(B, { now: T0 + 2_000, tabId: 20 }),
+    ]);
+
+    expect(a.session?.tabIds).toEqual([1, 10]);
+    expect(b.session?.tabIds).toEqual([2, 20]);
+    const persistido = await rawSessions();
+    // Sin cerrojo, la segunda escritura habría partido de la instantánea ANTERIOR a la primera y
+    // uno de los dos orígenes habría perdido su renovación.
+    expect(persistido[A]?.lastUsedAt).toBe(T0 + 1_000);
+    expect(persistido[A]?.tabIds).toEqual([1, 10]);
+    expect(persistido[B]?.lastUsedAt).toBe(T0 + 2_000);
+    expect(persistido[B]?.tabIds).toEqual([2, 20]);
+    expect(Object.keys(persistido).sort()).toEqual([A, B]);
+  });
+
+  it('una revocación y una renovación simultáneas del MISMO origen no se pisan', async () => {
+    await seed({ [ORIGEN]: sessionOf({ tabIds: [4] }) });
+
+    const [revocado, renovado] = await Promise.all([
+      revokeSession(ORIGEN, { tabId: 5 }),
+      touchSession(ORIGEN, { now: T0 + 5_000, tabId: 6 }),
+    ]);
+
+    expect(revocado?.revoked).toBe(true);
+    // Una de las dos gana y la otra ve el estado ya mutado; lo que NO puede ocurrir es que la
+    // sesión revocada «resucite» por una instantánea vieja.
+    const persistido = await rawSessions();
+    if (renovado.session === null) {
+      expect(persistido[ORIGEN]).toBeUndefined();
+    } else {
+      expect(persistido[ORIGEN]?.tabIds).toContain(6);
+    }
+  });
+
+  it('varias renovaciones simultáneas acumulan TODAS las pestañas (ninguna se pierde)', async () => {
+    await seed({ [ORIGEN]: sessionOf({ tabIds: [] }) });
+
+    await Promise.all([
+      touchSession(ORIGEN, { now: T0 + 1, tabId: 1 }),
+      touchSession(ORIGEN, { now: T0 + 2, tabId: 2 }),
+      touchSession(ORIGEN, { now: T0 + 3, tabId: 3 }),
+      touchSession(ORIGEN, { now: T0 + 4, tabId: 4 }),
+    ]);
+
+    const persistido = await rawSessions();
+    expect(persistido[ORIGEN]?.tabIds).toEqual([1, 2, 3, 4]);
+    expect(persistido[ORIGEN]?.lastUsedAt).toBe(T0 + 4);
+    // El cerrojo se vacía: no queda ninguna tarea encadenada.
+    expect(sessionsLock.depth()).toBe(0);
+  });
+
+  it('las escrituras serializadas nunca dejan el mapa con un número menor de orígenes', async () => {
+    const origenes = ['http://o1.test', 'http://o2.test', 'http://o3.test'];
+    await seed(Object.fromEntries(origenes.map((origen) => [origen, sessionOf({ origin: origen })])));
+
+    await Promise.all(origenes.map((origen, indice) => rememberTab(origen, indice + 1)));
+
+    const persistido = await rawSessions();
+    expect(Object.keys(persistido).sort()).toEqual([...origenes].sort());
+    for (const [indice, origen] of origenes.entries()) {
+      expect(persistido[origen]?.tabIds).toEqual([indice + 1]);
+    }
   });
 });

@@ -1,0 +1,51 @@
+# Evidencia de globalSetup — fase Fase4 — 2026-09-13
+Repositorio: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet
+dist/: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\dist
+
+## Plazos de producción declarados en src/shared/constants.ts
+OK: 120000 / 60000 / 30000 siguen siendo los valores por defecto; la inyección (3000 / 2000) es SOLO del arnés.
+
+## Build de dist/ con plazos inyectados
+$ npm run build
+[exit code: 0]
+
+> truekeate-wallet@1.0.0 build
+> tsc -b && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 261 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/src/notification.html                   0.79 kB │ gzip:   0.46 kB
+dist/src/index.html                          0.83 kB │ gzip:   0.46 kB
+dist/src/connect.html                        0.85 kB │ gzip:   0.47 kB
+dist/assets/base-CESjQxSK.css               25.84 kB │ gzip:   4.81 kB
+dist/chunks/useBalancePolling-CWf2RIld.js    1.98 kB │ gzip:   1.13 kB │ map:    14.80 kB
+dist/chunks/format-CCBgu3mO.js               2.15 kB │ gzip:   1.27 kB │ map:    24.28 kB
+dist/connect.js                              8.00 kB │ gzip:   3.14 kB │ map:    35.92 kB
+dist/notification.js                        29.51 kB │ gzip:   8.47 kB │ map:   116.91 kB
+dist/index.js                               57.38 kB │ gzip:  17.94 kB │ map:   248.16 kB
+dist/chunks/base-CdxPA8GF.js               234.58 kB │ gzip:  74.05 kB │ map: 1,112.99 kB
+dist/background.js                         469.22 kB │ gzip: 168.26 kB │ map: 2,407.93 kB
+✓ built in 3.02s
+[manifest] dist/manifest.json generado (version 1.0.0).
+
+## Artefacto
+OK: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\dist\manifest.json presente.
+
+## Anvil
+OK: cast chain-id --rpc-url http://127.0.0.1:8545 = 31337
+
+## Anvil secundario: no responde; se arranca desde el arnés
+$ cast chain-id --rpc-url http://127.0.0.1:8546
+[exit code: 1]
+Error: error sending request for url (http://127.0.0.1:8546/)
+
+Context:
+- Error #0: client error (Connect)
+- Error #1: tcp connect error
+- Error #2: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión. (os error 10061)
+
+## Anvil secundario (segunda red)
+OK: cast chain-id --rpc-url http://127.0.0.1:8546 = 31338 (arrancado por el arnés)

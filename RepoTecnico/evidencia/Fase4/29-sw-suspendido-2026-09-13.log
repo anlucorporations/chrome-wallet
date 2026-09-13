@@ -1,0 +1,8 @@
+# 29-sw-suspendido — 2026-09-13
+approvalId: 02a2e14c-55c6-4383-a4e6-37d1b2ea7b8b
+estado tras suspender (CDP): stopped
+ms hasta que el SW vuelve a estar running: 1891
+ms de reconstrucción (running → cola sin huérfanas): 579
+error entregado a la dApp: {"estado":"error","code":4001,"message":"El usuario no respondió en el plazo establecido (3 s); la solicitud ha caducado."}
+nonce antes/después: 0x0 / 0x0
+evidencia JSON: C:\Users\lucci\MasterCodeCripto\GitLab\chrome-wallet\RepoTecnico\evidencia\Fase4\29-sw-suspendido-2026-09-13.json
