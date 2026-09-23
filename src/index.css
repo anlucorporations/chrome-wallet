@@ -1,0 +1,47 @@
+/* =============================================================================
+   Popup de la wallet — base con la identidad de TrueKeate.
+   El sistema de diseño vive en theme.css (tokens portados del proyecto).
+   ============================================================================= */
+@import './theme.css';
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  /* Ancho FIJO de la billetera: 480 px (rediseño). */
+  width: 480px;
+  min-height: 560px;
+  background: var(--smoke);
+  color: var(--navy-800);
+}
+
+#root {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--teal-500);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--navy-800);
+  text-decoration: underline;
+}
+
+/* Barras de desplazamiento discretas, acordes a la paleta */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(26, 43, 76, 0.2);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

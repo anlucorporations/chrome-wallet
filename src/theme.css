@@ -1,0 +1,1868 @@
+/* =============================================================================
+   CodeCrypto Wallet — Identidad visual de TrueKeate (RNF-08)
+   -----------------------------------------------------------------------------
+   Porta el sistema de diseño "Bóveda Digital Moderna" del proyecto TrueKeate
+   (web/app/globals.css) a la extensión, para que la wallet se vea como parte de
+   la plataforma y no como una aplicación aparte.
+
+   Origen de los tokens: escrow/web/app/globals.css (RNF-08.1 a RNF-08.5).
+   Paleta: Navy #1A2B4C/#0A1128 · Teal #2A9D8F · Cyan #48CAE4 · Gold #D4AF37
+           Lienzo #F8F9FA · Error #E63946 · Warning #F4A261
+   Tipografía: Montserrat/Poppins (títulos) · Inter/Roboto (cuerpo)
+   ============================================================================= */
+
+:root {
+  /* RNF-08.1 Paleta (idéntica al proyecto) */
+  --navy-900: #0a1128;
+  --navy-800: #1a2b4c;
+  --teal-500: #2a9d8f;
+  --cyan-400: #48cae4;
+  --gold-500: #d4af37;
+  --gold-300: #f3e5ab;
+  --gold-600: #c5a065;
+  --smoke: #f8f9fa;
+  --white: #ffffff;
+  --crimson: #e63946;
+  --coral: #f4a261;
+
+  /* RNF-08.2 Gradientes */
+  --gradient-cta: linear-gradient(135deg, #1a2b4c 0%, #2a9d8f 100%);
+  --gradient-cyan: linear-gradient(90deg, #2a9d8f 0%, #48cae4 100%);
+  --gradient-gold: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #c5a065 100%);
+  --gradient-card-border: linear-gradient(90deg, #1a2b4c 0%, #2a9d8f 50%, #d4af37 100%);
+
+  /* RNF-08.4 Radios */
+  --radius-pill: 9999px;
+  --radius-card: 16px;
+  --radius-modal: 24px;
+
+  /* RNF-08.5 Curvas y duraciones */
+  --ease-natural: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+
+  /* Tipografías del proyecto (con alternativas del sistema si no están) */
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: Montserrat, Poppins, Inter, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+/* --- Base ------------------------------------------------------------------ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--smoke);
+  color: var(--navy-800);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--navy-800);
+  letter-spacing: -0.01em;
+}
+
+code, .tk-mono {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* --- Marca ----------------------------------------------------------------- */
+/* Cabecera de marca: fondo navy con el título degradado en dorado. */
+.tk-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--navy-800);
+  color: var(--white);
+}
+
+.tk-brand__logo {
+  height: 28px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.tk-brand__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tk-brand__sub {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Columna título + subtítulo de la cabecera de marca. */
+.tk-brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+/* Cabeceras de las ventanas de firma/conexión: logo sobre el título. */
+.notification-header .tk-brand__logo {
+  height: 40px;
+  margin: 0 auto 8px;
+  display: block;
+}
+
+/* --- Tarjetas -------------------------------------------------------------- */
+.tk-card {
+  background: var(--white);
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Borde superior dorado: tarjeta "premium" del proyecto (RWA). */
+.tk-card--premium {
+  border-top: 4px solid var(--gold-500);
+}
+
+/* --- Botones --------------------------------------------------------------- */
+.tk-btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-cta);
+  color: var(--white);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-natural),
+    filter var(--duration-fast) var(--ease-natural);
+}
+
+.tk-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.tk-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.tk-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tk-btn--outline {
+  background: transparent;
+  border: 2px solid var(--navy-800);
+  color: var(--navy-800);
+}
+
+.tk-btn--gold {
+  background: var(--gradient-gold);
+  color: var(--navy-800);
+}
+
+.tk-btn--danger {
+  background: var(--crimson);
+  color: var(--white);
+}
+
+/* --- Campos ---------------------------------------------------------------- */
+.tk-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(26, 43, 76, 0.6);
+  margin-bottom: 4px;
+}
+
+.tk-input,
+.tk-select,
+.tk-textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--navy-800);
+  background: var(--white);
+  border: 1px solid rgba(26, 43, 76, 0.15);
+  border-radius: 12px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-natural);
+}
+
+.tk-input:focus,
+.tk-select:focus,
+.tk-textarea:focus {
+  border-color: var(--teal-500);
+}
+
+/* --- Insignias de estado (equivalen a StatusBadge del proyecto) ------------ */
+.tk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tk-badge--navy   { background: var(--navy-800); color: var(--white); }
+.tk-badge--teal   { background: var(--teal-500); color: var(--white); }
+.tk-badge--cyan   { background: var(--cyan-400); color: var(--navy-900); }
+.tk-badge--gold   { background: var(--gold-500); color: var(--navy-900); }
+.tk-badge--crimson{ background: var(--crimson); color: var(--white); }
+.tk-badge--coral  { background: var(--coral); color: var(--navy-900); }
+.tk-badge--smoke  { background: rgba(26, 43, 76, 0.08); color: var(--navy-800); }
+
+/* --- Utilidades ------------------------------------------------------------ */
+.tk-text-gradient-gold {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Barra de acento superior (motivo del proyecto) */
+.tk-accent-bar {
+  height: 4px;
+  background: var(--gradient-card-border);
+}
+
+.tk-muted {
+  color: rgba(26, 43, 76, 0.6);
+}
+
+.tk-warning {
+  background: rgba(244, 162, 97, 0.12);
+  border-left: 3px solid var(--coral);
+  color: #8a4b12;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+/* --- Fichas contraíbles del popup (M2.1) ----------------------------------- */
+.tk-ficha {
+  background: var(--white);
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: var(--radius-card);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.tk-ficha__cabecera {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy-800);
+  text-align: left;
+}
+
+.tk-ficha__cabecera:hover {
+  background: var(--smoke);
+}
+
+.tk-ficha__chevron {
+  color: var(--teal-500);
+  font-size: 12px;
+}
+
+.tk-ficha__cuerpo {
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(26, 43, 76, 0.06);
+}
+
+/* Rejilla de acciones de saldo (Recibir, Enviar, Comprar, Cambiar, Contactos) */
+.tk-actions {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.tk-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--navy-800);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-natural);
+}
+
+.tk-action:hover:not(:disabled) {
+  border-color: var(--teal-500);
+  background: var(--smoke);
+}
+
+.tk-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.tk-action__icono {
+  font-size: 18px;
+}
+
+/* Pie fijo: dApp conectada + bloqueo + desconexión (M2.1.7) */
+.tk-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--navy-800);
+  color: var(--white);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  font-size: 11px;
+}
+
+.tk-footer__dapp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tk-footer__dapp span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.tk-dot--ok {
+  background: var(--teal-500);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.25);
+}
+
+.tk-footer__acciones {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tk-footer__acciones button {
+  background: rgba(255, 255, 255, 0.12);
+  border: 0;
+  border-radius: 10px;
+  padding: 6px 9px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tk-footer__acciones button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Lista de dApps conectadas (ficha Conexiones) */
+.tk-sitios {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-sitio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.tk-sitio__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tk-sitio__origen {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-sitio__cuenta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+.tk-sitio__desconectar {
+  border: 0;
+  background: rgba(230, 57, 70, 0.1);
+  border-radius: 10px;
+  padding: 6px 9px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tk-sitio__desconectar:hover {
+  background: rgba(230, 57, 70, 0.2);
+}
+
+/* Acción de saldo activa (Recibir / Contactos) */
+.tk-action--activa {
+  border-color: var(--teal-500);
+  background: rgba(42, 157, 143, 0.08);
+}
+
+/* Panel Recibir (QR + copiar) */
+.tk-recibir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.tk-recibir__qr {
+  padding: 10px;
+  background: var(--white);
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  line-height: 0;
+}
+
+.tk-recibir__direccion {
+  font-size: 10px;
+  color: var(--navy-800);
+  word-break: break-all;
+  text-align: center;
+  margin: 0;
+}
+
+.tk-recibir__copiar {
+  font-size: 12px;
+  padding: 8px 14px;
+}
+
+/* Formulario de contactos */
+.tk-contactos {
+  padding-top: 12px;
+}
+
+.tk-contactos__form {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.tk-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(26, 43, 76, 0.15);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--navy-800);
+  background: var(--white);
+}
+
+.tk-input:focus {
+  outline: none;
+  border-color: var(--teal-500);
+}
+
+.tk-contactos .tk-btn {
+  font-size: 11px;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.tk-contactos__error {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--crimson);
+}
+
+/* Pestañas de Características (Tokens / DeFi / NFT / Actividad) */
+.tk-tabs {
+  padding-top: 10px;
+}
+
+.tk-tabs__barra {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid rgba(26, 43, 76, 0.1);
+}
+
+.tk-tab {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(26, 43, 76, 0.55);
+  cursor: pointer;
+}
+
+.tk-tab--activa {
+  color: var(--navy-800);
+  border-bottom-color: var(--teal-500);
+}
+
+.tk-tabs__panel {
+  padding-top: 10px;
+}
+
+/* Lista de tokens ERC-20 */
+.tk-tokens {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-tokens__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Actividad: lista de movimientos con detalle desplegable */
+.tk-actividad {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-actividad__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tk-actividad__refrescar {
+  font-size: 10px;
+  padding: 5px 10px;
+}
+
+.tk-movs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-mov {
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.tk-mov__fila {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tk-mov__fila:hover {
+  background: var(--smoke);
+}
+
+.tk-mov__signo {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.tk-mov__signo--in {
+  background: rgba(42, 157, 143, 0.15);
+  color: var(--teal-500);
+}
+
+.tk-mov__signo--out {
+  background: rgba(244, 162, 97, 0.18);
+  color: #8a4b12;
+}
+
+.tk-mov__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.tk-mov__titulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tk-mov__sub {
+  font-size: 10px;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+.tk-mov__valor {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy-800);
+  white-space: nowrap;
+}
+
+.tk-mov__detalle {
+  padding: 8px 10px 10px;
+  border-top: 1px solid rgba(26, 43, 76, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--navy-800);
+  word-break: break-all;
+}
+
+.tk-mov__etq {
+  display: inline-block;
+  min-width: 52px;
+  font-weight: 700;
+  color: rgba(26, 43, 76, 0.55);
+  text-transform: uppercase;
+}
+
+/* NFT: colecciones y tarjetas */
+.tk-nft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tk-coleccion {
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: var(--white);
+}
+
+.tk-coleccion__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tk-nft__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tk-nft__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid rgba(26, 43, 76, 0.08);
+  border-radius: 10px;
+  padding: 5px;
+  background: var(--smoke);
+}
+
+.tk-nft__imagen {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--white);
+  font-size: 22px;
+}
+
+.tk-nft__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-nft__nombre {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-nft__id {
+  font-size: 9px;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+/* Configuración (M5/M6) */
+.tk-config {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.tk-config__area {
+  margin: 10px 0 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+.tk-modos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tk-modo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border: 1px solid rgba(26, 43, 76, 0.12);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  text-align: center;
+}
+
+.tk-modo--activo {
+  border-color: var(--teal-500);
+  background: rgba(42, 157, 143, 0.08);
+}
+
+.tk-modo__icono {
+  font-size: 18px;
+}
+
+.tk-modo__titulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tk-modo__texto {
+  font-size: 9px;
+  color: rgba(26, 43, 76, 0.55);
+  line-height: 1.2;
+}
+
+.tk-config__enlace {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 8px 14px;
+}
+
+.tk-volver {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--teal-500);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+/* Notificaciones deslizables (M6 · RF-WN-19) */
+.tk-notifs__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tk-notifs__marcar {
+  border: 0;
+  background: transparent;
+  color: var(--teal-500);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tk-notifs__pista {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 2px 10px;
+  scroll-snap-type: x mandatory;
+}
+
+.tk-notif {
+  position: relative;
+  flex: 0 0 78%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.tk-notif--nueva {
+  border-color: var(--teal-500);
+}
+
+.tk-notif__punto {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(26, 43, 76, 0.2);
+}
+
+.tk-notif--nueva .tk-notif__punto {
+  background: var(--teal-500);
+}
+
+.tk-notif__texto {
+  font-size: 11px;
+  color: var(--navy-800);
+}
+
+.tk-notif__hora {
+  font-size: 9px;
+  color: rgba(26, 43, 76, 0.5);
+}
+
+/* Redes (M6 · RF-WN-22) */
+.tk-redes__lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-red {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.tk-red__btn {
+  border: 0;
+  background: rgba(42, 157, 143, 0.12);
+  color: var(--navy-800);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tk-red__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.tk-red__solo {
+  font-size: 9px;
+  color: rgba(26, 43, 76, 0.45);
+  white-space: nowrap;
+}
+
+/* Perfil (M6 · RF-WN-25) */
+.tk-perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-backup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-500);
+  cursor: pointer;
+}
+
+.tk-backup input {
+  display: none;
+}
+
+.tk-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--navy-800);
+}
+
+.tk-perfil__frase {
+  display: block;
+  margin: 6px 0;
+  padding: 10px;
+  background: var(--smoke);
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.6;
+  word-spacing: 4px;
+}
+
+/* Comprar / Cambiar (M2.1.4) */
+.tk-comprar,
+.tk-cambiar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.tk-cambiar__fila {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+.tk-cambiar__fila + .tk-cambiar__fila {
+  grid-template-columns: 1fr 1fr;
+}
+
+.tk-cambiar__flecha {
+  color: var(--teal-500);
+  font-weight: 700;
+}
+
+.tk-cambiar__acciones {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tk-cambiar__acciones .tk-btn {
+  font-size: 11px;
+  padding: 8px 12px;
+}
+
+/* Modo oscuro (M6 · RF-WN-25) */
+:root[data-theme='dark'] body {
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+:root[data-theme='dark'] .tk-ficha,
+:root[data-theme='dark'] .tk-card,
+:root[data-theme='dark'] .tk-sitio,
+:root[data-theme='dark'] .tk-mov,
+:root[data-theme='dark'] .tk-coleccion,
+:root[data-theme='dark'] .tk-notif,
+:root[data-theme='dark'] .tk-modo,
+:root[data-theme='dark'] .tk-red,
+:root[data-theme='dark'] .tk-action {
+  background: #16213a;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+:root[data-theme='dark'] .tk-input {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:root[data-theme='dark'] h1,
+:root[data-theme='dark'] h2,
+:root[data-theme='dark'] h3,
+:root[data-theme='dark'] h4,
+:root[data-theme='dark'] .tk-ficha__cabecera,
+:root[data-theme='dark'] .tk-sitio__origen,
+:root[data-theme='dark'] .tk-mov__titulo,
+:root[data-theme='dark'] .tk-modo__titulo,
+:root[data-theme='dark'] .tk-notif__texto,
+:root[data-theme='dark'] .tk-switch {
+  color: #e2e8f0;
+}
+
+:root[data-theme='dark'] .tk-muted,
+:root[data-theme='dark'] .tk-sitio__cuenta,
+:root[data-theme='dark'] .tk-notif__hora,
+:root[data-theme='dark'] .tk-modo__texto,
+:root[data-theme='dark'] .tk-config__area {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+/* ============================================================================
+   Rediseño de la wallet: header de 2 líneas, navegación por páginas y
+   aprobaciones dentro del popup. Ancho fijo 480 px (index.css).
+   ========================================================================== */
+
+.tk-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--navy-800);
+  color: var(--white);
+  padding: 12px 16px 10px;
+}
+
+.tk-header__marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tk-header__logo {
+  height: 30px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.tk-header__titulo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tk-header__estado {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tk-header__cuenta {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--white);
+  border-radius: var(--radius-pill);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.tk-header__cuenta option {
+  color: var(--navy-800);
+}
+
+.tk-header__red {
+  flex-shrink: 0;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tk-pagina {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.tk-pagina__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(26, 43, 76, 0.08);
+  background: var(--white);
+}
+
+.tk-pagina__volver {
+  border: 0;
+  background: rgba(26, 43, 76, 0.06);
+  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--navy-800);
+}
+
+.tk-pagina__volver:hover {
+  background: rgba(26, 43, 76, 0.12);
+}
+
+.tk-pagina__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tk-pagina__cuerpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.tk-pagina__dato {
+  font-size: 12px;
+  word-break: break-all;
+  margin: 0 0 6px;
+}
+
+.tk-inicio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tk-inicio__saldo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 18px 12px;
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, #1a2b4c 0%, #2a9d8f 100%);
+  color: var(--white);
+}
+
+.tk-inicio__monto {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.tk-inicio__cuenta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tk-inicio__secciones {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tk-inicio__seccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  text-align: left;
+}
+
+.tk-inicio__seccion:hover {
+  border-color: var(--teal-500);
+  background: var(--smoke);
+}
+
+.tk-inicio__icono {
+  font-size: 18px;
+}
+
+.tk-inicio__texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.tk-inicio__titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tk-inicio__detalle {
+  font-size: 10px;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+.tk-inicio__chevron {
+  color: rgba(26, 43, 76, 0.35);
+  font-size: 18px;
+}
+
+.tk-aprobacion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.tk-aprobacion__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy-800);
+}
+
+.tk-aprobacion__dapp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--smoke);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.tk-aprobacion__cuenta {
+  text-align: left;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tk-aprobacion__acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.tk-aprobacion__acciones .tk-btn {
+  flex: 1;
+}
+
+.tk-sitio--sel {
+  border-color: var(--teal-500);
+  background: rgba(42, 157, 143, 0.08);
+}
+
+/* ==========================================================================
+   Rediseño del inicio (2026-09-15) — RF-WN-34..39 / D-NW-7
+   1) ancho fijo 480 px sin márgenes · 2) ficha de balance deslizable ·
+   3) barra de operaciones · 4) ficha con pestañas · 5) menú de configuración.
+   ========================================================================== */
+
+/* Sin márgenes: el contenido abarca todo el ancho de la billetera (480 px) */
+.app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+}
+
+.tk-inicio {
+  padding: 0;
+  gap: 8px;
+}
+
+/* 1 · Ficha de balance (carrusel de monedas u operación en línea) */
+.tk-balance {
+  position: relative;
+  background: linear-gradient(135deg, #1a2b4c 0%, #2a9d8f 100%);
+  color: var(--white);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  overflow: hidden;
+}
+
+.tk-balance__carrusel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 6px;
+  touch-action: pan-y;
+}
+
+.tk-balance__flecha {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--white);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tk-balance__flecha:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.tk-balance__slide {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.tk-balance__simbolo {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.tk-balance__monto {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.tk-balance__cuenta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tk-balance__nombre {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.tk-balance__puntos {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 0 10px;
+}
+
+.tk-balance__punto {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+}
+
+.tk-balance__punto--activo {
+  background: var(--white);
+}
+
+/* Operación cargada dentro de la ficha de balance */
+.tk-balance__operacion {
+  background: var(--white);
+  color: var(--navy-800);
+}
+
+.tk-balance__operacion-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(26, 43, 76, 0.08);
+}
+
+.tk-balance__volver {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(26, 43, 76, 0.06);
+  color: var(--navy-800);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.tk-balance__volver:hover {
+  background: rgba(26, 43, 76, 0.12);
+}
+
+.tk-balance__operacion-titulo {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tk-balance__operacion-cuerpo {
+  padding: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* 2 · Barra de operaciones */
+.tk-ops {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.tk-ops__boton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+}
+
+.tk-ops__boton:hover {
+  background: var(--smoke);
+}
+
+.tk-ops__boton--activo {
+  outline: 2px solid var(--teal-500);
+  background: var(--smoke);
+}
+
+.tk-ops__icono {
+  font-size: 18px;
+}
+
+.tk-ops__texto {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+/* 3 · Ficha con pestañas */
+.tk-ficha-tabs {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 6px 12px 12px;
+}
+
+.tk-ficha-tabs .tk-tabs__panel {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Páginas internas a todo el ancho, sin margen exterior */
+.tk-pagina__cuerpo {
+  padding: 0 0 12px;
+}
+
+/* Menú desplegable del pie (Configuración) */
+.tk-menu {
+  position: relative;
+}
+
+.tk-menu__lista {
+  position: absolute;
+  bottom: 120%;
+  right: 0;
+  z-index: 20;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.tk-menu__lista button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--navy-800);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tk-menu__lista button:hover {
+  background: var(--smoke);
+}
+
+.tk-menu__peligro {
+  color: var(--crimson);
+}
+
+.tk-footer__acciones button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* El estado de la dApp es un botón que abre la gestión de conexiones */
+.tk-footer__dapp {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Ajustes 2026-09-15 (2.ª iteración) — pie al fondo, redes personalizadas y
+   lista de notificaciones.
+   ========================================================================== */
+
+/* 1 · El pie queda anclado al fondo de la billetera aunque el contenido sea corto */
+.app {
+  flex: 1;
+}
+
+.tk-inicio {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 3 · Notificaciones: lista vertical de todas las notificaciones */
+.tk-notifs__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 0 10px;
+  margin: 0;
+  list-style: none;
+}
+
+.tk-notif {
+  flex: none;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  padding-right: 22px;
+}
+
+.tk-notif__icono {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.tk-notif__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tk-notifs__vacio {
+  padding: 8px 0;
+}
+
+/* 2 · Redes personalizadas: alta y selección */
+.tk-redes__acciones {
+  padding: 4px 0 8px;
+}
+
+.tk-red-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid rgba(26, 43, 76, 0.12);
+  border-radius: 12px;
+  background: var(--smoke);
+}
+
+.tk-red-form__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  color: rgba(26, 43, 76, 0.65);
+}
+
+.tk-red-form__fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tk-red-form__acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.tk-red-form__acciones .tk-btn {
+  flex: 1;
+}
+
+/* Icono de la red conectada en el pie (2026-09-15) */
+.tk-footer__dapp {
+  flex: 1;
+  min-width: 0;
+}
+
+.tk-footer__red {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 42%;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.tk-footer__red:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.tk-footer__red-icono {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tk-footer__red-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Páginas de aprobación con el modelo de 10 bloques (D-NW-9)
+   ========================================================================== */
+
+.tk-aprobacion__resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 10px;
+  background: var(--white);
+}
+
+.tk-aprobacion__campo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.tk-aprobacion__etq {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(26, 43, 76, 0.5);
+}
+
+.tk-aprobacion__accion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(42, 157, 143, 0.08);
+  border: 1px solid rgba(42, 157, 143, 0.25);
+}
+
+.tk-aprobacion__accion-texto {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tk-aprobacion__bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tk-aprobacion__bloque-titulo {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(26, 43, 76, 0.5);
+}
+
+.tk-aprobacion__lista {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid rgba(26, 43, 76, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--white);
+}
+
+.tk-aprobacion__fila {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tk-aprobacion__fila dt {
+  font-size: 10px;
+  color: rgba(26, 43, 76, 0.55);
+}
+
+.tk-aprobacion__fila dd {
+  margin: 0;
+  font-size: 12px;
+  color: var(--navy-800);
+  word-break: break-word;
+}
+
+.tk-aprobacion__consecuencias {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--navy-800);
+}
+
+.tk-aprobacion__avisos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tk-aviso {
+  font-size: 11px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+}
+
+.tk-aviso--info {
+  background: rgba(42, 157, 143, 0.08);
+  border-color: rgba(42, 157, 143, 0.3);
+}
+
+.tk-aviso--atencion {
+  background: rgba(244, 162, 97, 0.12);
+  border-color: rgba(244, 162, 97, 0.45);
+}
+
+.tk-aviso--peligro {
+  background: rgba(214, 40, 40, 0.1);
+  border-color: rgba(214, 40, 40, 0.5);
+  font-weight: 600;
+}
+
+.tk-aprobacion__confirmar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(214, 40, 40, 0.5);
+  background: rgba(214, 40, 40, 0.08);
+  font-size: 12px;
+}
+
+.tk-aprobacion__confirmar p {
+  margin: 0;
+}
+
+.tk-aprobacion__confirmar-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.tk-aprobacion__confirmar-acciones .tk-btn {
+  flex: 1;
+}

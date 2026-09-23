@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeCrypto Wallet — Página de pruebas</title>
+    <!-- Identidad visual de TrueKeate (los mismos tokens que la plataforma) -->
+    <link rel="stylesheet" href="/src/theme.css" />
+    <style>
+      body {
+        padding: 24px;
+      }
+      .tk-container {
+        max-width: 880px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .tk-header {
+        background: var(--navy-800);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        color: var(--white);
+      }
+      .tk-header__inner {
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .tk-header__logo {
+        height: 42px;
+      }
+      .tk-header h1 {
+        margin: 0;
+        color: var(--white);
+        font-size: 21px;
+      }
+      .tk-header p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .tk-section h2 {
+        font-size: 15px;
+        margin: 0 0 4px;
+      }
+      .tk-section__desc {
+        font-size: 12px;
+        margin: 0 0 12px;
+        color: rgba(26, 43, 76, 0.6);
+      }
+      .tk-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin-bottom: 10px;
+      }
+      .tk-row > * {
+        flex: 1 1 180px;
+      }
+      .tk-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .tk-field {
+        background: var(--smoke);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+      .tk-field__k {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(26, 43, 76, 0.5);
+      }
+      .tk-field__v {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        word-break: break-all;
+        margin-top: 3px;
+      }
+      .tk-providers {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .tk-provider {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: 1px solid rgba(26, 43, 76, 0.12);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: var(--white);
+      }
+      .tk-provider--sel {
+        border-color: var(--teal-500);
+        box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+      }
+      .tk-log {
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        background: var(--navy-900);
+        color: #d7e3f4;
+        border-radius: 12px;
+        padding: 12px;
+        max-height: 280px;
+        overflow: auto;
+        white-space: pre-wrap;
+        margin: 12px 0 0;
+      }
+      .tk-log .ok {
+        color: #7ee0c2;
+      }
+      .tk-log .err {
+        color: #ff9aa2;
+      }
+      .tk-log .info {
+        color: #ffd97d;
+      }
+      .tk-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(26, 43, 76, 0.06);
+      }
+      .tk-check__mark {
+        width: 18px;
+        text-align: center;
+      }
+      .tk-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .tk-actions .tk-btn {
+        font-size: 13px;
+        padding: 8px 16px;
+      }
+      code {
+        background: rgba(26, 43, 76, 0.06);
+        padding: 1px 5px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tk-container">
+      <!-- Marca -->
+      <header class="tk-header">
+        <div class="tk-header__inner">
+          <img class="tk-header__logo" src="/brand/TrueKeate_logo.svg" alt="TrueKeate" />
+          <div>
+            <h1>CodeCrypto Wallet — Página de pruebas</h1>
+            <p>
+              Banco de pruebas de la wallet, <strong>independiente de TrueKeate</strong>: ejercita el proveedor
+              EIP-1193 / EIP-6963 directamente. Se abre en una pestaña normal con la extensión instalada.
+            </p>
+          </div>
+        </div>
+        <div class="tk-accent-bar"></div>
+      </header>
+
+      <div class="tk-warning">
+        <strong>Wallet educativa.</strong> El mnemonic se guarda sin cifrar y las cuentas por defecto son las de
+        Anvil (claves públicas conocidas). No la uses con fondos reales. Red de pruebas: chain
+        <strong>31337</strong>.
+      </div>
+
+      <!-- 1. Descubrimiento de proveedores -->
+      <section class="tk-card tk-section">
+        <h2>1. Descubrimiento de proveedores (EIP-6963)</h2>
+        <p class="tk-section__desc">
+          Se pregunta por los proveedores anunciados y se listan. Comprueba que la wallet se anuncia bien y
+          muestra qué otras wallets compiten por la misma dApp (MetaMask, etc.), que es la base de la
+          convivencia entre ambas.
+        </p>
+        <div id="providers" class="tk-providers"></div>
+        <div class="tk-grid">
+          <div class="tk-field">
+            <div class="tk-field__k">window.codecrypto</div>
+            <div class="tk-field__v" id="hasCodecrypto">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">window.ethereum</div>
+            <div class="tk-field__v" id="hasEthereum">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">Proveedor en uso</div>
+            <div class="tk-field__v" id="proveedorEnUso">—</div>
+          </div>
+        </div>
+        <div class="tk-actions">
+          <button class="tk-btn tk-btn--outline" id="btnRedescubrir">↻ Volver a descubrir</button>
+        </div>
+      </section>
+
+      <!-- 2. Conexión -->
+      <section class="tk-card tk-section">
+        <h2>2. Conexión y cuenta</h2>
+        <p class="tk-section__desc">
+          <code>eth_requestAccounts</code> abre la ventana de autorización de la wallet;
+          <code>eth_accounts</code> solo responde si el sitio ya está autorizado.
+        </p>
+        <div class="tk-actions">
+          <button class="tk-btn" id="btnConectar">Conectar wallet</button>
+          <button class="tk-btn tk-btn--outline" id="btnCuentas">Leer cuentas (eth_accounts)</button>
+          <button class="tk-btn tk-btn--danger" id="btnRevocar">Desconectar (revocar permiso)</button>
+        </div>
+        <div class="tk-grid">
+          <div class="tk-field">
+            <div class="tk-field__k">Cuenta activa</div>
+            <div class="tk-field__v" id="cuenta">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">chainId</div>
+            <div class="tk-field__v" id="chainId">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">Balance (ETH)</div>
+            <div class="tk-field__v" id="balance">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">Bloque actual</div>
+            <div class="tk-field__v" id="bloque">—</div>
+          </div>
+        </div>
+        <div class="tk-actions">
+          <button class="tk-btn tk-btn--outline" id="btnBalance">↻ Leer balance y bloque</button>
+          <button class="tk-btn tk-btn--outline" id="btnRedLocal">Cambiar a Anvil local (31337)</button>
+        </div>
+      </section>
+
+      <!-- 3. Firma EIP-191 -->
+      <section class="tk-card tk-card--premium tk-section">
+        <h2>3. Firma de mensaje EIP-191 (personal_sign)</h2>
+        <p class="tk-section__desc">
+          Es la firma que usa <strong>TrueKeate</strong> para el inicio de sesión y para autorizar cada acción.
+          Sin este método, la wallet no puede sustituir a MetaMask en la plataforma.
+        </p>
+        <label class="tk-label" for="msg191">Mensaje a firmar</label>
+        <input class="tk-input" id="msg191" value="TrueKeate: iniciar sesión" />
+        <div class="tk-actions">
+          <button class="tk-btn" id="btnFirmar191">Firmar (personal_sign)</button>
+          <button class="tk-btn tk-btn--outline" id="btnMsgTrueke">Usar mensaje de acción de TrueKeate</button>
+        </div>
+        <div class="tk-grid">
+          <div class="tk-field">
+            <div class="tk-field__k">Firma</div>
+            <div class="tk-field__v" id="firma191">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">Comprobaciones</div>
+            <div class="tk-field__v" id="valida191">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Firma EIP-712 -->
+      <section class="tk-card tk-section">
+        <h2>4. Firma de datos tipados EIP-712 (eth_signTypedData_v4)</h2>
+        <p class="tk-section__desc">
+          Formato que usan <code>SmartAccount</code> y el relayer de TrueKeate. Se firma un dominio y unos
+          tipos de ejemplo con la cuenta activa.
+        </p>
+        <div class="tk-actions">
+          <button class="tk-btn" id="btnFirmar712">Firmar EIP-712</button>
+        </div>
+        <div class="tk-grid">
+          <div class="tk-field">
+            <div class="tk-field__k">Firma</div>
+            <div class="tk-field__v" id="firma712">—</div>
+          </div>
+          <div class="tk-field">
+            <div class="tk-field__k">Comprobaciones</div>
+            <div class="tk-field__v" id="valida712">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Lectura de contrato -->
+      <section class="tk-card tk-section">
+        <h2>5. Lectura de contrato (eth_call)</h2>
+        <p class="tk-section__desc">
+          Necesaria para que la plataforma lea estado on-chain desde el navegador (por ejemplo, el panel de
+          balances). Por defecto consulta <code>owner()</code> del Escrow de TrueKeate: pega su dirección.
+        </p>
+        <div class="tk-row">
+          <div>
+            <label class="tk-label" for="callTo">Contrato</label>
+            <input class="tk-input" id="callTo" placeholder="0x… (Escrow de TrueKeate)" />
+          </div>
+          <div>
+            <label class="tk-label" for="callData">Calldata</label>
+            <input class="tk-input" id="callData" value="0x8da5cb5b" />
+          </div>
+        </div>
+        <div class="tk-actions">
+          <button class="tk-btn" id="btnCall">Ejecutar eth_call</button>
+        </div>
+        <div class="tk-grid">
+          <div class="tk-field">
+            <div class="tk-field__k">Resultado</div>
+            <div class="tk-field__v" id="callResult">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Registro -->
+      <section class="tk-card tk-section">
+        <h2>6. Resultados de las pruebas</h2>
+        <div id="checks" style="margin-top: 8px"></div>
+        <div class="tk-actions">
+          <button class="tk-btn tk-btn--outline" id="btnLimpiarLog">Limpiar registro</button>
+          <button class="tk-btn tk-btn--outline" id="btnCopiar">Copiar registro</button>
+        </div>
+        <pre class="tk-log" id="log"></pre>
+      </section>
+
+      <p class="tk-muted" style="font-size: 11.5px">
+        Página de pruebas de la wallet, mantenida junto a la extensión. Procedimiento completo en
+        <code>GUIA_RAPIDA_TESTING.md</code>.
+      </p>
+    </div>
+
+    <script type="module" src="/src/test-page.ts"></script>
+  </body>
+</html>

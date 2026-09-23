@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+docs
+node_modules
+dist
+dist-ssr
+*.local
+
+# Foundry (anvil / forge) — solo la carpeta de dependencias de la RAÍZ
+/out
+/cache
+/broadcast
+/lib
+
+# Entrega empaquetada (se regenera con scripts/package-delivery.sh)
+*.zip
+
+# Registros y pids del despliegue local (scripts/local-deploy.sh)
+.local-deploy/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

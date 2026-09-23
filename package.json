@@ -1,0 +1,45 @@
+{
+  "name": "71_wallet_chrome_extension",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "chain": "bash scripts/foundry.sh anvil --host 127.0.0.1 --port 8545 --chain-id 31337",
+    "contracts:build": "bash scripts/foundry.sh forge build",
+    "contracts:test": "bash scripts/foundry.sh forge test",
+    "contracts:deploy": "bash scripts/foundry.sh forge create contracts/WalletPlayground.sol:WalletPlayground --broadcast --rpc-url ${RPC_URL:-http://127.0.0.1:8545} --private-key ${PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}",
+    "test": "npm run test:amount && npm run test:contracts && npm run test:background && npm run test:vault",
+    "test:acceptance": "npm run build && node scripts/test-acceptance.mjs",
+    "test:extension": "npm run build && node scripts/test-extension.mjs",
+    "test:amount": "node scripts/test-amount.mjs",
+    "test:contracts": "bash scripts/foundry.sh forge test",
+    "test:background": "npm run build && node scripts/test-background.mjs",
+    "verify": "npm run build && npm test",
+    "test:vault": "npm run build && node scripts/test-vault.mjs"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/chrome": "^0.1.24",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vite": "^7.1.7"
+  }
+}
